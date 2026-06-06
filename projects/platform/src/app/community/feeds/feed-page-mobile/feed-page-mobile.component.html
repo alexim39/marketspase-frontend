@@ -1,3 +1,8 @@
+<app-feed-live-activity-toast
+  [activities]="liveActivities()"
+  (activitySelected)="onLiveActivityClick($event)"
+/>
+
 <div class="ms-reels-shell" [class.sheet-open]="isSheetOpen()">
   <header class="reels-topbar" aria-label="Community feed controls">
     <button class="top-icon" routerLink="/dashboard" aria-label="Back to dashboard">

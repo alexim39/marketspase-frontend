@@ -252,6 +252,13 @@ export interface LiveActivity {
   actionUrl?: string;
 }
 
+interface DashboardLiveActivityResponse {
+  success?: boolean;
+  data?: {
+    activities?: Array<Record<string, any>>;
+  };
+}
+
 const FEED_CONFIG = {
   POSTS_PER_PAGE: 10
 } as const;
@@ -319,6 +326,25 @@ export class FeedService {
 
   prependLiveActivity(activity: LiveActivity): void {
     this.liveActivitiesSignal.update((activities) => [activity, ...activities.filter((entry) => entry.id !== activity.id)].slice(0, 6));
+  }
+
+  loadLiveActivityFeed(limit: number = 6): Observable<LiveActivity[]> {
+    const safeLimit = Math.max(1, Math.min(12, Math.trunc(Number(limit) || 6)));
+    const params = new HttpParams().set('limit', String(safeLimit));
+
+    return this.apiService
+      .get<DashboardLiveActivityResponse>('api/v1/dashboard/stats/live-activity', params, undefined, true)
+      .pipe(
+        map((response) => {
+          const activities = response?.data?.activities;
+          return Array.isArray(activities) ? activities.map((activity) => this.normalizeLiveActivity(activity)) : [];
+        }),
+        tap((activities) => this.setLiveActivities(activities)),
+        catchError((error) => {
+          console.error('Failed to load feed live activity:', error);
+          return of([]);
+        })
+      );
   }
 
   resetFeed(): void {
@@ -698,6 +724,37 @@ export class FeedService {
   private handleFeedError(error: any): Observable<null> {
     this.errorSignal.set(error?.error?.message || 'Failed to load feed');
     return of(null);
+  }
+
+  private normalizeLiveActivity(activity: Record<string, any>): LiveActivity {
+    const actionUrl = String(activity?.['actionUrl'] || '');
+    const createdAt = activity?.['createdAt'] || activity?.['time'] || new Date().toISOString();
+    const postId = String(activity?.['postId'] || this.extractFeedPostId(actionUrl) || '');
+    const type = this.normalizeLiveActivityType(activity?.['type']);
+
+    return {
+      id: String(activity?.['id'] || activity?.['_id'] || `${type}:${createdAt}:${activity?.['authorId'] || ''}`),
+      type,
+      author: String(activity?.['author'] || 'MarketSpase update'),
+      authorId: String(activity?.['authorId'] || ''),
+      avatar: activity?.['avatar'] || 'img/avatar.png',
+      message: String(activity?.['message'] || activity?.['title'] || 'shared a new update'),
+      time: this.formatTime(createdAt),
+      postId: postId || undefined,
+      postContent: activity?.['title'] || activity?.['postContent'] || undefined,
+      actionUrl: actionUrl || undefined,
+    };
+  }
+
+  private normalizeLiveActivityType(type: unknown): LiveActivity['type'] {
+    const value = String(type || '').toLowerCase();
+    const supported: LiveActivity['type'][] = ['like', 'comment', 'post', 'earnings', 'forum', 'campaign', 'product'];
+    return supported.includes(value as LiveActivity['type']) ? value as LiveActivity['type'] : 'post';
+  }
+
+  private extractFeedPostId(actionUrl: string): string | null {
+    const match = String(actionUrl || '').match(/^\/feed\/([^/?#]+)/);
+    return match?.[1] || null;
   }
 
   formatTime(dateString: string): string {

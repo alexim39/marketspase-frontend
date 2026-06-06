@@ -24,12 +24,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
+import { Subscription, debounceTime, distinctUntilChanged, filter, switchMap, timer } from 'rxjs';
 
-import { FeedPost, FeedService } from './../feed.service';
+import { FeedPost, FeedService, LiveActivity } from './../feed.service';
 import { CommentDialogComponent } from './../comment-dialog/comment-dialog.component';
 import { UserInterface } from '@shared/services';
 import { ProfileService } from '../../../profile/services/profile.service';
+import { FeedLiveActivityToastComponent } from '../shared/feed-live-activity-toast/feed-live-activity-toast.component';
 
 type MobileFeedTab = 'for-you' | 'following';
 type FeedMedia = NonNullable<FeedPost['media']>[number];
@@ -43,7 +44,8 @@ type SharePlatform = 'native' | 'copy' | 'whatsapp' | 'facebook' | 'x';
     RouterModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    FeedLiveActivityToastComponent
   ],
   templateUrl: './feed-page-mobile.component.html',
   styleUrls: ['./feed-page-mobile.component.scss'],
@@ -73,6 +75,7 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
   readonly trendingHashtags = this.feedService.trendingHashtags;
   readonly trendingChallenges = this.feedService.trendingChallenges;
   readonly creatorSpotlight = this.feedService.creatorSpotlight;
+  readonly liveActivities = this.feedService.liveActivities;
   readonly featuredPost = this.feedService.featuredPost;
 
   readonly selectedTab = signal<MobileFeedTab>('for-you');
@@ -98,6 +101,7 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
   readonly isSheetOpen = computed(() => Boolean(this.shareSheetPost() || this.moreSheetPost()));
 
   private searchSubscription: any;
+  private liveActivitySubscription?: Subscription;
   private intersectionObserver: IntersectionObserver | null = null;
   private visibilityObserver: IntersectionObserver | null = null;
   private touchStartY = 0;
@@ -139,7 +143,10 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
       void tab;
       void type;
 
-      queueMicrotask(() => this.loadFeed(true));
+      queueMicrotask(() => {
+        this.loadFeed(true);
+        this.startLiveActivityPolling();
+      });
     });
   }
 
@@ -152,6 +159,7 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
     this.searchSubscription?.unsubscribe();
     this.intersectionObserver?.disconnect();
     this.visibilityObserver?.disconnect();
+    this.liveActivitySubscription?.unsubscribe();
     this.clearLongPressTimer();
     if (this.singleTapTimer) clearTimeout(this.singleTapTimer);
   }
@@ -277,6 +285,7 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
     if (this.isRefreshing()) return;
     this.isRefreshing.set(true);
     this.loadFeed(true);
+    this.feedService.loadLiveActivityFeed(6).subscribe();
     setTimeout(() => this.isRefreshing.set(false), 900);
   }
 
@@ -441,6 +450,22 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
     this.router.navigate(['/dashboard/notifications']);
   }
 
+  onLiveActivityClick(activity: LiveActivity): void {
+    if (activity.actionUrl) {
+      this.router.navigateByUrl(activity.actionUrl);
+      return;
+    }
+
+    if (activity.postId) {
+      this.router.navigateByUrl(`/feed/${activity.postId}`);
+      return;
+    }
+
+    if (activity.authorId) {
+      this.router.navigate(['/dashboard/profile', activity.authorId]);
+    }
+  }
+
   openLink(url: string, event?: Event): void {
     event?.stopPropagation();
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -508,6 +533,16 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
       next.set(postId, muted);
       return next;
     });
+  }
+
+  private startLiveActivityPolling(): void {
+    if (this.liveActivitySubscription) {
+      return;
+    }
+
+    this.liveActivitySubscription = timer(0, 60000)
+      .pipe(switchMap(() => this.feedService.loadLiveActivityFeed(6)))
+      .subscribe();
   }
 
   toggleCaption(postId: string, event?: Event): void {

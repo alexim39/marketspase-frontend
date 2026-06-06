@@ -1,3 +1,8 @@
+<app-feed-live-activity-toast
+  [activities]="liveActivities()"
+  (activitySelected)="onLiveActivityClick($event)"
+/>
+
 <div class="feed-container" [class.comments-open]="commentRailOpen()">
   <div class="desktop-layout">
     <aside class="left-sidebar" aria-label="Community discovery">

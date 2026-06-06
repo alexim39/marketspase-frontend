@@ -14,7 +14,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { debounceTime, distinctUntilChanged, filter, finalize } from 'rxjs';
+import { Subscription, debounceTime, distinctUntilChanged, filter, finalize, switchMap, timer } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,9 +29,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FeedPostCardComponent } from './feed-post-card/feed-post-card.component';
-import { CreatorSpotlightEntry, FeedComment, FeedPost, FeedService, ForumHighlight, ForumSpotlightEntry } from './feed.service';
+import { CreatorSpotlightEntry, FeedComment, FeedPost, FeedService, ForumHighlight, ForumSpotlightEntry, LiveActivity } from './feed.service';
 import { ProfileService, SuggestedUser } from '../../profile/services/profile.service';
 import { UserInterface } from '@shared/services';
+import { FeedLiveActivityToastComponent } from './shared/feed-live-activity-toast/feed-live-activity-toast.component';
 
 @Component({
   selector: 'app-feed-page-desktop',
@@ -52,7 +53,8 @@ import { UserInterface } from '@shared/services';
     MatBadgeModule,
     MatDividerModule,
     MatInputModule,
-    FeedPostCardComponent
+    FeedPostCardComponent,
+    FeedLiveActivityToastComponent
   ],
   templateUrl: './feed-page.component.html',
   styleUrls: ['./feed-page.component.scss'],
@@ -71,6 +73,7 @@ export class DesktopFeedPageComponent implements AfterViewInit {
 
   private intersectionObserver: IntersectionObserver | null = null;
   private searchSubscription: any;
+  private liveActivitySubscription?: Subscription;
   private isLoadingMore = signal(false);
 
   posts = this.feedService.posts;
@@ -84,6 +87,7 @@ export class DesktopFeedPageComponent implements AfterViewInit {
   forumHighlights = this.feedService.forumHighlights;
   hotTopics = this.feedService.hotTopics;
   forumSpotlight = this.feedService.forumSpotlight;
+  liveActivities = this.feedService.liveActivities;
   featuredPost = this.feedService.featuredPost;
   activityStats = this.feedService.activityStats;
 
@@ -138,6 +142,7 @@ export class DesktopFeedPageComponent implements AfterViewInit {
       queueMicrotask(() => {
         this.loadFeed(true);
         this.loadFollowingList();
+        this.startLiveActivityPolling();
       });
     });
 
@@ -493,6 +498,23 @@ export class DesktopFeedPageComponent implements AfterViewInit {
 
   onRefresh(): void {
     this.loadFeed(true);
+    this.feedService.loadLiveActivityFeed(6).subscribe();
+  }
+
+  onLiveActivityClick(activity: LiveActivity): void {
+    if (activity.actionUrl) {
+      this.router.navigateByUrl(activity.actionUrl);
+      return;
+    }
+
+    if (activity.postId) {
+      this.router.navigateByUrl(`/feed/${activity.postId}`);
+      return;
+    }
+
+    if (activity.authorId) {
+      this.router.navigate(['/dashboard/profile', activity.authorId]);
+    }
   }
 
   openForumHome(): void {
@@ -566,8 +588,19 @@ export class DesktopFeedPageComponent implements AfterViewInit {
     return this.feedService.formatTime(date);
   }
 
+  private startLiveActivityPolling(): void {
+    if (this.liveActivitySubscription) {
+      return;
+    }
+
+    this.liveActivitySubscription = timer(0, 60000)
+      .pipe(switchMap(() => this.feedService.loadLiveActivityFeed(6)))
+      .subscribe();
+  }
+
   ngOnDestroy(): void {
     this.searchSubscription?.unsubscribe?.();
+    this.liveActivitySubscription?.unsubscribe?.();
     this.intersectionObserver?.disconnect?.();
   }
 }

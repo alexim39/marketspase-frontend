@@ -1,0 +1,220 @@
+@use '../../../../../styles/variables' as vars;
+@use '../../../../../styles/mixins' as mixins;
+
+:host {
+  position: fixed;
+  top: calc(84px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  z-index: 90;
+  display: block;
+  width: min(440px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.feed-live-toast {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--border-color), transparent 18%);
+  border-radius: vars.$border-radius-xl;
+  background:
+    linear-gradient(135deg, rgba(var(--primary-rgb), 0.14), transparent 48%),
+    color-mix(in srgb, var(--surface-color), transparent 4%);
+  color: var(--text-primary);
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--shadow-color), transparent 54%);
+  backdrop-filter: blur(22px);
+  pointer-events: auto;
+  animation: liveToastIn 220ms ease-out;
+
+  &.is-leaving {
+    animation: liveToastOut 220ms ease-in forwards;
+  }
+}
+
+.activity-button,
+.dismiss-button {
+  appearance: none;
+  border: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.activity-button {
+  display: grid;
+  grid-template-columns: 40px 38px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: vars.$spacing-2;
+  min-width: 0;
+  min-height: 76px;
+  padding: vars.$spacing-2 vars.$spacing-3;
+  background: transparent;
+  text-align: left;
+
+  &:hover,
+  &:focus-visible {
+    background: color-mix(in srgb, var(--primary-color), transparent 90%);
+    outline: none;
+  }
+}
+
+.activity-icon {
+  @include mixins.flex-center;
+  width: 40px;
+  height: 40px;
+  border-radius: vars.$border-radius-full;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color), transparent 86%);
+}
+
+.activity-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid color-mix(in srgb, var(--surface-color), white 20%);
+}
+
+.activity-copy {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+
+  span,
+  strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .activity-label {
+    color: var(--text-secondary);
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-semibold;
+  }
+
+  strong {
+    color: var(--text-primary);
+    font-size: vars.$font-size-sm;
+    font-weight: vars.$font-weight-bold;
+  }
+
+  span:last-child {
+    color: var(--text-secondary);
+    font-size: vars.$font-size-sm;
+  }
+}
+
+.activity-arrow {
+  color: var(--text-tertiary);
+}
+
+.dismiss-button {
+  @include mixins.flex-center;
+  min-width: 44px;
+  background: color-mix(in srgb, var(--background-color), transparent 46%);
+  color: var(--text-secondary);
+  border-left: 1px solid color-mix(in srgb, var(--border-color), transparent 36%);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--danger-color), transparent 88%);
+    outline: none;
+  }
+}
+
+@keyframes liveToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes liveToastOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+
+@media (max-width: 768px) {
+  :host {
+    top: calc(120px + env(safe-area-inset-top, 0px));
+    left: 50%;
+    width: min(318px, calc(100vw - 44px));
+    transform: translateX(-50%);
+  }
+
+  .feed-live-toast {
+    grid-template-columns: minmax(0, 1fr) 34px;
+    border-radius: vars.$border-radius-lg;
+    background:
+      linear-gradient(135deg, rgba(var(--primary-rgb), 0.18), transparent 44%),
+      color-mix(in srgb, var(--surface-color), black 8%);
+  }
+
+  .activity-button {
+    grid-template-columns: 30px minmax(0, 1fr) 16px;
+    min-height: 50px;
+    gap: 7px;
+    padding: 6px 8px;
+  }
+
+  .activity-icon {
+    display: none;
+  }
+
+  .activity-avatar {
+    width: 30px;
+    height: 30px;
+    border-width: 1px;
+  }
+
+  .activity-arrow {
+    font-size: 1rem;
+  }
+
+  .dismiss-button {
+    min-width: 34px;
+
+    mat-icon {
+      font-size: 1rem;
+    }
+  }
+
+  .activity-copy {
+    gap: 0;
+  }
+
+  .activity-copy {
+    .activity-label,
+    span:last-child {
+      font-size: 0.68rem;
+    }
+
+    strong {
+      font-size: 0.78rem;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-live-toast {
+    animation: none;
+  }
+}
