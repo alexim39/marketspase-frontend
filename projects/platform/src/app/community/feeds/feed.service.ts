@@ -231,6 +231,12 @@ interface CommunityFeedPayload {
   hotTopics?: FeedHotTopic[];
   forumSpotlight?: ForumSpotlightEntry[];
   sortMode?: string;
+  feedModel?: {
+    mode?: string;
+    ranker?: string;
+    candidateWindow?: number;
+    signals?: string[];
+  };
 }
 
 export interface LiveActivity {
@@ -519,7 +525,8 @@ export class FeedService {
       forumHighlights: Array.isArray(data.forumHighlights) ? data.forumHighlights : [],
       hotTopics: Array.isArray(data.hotTopics) ? data.hotTopics : [],
       forumSpotlight: Array.isArray(data.forumSpotlight) ? data.forumSpotlight : [],
-      sortMode: data.sortMode || 'for_you'
+      sortMode: data.sortMode || 'for_you',
+      feedModel: data.feedModel
     };
   }
 
@@ -529,7 +536,15 @@ export class FeedService {
     if (reset) {
       this.postsSignal.set(newPosts);
     } else {
-      this.postsSignal.update((posts) => [...posts, ...newPosts]);
+      this.postsSignal.update((posts) => {
+        const seen = new Set(posts.map((post) => post._id));
+        const uniqueNewPosts = newPosts.filter((post) => {
+          if (!post?._id || seen.has(post._id)) return false;
+          seen.add(post._id);
+          return true;
+        });
+        return [...posts, ...uniqueNewPosts];
+      });
     }
 
     this.hasMoreSignal.set(payload.pagination.page < payload.pagination.pages);
