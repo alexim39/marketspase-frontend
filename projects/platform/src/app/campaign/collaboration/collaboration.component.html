@@ -310,7 +310,7 @@
             <p>No messages here yet. Start the thread with a quick update or question.</p>
           </div>
         } @else {
-          <div class="message-stream">
+          <div class="message-stream" #messageStream>
             @for (message of messages(); track trackMessage($index, message)) {
               <div
                 class="message-row"
@@ -326,7 +326,10 @@
                   </div>
                 }
 
-                <article class="message-card">
+                <article
+                  class="message-card"
+                  [class.pending]="isPendingMessage(message)"
+                  [class.failed]="isFailedMessage(message)">
                   <div class="message-meta">
                     <div class="message-author">
                       <strong>{{ getMessageSenderName(message) }}</strong>
@@ -337,33 +340,59 @@
                     <span>{{ formatTime(message.createdAt) }}</span>
                   </div>
                   <p>{{ message.content }}</p>
+                  @if (isOwnMessage(message) && (isPendingMessage(message) || isFailedMessage(message))) {
+                    <div class="message-delivery" [class.failed]="isFailedMessage(message)">
+                      @if (isPendingMessage(message)) {
+                        <mat-icon>schedule</mat-icon>
+                        <span>Sending</span>
+                      } @else {
+                        <mat-icon>error_outline</mat-icon>
+                        <span>Not sent</span>
+                        <button type="button" class="retry-button" (click)="retryFailedMessage(message)">Retry</button>
+                      }
+                    </div>
+                  }
                 </article>
               </div>
             }
           </div>
         }
 
-        <footer class="composer">
-          <mat-form-field appearance="outline" class="composer-field">
-            <mat-label>Write a message</mat-label>
-            <textarea
-              matInput
-              rows="3"
-              [ngModel]="draftMessage()"
-              (ngModelChange)="draftMessage.set($event)"
-              placeholder="Share context, next steps, or a quick question."></textarea>
-          </mat-form-field>
+        <footer class="composer composer--chat">
+          <div class="composer-row">
+            <!-- <div class="composer-actions composer-actions--chat">
+              <button mat-icon-button type="button" class="composer-action" aria-label="Add emoji">
+                <mat-icon>emoji_emotions</mat-icon>
+              </button>
 
-          <div class="composer-actions">
-            <button
-              mat-flat-button
-              color="primary"
-              type="button"
-              [disabled]="sendingMessage() || !draftMessage().trim()"
-              (click)="sendMessage()">
-              <mat-icon>send</mat-icon>
-              {{ sendingMessage() ? 'Sending...' : 'Send message' }}
-            </button>
+              <button mat-icon-button type="button" class="composer-action" aria-label="Attach file">
+                <mat-icon>attach_file</mat-icon>
+              </button>
+            </div> -->
+
+            <mat-form-field appearance="outline" class="composer-field composer-field--chat">
+              <textarea
+                matInput
+                rows="1"
+                cdkTextareaAutosize
+                cdkAutosizeMinRows="1"
+                cdkAutosizeMaxRows="6"
+                [ngModel]="draftMessage()"
+                (ngModelChange)="draftMessage.set($event)"
+                (keydown)="onComposerKeydown($event)"
+                placeholder="Message"></textarea>
+
+              <button
+                mat-icon-button
+                matSuffix
+                color="primary"
+                type="button"
+                [disabled]="!draftMessage().trim()"
+                (click)="sendMessage()"
+                aria-label="Send message">
+                <mat-icon>send</mat-icon>
+              </button>
+            </mat-form-field>
           </div>
         </footer>
       } @else {

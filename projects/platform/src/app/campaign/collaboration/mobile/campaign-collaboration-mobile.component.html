@@ -10,56 +10,58 @@
   </header>
 
   <main class="mobile-content">
-    <section class="hero-card">
-      <div class="hero-copy">
-        <p>Live workbench</p>
-        <h2>Keep campaign decisions in one place</h2>
-        <span>{{ workspaceStats().unread }} unread across {{ workspaceStats().total }} conversations</span>
-      </div>
-      <button mat-flat-button color="primary" type="button" (click)="openPrimaryStarter()">
-        <mat-icon>forum</mat-icon>
-        {{ primaryStarterLabel() }}
-      </button>
-    </section>
+    @if (activeView() !== 'chat') {
+      <section class="hero-card">
+        <div class="hero-copy">
+          <p>Live workbench</p>
+          <h2>Keep campaign decisions in one place</h2>
+          <span>{{ workspaceStats().unread }} unread across {{ workspaceStats().total }} conversations</span>
+        </div>
+        <button mat-flat-button color="primary" type="button" (click)="openPrimaryStarter()">
+          <mat-icon>forum</mat-icon>
+          {{ primaryStarterLabel() }}
+        </button>
+      </section>
 
-    <section class="metric-rail" aria-label="Collaboration metrics">
-      <article>
-        <strong>{{ workspaceStats().total }}</strong>
-        <span>Threads</span>
-      </article>
-      <article class="metric-alert">
-        <strong>{{ workspaceStats().unread }}</strong>
-        <span>Unread</span>
-      </article>
-      <article>
-        <strong>{{ workspaceStats().direct }}</strong>
-        <span>Direct</span>
-      </article>
-      <article>
-        <strong>{{ workspaceStats().rooms }}</strong>
-        <span>Rooms</span>
-      </article>
-    </section>
+      <section class="metric-rail" aria-label="Collaboration metrics">
+        <article>
+          <strong>{{ workspaceStats().total }}</strong>
+          <span>Threads</span>
+        </article>
+        <article class="metric-alert">
+          <strong>{{ workspaceStats().unread }}</strong>
+          <span>Unread</span>
+        </article>
+        <article>
+          <strong>{{ workspaceStats().direct }}</strong>
+          <span>Direct</span>
+        </article>
+        <article>
+          <strong>{{ workspaceStats().rooms }}</strong>
+          <span>Rooms</span>
+        </article>
+      </section>
 
-    <nav class="view-tabs" aria-label="Collaboration views">
-      <button type="button" [class.active]="activeView() === 'home'" (click)="showView('home')">
-        <mat-icon>dashboard</mat-icon>
-        Home
-      </button>
-      <button type="button" [class.active]="activeView() === 'threads'" (click)="showView('threads')">
-        <mat-icon>forum</mat-icon>
-        Threads
-      </button>
-      <button
-        type="button"
-        [class.active]="activeView() === 'chat'"
-        [disabled]="!hasSelectedChat()"
-        (click)="openSelectedChat()"
-      >
-        <mat-icon>chat</mat-icon>
-        Chat
-      </button>
-    </nav>
+      <nav class="view-tabs" aria-label="Collaboration views">
+        <button type="button" [class.active]="activeView() === 'home'" (click)="showView('home')">
+          <mat-icon>dashboard</mat-icon>
+          Home
+        </button>
+        <button type="button" [class.active]="activeView() === 'threads'" (click)="showView('threads')">
+          <mat-icon>forum</mat-icon>
+          Threads
+        </button>
+        <button
+          type="button"
+          [class.active]="activeView() === 'chat'"
+          [disabled]="!hasSelectedChat()"
+          (click)="openSelectedChat()"
+        >
+          <mat-icon>chat</mat-icon>
+          Chat
+        </button>
+      </nav>
+    }
 
     @if (error()) {
       <section class="state-card error-state" role="alert">
@@ -298,45 +300,74 @@
                 <p>No messages yet. Send the first update or question.</p>
               </div>
             } @else {
-              <div class="message-stream">
+              <div class="message-stream" #messageStream>
                 @for (message of messages(); track trackMessage($index, message)) {
                   <article
                     class="message-row"
                     [class.mine]="isOwnMessage(message)"
                     [class.system]="isSystemMessage(message)"
                   >
-                    <div class="message-card">
+                    <div
+                      class="message-card"
+                      [class.pending]="isPendingMessage(message)"
+                      [class.failed]="isFailedMessage(message)">
                       <div class="message-meta">
                         <strong>{{ getMessageSenderName(message) }}</strong>
                         <span>{{ formatTime(message.createdAt) }}</span>
                       </div>
                       <p>{{ message.content }}</p>
+                      @if (isOwnMessage(message) && (isPendingMessage(message) || isFailedMessage(message))) {
+                        <div class="message-delivery" [class.failed]="isFailedMessage(message)">
+                          @if (isPendingMessage(message)) {
+                            <mat-icon>schedule</mat-icon>
+                            <span>Sending</span>
+                          } @else {
+                            <mat-icon>error_outline</mat-icon>
+                            <span>Not sent</span>
+                            <button type="button" (click)="retryFailedMessage(message)">Retry</button>
+                          }
+                        </div>
+                      }
                     </div>
                   </article>
                 }
               </div>
             }
 
-            <footer class="composer" aria-label="Send collaboration message">
-              <mat-form-field appearance="outline" class="composer-field">
-                <mat-label>Message</mat-label>
-                <textarea
-                  matInput
-                  rows="2"
-                  [ngModel]="draftMessage()"
-                  (ngModelChange)="draftMessage.set($event)"
-                  placeholder="Write a quick update"
-                ></textarea>
-              </mat-form-field>
-              <button
-                mat-flat-button
-                color="primary"
-                type="button"
-                [disabled]="sendingMessage() || !draftMessage().trim()"
-                (click)="sendMessage()"
-              >
-                <mat-icon>send</mat-icon>
-              </button>
+            <footer class="composer composer--chat" aria-label="Send collaboration message">
+              <div class="composer-row">
+                <!-- <div class="composer-actions composer-actions--chat">
+                  <button mat-icon-button type="button" class="composer-action" aria-label="Add emoji">
+                    <mat-icon>emoji_emotions</mat-icon>
+                  </button>
+                </div> -->
+
+                <mat-form-field appearance="outline" class="composer-field composer-field--chat">
+                  <textarea
+                    matInput
+                    rows="1"
+                    cdkTextareaAutosize
+                    cdkAutosizeMinRows="1"
+                    cdkAutosizeMaxRows="6"
+                    [ngModel]="draftMessage()"
+                    (ngModelChange)="draftMessage.set($event)"
+                    (keydown)="onComposerKeydown($event)"
+                    placeholder="Message"
+                  ></textarea>
+
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    color="primary"
+                    type="button"
+                    [disabled]="!draftMessage().trim()"
+                    (click)="sendMessage()"
+                    aria-label="Send message"
+                  >
+                    <mat-icon>send</mat-icon>
+                  </button>
+                </mat-form-field>
+              </div>
             </footer>
           </section>
         } @else {

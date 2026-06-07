@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { CampaignCollaborationComponent } from '../collaboration.component';
@@ -22,6 +23,7 @@ type CollaborationMobileView = 'home' | 'threads' | 'chat';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    TextFieldModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
   ],
