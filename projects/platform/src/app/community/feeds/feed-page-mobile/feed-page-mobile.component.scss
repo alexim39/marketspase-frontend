@@ -231,6 +231,32 @@
   border-radius: clamp(0px, 1.5vw, 16px);
 }
 
+.video-buffering-indicator {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 8;
+  display: inline-flex;
+  align-items: center;
+  gap: vars.$spacing-2;
+  min-height: 42px;
+  padding: 0 vars.$spacing-3;
+  border-radius: vars.$border-radius-full;
+  color: var(--reel-text);
+  background: rgba(0, 0, 0, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 14px 36px var(--reel-shadow);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+
+  span {
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-bold;
+    white-space: nowrap;
+  }
+}
+
 .reel-image {
   user-select: none;
   touch-action: pinch-zoom;

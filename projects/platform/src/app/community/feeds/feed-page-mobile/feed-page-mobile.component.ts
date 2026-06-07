@@ -11,6 +11,7 @@ import {
   ViewChild,
   ViewChildren,
   ViewEncapsulation,
+  WritableSignal,
   computed,
   effect,
   inject,
@@ -35,6 +36,17 @@ import { FeedLiveActivityToastComponent } from '../shared/feed-live-activity-toa
 type MobileFeedTab = 'for-you' | 'following';
 type FeedMedia = NonNullable<FeedPost['media']>[number];
 type SharePlatform = 'native' | 'copy' | 'whatsapp' | 'facebook' | 'x';
+type NetworkInformationLike = {
+  saveData?: boolean;
+  effectiveType?: string;
+};
+
+type NavigatorWithPlaybackHints = Navigator & {
+  connection?: NetworkInformationLike;
+  mozConnection?: NetworkInformationLike;
+  webkitConnection?: NetworkInformationLike;
+  deviceMemory?: number;
+};
 
 @Component({
   selector: 'app-feed-page-mobile',
@@ -66,6 +78,7 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
   @ViewChild('scrollAnchor') scrollAnchor!: ElementRef<HTMLElement>;
   @ViewChildren('postPanel') postPanels!: QueryList<ElementRef<HTMLElement>>;
+  @ViewChildren('videoPlayer') videoPlayers!: QueryList<ElementRef<HTMLVideoElement>>;
 
   readonly posts = this.feedService.posts;
   readonly likedPosts = this.feedService.likedPosts;
@@ -86,6 +99,9 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
   readonly activePostId = signal<string | null>(null);
   readonly activePostIndex = signal(0);
   readonly videoMutedState = signal<Map<string, boolean>>(new Map());
+  readonly videoBufferingPostIds = signal<Set<string>>(new Set());
+  readonly videoPrimedPostIds = signal<Set<string>>(new Set());
+  readonly videoPreloadingPostIds = signal<Set<string>>(new Set());
   readonly expandedCaptions = signal<Set<string>>(new Set());
   readonly heartBursts = signal<Set<string>>(new Set());
   readonly shareSheetPost = signal<FeedPost | null>(null);
@@ -109,6 +125,8 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
   private lastTapAt = 0;
   private lastTapPostId = '';
   private longPressTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly warmVideoElements = new Map<string, HTMLVideoElement>();
+  private readonly preloadTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
   constructor() {
     effect(() => {
@@ -148,6 +166,12 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
         this.startLiveActivityPolling();
       });
     });
+
+    effect(() => {
+      const activeIndex = this.activePostIndex();
+      const posts = this.regularPosts();
+      queueMicrotask(() => this.coordinateVideoPreloading(activeIndex, posts));
+    });
   }
 
   ngAfterViewInit(): void {
@@ -162,6 +186,7 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
     this.liveActivitySubscription?.unsubscribe();
     this.clearLongPressTimer();
     if (this.singleTapTimer) clearTimeout(this.singleTapTimer);
+    this.releaseWarmVideos();
   }
 
   private setupInfiniteScroll(): void {
@@ -218,19 +243,38 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
     };
 
     queueMicrotask(observePanels);
-    this.postPanels.changes.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(observePanels);
+    this.postPanels.changes.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      observePanels();
+      queueMicrotask(() => this.coordinateVideoPreloading(this.activePostIndex(), this.regularPosts()));
+    });
   }
 
   private playVisibleVideo(video: HTMLVideoElement, postId: string): void {
+    this.pauseNonActiveVideos(postId);
+    video.preload = 'auto';
     video.muted = this.isVideoMuted(postId);
+    if (video.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) {
+      this.markVideoBuffering(postId, true);
+    }
+
     const playRequest = video.play();
     if (!playRequest) return;
 
-    playRequest.catch(() => {
-      this.setVideoMuted(postId, true);
-      video.muted = true;
-      video.play().catch(() => null);
-    });
+    playRequest
+      .then(() => {
+        this.markVideoBuffering(postId, false);
+        this.markVideoPrimed(postId);
+      })
+      .catch(() => {
+        this.setVideoMuted(postId, true);
+        video.muted = true;
+        video.play()
+          .then(() => {
+            this.markVideoBuffering(postId, false);
+            this.markVideoPrimed(postId);
+          })
+          .catch(() => this.markVideoBuffering(postId, false));
+      });
   }
 
   private loadFeedWithSearch(searchTerm: string): void {
@@ -533,6 +577,266 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
       next.set(postId, muted);
       return next;
     });
+  }
+
+  onVideoWaiting(postId: string): void {
+    if (this.activePostId() === postId) {
+      this.markVideoBuffering(postId, true);
+    }
+  }
+
+  onVideoReady(postId: string): void {
+    this.markVideoBuffering(postId, false);
+    this.markVideoPreloading(postId, false);
+    this.markVideoPrimed(postId);
+  }
+
+  onVideoError(postId: string): void {
+    this.markVideoBuffering(postId, false);
+    this.markVideoPreloading(postId, false);
+  }
+
+  isVideoBuffering(postId: string): boolean {
+    return this.videoBufferingPostIds().has(postId);
+  }
+
+  videoPreloadMode(index: number): 'auto' | 'metadata' | 'none' {
+    const active = this.activePostIndex();
+    const distance = index - active;
+    if (index === active) return 'auto';
+    if (distance > 0 && distance <= this.preloadAheadCount()) return 'auto';
+    if (Math.abs(distance) <= 1) return 'metadata';
+    return 'none';
+  }
+
+  private coordinateVideoPreloading(activeIndex: number, posts: FeedPost[]): void {
+    if (!posts.length) {
+      this.releaseWarmVideos();
+      return;
+    }
+
+    const safeActiveIndex = Math.max(0, Math.min(activeIndex, posts.length - 1));
+    this.prepareRenderedVideos(safeActiveIndex, posts);
+    this.warmUpcomingVideos(safeActiveIndex, posts);
+    this.trimTransientVideoState(safeActiveIndex, posts);
+  }
+
+  private prepareRenderedVideos(activeIndex: number, posts: FeedPost[]): void {
+    if (!this.videoPlayers) return;
+
+    this.videoPlayers.forEach((videoRef) => {
+      const video = videoRef.nativeElement;
+      const postId = video.dataset['postId'];
+      const index = posts.findIndex((post) => post._id === postId);
+      if (index < 0) return;
+
+      const distance = index - activeIndex;
+      video.preload = this.videoPreloadMode(index);
+
+      if (distance > 0 && distance <= this.preloadAheadCount()) {
+        this.markVideoPreloading(postId!, true);
+        this.safeLoadVideo(video, postId!);
+        return;
+      }
+
+      if (index !== activeIndex && Math.abs(distance) > 1) {
+        video.pause();
+      }
+    });
+  }
+
+  private warmUpcomingVideos(activeIndex: number, posts: FeedPost[]): void {
+    if (typeof document === 'undefined') return;
+
+    const desiredUrls = new Set<string>();
+    const ahead = this.preloadAheadCount();
+
+    for (let index = activeIndex + 1; index <= Math.min(posts.length - 1, activeIndex + ahead); index += 1) {
+      const post = posts[index];
+      const media = this.primaryVideoMedia(post);
+      if (!media?.url) continue;
+
+      desiredUrls.add(media.url);
+      const renderedVideo = this.renderedVideoForPost(post._id);
+      if (renderedVideo) {
+        renderedVideo.preload = 'auto';
+        this.markVideoPreloading(post._id, true);
+        this.safeLoadVideo(renderedVideo, post._id);
+        continue;
+      }
+
+      if (this.warmVideoElements.has(media.url)) continue;
+
+      const warmVideo = document.createElement('video');
+      warmVideo.preload = 'auto';
+      warmVideo.muted = true;
+      warmVideo.playsInline = true;
+      if (media.thumbnail) {
+        warmVideo.poster = media.thumbnail;
+      }
+
+      const markReady = () => {
+        this.markVideoPreloading(post._id, false);
+        this.markVideoPrimed(post._id);
+        this.clearPreloadTimeout(media.url);
+      };
+      const markFailed = () => {
+        this.markVideoPreloading(post._id, false);
+        this.clearPreloadTimeout(media.url);
+      };
+
+      warmVideo.addEventListener('loadeddata', markReady, { once: true });
+      warmVideo.addEventListener('canplay', markReady, { once: true });
+      warmVideo.addEventListener('error', markFailed, { once: true });
+      warmVideo.src = media.url;
+      this.warmVideoElements.set(media.url, warmVideo);
+      this.markVideoPreloading(post._id, true);
+      this.safeLoadVideo(warmVideo, post._id);
+
+      this.preloadTimeouts.set(media.url, setTimeout(() => {
+        this.markVideoPreloading(post._id, false);
+      }, 9000));
+    }
+
+    this.warmVideoElements.forEach((video, url) => {
+      if (desiredUrls.has(url)) return;
+      video.pause();
+      video.removeAttribute('src');
+      try {
+        video.load();
+      } catch {
+        // Ignore browser-specific media cleanup errors.
+      }
+      this.warmVideoElements.delete(url);
+      this.clearPreloadTimeout(url);
+    });
+  }
+
+  private safeLoadVideo(video: HTMLVideoElement, postId: string): void {
+    if (!video.src && !video.currentSrc) return;
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+      this.markVideoPreloading(postId, false);
+      this.markVideoPrimed(postId);
+      return;
+    }
+
+    try {
+      video.load();
+    } catch {
+      this.markVideoPreloading(postId, false);
+    }
+  }
+
+  private pauseNonActiveVideos(activePostId: string): void {
+    this.videoPlayers?.forEach((videoRef) => {
+      const video = videoRef.nativeElement;
+      if (video.dataset['postId'] !== activePostId) {
+        video.pause();
+      }
+    });
+  }
+
+  private renderedVideoForPost(postId: string): HTMLVideoElement | null {
+    const video = this.videoPlayers?.find((videoRef) => videoRef.nativeElement.dataset['postId'] === postId);
+    return video?.nativeElement ?? null;
+  }
+
+  private primaryVideoMedia(post: FeedPost | undefined): FeedMedia | null {
+    if (!post) return null;
+    const media = post.media?.find((item) => item.type === 'video' && Boolean(item.url));
+    if (media) return media;
+
+    if (post.campaign?.mediaType === 'video' && post.campaign.mediaUrl) {
+      return {
+        type: 'video',
+        url: post.campaign.mediaUrl,
+        thumbnail: post.campaign.thumbnailUrl,
+      };
+    }
+
+    return null;
+  }
+
+  private preloadAheadCount(): number {
+    return this.isConstrainedPlaybackDevice() ? 1 : 2;
+  }
+
+  private isConstrainedPlaybackDevice(): boolean {
+    if (typeof navigator === 'undefined') return true;
+    const nav = navigator as NavigatorWithPlaybackHints;
+    const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
+    const effectiveType = connection?.effectiveType?.toLowerCase();
+    return Boolean(
+      connection?.saveData ||
+      effectiveType === 'slow-2g' ||
+      effectiveType === '2g' ||
+      (typeof nav.deviceMemory === 'number' && nav.deviceMemory <= 2)
+    );
+  }
+
+  private trimTransientVideoState(activeIndex: number, posts: FeedPost[]): void {
+    const keepIds = new Set(
+      posts
+        .slice(Math.max(0, activeIndex - 1), Math.min(posts.length, activeIndex + this.preloadAheadCount() + 2))
+        .map((post) => post._id)
+    );
+
+    this.videoBufferingPostIds.update((set) => this.filterSet(set, keepIds));
+    this.videoPreloadingPostIds.update((set) => this.filterSet(set, keepIds));
+    this.videoPrimedPostIds.update((set) => this.filterSet(set, keepIds));
+  }
+
+  private filterSet(set: Set<string>, keepIds: Set<string>): Set<string> {
+    const next = new Set<string>();
+    set.forEach((id) => {
+      if (keepIds.has(id)) next.add(id);
+    });
+    return next;
+  }
+
+  private markVideoBuffering(postId: string, active: boolean): void {
+    this.updateVideoSet(this.videoBufferingPostIds, postId, active);
+  }
+
+  private markVideoPreloading(postId: string, active: boolean): void {
+    this.updateVideoSet(this.videoPreloadingPostIds, postId, active);
+  }
+
+  private markVideoPrimed(postId: string): void {
+    this.updateVideoSet(this.videoPrimedPostIds, postId, true);
+  }
+
+  private updateVideoSet(target: WritableSignal<Set<string>>, postId: string, active: boolean): void {
+    target.update((set) => {
+      const next = new Set(set);
+      active ? next.add(postId) : next.delete(postId);
+      return next;
+    });
+  }
+
+  private releaseWarmVideos(): void {
+    this.warmVideoElements.forEach((video, url) => {
+      video.pause();
+      video.removeAttribute('src');
+      try {
+        video.load();
+      } catch {
+        // Ignore browser-specific media cleanup errors.
+      }
+      this.clearPreloadTimeout(url);
+    });
+    this.warmVideoElements.clear();
+    this.videoBufferingPostIds.set(new Set());
+    this.videoPreloadingPostIds.set(new Set());
+    this.videoPrimedPostIds.set(new Set());
+  }
+
+  private clearPreloadTimeout(url: string): void {
+    const timeout = this.preloadTimeouts.get(url);
+    if (timeout) {
+      clearTimeout(timeout);
+      this.preloadTimeouts.delete(url);
+    }
   }
 
   private startLiveActivityPolling(): void {

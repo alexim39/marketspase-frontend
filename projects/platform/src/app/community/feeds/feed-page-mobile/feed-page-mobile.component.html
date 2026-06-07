@@ -90,11 +90,24 @@
                   [src]="media.url"
                   [poster]="media.thumbnail || post.campaign?.thumbnailUrl || post.product?.mainImage || ''"
                   [muted]="isVideoMuted(post._id)"
-                  [preload]="shouldPreloadMedia(index) ? 'auto' : 'metadata'"
+                  [preload]="videoPreloadMode(index)"
                   loop
                   playsinline
                   (click)="onMediaTap($event, post, videoPlayer)"
+                  (waiting)="onVideoWaiting(post._id)"
+                  (stalled)="onVideoWaiting(post._id)"
+                  (loadeddata)="onVideoReady(post._id)"
+                  (canplay)="onVideoReady(post._id)"
+                  (playing)="onVideoReady(post._id)"
+                  (error)="onVideoError(post._id)"
                 ></video>
+
+                @if (activePostId() === post._id && isVideoBuffering(post._id)) {
+                  <div class="video-buffering-indicator" role="status" aria-live="polite">
+                    <mat-spinner diameter="22"></mat-spinner>
+                    <span>Loading video</span>
+                  </div>
+                }
               }
 
               @case ('image') {
