@@ -106,6 +106,7 @@ export class AdminDashboardComponent implements OnInit {
       children: [
         { id: 'financial-analytics', title: 'Financial Analytics', icon: 'query_stats', route: '/dashboard/financial/analytics' },
         { id: 'all-withdrawals', title: 'Overview & Withdrawals', icon: 'payment_arrow_down', route: '/dashboard/financial' },
+        { id: 'all-deposits', title: 'Deposits', icon: 'account_balance_wallet', route: '/dashboard/financial/deposits' },
         { id: 'all-transfers', title: 'Transfers', icon: 'swap_horiz', route: '/dashboard/financial/transfers' },
         { id: 'refund-requests', title: 'Refund Requests', icon: 'currency_exchange', route: '/dashboard/financial/refunds' }
       ]

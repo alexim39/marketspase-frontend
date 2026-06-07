@@ -1,0 +1,302 @@
+<main class="deposits-page">
+  <app-finance-section-nav />
+
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Money in</p>
+      <h1>Deposits</h1>
+      <p>
+        Monitor wallet funding, payment gateways, settlement currencies, and payment references
+        for every deposit entering MarketSpase.
+      </p>
+    </div>
+
+    <div class="hero-actions">
+      <button type="button" class="secondary-btn" (click)="refresh()" [disabled]="refreshing()">
+        <mat-icon>refresh</mat-icon>
+        {{ refreshing() ? 'Refreshing...' : 'Refresh' }}
+      </button>
+      <button type="button" class="primary-btn" (click)="exportDeposits()" [disabled]="exporting() || totalItems() === 0">
+        <mat-icon>download</mat-icon>
+        {{ exporting() ? 'Exporting...' : 'Export CSV' }}
+      </button>
+    </div>
+  </section>
+
+  <section class="summary-grid">
+    @for (card of summaryCards(); track card.label) {
+      <article class="summary-card" [class]="card.tone">
+        <div class="summary-icon">
+          <mat-icon>{{ card.icon }}</mat-icon>
+        </div>
+        <div>
+          <span>{{ card.label }}</span>
+          <strong>{{ card.value }}</strong>
+          <small>{{ card.note }}</small>
+        </div>
+      </article>
+    }
+  </section>
+
+  <form [formGroup]="filtersForm" class="filters-card" aria-label="Deposit filters">
+    <label class="field search-field">
+      <span>Search</span>
+      <input type="search" formControlName="search" placeholder="User, email, reference, gateway..." />
+    </label>
+
+    <label class="field">
+      <span>Status</span>
+      <select formControlName="status">
+        @for (option of statusOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Gateway</span>
+      <select formControlName="gateway">
+        @for (option of gatewayOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Currency</span>
+      <select formControlName="currency">
+        @for (option of currencyOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Wallet</span>
+      <select formControlName="walletType">
+        @for (option of walletOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>From</span>
+      <input type="date" formControlName="fromDate" />
+    </label>
+
+    <label class="field">
+      <span>To</span>
+      <input type="date" formControlName="toDate" />
+    </label>
+
+    <button type="button" class="secondary-btn clear-btn" (click)="clearFilters()">
+      <mat-icon>filter_alt_off</mat-icon>
+      Clear
+    </button>
+  </form>
+
+  @if (error()) {
+    <section class="inline-error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+    </section>
+  }
+
+  <section class="panel-grid">
+    <article class="panel chart-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Last 14 active days</p>
+          <h3>Deposit trend</h3>
+        </div>
+      </div>
+
+      <div class="trend-list">
+        @for (item of summary().dailyTrend; track item.date) {
+          <div class="trend-row">
+            <div class="trend-copy">
+              <strong>{{ item.date | date:'MMM d' }}</strong>
+              <small>{{ item.count }} records</small>
+            </div>
+            <div class="trend-bar">
+              <span [style.width.%]="getTrendWidth(item.amount)"></span>
+            </div>
+            <strong>{{ item.amount | currency:baseCurrency():'symbol':'1.0-0' }}</strong>
+          </div>
+        } @empty {
+          <div class="mini-empty">No deposit trend available for this filter.</div>
+        }
+      </div>
+    </article>
+
+    <article class="panel mix-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Payment mix</p>
+          <h3>Gateway and currency split</h3>
+        </div>
+      </div>
+
+      <div class="mix-grid">
+        <div>
+          <h4>Gateways</h4>
+          @for (gateway of summary().gateways; track gateway.key) {
+            <div class="mix-row">
+              <span>{{ gateway.label | titlecase }}</span>
+              <strong>{{ gateway.amount | currency:baseCurrency():'symbol':'1.0-0' }}</strong>
+              <small>{{ gateway.count }} records</small>
+            </div>
+          } @empty {
+            <p class="mini-empty">No gateway data.</p>
+          }
+        </div>
+
+        <div>
+          <h4>Currencies</h4>
+          @for (currency of summary().currencies; track currency.key) {
+            <div class="mix-row">
+              <span>{{ currency.label }}</span>
+              <strong>{{ currency.amount | currency:baseCurrency():'symbol':'1.0-0' }}</strong>
+              <small>{{ currency.count }} records</small>
+            </div>
+          } @empty {
+            <p class="mini-empty">No currency data.</p>
+          }
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="table-panel">
+    <div class="table-header">
+      <div>
+        <p class="eyebrow">Deposit ledger</p>
+        <h2>Wallet funding records</h2>
+        <p>{{ totalItems().toLocaleString() }} records match the current filters.</p>
+      </div>
+    </div>
+
+    @if (loading() && deposits().length === 0) {
+      <div class="loading-card">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        <h3>Loading deposits...</h3>
+        <p>Checking wallet funding records and payment references.</p>
+      </div>
+    } @else {
+      <div class="table-scroll">
+        <table mat-table [dataSource]="deposits()" class="deposit-table">
+          <ng-container matColumnDef="user">
+            <th mat-header-cell *matHeaderCellDef>User</th>
+            <td mat-cell *matCellDef="let deposit">
+              <div class="user-cell">
+                <strong>{{ deposit.userName }}</strong>
+                <span>{{ deposit.userEmail || 'No email' }}</span>
+                <small>{{ deposit.userRole }} · {{ deposit.walletType }} wallet</small>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>Amount</th>
+            <td mat-cell *matCellDef="let deposit">
+              <div class="amount-cell">
+                <strong>{{ deposit.amount | currency:deposit.baseCurrency:'symbol':'1.0-0' }}</strong>
+                <span>
+                  Native {{ deposit.nativeAmount | currency:deposit.currency:'symbol':'1.0-0' }}
+                </span>
+                @if (deposit.exchangeRate) {
+                  <small>Rate {{ deposit.exchangeRate }}</small>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="gateway">
+            <th mat-header-cell *matHeaderCellDef>Gateway</th>
+            <td mat-cell *matCellDef="let deposit">
+              <div class="gateway-cell">
+                <span class="gateway-pill">{{ deposit.gateway | titlecase }}</span>
+                <small>{{ deposit.paymentChannel || 'Channel unavailable' }}</small>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="reference">
+            <th mat-header-cell *matHeaderCellDef>Reference</th>
+            <td mat-cell *matCellDef="let deposit">
+              <button type="button" class="reference-btn" (click)="copyReference(deposit)" [matTooltip]="deposit.reference || 'No reference'">
+                <mat-icon>content_copy</mat-icon>
+                <span>{{ deposit.reference || 'N/A' }}</span>
+              </button>
+              @if (deposit.providerPaymentId) {
+                <small class="provider-id">Provider ID: {{ deposit.providerPaymentId }}</small>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let deposit">
+              <span class="status-pill" [class]="getStatusClass(deposit.status)">
+                <mat-icon>{{ getStatusIcon(deposit.status) }}</mat-icon>
+                {{ deposit.status | titlecase }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let deposit">
+              <div class="date-cell">
+                <strong>{{ deposit.createdAt | date:'MMM d, y' }}</strong>
+                <span>{{ deposit.createdAt | date:'shortTime' }}</span>
+                @if (deposit.processedAt) {
+                  <small>Processed {{ deposit.processedAt | date:'MMM d, shortTime' }}</small>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let deposit">
+              <div class="row-actions">
+                <a class="icon-btn" [routerLink]="['/dashboard/users', deposit.userId]" matTooltip="Open user profile">
+                  <mat-icon>person_search</mat-icon>
+                </a>
+                <button type="button" class="icon-btn" (click)="copyReference(deposit)" matTooltip="Copy reference">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+
+      @if (deposits().length === 0) {
+        <div class="empty-state">
+          <mat-icon>account_balance_wallet</mat-icon>
+          <h3>No deposits found</h3>
+          <p>There are no wallet funding records matching the current filters.</p>
+          <button type="button" class="secondary-btn" (click)="clearFilters()">Clear filters</button>
+        </div>
+      }
+
+      @if (totalItems() > pageSize()) {
+        <mat-paginator
+          [length]="totalItems()"
+          [pageSize]="pageSize()"
+          [pageIndex]="currentPage()"
+          [pageSizeOptions]="[25, 50, 100, 200, 500]"
+          (page)="onPageChange($event)"
+          aria-label="Select deposits page"
+          showFirstLastButtons>
+        </mat-paginator>
+      }
+    }
+  </section>
+</main>

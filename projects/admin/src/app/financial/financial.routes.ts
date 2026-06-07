@@ -7,6 +7,11 @@ export const FinancialRoutes: Routes = [
         loadComponent: () => import('./analytics/financial-analytics.component').then(c => c.FinancialAnalyticsComponent),
         title: 'Financial Analytics - Admin Dashboard'
     },
+    {
+        path: 'deposits',
+        loadComponent: () => import('./deposits/deposits.component').then(c => c.DepositsComponent),
+        title: 'Deposits - Financial Dashboard'
+    },
     {   path: '', 
         loadComponent: () => import('./financial-mgt.component').then(c => c.FinancialMgtComponent),
         title: 'Financial Management - Admin Dashboard'

@@ -29,6 +29,15 @@ import { MatIconModule } from '@angular/material/icon';
       </a>
 
       <a
+        routerLink="/dashboard/financial/deposits"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="finance-link">
+        <mat-icon>account_balance_wallet</mat-icon>
+        <span>Deposits</span>
+      </a>
+
+      <a
         routerLink="/dashboard/financial/transfers"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"

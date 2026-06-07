@@ -62,6 +62,83 @@ export interface WithdrawalRequest {
   timeline?: unknown;
 }
 
+export interface DepositRecord {
+  depositId: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userRole: 'promoter' | 'marketer' | 'admin';
+  walletType: 'promoter' | 'marketer';
+  amount: number;
+  nativeAmount: number;
+  settlementAmount?: number | null;
+  fee?: number;
+  currency: string;
+  baseCurrency: string;
+  settlementCurrency?: string;
+  exchangeRate?: number | null;
+  gateway: string;
+  status: Transaction['status'];
+  description: string;
+  reference: string;
+  createdAt: Date | string;
+  processedAt?: Date | string | null;
+  paymentChannel?: string | null;
+  providerPaymentId?: string | number | null;
+  domain?: string | null;
+  paidAt?: Date | string | null;
+  ipAddress?: string | null;
+}
+
+export interface DepositSummarySlice {
+  key: string;
+  label: string;
+  amount: number;
+  nativeAmount?: number;
+  count: number;
+  share: number;
+}
+
+export interface DepositTrendItem {
+  date: string;
+  amount: number;
+  count: number;
+}
+
+export interface DepositSummary {
+  totalAmount: number;
+  totalNativeAmount: number;
+  totalFees: number;
+  totalCount: number;
+  successfulAmount: number;
+  successfulCount: number;
+  pendingAmount: number;
+  pendingCount: number;
+  failedAmount: number;
+  failedCount: number;
+  averageDeposit: number;
+  statuses: DepositSummarySlice[];
+  gateways: DepositSummarySlice[];
+  currencies: DepositSummarySlice[];
+  dailyTrend: DepositTrendItem[];
+}
+
+export interface DepositListResponse {
+  deposits: DepositRecord[];
+  total: number;
+  page: number;
+  limit: number;
+  summary: DepositSummary;
+}
+
+export interface DepositExportResponse {
+  filename: string;
+  mimeType: string;
+  csv: string;
+  total: number;
+  exported: number;
+}
+
 export interface FinancialStats {
   year: number;
   baseCurrency: string;
@@ -317,6 +394,35 @@ export class FinancialService {
       .pipe(map((response) => response.data));
   }
 
+  getDeposits(params?: {
+    status?: string;
+    gateway?: string;
+    currency?: string;
+    walletType?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+    fromDate?: string;
+    toDate?: string;
+  }): Observable<DepositListResponse> {
+    let httpParams = new HttpParams();
+
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          httpParams = httpParams.set(key, String(value));
+        }
+      });
+    }
+
+    return this.apiService
+      .get<{ success: boolean; data: DepositListResponse }>(
+        `${this.baseUrl}/deposits`,
+        httpParams,
+      )
+      .pipe(map((response) => response.data));
+  }
+
   approveWithdrawal(withdrawalId: string, notes?: string): Observable<WithdrawalResponse> {
     return this.apiService.patch<WithdrawalResponse>(
       `${this.baseUrl}/withdrawals/${withdrawalId}/approve`,
@@ -365,6 +471,22 @@ export class FinancialService {
   }): Observable<{ success: boolean; data: { url: string } }> {
     return this.apiService.post<{ success: boolean; data: { url: string } }>(
       `${this.baseUrl}/export/withdrawals`,
+      params,
+    );
+  }
+
+  exportDeposits(params: {
+    format: 'csv';
+    status?: string;
+    gateway?: string;
+    currency?: string;
+    walletType?: string;
+    search?: string;
+    fromDate?: string;
+    toDate?: string;
+  }): Observable<{ success: boolean; data: DepositExportResponse }> {
+    return this.apiService.post<{ success: boolean; data: DepositExportResponse }>(
+      `${this.baseUrl}/export/deposits`,
       params,
     );
   }
