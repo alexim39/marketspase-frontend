@@ -336,11 +336,11 @@
 
             <footer class="composer composer--chat" aria-label="Send collaboration message">
               <div class="composer-row">
-                <!-- <div class="composer-actions composer-actions--chat">
-                  <button mat-icon-button type="button" class="composer-action" aria-label="Add emoji">
+                <div class="composer-actions composer-actions--chat">
+                  <button mat-icon-button type="button" class="composer-action" aria-label="Add emoji" (click)="openEmojiPicker($event)">
                     <mat-icon>emoji_emotions</mat-icon>
                   </button>
-                </div> -->
+                </div>
 
                 <mat-form-field appearance="outline" class="composer-field composer-field--chat">
                   <textarea

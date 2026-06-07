@@ -360,15 +360,15 @@
 
         <footer class="composer composer--chat">
           <div class="composer-row">
-            <!-- <div class="composer-actions composer-actions--chat">
-              <button mat-icon-button type="button" class="composer-action" aria-label="Add emoji">
+            <div class="composer-actions composer-actions--chat">
+              <button mat-icon-button type="button" class="composer-action" aria-label="Add emoji" (click)="openEmojiPicker($event)">
                 <mat-icon>emoji_emotions</mat-icon>
               </button>
 
-              <button mat-icon-button type="button" class="composer-action" aria-label="Attach file">
+             <!--  <button mat-icon-button type="button" class="composer-action" aria-label="Attach file">
                 <mat-icon>attach_file</mat-icon>
-              </button>
-            </div> -->
+              </button> -->
+            </div>
 
             <mat-form-field appearance="outline" class="composer-field composer-field--chat">
               <textarea

@@ -459,6 +459,120 @@ export class CampaignCollaborationComponent {
     }
   }
 
+  // Emoji picker support (lightweight fallback, zero external dependencies)
+  private simpleEmojiPopover: HTMLElement | null = null;
+  private simpleEmojiOutsideListener: (ev: Event) => void = () => {};
+  private simpleEscapeListener = (ev: KeyboardEvent) => {
+    if (ev.key === 'Escape') {
+      this.hideSimpleEmojiPopover();
+    }
+  };
+
+  /** Open emoji picker popover anchored to the clicked button. */
+  openEmojiPicker(ev: MouseEvent | PointerEvent) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const anchor = ev.currentTarget as HTMLElement | null;
+    this.hideSimpleEmojiPopover();
+    this.openSimpleEmojiPopover(anchor);
+  }
+
+  /** Insert emoji string at current caret into the composer textarea. */
+  insertEmojiAtCursor(emoji: string) {
+    const textarea = document.querySelector('.composer-field--chat textarea') as HTMLTextAreaElement | null;
+
+    if (!textarea) {
+      // fallback: append to signal
+      this.draftMessage.set((this.draftMessage() || '') + emoji);
+      return;
+    }
+
+    const start = typeof textarea.selectionStart === 'number' ? textarea.selectionStart : textarea.value.length;
+    const end = typeof textarea.selectionEnd === 'number' ? textarea.selectionEnd : textarea.value.length;
+    const before = textarea.value.slice(0, start);
+    const after = textarea.value.slice(end);
+    const next = before + emoji + after;
+
+    // Update model (Angular binding)
+    this.draftMessage.set(next);
+
+    // Update visible textarea and reposition caret after emoji
+    requestAnimationFrame(() => {
+      textarea.focus();
+      const pos = start + emoji.length;
+      textarea.setSelectionRange(pos, pos);
+    });
+
+    this.hideSimpleEmojiPopover();
+  }
+
+  /** Minimal emoji popover (built-in, no dependencies). */
+  private openSimpleEmojiPopover(anchor: HTMLElement | null) {
+    if (!anchor) return;
+    this.hideSimpleEmojiPopover();
+
+    const emojis = ['😀', '😂', '😊', '😍', '🥰', '👍', '🔥', '🎉', '🙌', '🤝', '🙏', '😅', '🤩', '💯', '🚀', '✨'];
+    const pop = document.createElement('div');
+    pop.className = 'simple-emoji-popover';
+    pop.setAttribute('role', 'dialog');
+    pop.setAttribute('aria-label', 'Emoji picker');
+
+    const inner = document.createElement('div');
+    inner.className = 'simple-emoji-list';
+    emojis.forEach((ch) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'simple-emoji-item';
+      btn.textContent = ch;
+      btn.title = ch;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.insertEmojiAtCursor(ch);
+      });
+      inner.appendChild(btn);
+    });
+    pop.appendChild(inner);
+    document.body.appendChild(pop);
+    this.simpleEmojiPopover = pop;
+
+    // Position near anchor (top-left of button, fallback below if near top)
+    const rect = anchor.getBoundingClientRect();
+    const gap = 8;
+    const left = Math.min(Math.max(8, rect.left), window.innerWidth - 280);
+    let top = rect.top - pop.offsetHeight - gap;
+    if (top < 8) {
+      top = rect.bottom + gap;
+    }
+    pop.style.position = 'fixed';
+    pop.style.left = `${left}px`;
+    pop.style.top = `${top}px`;
+    pop.style.zIndex = '5000';
+
+    // Close on outside click or Esc
+    this.simpleEmojiOutsideListener = (ev: Event) => {
+      if (!pop.contains(ev.target as Node) && ev.target !== anchor) {
+        this.hideSimpleEmojiPopover();
+      }
+    };
+    document.addEventListener('click', this.simpleEmojiOutsideListener, { capture: true });
+    document.addEventListener('keydown', this.simpleEscapeListener);
+  }
+
+  /** Remove emoji popover. */
+  private hideSimpleEmojiPopover() {
+    if (this.simpleEmojiPopover) {
+      try {
+        this.simpleEmojiPopover.remove();
+      } catch {}
+      this.simpleEmojiPopover = null;
+    }
+    if (this.simpleEmojiOutsideListener) {
+      document.removeEventListener('click', this.simpleEmojiOutsideListener as EventListener, { capture: true });
+      this.simpleEmojiOutsideListener = () => {};
+    }
+    document.removeEventListener('keydown', this.simpleEscapeListener);
+  }
+
   getMessageSenderName(message: CollaborationMessage): string {
     if (this.isOwnMessage(message)) {
       return 'You';
