@@ -128,8 +128,17 @@
                     <span class="detail-value">No external link</span>
                   }
                 </div>
-                @if (campaign()?.mediaUrl) {
+                @if (campaign()?.mediaType === 'video') {
                   <div class="detail-item">
+                    <span class="detail-label">Media Preview:</span>
+                    <div class="media-preview">
+                      <video controls [src]="campaign()?.mediaUrl" class="preview-video"></video>
+                    </div>
+                  </div>
+
+                }
+                @if (campaign()?.mediaType === 'image' && campaign()?.mediaUrl) {
+                   <div class="detail-item">
                     <span class="detail-label">Media Preview:</span>
                     <div class="media-preview">
                       <img [src]="campaign()?.mediaUrl" alt="Campaign media" class="preview-image">

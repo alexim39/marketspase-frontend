@@ -88,6 +88,7 @@ export class CampaignDetailsComponent {
         next: (response) => {
           if (response.success) {
             this.campaign.set(response.data);
+            //console.log('Loaded campaign details:', response.data);
             this.promotions.set(response.data.promotions || []);
             this.promotionsDataSource.data = response.data.promotions || [];
           } else {
