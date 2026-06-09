@@ -25,7 +25,11 @@ export const FinancialRoutes: Routes = [
         path: 'transfers',
         loadComponent: () => import('./transfer/transfer-transactions.component').then(c => c.TransferTransactionsComponent),
         title: "Transfer Management - Financial Dashboard",
-    }, 
-   
+    },
+    {
+        path: 'recovery',
+        loadComponent: () => import('./recovery/recovery.component').then(c => c.RecoveryComponent),
+        title: "Fund Recovery - Financial Dashboard",
+    },
     
 ]

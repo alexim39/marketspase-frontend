@@ -54,8 +54,18 @@ import { MatIconModule } from '@angular/material/icon';
         <mat-icon>currency_exchange</mat-icon>
         <span>Refunds</span>
       </a>
+
+      <a
+        routerLink="/dashboard/financial/recovery"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="finance-link">
+        <mat-icon>playlist_remove</mat-icon>
+        <span>Recovery</span>
+      </a>
     </nav>
   `,
   styleUrl: './finance-section-nav.component.scss',
 })
 export class FinanceSectionNavComponent {}
+

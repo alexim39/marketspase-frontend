@@ -1,0 +1,639 @@
+<div class="admin-recovery-container">
+  <app-finance-section-nav />
+
+  <!-- Header -->
+  <div class="header-section">
+    <h1 class="page-title">Fund Recovery (Requisition)</h1>
+    <p class="page-subtitle">Deduct funds from user wallets with full audit trail</p>
+
+    <!-- Stats Overview -->
+    <div class="stats-overview">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon active">playlist_remove</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value">{{ currentStep() === 'search' ? '0' : '1' }}</span>
+              <span class="stat-label">Current Step</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon pending">pending_actions</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value">{{ draftResponse() ? 'Draft ✓' : '—' }}</span>
+              <span class="stat-label">Draft Status</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon completed">verified</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value">{{ confirmResponse() ? 'Done ✓' : '—' }}</span>
+              <span class="stat-label">Completion</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-section">
+    <mat-tab-group
+      [selectedIndex]="activeTab() === 'new' ? 0 : 1"
+      (selectedIndexChange)="onTabChange($event)"
+      animationDuration="200ms"
+    >
+      <!-- ==================== NEW RECOVERY TAB ==================== -->
+      <mat-tab label="New Recovery">
+        <div class="tab-content">
+
+          <!-- Workflow Progress Steps -->
+          <div class="workflow-steps">
+            <div class="step" [class.active]="currentStep() === 'search'" [class.completed]="currentStep() !== 'search'">
+              <div class="step-number">1</div>
+              <div class="step-label">Select User</div>
+            </div>
+            <div class="step-connector" [class.completed]="currentStep() !== 'search'"></div>
+            <div class="step" [class.active]="currentStep() === 'review'" [class.completed]="currentStep() === 'draft' || currentStep() === 'confirm'">
+              <div class="step-number">2</div>
+              <div class="step-label">Review & Amount</div>
+            </div>
+            <div class="step-connector" [class.completed]="currentStep() === 'draft' || currentStep() === 'confirm'"></div>
+            <div class="step" [class.active]="currentStep() === 'draft'" [class.completed]="currentStep() === 'confirm'">
+              <div class="step-number">3</div>
+              <div class="step-label">Submit Draft</div>
+            </div>
+            <div class="step-connector" [class.completed]="currentStep() === 'confirm'"></div>
+            <div class="step" [class.active]="currentStep() === 'confirm'">
+              <div class="step-number">4</div>
+              <div class="step-label">Confirm & Execute</div>
+            </div>
+          </div>
+
+          <mat-card class="recovery-card fade-in">
+            <mat-card-header class="card-header">
+              <mat-card-title class="card-title">
+                @switch (currentStep()) {
+                  @case ('search') { Step 1: Select User }
+                  @case ('review') { Step 2: Review & Set Recovery Amount }
+                  @case ('draft')  { Step 3: Draft Submitted — Review & Confirm }
+                  @case ('confirm') { Step 4: Recovery Executed }
+                }
+              </mat-card-title>
+              <mat-card-subtitle>
+                @switch (currentStep()) {
+                  @case ('search') { Search for a promoter or marketer to begin }
+                  @case ('review') { Review user details and enter recovery information }
+                  @case ('draft')  { Draft is pending confirmation. Confirm to execute the deduction }
+                  @case ('confirm') { Fund recovery has been completed successfully }
+                }
+              </mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <!-- ====== STEP 1: SEARCH ====== -->
+              @if (currentStep() === 'search') {
+                <div class="search-section">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Search User</mat-label>
+                    <input matInput
+                           [formControl]="searchForm.controls.query"
+                           placeholder="Enter username, email, or display name"
+                           [matAutocomplete]="auto">
+                    <mat-icon matSuffix>search</mat-icon>
+                    <mat-hint>Start typing to search for promoters or marketers</mat-hint>
+                  </mat-form-field>
+
+                  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectUser($event.option.value)">
+                    @for (user of filteredUsers(); track user._id) {
+                      <mat-option [value]="user">
+                        <div class="user-result-item">
+                          <div class="user-info">
+                            <span class="user-name">{{ user.displayName || user.username }}</span>
+                            <span class="user-email">{{ user.email }}</span>
+                            <span class="user-role">{{ user.role }}</span>
+                          </div>
+                          <div class="user-wallets-preview">
+                            @if (user.wallets?.promoter) {
+                              <span class="wallet-badge promoter">
+                                P: ₦{{ user.wallets.promoter.available?.toLocaleString() || '0' }}
+                              </span>
+                            }
+                            @if (user.wallets?.marketer) {
+                              <span class="wallet-badge marketer">
+                                M: ₦{{ user.wallets.marketer.available?.toLocaleString() || '0' }}
+                              </span>
+                            }
+                          </div>
+                        </div>
+                      </mat-option>
+                    }
+                    @if (filteredUsers().length === 0 && searchQuery().length >= 2) {
+                      <mat-option disabled>
+                        No users found for "{{ searchQuery() }}"
+                      </mat-option>
+                    }
+                  </mat-autocomplete>
+                </div>
+              }
+
+              <!-- ====== STEP 2: REVIEW ====== -->
+              @if (currentStep() === 'review') {
+                <div class="review-section fade-in">
+                  <!-- Selected User Info -->
+                  <div class="selected-user-section">
+                    <div class="user-card">
+                      <div class="user-avatar">{{ selectedUser().displayName?.charAt(0) || selectedUser().username?.charAt(0) || 'U' }}</div>
+                      <div class="user-details">
+                        <h4>{{ selectedUser().displayName || selectedUser().username }}</h4>
+                        <p>{{ selectedUser().email }}</p>
+                        <small>ID: {{ selectedUser()._id }} • Role: {{ selectedUser().role }}</small>
+                      </div>
+                      <button mat-icon-button color="warn" (click)="clearSelection()" matTooltip="Change user">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Previous Recovery Info -->
+                  @if (userRecoveryHistory() && userRecoveryHistory().totalRecovered > 0) {
+                    <mat-card class="recovery-history-banner">
+                      <mat-card-content>
+                        <div class="banner-content">
+                          <mat-icon color="warn">history</mat-icon>
+                          <span>
+                            This user has <strong>{{ userRecoveryHistory().completedCount }}</strong> previous recovery action(s)
+                            totaling <strong>₦{{ userRecoveryHistory().totalRecovered?.toLocaleString() }}</strong>.
+                            @if (userRecoveryHistory().pendingDrafts > 0) {
+                              <span class="warning-text"> There is {{ userRecoveryHistory().pendingDrafts }} pending draft(s).</span>
+                            }
+                          </span>
+                        </div>
+                      </mat-card-content>
+                    </mat-card>
+                  }
+
+                  <!-- Wallet Selection -->
+                  <div class="wallet-selection-section">
+                    <div class="section-label">
+                      <mat-icon>account_balance_wallet</mat-icon>
+                      <span>Select Wallet to Recover From</span>
+                    </div>
+
+                    <div class="wallet-grid">
+                      @if (hasWallet('promoter')) {
+                        <mat-card class="wallet-card"
+                                 [class.selected]="recoveryForm.get('walletType')?.value === 'promoter'"
+                                 (click)="selectWallet('promoter')">
+                          <mat-card-content>
+                            <div class="selected-check">
+                              <mat-icon>check</mat-icon>
+                            </div>
+                            <div class="wallet-header">
+                              <mat-icon class="wallet-icon promoter">account_balance</mat-icon>
+                              <div class="wallet-info">
+                                <span class="wallet-name">Promoter Wallet</span>
+                                <span class="wallet-balance">Balance: ₦{{ getWalletBalance('promoter').toLocaleString() }}</span>
+                              </div>
+                              @if (recoveryForm.get('walletType')?.value === 'promoter') {
+                                <span class="selected-label">Selected</span>
+                              }
+                            </div>
+                            <div class="wallet-details">
+                              <span>Available: <strong>₦{{ getWalletAvailable('promoter').toLocaleString() }}</strong></span>
+                              <span class="tag withdrawable">Withdrawable</span>
+                            </div>
+                          </mat-card-content>
+                        </mat-card>
+                      }
+
+                      @if (hasWallet('marketer')) {
+                        <mat-card class="wallet-card"
+                                 [class.selected]="recoveryForm.get('walletType')?.value === 'marketer'"
+                                 (click)="selectWallet('marketer')">
+                          <mat-card-content>
+                            <div class="selected-check">
+                              <mat-icon>check</mat-icon>
+                            </div>
+                            <div class="wallet-header">
+                              <mat-icon class="wallet-icon marketer">shopping_cart</mat-icon>
+                              <div class="wallet-info">
+                                <span class="wallet-name">Marketer Wallet</span>
+                                <span class="wallet-balance">Balance: ₦{{ getWalletBalance('marketer').toLocaleString() }}</span>
+                              </div>
+                              @if (recoveryForm.get('walletType')?.value === 'marketer') {
+                                <span class="selected-label">Selected</span>
+                              }
+                            </div>
+                            <div class="wallet-details">
+                              <span>Available: <strong>₦{{ getWalletAvailable('marketer').toLocaleString() }}</strong></span>
+                              <span class="tag locked">In-app only</span>
+                            </div>
+                          </mat-card-content>
+                        </mat-card>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Recovery Form Fields -->
+                  <div class="recovery-form-section fade-in">
+                    <div class="section-label">
+                      <mat-icon>edit</mat-icon>
+                      <span>Enter Recovery Details</span>
+                    </div>
+
+                    <div class="form-grid">
+                      <mat-form-field appearance="outline" class="form-field">
+                        <mat-label>Amount to Recover</mat-label>
+                        <input matInput
+                               type="number"
+                               [formControl]="recoveryForm.controls.amount"
+                               placeholder="Enter amount"
+                               min="1"
+                               max="1000000">
+                        <span matTextPrefix>₦&nbsp;</span>
+                        <mat-hint>Max: ₦1,000,000</mat-hint>
+                        @if (recoveryForm.controls.amount.hasError('required')) {
+                          <mat-error>Amount is required</mat-error>
+                        }
+                        @if (recoveryForm.controls.amount.hasError('min')) {
+                          <mat-error>Minimum amount is ₦1</mat-error>
+                        }
+                        @if (recoveryForm.controls.amount.hasError('max')) {
+                          <mat-error>Amount cannot exceed ₦1,000,000</mat-error>
+                        }
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="form-field full-width">
+                        <mat-label>Reason for Recovery (Required)</mat-label>
+                        <textarea matInput
+                                  [formControl]="recoveryForm.controls.reason"
+                                  placeholder="Provide a detailed reason for this fund recovery"
+                                  rows="3"></textarea>
+                        <mat-hint>Minimum 10 characters required</mat-hint>
+                        @if (recoveryForm.controls.reason.hasError('required')) {
+                          <mat-error>Reason is required</mat-error>
+                        }
+                        @if (recoveryForm.controls.reason.hasError('minlength')) {
+                          <mat-error>Reason must be at least 10 characters</mat-error>
+                        }
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="form-field full-width">
+                        <mat-label>Additional Notes (Optional)</mat-label>
+                        <textarea matInput
+                                  [formControl]="recoveryForm.controls.notes"
+                                  placeholder="Any additional information..."
+                                  rows="2"></textarea>
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <!-- Validation Status -->
+                  <div class="validation-section">
+                    @if (recoveryForm.get('walletType')?.value && recoveryForm.get('amount')?.value) {
+                      <div class="validation-status"
+                           [class.valid]="validationResult()?.valid === true"
+                           [class.invalid]="validationResult()?.valid === false"
+                           [class.pending]="!validationResult()">
+                        <mat-icon>{{ validationResult()?.valid ? 'check_circle' : validationResult()?.valid === false ? 'error' : 'hourglass_empty' }}</mat-icon>
+                        <div class="validation-details">
+                          <div class="validation-title">
+                            {{ validationResult()?.valid ? '✓ Valid Recovery' : validationResult()?.valid === false ? '✗ Invalid' : '⏳ Validation Pending' }}
+                          </div>
+                          <div class="validation-message">{{ validationStatusText }}</div>
+                          @if (validationResult()?.valid && validationResult()?.data?.wallet) {
+                            <div class="validation-meta">
+                              <span>Wallet: {{ validationResult()?.data?.wallet?.type }}</span>
+                              <span>Current: ₦{{ validationResult()?.data?.wallet?.balance?.toLocaleString() }}</span>
+                              <span>New: ₦{{ validationResult()?.data?.wallet?.newBalance?.toLocaleString() }}</span>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="form-actions">
+                    <button mat-stroked-button color="warn" (click)="clearSelection()">
+                      <mat-icon>arrow_back</mat-icon>
+                      Back to Search
+                    </button>
+
+                    <button mat-flat-button
+                            color="primary"
+                            [disabled]="!canValidate || isLoading()"
+                            (click)="validateRecovery()">
+                      @if (isLoading()) {
+                        <mat-spinner diameter="20" />
+                      } @else {
+                        <mat-icon>verified</mat-icon>
+                      }
+                      Validate
+                    </button>
+
+                    <button mat-flat-button
+                            color="accent"
+                            [disabled]="!canDraft"
+                            (click)="submitDraft()">
+                      @if (isProcessing()) {
+                        <mat-spinner diameter="20" />
+                      } @else {
+                        <mat-icon>draft</mat-icon>
+                      }
+                      {{ isProcessing() ? 'Creating Draft...' : 'Submit Draft' }}
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <!-- ====== STEP 3: DRAFT CREATED ====== -->
+              @if (currentStep() === 'draft') {
+                <div class="draft-section fade-in">
+                  <mat-card class="draft-card">
+                    <mat-card-content>
+                      <div class="draft-header">
+                        <mat-icon class="draft-icon">edit_note</mat-icon>
+                        <h3>Draft Created Successfully</h3>
+                      </div>
+
+                      <div class="draft-summary">
+                        <div class="summary-row">
+                          <span class="summary-label">User:</span>
+                          <span class="summary-value">{{ draftResponse()?.targetUser?.username }}</span>
+                        </div>
+                        <div class="summary-row">
+                          <span class="summary-label">Wallet:</span>
+                          <span class="summary-value">{{ draftResponse()?.wallet?.type }}</span>
+                        </div>
+                        <div class="summary-row">
+                          <span class="summary-label">Amount:</span>
+                          <span class="summary-value amount">₦{{ draftResponse()?.recovery?.amount?.toLocaleString() }}</span>
+                        </div>
+                        <div class="summary-row">
+                          <span class="summary-label">Current Balance:</span>
+                          <span class="summary-value">₦{{ draftResponse()?.wallet?.currentBalance?.toLocaleString() }}</span>
+                        </div>
+                        <div class="summary-row">
+                          <span class="summary-label">Balance After Recovery:</span>
+                          <span class="summary-value">₦{{ draftResponse()?.wallet?.newBalanceAfterRecovery?.toLocaleString() }}</span>
+                        </div>
+                        <div class="summary-row">
+                          <span class="summary-label">Reason:</span>
+                          <span class="summary-value">{{ draftResponse()?.recovery?.reason }}</span>
+                        </div>
+                        <div class="summary-row">
+                          <span class="summary-label">Requested At:</span>
+                          <span class="summary-value">{{ draftResponse()?.recovery?.requestedAt | date:'medium' }}</span>
+                        </div>
+                        <div class="summary-row">
+                          <span class="summary-label">Status:</span>
+                          <span class="summary-value"><mat-chip class="status-chip status-pending">Draft — Pending Confirmation</mat-chip></span>
+                        </div>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+
+                  <div class="form-actions draft-actions">
+                    <button mat-stroked-button color="warn" (click)="cancelDraft()" [disabled]="isLoading()">
+                      <mat-icon>cancel</mat-icon>
+                      Cancel Draft
+                    </button>
+
+                    <button mat-flat-button
+                            color="primary"
+                            (click)="confirmDraft()"
+                            [disabled]="isConfirming()">
+                      @if (isConfirming()) {
+                        <mat-spinner diameter="20" />
+                      } @else {
+                        <mat-icon>check_circle</mat-icon>
+                      }
+                      {{ isConfirming() ? 'Confirming...' : 'Confirm & Execute Recovery' }}
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <!-- ====== STEP 4: CONFIRMED ====== -->
+              @if (currentStep() === 'confirm') {
+                <div class="confirm-section fade-in">
+                  <mat-card class="confirm-card">
+                    <mat-card-content>
+                      <div class="confirm-header">
+                        <mat-icon class="confirm-icon">check_circle</mat-icon>
+                        <h3>Recovery Executed Successfully</h3>
+                      </div>
+
+                      <mat-card class="receipt-card">
+                        <mat-card-content>
+                          <div class="receipt-header">
+                            <h4>Recovery Receipt</h4>
+                            <small>Transaction Reference: {{ confirmResponse()?.reference }}</small>
+                          </div>
+                          <div class="receipt-details">
+                            <div class="receipt-row">
+                              <span>Amount Recovered:</span>
+                              <span class="amount red">-₦{{ confirmResponse()?.amount?.toLocaleString() }}</span>
+                            </div>
+                            <div class="receipt-row">
+                              <span>Wallet:</span>
+                              <span>{{ confirmResponse()?.walletType }}</span>
+                            </div>
+                            <div class="receipt-row">
+                              <span>User:</span>
+                              <span>{{ draftResponse()?.targetUser?.username }}</span>
+                            </div>
+                            <div class="receipt-row">
+                              <span>Previous Balance:</span>
+                              <span>₦{{ confirmResponse()?.previousBalance?.toLocaleString() }}</span>
+                            </div>
+                            <div class="receipt-row">
+                              <span>New Balance:</span>
+                              <span>₦{{ confirmResponse()?.newBalance?.toLocaleString() }}</span>
+                            </div>
+                            <div class="receipt-row">
+                              <span>Confirmed By:</span>
+                              <span>{{ confirmResponse()?.confirmedBy }}</span>
+                            </div>
+                            <div class="receipt-row">
+                              <span>Confirmed At:</span>
+                              <span>{{ confirmResponse()?.confirmedAt | date:'medium' }}</span>
+                            </div>
+                          </div>
+                        </mat-card-content>
+                      </mat-card>
+                    </mat-card-content>
+                  </mat-card>
+
+                  <div class="form-actions">
+                    <button mat-flat-button color="primary" (click)="startNewRecovery()">
+                      <mat-icon>add</mat-icon>
+                      Start New Recovery
+                    </button>
+                  </div>
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- ==================== HISTORY TAB ==================== -->
+      <mat-tab label="Recovery History">
+        <div class="tab-content">
+          <!-- Filters -->
+          <mat-card class="filters-card">
+            <mat-card-content>
+              <div class="filters-container">
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Status</mat-label>
+                  <mat-select [formControl]="historyFiltersForm.controls.status">
+                    <mat-option value="">All Statuses</mat-option>
+                    <mat-option value="draft">Draft</mat-option>
+                    <mat-option value="confirmed">Confirmed</mat-option>
+                    <mat-option value="completed">Completed</mat-option>
+                    <mat-option value="cancelled">Cancelled</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Search User ID</mat-label>
+                  <input matInput
+                         [formControl]="historyFiltersForm.controls.targetUser"
+                         placeholder="User ID">
+                  <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+
+                <div class="filter-actions">
+                  <button mat-flat-button color="primary" (click)="applyHistoryFilters()">
+                    <mat-icon>filter_alt</mat-icon>
+                    Apply
+                  </button>
+                  <button mat-button color="warn" (click)="clearHistoryFilters()">
+                    <mat-icon>clear</mat-icon>
+                    Clear
+                  </button>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- History Table -->
+          <mat-card class="table-card">
+            <mat-card-content>
+              <div class="table-container">
+                @if (isLoadingHistory()) {
+                  <div class="loading-spinner">
+                    <mat-spinner diameter="40" />
+                    <p>Loading recovery history...</p>
+                  </div>
+                } @else {
+                  <table mat-table [dataSource]="historyDataSource" matSort class="history-table">
+                    
+                    <ng-container matColumnDef="user">
+                      <th mat-header-cell *matHeaderCellDef> User </th>
+                      <td mat-cell *matCellDef="let record">
+                        <div class="user-info">
+                          <span class="user-name">{{ record.targetUserUsername }}</span>
+                          <span class="user-email">{{ record.targetUserEmail }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="walletType">
+                      <th mat-header-cell *matHeaderCellDef> Wallet </th>
+                      <td mat-cell *matCellDef="let record">
+                        <span class="wallet-badge" [class.marketer]="record.walletType === 'marketer'">
+                          <mat-icon>{{ getWalletIcon(record.walletType) }}</mat-icon>
+                          {{ record.walletType }}
+                        </span>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="amount">
+                      <th mat-header-cell *matHeaderCellDef mat-sort-header> Amount </th>
+                      <td mat-cell *matCellDef="let record">
+                        <span class="amount-value">₦{{ record.amount?.toLocaleString() }}</span>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="reason">
+                      <th mat-header-cell *matHeaderCellDef> Reason </th>
+                      <td mat-cell *matCellDef="let record">
+                        <span class="reason-text" [matTooltip]="record.reason">{{ record.reason | slice:0:60 }}{{ record.reason?.length > 60 ? '...' : '' }}</span>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="status">
+                      <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+                      <td mat-cell *matCellDef="let record">
+                        <mat-chip [class]="'status-chip ' + getStatusClass(record.status)">
+                          <mat-icon>{{ getStatusIcon(record.status) }}</mat-icon>
+                          {{ record.status | titlecase }}
+                        </mat-chip>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="requestedBy">
+                      <th mat-header-cell *matHeaderCellDef> Admin </th>
+                      <td mat-cell *matCellDef="let record">
+                        <span>{{ record.requestedByUsername }}</span>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="requestedAt">
+                      <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
+                      <td mat-cell *matCellDef="let record">
+                        <span>{{ record.requestedAt | date:'medium' }}</span>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="actions">
+                      <th mat-header-cell *matHeaderCellDef> Actions </th>
+                      <td mat-cell *matCellDef="let record">
+                        <button mat-icon-button color="primary" (click)="viewAuditDetail(record)" matTooltip="View Details">
+                          <mat-icon>visibility</mat-icon>
+                        </button>
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="historyColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: historyColumns;"></tr>
+
+                    @if (historyRecords().length === 0) {
+                      <tr class="mat-row">
+                        <td class="mat-cell no-data" [attr.colspan]="historyColumns.length">
+                          No recovery records found
+                        </td>
+                      </tr>
+                    }
+                  </table>
+
+                  <mat-paginator #historyPaginator
+                                 [length]="historyTotal()"
+                                 [pageSize]="historyPageSize()"
+                                 [pageSizeOptions]="[10, 25, 50, 100]"
+                                 (page)="onHistoryPageChange($event)"
+                                 showFirstLastButtons>
+                  </mat-paginator>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

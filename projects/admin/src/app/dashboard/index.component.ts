@@ -108,7 +108,8 @@ export class AdminDashboardComponent implements OnInit {
         { id: 'all-withdrawals', title: 'Withdrawals', icon: 'payment_arrow_down', route: '/dashboard/financial' },
         { id: 'all-deposits', title: 'Deposits', icon: 'account_balance_wallet', route: '/dashboard/financial/deposits' },
         { id: 'all-transfers', title: 'Transfers', icon: 'swap_horiz', route: '/dashboard/financial/transfers' },
-        { id: 'refund-requests', title: 'Refund Requests', icon: 'currency_exchange', route: '/dashboard/financial/refunds' }
+        { id: 'refund-requests', title: 'Refund Requests', icon: 'currency_exchange', route: '/dashboard/financial/refunds' },
+        { id: 'fund-recovery', title: 'Fund Recovery', icon: 'playlist_remove', route: '/dashboard/financial/recovery' }
       ]
     },
     {
