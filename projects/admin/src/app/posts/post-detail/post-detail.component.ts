@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, switchMap } from 'rxjs';
-import { PostService, AdminPostDetail } from './post.service';
+import { PostService, AdminPostDetail } from '../post.service';
 
 @Component({
   selector: 'app-admin-post-detail',

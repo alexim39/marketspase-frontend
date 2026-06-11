@@ -77,7 +77,7 @@ export const dashboardRoutes: Routes = [
                     },
                     {
                         path: ':postId',
-                        loadComponent: () => import('../posts/post-detail.component').then(c => c.AdminPostDetailComponent),
+                        loadComponent: () => import('../posts/post-detail/post-detail.component').then(c => c.AdminPostDetailComponent),
                         title: 'Post Details - Admin Dashboard'
                     },
                 ]

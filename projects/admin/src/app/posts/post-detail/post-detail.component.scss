@@ -99,6 +99,8 @@
 
 .panel {
   @include admin.surface-frame(1.5rem);
+    padding: 1.2em;
+
 }
 
 .panel h3 {
