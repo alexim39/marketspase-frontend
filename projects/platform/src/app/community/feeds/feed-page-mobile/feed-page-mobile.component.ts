@@ -111,7 +111,10 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
   readonly isPulling = signal(false);
   readonly isRefreshing = signal(false);
 
-  readonly regularPosts = computed(() => this.posts() ?? []);
+  readonly regularPosts = computed(() => {
+    const spotlightId = this.featuredPost()?._id;
+    return (this.posts() ?? []).filter((post) => post._id !== spotlightId);
+  });
   readonly activeFeedTitle = computed(() => this.selectedTab() === 'following' ? 'Following' : 'For You');
   readonly pullProgress = computed(() => Math.min(1, this.pullDistance() / 86));
   readonly isSheetOpen = computed(() => Boolean(this.shareSheetPost() || this.moreSheetPost()));

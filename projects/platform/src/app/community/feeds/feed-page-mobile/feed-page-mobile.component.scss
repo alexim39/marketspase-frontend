@@ -1006,3 +1006,33 @@
     background-position: -40% 0;
   }
 }
+
+/* Spotlight / Featured post badge */
+.spotlight-badge {
+  position: absolute;
+  top: calc(58px + var(--reel-safe-top));
+  left: 50%;
+  z-index: 14;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 14px;
+  border-radius: var(--border-radius-full, 9999px);
+  color: #ffd700;
+  background: rgba(0, 0, 0, 0.58);
+  border: 1px solid rgba(255, 215, 0, 0.32);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.46);
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  font-weight: 700;
+  pointer-events: none;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    color: #ffd700;
+  }
+}

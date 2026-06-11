@@ -1,0 +1,331 @@
+<main class="post-detail-page">
+  <!-- Header -->
+  <section class="detail-header">
+    <button type="button" class="back-btn" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to posts
+    </button>
+    @if (post(); as p) {
+      <div class="header-actions">
+        <button
+          type="button"
+          class="action-btn feature-btn"
+          [class.active]="$any(p).isFeatured"
+          [disabled]="featureLoading()"
+          (click)="toggleFeature()"
+        >
+          <mat-icon>{{ $any(p).isFeatured ? 'stars' : 'star_border' }}</mat-icon>
+          {{ $any(p).isFeatured ? 'Remove spotlight' : 'Feature in spotlight' }}
+        </button>
+        <button
+          type="button"
+          class="action-btn archive-btn"
+          (click)="archivePost()"
+        >
+          <mat-icon>archive</mat-icon>
+          Archive
+        </button>
+      </div>
+    }
+  </section>
+
+  @if (loading()) {
+    <section class="loading-card">
+      <mat-progress-bar mode="indeterminate" />
+      <span>Loading post details...</span>
+    </section>
+  } @else if (error()) {
+    <section class="error-card">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <button type="button" class="retry-btn" (click)="goBack()">Go back</button>
+    </section>
+  } @else {
+    @if (post(); as p) {
+    <section class="post-layout">
+      <!-- Main content -->
+      <article class="panel main-panel">
+        <!-- Author and meta bar -->
+        <div class="post-meta-bar">
+          <div class="author-section">
+            @if ($any(p).author) {
+              <img
+                [src]="$any(p).author.avatar || 'img/avatar.png'"
+                [alt]="$any(p).author.displayName"
+                class="author-avatar"
+                loading="lazy"
+              />
+              <div class="author-details">
+                <strong>{{ $any(p).author.displayName || $any(p).author.username }}</strong>
+                <span class="author-sub">
+                  @@{{ $any(p).author.username }} · {{ $any(p).author.role }}
+                  @if ($any(p).author.email) {
+                    · {{ $any(p).author.email }}
+                  }
+                </span>
+                <div class="author-status">
+                  @if ($any(p).author.isActive && !$any(p).author.isDeleted) {
+                    <span class="status-indicator active">Active</span>
+                  } @else {
+                    <span class="status-indicator inactive">Inactive</span>
+                  }
+                </div>
+              </div>
+            } @else {
+              <div class="author-details">
+                <strong>Deleted user</strong>
+                <span class="author-sub">Author account no longer available</span>
+              </div>
+            }
+          </div>
+
+          <div class="post-badges">
+            <span class="badge type-badge" [class]="$any(p).type">
+              <mat-icon>{{ getTypeIcon($any(p).type) }}</mat-icon>
+              {{ $any(p).type }}
+            </span>
+            @if ($any(p).source && $any(p).source !== 'manual') {
+              <span class="badge source-badge">{{ $any(p).source }}</span>
+            }
+            <span class="badge status-badge" [class]="getStatusClass($any(p).status)">
+              {{ $any(p).status }}
+            </span>
+            @if ($any(p).isFeatured) {
+              <span class="badge featured-badge">
+                <mat-icon>stars</mat-icon>
+                Featured
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="post-content-section">
+          <h3>Content</h3>
+          <div class="content-body">
+            {{ $any(p).content || '(No text content)' }}
+          </div>
+        </div>
+
+        <!-- Media -->
+        @if ($any(p).media?.length) {
+          <div class="post-media-section">
+            <h3>Media ({{ $any(p).media.length }})</h3>
+            <div class="media-grid">
+              @for (mediaItem of $any(p).media; track $index) {
+                <div class="media-item">
+                  @if (mediaItem.type === 'video') {
+                    <div class="media-thumbnail">
+                      <img
+                        [src]="mediaItem.thumbnail || mediaItem.url"
+                        [alt]="mediaItem.altText || 'Video thumbnail'"
+                        loading="lazy"
+                      />
+                      <mat-icon class="play-icon">play_circle</mat-icon>
+                    </div>
+                    <a [href]="mediaItem.url" target="_blank" class="media-link">Open video</a>
+                  } @else if (mediaItem.type === 'image') {
+                    <div class="media-thumbnail">
+                      <img
+                        [src]="mediaItem.url"
+                        [alt]="mediaItem.altText || 'Image'"
+                        loading="lazy"
+                      />
+                    </div>
+                  } @else {
+                    <div class="media-thumbnail document">
+                      <mat-icon>description</mat-icon>
+                      <span>{{ mediaItem.altText || 'Document' }}</span>
+                    </div>
+                  }
+                  @if (mediaItem.altText) {
+                    <span class="media-alt">{{ mediaItem.altText }}</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Hashtags -->
+        @if ($any(p).hashtags?.length) {
+          <div class="post-hashtags-section">
+            <h3>Hashtags</h3>
+            <div class="hashtag-list">
+              @for (tag of $any(p).hashtags; track $index) {
+                <span class="hashtag-pill">#{{ tag.tag }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Campaign / Product snapshot -->
+        @if ($any(p).campaign) {
+          <div class="post-reference-section">
+            <h3>Campaign reference</h3>
+            <div class="reference-card">
+              <mat-icon>campaign</mat-icon>
+              <div>
+                <strong>{{ $any(p).campaign.name }}</strong>
+                @if ($any(p).campaign.status) {
+                  <span>Status: {{ $any(p).campaign.status }}</span>
+                }
+                @if ($any(p).campaign.budget) {
+                  <span>Budget: {{ $any(p).campaign.budget | number }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        @if ($any(p).product) {
+          <div class="post-reference-section">
+            <h3>Product reference</h3>
+            <div class="reference-card">
+              <mat-icon>sell</mat-icon>
+              <div>
+                <strong>{{ $any(p).product.name }}</strong>
+                @if ($any(p).product.price) {
+                  <span>Price: {{ $any(p).product.currency }} {{ $any(p).product.price }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </article>
+
+      <!-- Sidebar -->
+      <aside class="panel sidebar-panel">
+        <h3>Engagement</h3>
+        <div class="engagement-summary">
+          <div class="engagement-stat">
+            <mat-icon>favorite</mat-icon>
+            <div>
+              <strong>{{ $any(p).likeCount }}</strong>
+              <span>Likes</span>
+            </div>
+          </div>
+          <div class="engagement-stat">
+            <mat-icon>comment</mat-icon>
+            <div>
+              <strong>{{ $any(p).commentCount }}</strong>
+              <span>Comments</span>
+            </div>
+          </div>
+          <div class="engagement-stat">
+            <mat-icon>share</mat-icon>
+            <div>
+              <strong>{{ $any(p).shareCount }}</strong>
+              <span>Shares</span>
+            </div>
+          </div>
+          <div class="engagement-stat">
+            <mat-icon>bookmark</mat-icon>
+            <div>
+              <strong>{{ $any(p).saveCount }}</strong>
+              <span>Saves</span>
+            </div>
+          </div>
+          <div class="engagement-stat">
+            <mat-icon>chat</mat-icon>
+            <div>
+              <strong>{{ $any(p).chatCount }}</strong>
+              <span>Chat clicks</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>Timeline</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <mat-icon>add_circle</mat-icon>
+            <div>
+              <span>Created</span>
+              <strong>{{ formatDate($any(p).createdAt) }}</strong>
+            </div>
+          </div>
+          @if ($any(p).updatedAt) {
+            <div class="timeline-item">
+              <mat-icon>edit</mat-icon>
+              <div>
+                <span>Last updated</span>
+                <strong>{{ formatDate($any(p).updatedAt) }}</strong>
+              </div>
+            </div>
+          }
+          @if ($any(p).isFeatured && $any(p).featuredUntil) {
+            <div class="timeline-item featured">
+              <mat-icon>stars</mat-icon>
+              <div>
+                <span>Featured until</span>
+                <strong>{{ formatDate($any(p).featuredUntil) }}</strong>
+              </div>
+            </div>
+          }
+          @if ($any(p).featuredBy) {
+            <div class="timeline-item">
+              <mat-icon>admin_panel_settings</mat-icon>
+              <div>
+                <span>Featured by</span>
+                <strong>{{ $any(p).featuredBy.displayName }}</strong>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if ($any(p).settings) {
+          <div class="divider"></div>
+          <h3>Settings</h3>
+          <div class="settings-list">
+            @if (getSetting('postAnonymously')) {
+              <span class="setting-tag">Anonymously posted</span>
+            }
+            @if (getSetting('disableComments')) {
+              <span class="setting-tag">Comments disabled</span>
+            }
+            @if (getSetting('allowExternalShare') === false) {
+              <span class="setting-tag">External sharing off</span>
+            }
+          </div>
+        }
+
+        @if ($any(p).socialMetrics) {
+          <div class="divider"></div>
+          <h3>Social metrics</h3>
+          <div class="social-metrics">
+            <div class="metric-item">
+              <span>External shares</span>
+              <strong>{{ getSocialMetric('externalShares') }}</strong>
+            </div>
+            <div class="metric-item">
+              <span>External clicks</span>
+              <strong>{{ getSocialMetric('externalClicks') }}</strong>
+            </div>
+            <div class="metric-item">
+              <span>Profile visits</span>
+              <strong>{{ getSocialMetric('profileVisits') }}</strong>
+            </div>
+          </div>
+        }
+
+        @if ($any(p).reach) {
+          <div class="divider"></div>
+          <h3>Reach</h3>
+          <div class="social-metrics">
+            <div class="metric-item">
+              <span>Impressions</span>
+              <strong>{{ getReachMetric('impressions') }}</strong>
+            </div>
+            <div class="metric-item">
+              <span>Trending score</span>
+              <strong>{{ $any(p).trendingScore || 0 }}</strong>
+            </div>
+          </div>
+        }
+      </aside>
+    </section>
+    }
+  }
+</main>

@@ -118,7 +118,8 @@ export class AdminDashboardComponent implements OnInit {
       icon: 'forum',
       isExpanded: false,
       children: [
-        { id: 'community-desk', title: 'Community Desk', icon: 'dynamic_feed', route: '/dashboard/community' },
+                { id: 'community-desk', title: 'Community Desk', icon: 'dynamic_feed', route: '/dashboard/community' },
+        { id: 'all-posts', title: 'Posts', icon: 'post_add', route: '/dashboard/posts' },
         { id: 'all-testimonials', title: 'Testimonials', icon: 'reviews', route: '/dashboard/testimonials' },
         { id: 'newsletters', title: 'Newsletters', icon: 'newspaper', route: '/dashboard/newsletters' }
       ]
@@ -281,13 +282,14 @@ export class AdminDashboardComponent implements OnInit {
       this.activeNavItem.set(activeId);
     } else {
       // Fallback for your original routes
-      const routeMapping: Record<string, string> = {
+            const routeMapping: Record<string, string> = {
         '/dashboard/users': 'users',
         '/dashboard/campaigns': 'ads',
         '/dashboard/promotions': 'ads',
         '/dashboard/stores': 'storefront',
         '/dashboard/financial': 'payments',
         '/dashboard/community': 'community',
+        '/dashboard/posts': 'community',
         '/dashboard/newletters': 'community',
         '/dashboard/newsletters': 'community',
         '/dashboard/testimonials': 'community',
