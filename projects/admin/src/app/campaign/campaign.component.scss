@@ -401,6 +401,13 @@
     color: #a0aec0;
     .pill-dot { background: #64748b; }
   }
+
+  &.draft {
+    background: rgba(100, 116, 139, 0.15);
+    border-color: rgba(100, 116, 139, 0.25);
+    color: rgb(109, 113, 119);
+    .pill-dot { background: #64748b; }
+  }
 }
 
 /* ──────────────── Action buttons ──────────────── */
