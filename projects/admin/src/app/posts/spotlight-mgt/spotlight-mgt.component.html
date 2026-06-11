@@ -135,7 +135,7 @@
                   <div class="post-preview">
                     <div class="post-content">
                       <span class="post-text">{{ post.content || '(no text)' }}</span>
-                      @if (post.hashtags?.length) {
+                      @if (post.hashtags.length) {
                         <span class="post-hashtags">
                           @for (tag of post.hashtags.slice(0, 3); track tag.tag) { #{{ tag.tag }} }
                         </span>

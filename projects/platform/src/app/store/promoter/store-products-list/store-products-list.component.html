@@ -207,10 +207,10 @@
             <mat-card class="product-card" appearance="outlined">
               <!-- Product Image -->
               <div class="product-image" (click)="viewProductDetails(product)">
-                @if (product.images?.[0]?.url) {
+                @if (product?.images?.[0]?.url) {
                   <img 
-                    [src]="product.images[0].url" 
-                    [alt]="product.name"
+                    [src]="product?.images?.[0]?.url" 
+                    [alt]="product?.name"
                     loading="lazy"
                   >
                 } @else {

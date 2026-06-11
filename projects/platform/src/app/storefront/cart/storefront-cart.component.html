@@ -44,7 +44,7 @@
     <section class="cart-layout">
       <div class="cart-groups">
         @for (group of groups(); track group.storeId) {
-          <mat-card class="store-group" [class.active]="selectedGroup()?.storeId === group.storeId" appearance="outlined">
+          <mat-card class="store-group" [class.active]="selectedGroup().storeId === group.storeId" appearance="outlined">
             <mat-card-header>
               <mat-card-title>
                 <mat-icon>store</mat-icon>

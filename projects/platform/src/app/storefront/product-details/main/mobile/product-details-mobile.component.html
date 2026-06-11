@@ -31,8 +31,8 @@
     <main class="mobile-product-content">
       <section class="gallery-card" aria-label="Product media">
         <div class="hero-media">
-          @if (activeImage()?.url) {
-            <img [src]="activeImage()!.url" [alt]="activeImage()?.altText || product()!.name">
+          @if (activeImage().url) {
+            <img [src]="activeImage()!.url" [alt]="activeImage().altText || product()!.name">
           } @else {
             <mat-icon>inventory_2</mat-icon>
           }
