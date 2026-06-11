@@ -1,9 +1,15 @@
 <main class="post-management-page">
-  <section class="hero">
+    <section class="hero">
     <div>
       <p class="eyebrow">Post management</p>
       <h2>Manage platform feed posts</h2>
       <p>View, search, feature, and moderate all social feed posts across MarketSpase.</p>
+    </div>
+    <div class="hero-actions">
+      <a class="spotlight-nav-btn" routerLink="/dashboard/posts/spotlight">
+        <mat-icon>stars</mat-icon>
+        Spotlight rotation
+      </a>
     </div>
   </section>
 
@@ -16,8 +22,13 @@
         class="search-input"
         placeholder="Search by content, hashtag, campaign, or product..."
         [value]="searchQuery()"
-        (input)="onSearch($any($event.target).value)"
+                (input)="onSearchInput($any($event.target).value)"
       />
+      @if (searchQuery()) {
+        <button type="button" class="search-clear-btn" (click)="onSearchInput('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </div>
 
     <div class="filter-controls">
@@ -105,7 +116,7 @@
             <th class="col-type">Type</th>
             <th class="col-engagement">Engagement</th>
             <th class="col-status">Status</th>
-            <th class="col-featured">Featured</th>
+            <th class="col-spotlight">Spotlight</th>
             <th class="col-date">Created</th>
             <th class="col-actions">Actions</th>
           </tr>
@@ -186,15 +197,17 @@
                   {{ post.status }}
                 </span>
               </td>
-              <td class="col-featured">
-                @if (post.isFeatured) {
+                            <td class="col-spotlight">
+                @if (isInSpotlight(post._id)) {
                   <span class="featured-badge-active">
                     <mat-icon>stars</mat-icon>
                     Spotlight
                   </span>
-                  @if (post.featuredUntil) {
-                    <span class="featured-until">until {{ formatDate(post.featuredUntil) }}</span>
-                  }
+                } @else if (post.isFeatured) {
+                  <span class="featured-badge-legacy">
+                    <mat-icon>star</mat-icon>
+                    Featured
+                  </span>
                 }
               </td>
               <td class="col-date">

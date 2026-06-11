@@ -1,16 +1,23 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { PostService, AdminPostListItem, AdminPostFilters } from './post.service';
 
 @Component({
   selector: 'app-admin-post-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatIconModule, MatProgressBarModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatIconModule,
+    MatProgressBarModule,
+    MatSnackBarModule
+  ],
   templateUrl: './post-list.component.html',
   styleUrls: ['./post-list.component.scss']
 })
@@ -18,6 +25,7 @@ export class AdminPostListComponent {
   private readonly postService = inject(PostService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
 
   readonly posts = signal<AdminPostListItem[]>([]);
   readonly loading = this.postService.loading;
@@ -31,10 +39,24 @@ export class AdminPostListComponent {
   readonly typeFilter = signal<string>('');
   readonly featuredFilter = signal<string>('');
   readonly sortOrder = signal<string>('-createdAt');
-
   readonly currentPage = signal(1);
 
-  readonly totalPages = computed(() => this.pagination().pages);
+  // Debounced search
+  private readonly searchSubject = new Subject<string>();
+  private readonly searchDebounced = this.searchSubject.pipe(
+    debounceTime(400),
+    distinctUntilChanged()
+  );
+
+  // Spotlight management
+  readonly spotlightOpen = signal(false);
+  readonly spotlightPostIds = signal<string[]>([]);
+  readonly spotlightInterval = signal(120);
+  readonly spotlightLoading = signal(false);
+  readonly spotlightSaving = signal(false);
+
+  readonly totalPages = computed(() => Math.max(1, this.pagination().pages));
+
   readonly showingRange = computed(() => {
     const p = this.pagination();
     if (p.total === 0) return 'No posts';
@@ -47,11 +69,17 @@ export class AdminPostListComponent {
     const total = this.totalPages();
     const current = this.currentPage();
     const pages: number[] = [];
-    const start = Math.max(1, current - 2);
-    const end = Math.min(total, current + 2);
-    for (let i = start; i <= end; i++) pages.push(i);
+    // Show window of up to 5 pages around current, plus first/last
+    const windowStart = Math.max(1, current - 2);
+    const windowEnd = Math.min(total, current + 2);
+    for (let i = windowStart; i <= windowEnd; i++) pages.push(i);
     return pages;
   });
+
+  readonly showFirstPage = computed(() => this.currentPage() > 3);
+  readonly showLastPage = computed(() => this.currentPage() < this.totalPages() - 2);
+  readonly showStartEllipsis = computed(() => this.currentPage() > 4);
+  readonly showEndEllipsis = computed(() => this.currentPage() < this.totalPages() - 3);
 
   readonly activeFilterCount = computed(() => {
     let count = 0;
@@ -60,6 +88,9 @@ export class AdminPostListComponent {
     if (this.featuredFilter()) count++;
     return count;
   });
+
+  // Spotlight selected set derived from postIds
+  readonly spotlightSelectedIds = computed(() => new Set(this.spotlightPostIds()));
 
   readonly postTypeOptions = [
     { value: '', label: 'All types' },
@@ -93,7 +124,16 @@ export class AdminPostListComponent {
   ];
 
   constructor() {
+    // Set up debounced search
+    this.searchDebounced
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((query) => {
+        this.searchQuery.set(query);
+        this.loadPosts(true);
+      });
+
     this.loadPosts(true);
+    this.loadSpotlightConfig();
   }
 
   loadPosts(reset: boolean = false): void {
@@ -130,9 +170,8 @@ export class AdminPostListComponent {
       });
   }
 
-  onSearch(query: string): void {
-    this.searchQuery.set(query);
-    this.loadPosts(true);
+  onSearchInput(value: string): void {
+    this.searchSubject.next(value);
   }
 
   onStatusFilter(status: string): void {
@@ -159,14 +198,24 @@ export class AdminPostListComponent {
     this.statusFilter.set('');
     this.typeFilter.set('');
     this.featuredFilter.set('');
-    this.searchQuery.set('');
+    this.searchSubject.next('');
     this.loadPosts(true);
   }
 
   goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages()) return;
-    this.currentPage.set(page);
+    const total = this.totalPages();
+    const target = Math.max(1, Math.min(page, total));
+    if (target === this.currentPage() || target < 1 || target > total) return;
+    this.currentPage.set(target);
     this.loadPosts();
+  }
+
+  onPageInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const page = parseInt(input.value, 10);
+    if (!isNaN(page) && page >= 1 && page <= this.totalPages()) {
+      this.goToPage(page);
+    }
   }
 
   viewPost(postId: string): void {
@@ -191,6 +240,7 @@ export class AdminPostListComponent {
         },
         error: (err) => {
           console.error('Failed to toggle feature:', err);
+          this.snackBar.open('Failed to toggle feature', 'OK', { duration: 3000 });
         }
       });
   }
@@ -214,9 +264,117 @@ export class AdminPostListComponent {
         },
         error: (err) => {
           console.error('Failed to delete post:', err);
+          this.snackBar.open('Failed to archive post', 'OK', { duration: 3000 });
         }
       });
   }
+
+  // ---- Spotlight Management ----
+
+  loadSpotlightConfig(): void {
+    this.spotlightLoading.set(true);
+    this.postService.getSpotlightConfig()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.spotlightLoading.set(false))
+      )
+      .subscribe({
+        next: (data) => {
+          if (data.config?.postIds?.length) {
+            this.spotlightPostIds.set(data.config.postIds);
+            this.spotlightInterval.set(data.config.intervalMinutes || 120);
+          } else {
+            this.spotlightPostIds.set([]);
+            this.spotlightInterval.set(120);
+          }
+        },
+        error: () => {
+          this.spotlightPostIds.set([]);
+          this.spotlightInterval.set(120);
+        }
+      });
+  }
+
+  toggleSpotlight(): void {
+    this.spotlightOpen.update((v) => !v);
+  }
+
+  isInSpotlight(postId: string): boolean {
+    return this.spotlightPostIds().includes(postId);
+  }
+
+  toggleSpotlightPost(postId: string): void {
+    this.spotlightPostIds.update((ids) => {
+      const idx = ids.indexOf(postId);
+      if (idx >= 0) {
+        return ids.filter((id) => id !== postId);
+      }
+      return [...ids, postId];
+    });
+  }
+
+  moveSpotlightPost(fromIndex: number, direction: -1 | 1): void {
+    this.spotlightPostIds.update((ids) => {
+      const toIndex = fromIndex + direction;
+      if (toIndex < 0 || toIndex >= ids.length) return ids;
+      const next = [...ids];
+      [next[fromIndex], next[toIndex]] = [next[toIndex], next[fromIndex]];
+      return next;
+    });
+  }
+
+  saveSpotlight(): void {
+    const ids = this.spotlightPostIds();
+    if (ids.length === 0) {
+      this.confirmClearSpotlight();
+      return;
+    }
+
+    this.spotlightSaving.set(true);
+    this.postService.updateSpotlightConfig(ids, this.spotlightInterval())
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.spotlightSaving.set(false))
+      )
+      .subscribe({
+        next: () => {
+          this.snackBar.open(`Spotlight rotation set with ${ids.length} post(s), every ${this.spotlightInterval()} min`, 'OK', { duration: 3000 });
+          this.spotlightOpen.set(false);
+        },
+        error: (err) => {
+          this.snackBar.open(err?.error?.message || 'Failed to save spotlight', 'OK', { duration: 3000 });
+        }
+      });
+  }
+
+  confirmClearSpotlight(): void {
+    if (!confirm('Clear the spotlight rotation? All posts will be removed from the spotlight.')) return;
+
+    this.spotlightSaving.set(true);
+    this.postService.clearSpotlight()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.spotlightSaving.set(false))
+      )
+      .subscribe({
+        next: () => {
+          this.spotlightPostIds.set([]);
+          this.spotlightInterval.set(120);
+          this.snackBar.open('Spotlight rotation cleared', 'OK', { duration: 2500 });
+          this.spotlightOpen.set(false);
+        },
+        error: () => {
+          this.snackBar.open('Failed to clear spotlight', 'OK', { duration: 3000 });
+        }
+      });
+  }
+
+  onIntervalChange(value: string): void {
+    const num = Math.max(1, Math.min(43200, Number(value || 120)));
+    this.spotlightInterval.set(num);
+  }
+
+  // ---- Utilities ----
 
   getTypeIcon(type: string): string {
     const icons: Record<string, string> = {
@@ -264,5 +422,13 @@ export class AdminPostListComponent {
     const days = Math.floor(hours / 24);
     if (days < 7) return `${days}d ago`;
     return this.formatDate(dateStr);
+  }
+
+  trackByPostId(_: number, post: AdminPostListItem): string {
+    return post._id;
+  }
+
+  trackByIndex(_: number, item: any): number {
+    return _;
   }
 }

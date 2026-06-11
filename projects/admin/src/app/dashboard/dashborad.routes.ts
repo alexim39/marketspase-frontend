@@ -5,9 +5,6 @@ import { DashboardMainComponent } from "./dashboard-main.component";
 
 export const dashboardRoutes: Routes = [
     {
-        /* path: '',
-        redirectTo: 'partner',
-        pathMatch: 'full' */
         path: '',
         component: AdminDashboardComponent,
         canActivate: [AuthGuard],
@@ -66,44 +63,63 @@ export const dashboardRoutes: Routes = [
                 title: 'Community Operations - Admin Dashboard'
             },
             {
-                path: 'posts',
-                loadComponent: () => import('../posts/post-list.component').then(c => c.AdminPostListComponent),
-                title: 'Post Management - Admin Dashboard'
-            },
-            {
-                path: 'posts/:postId',
-                loadComponent: () => import('../posts/post-detail.component').then(c => c.AdminPostDetailComponent),
-                title: 'Post Details - Admin Dashboard'
-            },
-            {
-                path: 'settings/payments',
-                loadComponent: () => import('../settings/payment-settings.component').then(c => c.PaymentSettingsComponent),
-                title: 'Payment Settings - Admin Dashboard'
-            },
-            {
-                path: 'settings/login-streaks',
-                loadComponent: () => import('../settings/login-streak-settings.component').then(c => c.LoginStreakSettingsComponent),
-                title: 'Daily Login Streak Settings - Admin Dashboard'
-            },
-            {
-                path: 'settings/badges',
-                loadComponent: () => import('../settings/badge-settings.component').then(c => c.BadgeSettingsComponent),
-                title: 'Badge & Level Settings - Admin Dashboard'
-            },
-            {
-                path: 'settings/gamification',
-                loadComponent: () => import('../settings/gamification-settings.component').then(c => c.GamificationSettingsComponent),
-                title: 'Gamification Settings - Admin Dashboard'
-            },
-            {
-                path: 'settings/ppc-pricing',
-                loadComponent: () => import('../settings/ppc-pricing-settings.component').then(c => c.PpcPricingSettingsComponent),
-                title: 'PPC Pricing Settings - Admin Dashboard'
-            },
-
-
-            // { path: 'marketing', loadChildren: () => import('./marketing/marketing-routes').then(r => r.MarketingRoutes) },
-            // { path: 'analytics', loadChildren: () => import('./business/analytics/analytics-routes').then(r => r.AnalyticsRoutes) },
+               path: 'posts',
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('../posts/post-list.component').then(c => c.AdminPostListComponent),
+                        title: 'Post Management - Admin Dashboard'
+                    },
+                    {
+                        path: 'spotlight',
+                        loadComponent: () => import('../posts/spotlight-mgt/spotlight-mgt.component').then(c => c.SpotlightManagementComponent),
+                        title: 'Spotlight Rotation - Admin Dashboard'
+                    },
+                    {
+                        path: ':postId',
+                        loadComponent: () => import('../posts/post-detail.component').then(c => c.AdminPostDetailComponent),
+                        title: 'Post Details - Admin Dashboard'
+                    },
+                ]
+            },      
+           {
+               path: 'settings',
+                children: [
+                    {
+                        path: '',
+                        redirectTo: 'payments',
+                        pathMatch: 'full'
+                    },
+                    {
+                        path: 'payments',
+                        loadComponent: () => import('../settings/payment-settings.component').then(c => c.PaymentSettingsComponent),
+                        title: 'Payment Settings - Admin Dashboard'
+                    },
+                    {
+                        path: 'login-streaks',
+                        loadComponent: () => import('../settings/login-streak-settings.component').then(c => c.LoginStreakSettingsComponent),
+                        title: 'Daily Login Streak Settings - Admin Dashboard'
+                    },
+                    {
+                        path: 'badges',
+                        loadComponent: () => import('../settings/badge-settings.component').then(c => c.BadgeSettingsComponent),
+                        title: 'Badge & Level Settings - Admin Dashboard'
+                    },
+                    {
+                        path: 'gamification',
+                        loadComponent: () => import('../settings/gamification-settings.component').then(c => c.GamificationSettingsComponent),
+                        title: 'Gamification Settings - Admin Dashboard'
+                    },
+                    {
+                        path: 'ppc-pricing',
+                        loadComponent: () => import('../settings/ppc-pricing-settings.component').then(c => c.PpcPricingSettingsComponent),
+                        title: 'PPC Pricing Settings - Admin Dashboard'
+                    },
+                ]
+           }
+            
+        // { path: 'marketing', loadChildren: () => import('./marketing/marketing-routes').then(r => r.MarketingRoutes) },
+        // { path: 'analytics', loadChildren: () => import('./business/analytics/analytics-routes').then(r => r.AnalyticsRoutes) },
         ]
     },
 ]

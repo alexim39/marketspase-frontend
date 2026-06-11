@@ -237,6 +237,16 @@ interface CommunityFeedPayload {
     candidateWindow?: number;
     signals?: string[];
   };
+  spotlight?: {
+    config: {
+      postIds: string[];
+      intervalMinutes: number;
+      currentIndex: number;
+      lastRotatedAt: string;
+      totalPosts: number;
+    } | null;
+    activePost: any | null;
+  };
 }
 
 export interface LiveActivity {
@@ -281,7 +291,7 @@ export class FeedService {
   private forumHighlightsSignal = signal<ForumHighlight[]>([]);
   private hotTopicsSignal = signal<FeedHotTopic[]>([]);
   private forumSpotlightSignal = signal<ForumSpotlightEntry[]>([]);
-  private liveActivitiesSignal = signal<LiveActivity[]>([]);
+    private liveActivitiesSignal = signal<LiveActivity[]>([]);
   private activityStatsSignal = signal<FeedStats>({
     postsToday: 0,
     activeUsers: 0,
@@ -289,6 +299,9 @@ export class FeedService {
     topHashtag: ''
   });
   private sortModeSignal = signal<'for_you' | 'following' | 'trending' | 'latest'>('for_you');
+
+  // Spotlight rotation
+  private spotlightPostSignal = signal<FeedPost | null>(null);
 
   public posts = this.postsSignal.asReadonly();
   public likedPosts = this.likedPostsSignal.asReadonly();
@@ -306,11 +319,22 @@ export class FeedService {
   public activityStats = this.activityStatsSignal.asReadonly();
   public sortMode = this.sortModeSignal.asReadonly();
 
+  /**
+   * The featured/spotlight post is the admin-configured spotlight rotation post
+   * returned from the API. If no spotlight is configured, falls back to finding
+   * a post with isFeatured=true, then the highest-engagement post.
+   */
   public featuredPost = computed(() => {
+    // 1. Prefer the dedicated spotlight post from the API (rotation-based)
+    const spotlight = this.spotlightPostSignal();
+    if (spotlight) return spotlight;
+
+    // 2. Fallback: look for a post with isFeatured flag
     const posts = this.postsSignal();
     const featured = posts.find((post) => post.isFeatured);
     if (featured) return featured;
 
+    // 3. Last resort: top-engagement post
     return [...posts].sort((a, b) => {
       const scoreA = (a.recommendationScore || 0) + a.likeCount + a.commentCount + a.shareCount + (a.chatCount || 0);
       const scoreB = (b.recommendationScore || 0) + b.likeCount + b.commentCount + b.shareCount + (b.chatCount || 0);
@@ -318,7 +342,18 @@ export class FeedService {
     })[0];
   });
 
-  public regularPosts = computed(() => this.postsSignal().filter((post) => !post.isFeatured));
+  /**
+   * Regular posts exclude the featured/spotlight post to avoid duplication.
+   */
+  public regularPosts = computed(() => {
+    const spotlightId = this.spotlightPostSignal()?._id;
+    const posts = this.postsSignal();
+    return posts.filter((post) => {
+      if (post._id === spotlightId) return false;
+      if (post.isFeatured && !spotlightId) return false;
+      return true;
+    });
+  });
 
   setLiveActivities(activities: LiveActivity[]): void {
     this.liveActivitiesSignal.set(activities.slice(0, 6));
@@ -538,7 +573,7 @@ export class FeedService {
     return this.apiService.get(`api/v1/campaign/user/${userId}`, params, undefined, true);
   }
 
-  private extractCommunityResponse(response: any): CommunityFeedPayload {
+    private extractCommunityResponse(response: any): CommunityFeedPayload {
     const data = response?.data || response || {};
 
     return {
@@ -552,12 +587,24 @@ export class FeedService {
       hotTopics: Array.isArray(data.hotTopics) ? data.hotTopics : [],
       forumSpotlight: Array.isArray(data.forumSpotlight) ? data.forumSpotlight : [],
       sortMode: data.sortMode || 'for_you',
-      feedModel: data.feedModel
+      feedModel: data.feedModel,
+      spotlight: data.spotlight || null
     };
   }
 
-  private handleCommunityFeed(payload: CommunityFeedPayload, reset: boolean): void {
+    private handleCommunityFeed(payload: CommunityFeedPayload, reset: boolean): void {
     const newPosts = payload.posts.map((post) => this.processPost(post));
+
+    // Process spotlight post from rotation (if available)
+    if (payload.spotlight?.activePost) {
+      const spotlightPost = this.processPost({
+        ...payload.spotlight.activePost,
+        isFeatured: true
+      });
+      this.spotlightPostSignal.set(spotlightPost);
+    } else {
+      this.spotlightPostSignal.set(null);
+    }
 
     if (reset) {
       this.postsSignal.set(newPosts);

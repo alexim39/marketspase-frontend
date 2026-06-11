@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, map, finalize } from 'rxjs';
+import { HttpParams } from '@angular/common/http';
 import { ApiService } from '../../../../shared-services/src/public-api';
 
 export interface AdminPostAuthor {
@@ -104,25 +105,24 @@ export class PostService {
   readonly loading = this.loadingSignal.asReadonly();
 
   getPosts(filters: AdminPostFilters): Observable<AdminPostListResponse> {
-    const params: Record<string, string> = {
-      page: String(filters.page),
-      limit: String(filters.limit)
-    };
+    let params = new HttpParams()
+      .set('page', String(filters.page))
+      .set('limit', String(filters.limit));
 
-    if (filters.status) params['status'] = filters.status;
-    if (filters.type) params['type'] = filters.type;
-    if (filters.source) params['source'] = filters.source;
-    if (filters.search?.trim()) params['search'] = filters.search.trim();
-    if (filters.sort) params['sort'] = filters.sort;
+    if (filters.status) params = params.set('status', filters.status);
+    if (filters.type) params = params.set('type', filters.type);
+    if (filters.source) params = params.set('source', filters.source);
+    if (filters.search?.trim()) params = params.set('search', filters.search.trim());
+    if (filters.sort) params = params.set('sort', filters.sort);
     if (filters.isFeatured !== undefined && filters.isFeatured !== '') {
-      params['isFeatured'] = filters.isFeatured;
+      params = params.set('isFeatured', filters.isFeatured);
     }
-    if (filters.authorId) params['authorId'] = filters.authorId;
+    if (filters.authorId) params = params.set('authorId', filters.authorId);
 
     this.loadingSignal.set(true);
 
     return this.apiService
-      .get<{ success: boolean; data: AdminPostListResponse }>(`${this.apiUrl}/posts`, undefined, undefined, true)
+      .get<{ success: boolean; data: AdminPostListResponse }>(`${this.apiUrl}/posts`, params, undefined, true)
       .pipe(
         map((response) => ({
           posts: response?.data?.posts || [],
@@ -162,5 +162,29 @@ export class PostService {
         undefined,
         true
       );
+  }
+
+  // ---- Spotlight Rotation API ----
+
+  getSpotlightConfig(): Observable<{ config: any | null; activePost: any | null }> {
+    return this.apiService
+      .get<{ success: boolean; data: { config: any; activePost: any } }>(`${this.apiUrl}/spotlight`, undefined, undefined, true)
+      .pipe(map((response) => response?.data || { config: null, activePost: null }));
+  }
+
+  updateSpotlightConfig(postIds: string[], intervalMinutes: number = 120): Observable<any> {
+    return this.apiService
+      .put<{ success: boolean; data: any }>(
+        `${this.apiUrl}/spotlight`,
+        { postIds, intervalMinutes },
+        undefined,
+        true
+      )
+      .pipe(map((response) => response?.data));
+  }
+
+  clearSpotlight(): Observable<any> {
+    return this.apiService
+      .delete<{ success: boolean; data: any }>(`${this.apiUrl}/spotlight`, undefined, undefined, true);
   }
 }
