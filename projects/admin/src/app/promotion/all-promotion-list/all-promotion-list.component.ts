@@ -1,57 +1,33 @@
-import { Component, DestroyRef, TemplateRef, ViewChild, inject, signal } from '@angular/core';
+import { Component, DestroyRef, TemplateRef, ViewChild, inject, signal, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatDialogModule, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CampaignService } from '../../campaign/campaign.service';
 import { PromotionService } from '../promotion.service';
 
-interface PromotionClickStats {
-  totalClicks?: number;
-  billableClicks?: number;
-  invalidClicks?: number;
-  duplicateClicks?: number;
-  earnedAmount?: number;
-  lastClickAt?: string;
+interface CampaignSummary {
+  _id: string;
+  title: string;
+  category?: string;
 }
 
-interface PromotionFraudState {
-  isFlagged?: boolean;
-  reviewStatus?: string;
-  reasonSummary?: string;
-}
-
-interface PromotionInterface {
+interface Promotion {
   _id: string;
   upi: string;
-  campaign: string | CampaignInterface;
-  promoter: string | {
-    _id?: string;
-    displayName?: string;
-    email?: string;
-    username?: string;
-  };
-  status: 'accepted' | 'inactive' | 'paid' | 'rejected' | string;
+  campaign: string | CampaignSummary;
+  promoter: string | { _id?: string; displayName?: string; email?: string; username?: string };
+  status: string;
   isActive?: boolean;
   promotionUrl?: string;
   payoutAmount?: number;
@@ -61,55 +37,36 @@ interface PromotionInterface {
   rejectedAt?: string;
   createdAt: string;
   updatedAt: string;
-  clickStats?: PromotionClickStats;
-  fraudStatus?: PromotionFraudState;
+  clickStats?: { totalClicks?: number; billableClicks?: number; invalidClicks?: number; duplicateClicks?: number; earnedAmount?: number; lastClickAt?: string };
+  fraudStatus?: { isFlagged?: boolean; reviewStatus?: string; reasonSummary?: string };
   proofMedia?: string[];
   proofViews?: number;
-  activityLog?: Array<{ action?: string; details?: string; timestamp?: string }>;
 }
 
-interface CampaignInterface {
-  _id: string;
-  title: string;
-  category?: string;
-  costPerClick?: number;
-  payoutPerPromotion?: number;
-  currency?: string;
-  status?: string;
-  owner?: any;
+interface PageResponse {
+  success: boolean;
+  data: {
+    promotions: Promotion[];
+    pagination: { page: number; limit: number; total: number; totalPages: number };
+  };
+  message?: string;
 }
 
 @Component({
   selector: 'admin-promotion-list-mgt',
   standalone: true,
-  providers: [PromotionService, CampaignService, DatePipe, CurrencyPipe],
+  providers: [PromotionService, DatePipe, CurrencyPipe],
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatButtonModule,
-    MatCardModule,
-    MatTooltipModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatMenuModule
+    CommonModule, ReactiveFormsModule,
+    MatIconModule, MatButtonModule, MatTooltipModule,
+    MatProgressSpinnerModule, MatDialogModule, MatSnackBarModule,
+    MatProgressBarModule,
   ],
   templateUrl: './all-promotion-list.component.html',
   styleUrls: ['./all-promotion-list.component.scss'],
 })
 export class AllPromotionListMgtComponent {
   readonly promotionService = inject(PromotionService);
-  readonly campaignService = inject(CampaignService);
   readonly router = inject(Router);
   readonly snackBar = inject(MatSnackBar);
   readonly dialog = inject(MatDialog);
@@ -117,309 +74,311 @@ export class AllPromotionListMgtComponent {
   readonly clipboard = inject(Clipboard);
   private readonly destroyRef = inject(DestroyRef);
 
-  isLoading = signal(true);
-  totalPromotions = signal(0);
-  activePromotions = signal(0);
-  inactivePromotions = signal(0);
-  flaggedPromotions = signal(0);
-  paidPromotions = signal(0);
-  rejectedPromotions = signal(0);
-  totalBillableClicks = signal(0);
-  campaigns = signal<CampaignInterface[]>([]);
-  selectedPromotion = signal<PromotionInterface | null>(null);
+  readonly isLoading = signal(true);
+  readonly isFiltering = signal(false);
+  readonly error = signal<string | null>(null);
 
-  displayedColumns: string[] = ['upi', 'campaign', 'promoter', 'traffic', 'earnings', 'lifecycle', 'status', 'actions'];
-  dataSource = new MatTableDataSource<PromotionInterface>([]);
+  readonly promotions = signal<Promotion[]>([]);
+  readonly currentPage = signal(1);
+  readonly pageSize = signal(50);
+  readonly campaigns = signal<CampaignSummary[]>([]);
 
-  filtersForm = this.fb.group({
-    status: [[] as string[]],
-    campaign: [[] as string[]],
+  activeMenuPromotion: Promotion | null = null;
+  dialogRef!: MatDialogRef<any>;
+  @ViewChild('promotionDetailsDialog') promotionDetailsDialog!: TemplateRef<any>;
+  selectedPromotion = signal<Promotion | null>(null);
+
+  readonly filtersForm = this.fb.group({
+    status: ['all' as string],
+    campaign: [''],
     search: [''],
-    startDate: [null as Date | null],
-    endDate: [null as Date | null]
+    startDate: ['' as string],
+    endDate: ['' as string]
   });
 
-  dialogRef!: MatDialogRef<any>;
+  // Bumped on every filter change to make computed() react to form control values
+  readonly filterTick = signal(0);
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild('promotionDetailsDialog') promotionDetailsDialog!: TemplateRef<any>;
+  readonly statusLabel: Record<string, string> = {
+    accepted: 'Active Link',
+    inactive: 'Inactive Link',
+    flagged: 'Under Review',
+    paid: 'Legacy Paid',
+    rejected: 'Rejected'
+  };
 
-  constructor() {
-    this.dataSource.filterPredicate = this.createFilter();
-  }
+  readonly pageNumbers = computed(() => {
+    const total = Math.max(1, this.totalPages());
+    const current = this.currentPage();
+    const pages: number[] = [];
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, current + 2);
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  });
+
+  readonly statsData = computed(() => {
+    const all = this.promotions();
+    return {
+      total: all.length,
+      active: all.filter(p => this.getFilterStatus(p) === 'accepted').length,
+      inactive: all.filter(p => this.getFilterStatus(p) === 'inactive').length,
+      flagged: all.filter(p => this.getFilterStatus(p) === 'flagged').length,
+      paid: all.filter(p => p.status === 'paid').length,
+      rejected: all.filter(p => p.status === 'rejected').length,
+      billableClicks: all.reduce((s, p) => s + Number(p.clickStats?.billableClicks ?? 0), 0)
+    };
+  });
+
+  // Client-side date filter (applied on top of promotions signal)
+  readonly filteredPromotions = computed(() => {
+    const all = this.promotions();
+    const _tick = this.filterTick(); // track form filter changes reactively
+    const start = this.filtersForm.controls.startDate.value;
+    const end = this.filtersForm.controls.endDate.value;
+    if (!start && !end) return all;
+
+    const startDate = start ? new Date(start) : null;
+    const endDate = end ? new Date(end) : null;
+    if (endDate) endDate.setHours(23, 59, 59, 999);
+
+    return all.filter(p => {
+      const d = this.getLifecycleDate(p);
+      if (!d) return !startDate && !endDate;
+      const date = new Date(d);
+      if (startDate && date < startDate) return false;
+      if (endDate && date > endDate) return false;
+      return true;
+    });
+  });
+
+  readonly filteredCount = computed(() => this.filteredPromotions().length);
+
+  readonly totalItems = computed(() => this.filteredCount());
+  readonly totalPages = computed(() => Math.ceil(this.filteredCount() / this.pageSize()) || 1);
+
+  // Track all fetched promotions for stats display; only show current page in UI
+  readonly displayedPromotions = computed(() => {
+    const all = this.filteredPromotions();
+    const page = this.currentPage();
+    const size = this.pageSize();
+    return all.slice((page - 1) * size, page * size);
+  });
 
   ngOnInit(): void {
-    this.loadPromotions();
     this.loadCampaigns();
+    this.loadPromotionsPage();
 
-    this.filtersForm.valueChanges
+    // Debounced search input
+    this.filtersForm.controls.search.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.currentPage.set(1);
+        this.filterTick.set(this.filterTick() + 1);
+      });
+
+    // Immediate filter on status/campaign change
+    this.filtersForm.controls.status.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.applyFormFilters());
+      .subscribe(() => {
+        this.currentPage.set(1);
+        this.filterTick.set(this.filterTick() + 1);
+      });
+
+    this.filtersForm.controls.campaign.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.currentPage.set(1);
+        this.filterTick.set(this.filterTick() + 1);
+      });
+
+    // Debounced date range
+    this.filtersForm.controls.startDate.valueChanges
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => { this.currentPage.set(1); this.filterTick.set(this.filterTick() + 1); });
+
+    this.filtersForm.controls.endDate.valueChanges
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => { this.currentPage.set(1); this.filterTick.set(this.filterTick() + 1); });
   }
 
-  ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+  private loadCampaigns(): void {
+    // Only load campaign list once for the filter dropdown
+    this.promotionService.getAllPromotions()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            const campaigns = new Map<string, CampaignSummary>();
+            for (const p of (response.data || []) as Promotion[]) {
+              if (typeof p.campaign === 'object' && p.campaign?._id) {
+                campaigns.set(p.campaign._id, p.campaign as CampaignSummary);
+              }
+            }
+            this.campaigns.set(Array.from(campaigns.values()));
+          }
+        }
+      });
   }
 
-  private loadPromotions(): void {
+  public loadPromotionsPage(): void {
+    // Check if the backend supports server-side filtering via getPromotionsByStatus
+    const status = this.filtersForm.controls.status.value || 'all';
+
+    if (status !== 'all') {
+      this.isLoading.set(true);
+      this.isFiltering.set(false);
+      this.promotionService.getPromotionsByStatus(status)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response: any) => {
+            if (response.success) {
+              const data = response.data || [];
+              this.promotions.set(data);
+              this.extractCampaigns(data);
+            }
+            this.isLoading.set(false);
+          },
+          error: () => {
+            this.error.set('Failed to load promotions');
+            this.isLoading.set(false);
+          }
+        });
+      return;
+    }
+
+    // All promotions
     this.isLoading.set(true);
+    this.isFiltering.set(false);
+    this.error.set(null);
 
     this.promotionService.getAllPromotions()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           if (response.success) {
-            this.dataSource.data = response.data as PromotionInterface[];
-            this.calculateStats(this.dataSource.data);
+            const data = response.data as Promotion[] || [];
+            this.promotions.set(data);
+            this.extractCampaigns(data);
           } else {
-            this.snackBar.open('Failed to load promotions', 'Close', { duration: 3000 });
+            this.error.set('Failed to load promotions');
           }
           this.isLoading.set(false);
         },
-        error: (error) => {
-          console.error('Error fetching promotions:', error);
-          this.snackBar.open('Error loading promotions', 'Close', { duration: 3000 });
+        error: () => {
+          this.error.set('Error loading promotions');
           this.isLoading.set(false);
         }
       });
   }
 
-  private loadCampaigns(): void {
-    this.campaignService.getAppCampaigns()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.campaigns.set(response.data);
-          }
-        },
-        error: (error) => {
-          console.error('Error fetching campaigns:', error);
-        }
-      });
+  private extractCampaigns(promotions: Promotion[]): void {
+    if (this.campaigns().length > 0) return; // Already loaded
+    const map = new Map<string, CampaignSummary>();
+    for (const p of promotions) {
+      if (typeof p.campaign === 'object' && p.campaign?._id) {
+        map.set(p.campaign._id, p.campaign as CampaignSummary);
+      }
+    }
+    if (map.size > 0) this.campaigns.set(Array.from(map.values()));
   }
 
-  private calculateStats(promotions: PromotionInterface[]): void {
-    const billableClicks = promotions.reduce((sum, promotion) => sum + this.getBillableClicks(promotion), 0);
+  getFilterStatus(p: Promotion): string {
+    if (p.fraudStatus?.isFlagged) return 'flagged';
+    if (p.status === 'accepted' && p.isActive === false) return 'inactive';
+    return p.status || 'accepted';
+  }
 
-    this.totalPromotions.set(promotions.length);
-    this.activePromotions.set(promotions.filter((promotion) => this.getFilterStatus(promotion) === 'accepted').length);
-    this.inactivePromotions.set(promotions.filter((promotion) => this.getFilterStatus(promotion) === 'inactive').length);
-    this.flaggedPromotions.set(promotions.filter((promotion) => this.getFilterStatus(promotion) === 'flagged').length);
-    this.paidPromotions.set(promotions.filter((promotion) => promotion.status === 'paid').length);
-    this.rejectedPromotions.set(promotions.filter((promotion) => promotion.status === 'rejected').length);
-    this.totalBillableClicks.set(billableClicks);
+  getCampaignTitle(c: string | CampaignSummary): string {
+    if (typeof c === 'object') return c?.title || 'Unknown Campaign';
+    return this.campaigns().find(cam => cam._id === c)?.title || 'Unknown Campaign';
+  }
+
+  getCampaignId(c: string | CampaignSummary): string {
+    return typeof c === 'string' ? c : (c?._id || '');
+  }
+
+  getPromoterName(p: string | { displayName?: string }): string {
+    return typeof p === 'object' ? (p?.displayName || 'Unknown') : 'Unknown';
+  }
+
+  getTrackedClicks(p: Promotion): number { return Number(p.clickStats?.totalClicks ?? 0); }
+  getBillableClicks(p: Promotion): number { return Number(p.clickStats?.billableClicks ?? 0); }
+  getInvalidClicks(p: Promotion): number { return Number(p.clickStats?.invalidClicks ?? 0) + Number(p.clickStats?.duplicateClicks ?? 0); }
+  getEarnedAmount(p: Promotion): number { return Number(p.clickStats?.earnedAmount ?? p.payoutAmount ?? 0); }
+
+  getLifecycleDate(p: Promotion): string | undefined {
+    return p.clickStats?.lastClickAt || p.acceptedAt || p.paidAt || p.rejectedAt || p.updatedAt || p.createdAt;
   }
 
   applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.filtersForm.patchValue({ search: filterValue });
-  }
-
-  applyFormFilters(): void {
-    this.dataSource.filter = JSON.stringify(this.filtersForm.value);
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
-
-  createFilter(): (data: PromotionInterface, filter: string) => boolean {
-    return (data: PromotionInterface, filter: string): boolean => {
-      if (!filter) return true;
-
-      const filters = JSON.parse(filter);
-      const searchTerm = String(filters.search || '').toLowerCase();
-      const derivedStatus = this.getFilterStatus(data);
-
-      const matchesSearch = !searchTerm
-        || data.upi?.toLowerCase().includes(searchTerm)
-        || this.getPromoterName(data.promoter).toLowerCase().includes(searchTerm)
-        || this.getPromoterEmail(data.promoter).toLowerCase().includes(searchTerm)
-        || this.getCampaignTitle(data.campaign).toLowerCase().includes(searchTerm);
-
-      const matchesStatus = !filters.status?.length || filters.status.includes(derivedStatus);
-
-      const matchesCampaign = !filters.campaign?.length || filters.campaign.includes(this.getCampaignId(data.campaign));
-
-      let matchesDateRange = true;
-      if (filters.startDate && filters.endDate) {
-        const activityDate = new Date(this.getLifecycleDate(data) || data.createdAt);
-        const startDate = new Date(filters.startDate);
-        const endDate = new Date(filters.endDate);
-        endDate.setHours(23, 59, 59, 999);
-        matchesDateRange = activityDate >= startDate && activityDate <= endDate;
-      }
-
-      return matchesSearch && matchesStatus && matchesCampaign && matchesDateRange;
-    };
+    const value = (event.target as HTMLInputElement).value;
+    this.filtersForm.controls.search.setValue(value);
   }
 
   clearFilters(): void {
-    this.filtersForm.reset({
-      status: [],
-      campaign: [],
-      search: '',
-      startDate: null,
-      endDate: null
-    });
+    this.filtersForm.reset({ status: 'all', campaign: '', search: '', startDate: '', endDate: '' });
+    this.filterTick.set(this.filterTick() + 1);
+    this.currentPage.set(1);
+    this.loadPromotionsPage();
   }
 
-  getCampaignId(campaign: string | CampaignInterface): string {
-    return typeof campaign === 'string' ? campaign : (campaign?._id || '');
+  goToPage(page: number): void {
+    const target = Math.max(1, Math.min(page, Math.max(1, this.totalPages())));
+    if (target === this.currentPage()) return;
+    this.currentPage.set(target);
   }
 
-  getCampaignTitle(campaign: string | CampaignInterface): string {
-    if (typeof campaign === 'string') {
-      return this.campaigns().find((item) => item._id === campaign)?.title || 'Unknown Campaign';
+  onPageInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const page = parseInt(input.value, 10);
+    if (!isNaN(page) && page >= 1 && page <= this.totalPages()) {
+      this.goToPage(page);
     }
-
-    return campaign?.title || 'Unknown Campaign';
+    input.value = '';
   }
 
-  getCampaignCategory(campaign: string | CampaignInterface): string {
-    if (typeof campaign === 'string') {
-      return this.campaigns().find((item) => item._id === campaign)?.category || 'General';
-    }
-
-    return campaign?.category || 'General';
+  toggleMenu(event: MouseEvent, promotion: Promotion): void {
+    event.stopPropagation();
+    this.activeMenuPromotion = this.activeMenuPromotion?._id === promotion._id ? null : promotion;
   }
 
-  getPromoterId(promoter: string | PromotionInterface['promoter']): string {
-    return typeof promoter === 'string' ? promoter : (promoter?._id || '');
-  }
+  closeMenu(): void { this.activeMenuPromotion = null; }
 
-  getPromoterName(promoter: string | PromotionInterface['promoter']): string {
-    return typeof promoter === 'string' ? 'Unknown Promoter' : (promoter?.displayName || 'Unknown Promoter');
-  }
-
-  getPromoterEmail(promoter: string | PromotionInterface['promoter']): string {
-    return typeof promoter === 'string' ? 'No email' : (promoter?.email || 'No email');
-  }
-
-  getTrackedClicks(promotion: PromotionInterface): number {
-    return Number(promotion.clickStats?.totalClicks || 0);
-  }
-
-  getBillableClicks(promotion: PromotionInterface): number {
-    return Number(promotion.clickStats?.billableClicks || 0);
-  }
-
-  getInvalidClicks(promotion: PromotionInterface): number {
-    return Number(promotion.clickStats?.invalidClicks || 0) + Number(promotion.clickStats?.duplicateClicks || 0);
-  }
-
-  getEarnedAmount(promotion: PromotionInterface): number {
-    return Number(promotion.clickStats?.earnedAmount ?? promotion.payoutAmount ?? 0);
-  }
-
-  getCostPerClick(promotion: PromotionInterface): number {
-    const campaign = typeof promotion.campaign === 'string'
-      ? this.campaigns().find((item) => item._id === promotion.campaign)
-      : promotion.campaign;
-
-    return Number(promotion.costPerClick ?? campaign?.costPerClick ?? campaign?.payoutPerPromotion ?? 0);
-  }
-
-  getLifecycleDate(promotion: PromotionInterface): string | undefined {
-    return promotion.clickStats?.lastClickAt
-      || promotion.acceptedAt
-      || promotion.paidAt
-      || promotion.rejectedAt
-      || promotion.updatedAt
-      || promotion.createdAt;
-  }
-
-  getFilterStatus(promotion: PromotionInterface): string {
-    if (promotion.fraudStatus?.isFlagged) {
-      return 'flagged';
-    }
-
-    if (promotion.status === 'accepted' && promotion.isActive === false) {
-      return 'inactive';
-    }
-
-    return String(promotion.status || 'accepted');
-  }
-
-  getStatusLabel(promotion: PromotionInterface): string {
-    switch (this.getFilterStatus(promotion)) {
-      case 'accepted':
-        return 'Active Link';
-      case 'inactive':
-        return 'Inactive Link';
-      case 'flagged':
-        return 'Under Review';
-      case 'paid':
-        return 'Legacy Paid';
-      case 'rejected':
-        return 'Rejected';
-      default:
-        return String(promotion.status || 'Promotion');
-    }
-  }
-
-  getStatusChipClass(promotion: PromotionInterface): string {
-    switch (this.getFilterStatus(promotion)) {
-      case 'accepted':
-        return 'accepted';
-      case 'inactive':
-        return 'inactive';
-      case 'flagged':
-        return 'flagged';
-      case 'paid':
-        return 'paid';
-      case 'rejected':
-        return 'rejected';
-      default:
-        return 'pending';
-    }
-  }
-
-  viewPromotionDetails(promotion: PromotionInterface): void {
-    this.selectedPromotion.set(promotion);
+  viewPromotionDetails(p: Promotion): void {
+    this.selectedPromotion.set(p);
     this.dialogRef = this.dialog.open(this.promotionDetailsDialog, {
-      width: '860px',
+      width: '640px',
       maxWidth: '94vw'
     });
   }
 
-  copyPromotionLink(promotion: PromotionInterface): void {
-    if (!promotion.promotionUrl) {
-      this.snackBar.open('No tracking link is available for this promotion.', 'Close', { duration: 3000 });
-      return;
-    }
-
-    this.clipboard.copy(promotion.promotionUrl);
+  copyPromotionLink(p: Promotion): void {
+    if (!p.promotionUrl) { this.snackBar.open('No tracking link available', 'Close', { duration: 3000 }); return; }
+    this.clipboard.copy(p.promotionUrl);
     this.snackBar.open('Tracking link copied', 'Close', { duration: 2400 });
   }
 
-  openPromotionLink(promotion: PromotionInterface): void {
-    if (!promotion.promotionUrl) {
-      this.snackBar.open('No tracking link is available for this promotion.', 'Close', { duration: 3000 });
-      return;
-    }
-
-    window.open(promotion.promotionUrl, '_blank', 'noopener');
+  openPromotionLink(p: Promotion): void {
+    if (!p.promotionUrl) { this.snackBar.open('No tracking link available', 'Close', { duration: 3000 }); return; }
+    window.open(p.promotionUrl, '_blank', 'noopener');
   }
 
-  viewActivityLog(promotion: PromotionInterface): void {
-    this.selectedPromotion.set(promotion);
-    this.snackBar.open(`Viewing activity for ${promotion.upi}`, 'Close', { duration: 2200 });
+  viewCampaignDetails(p: Promotion): void {
+    const id = this.getCampaignId(p.campaign);
+    if (id) this.router.navigate(['dashboard/campaigns', id]);
   }
 
-  viewCampaignDetails(promotion: PromotionInterface): void {
-    const campaignId = this.getCampaignId(promotion.campaign);
-    if (campaignId) {
-      this.router.navigate(['dashboard/campaigns', campaignId]);
-    }
+  viewCampaignPromotions(p: Promotion): void {
+    const id = this.getCampaignId(p.campaign);
+    if (id) this.router.navigate(['dashboard/campaigns', id, 'promotions']);
   }
 
-  viewCampaignPromotions(promotion: PromotionInterface): void {
-    const campaignId = this.getCampaignId(promotion.campaign);
-    if (campaignId) {
-      this.router.navigate(['dashboard/campaigns', campaignId, 'promotions']);
-    }
+  viewActivityLog(p: Promotion): void {
+    this.snackBar.open(`Viewing activity for ${p.upi}`, 'Close', { duration: 2200 });
   }
 }
