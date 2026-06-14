@@ -1,74 +1,59 @@
-<main class="financial-content">
+<div class="page-shell">
   <app-finance-section-nav />
 
-  <section class="section-header analytics-link-row">
-    <div>
-      <h2>Finance operations</h2>
-      <p>Handle withdrawals and transaction reviews here, then use analytics for deeper trend analysis.</p>
+  <section class="hero-section">
+    <div class="page-header">
+      <div>
+        <p class="eyebrow">Financial Operations</p>
+        <h2>Finance operations</h2>
+        <p>Handle withdrawals and transaction reviews here, then use analytics for deeper trend analysis.</p>
+      </div>
+      <div class="header-actions">
+        <a routerLink="/dashboard/financial/analytics" class="primary-btn">
+          <mat-icon>query_stats</mat-icon>
+          Open analytics
+        </a>
+      </div>
     </div>
 
-    <a routerLink="/dashboard/financial/analytics" class="btn btn-primary">
-      <mat-icon>query_stats</mat-icon>
-      Open analytics
-    </a>
-  </section>
-
-  <section class="stats-section">
     <div class="stats-grid">
-      <div class="stat-card primary">
-        <div class="stat-icon">
-          <mat-icon>account_balance</mat-icon>
-        </div>
+      <div class="stat-card">
         <div class="stat-content">
-          <div class="stat-label">Total Cash In</div>
-          <div class="stat-value">{{ currencyLabel() }} {{ financialStats().totalCashIn.toLocaleString() }}</div>
-          <div class="stat-change positive">
-            <mat-icon>trending_up</mat-icon>
-            {{ withdrawalSuccessRate().toFixed(1) }}% withdrawal success rate
+          <mat-icon class="stat-icon">account_balance</mat-icon>
+          <div class="stat-details">
+            <span class="stat-value">{{ currencyLabel() }}{{ financialStats().totalCashIn.toLocaleString() }}</span>
+            <span class="stat-label">Total Cash In</span>
+            <span class="stat-note">{{ withdrawalSuccessRate().toFixed(1) }}% withdrawal success</span>
           </div>
         </div>
       </div>
-
-      <div class="stat-card success">
-        <div class="stat-icon">
-          <mat-icon>check_circle</mat-icon>
-        </div>
+      <div class="stat-card">
         <div class="stat-content">
-          <div class="stat-label">Completed Withdrawals</div>
-          <div class="stat-value">{{ currencyLabel() }} {{ financialStats().successfulWithdrawals.toLocaleString() }}</div>
-          <div class="stat-change positive">
-            <mat-icon>check</mat-icon>
-            {{ financialStats().successfulWithdrawalCount || 0 }} transactions
+          <mat-icon class="stat-icon">check_circle</mat-icon>
+          <div class="stat-details">
+            <span class="stat-value active-val">{{ currencyLabel() }}{{ financialStats().successfulWithdrawals.toLocaleString() }}</span>
+            <span class="stat-label">Completed Withdrawals</span>
+            <span class="stat-note">{{ financialStats().successfulWithdrawalCount || 0 }} transactions</span>
           </div>
         </div>
       </div>
-
-      <div class="stat-card warning">
-        <div class="stat-icon">
-          <mat-icon>pending</mat-icon>
-        </div>
+      <div class="stat-card">
         <div class="stat-content">
-          <div class="stat-label">Processing Queue</div>
-          <div class="stat-value">
-            {{ currencyLabel() }} {{ (financialStats().processingWithdrawals + financialStats().pendingApprovals).toLocaleString() }}
-          </div>
-          <div class="stat-change">
-            <mat-icon>schedule</mat-icon>
-            {{ (financialStats().processingWithdrawalCount + financialStats().pendingApprovalCount) || 0 }} in queue
+          <mat-icon class="stat-icon">pending</mat-icon>
+          <div class="stat-details">
+            <span class="stat-value pending-val">{{ currencyLabel() }}{{ (financialStats().processingWithdrawals + financialStats().pendingApprovals).toLocaleString() }}</span>
+            <span class="stat-label">Processing Queue</span>
+            <span class="stat-note">{{ (financialStats().processingWithdrawalCount + financialStats().pendingApprovalCount) || 0 }} in queue</span>
           </div>
         </div>
       </div>
-
-      <div class="stat-card danger">
-        <div class="stat-icon">
-          <mat-icon>error</mat-icon>
-        </div>
+      <div class="stat-card">
         <div class="stat-content">
-          <div class="stat-label">Failed</div>
-          <div class="stat-value">{{ currencyLabel() }} {{ financialStats().failedWithdrawals.toLocaleString() }}</div>
-          <div class="stat-change negative">
-            <mat-icon>warning</mat-icon>
-            {{ financialStats().failedWithdrawalCount || 0 }} failed
+          <mat-icon class="stat-icon">error</mat-icon>
+          <div class="stat-details">
+            <span class="stat-value danger-val">{{ currencyLabel() }}{{ financialStats().failedWithdrawals.toLocaleString() }}</span>
+            <span class="stat-label">Failed</span>
+            <span class="stat-note">{{ financialStats().failedWithdrawalCount || 0 }} failed</span>
           </div>
         </div>
       </div>
@@ -77,343 +62,165 @@
 
   <section class="management-section">
     <mat-tab-group (selectedTabChange)="onTabChange($event)">
+      <!-- WITHDRAWALS TAB -->
       <mat-tab label="Withdrawals">
         <div class="tab-content">
           <div class="section-header">
             <div class="filters-container">
-              <div class="search-box">
-                <mat-icon>search</mat-icon>
-                <input
-                  type="text"
-                  placeholder="Search by name, email, bank, or reference..."
-                  (input)="onSearchChange($event)"
-                  [value]="searchTerm()"
-                  class="search-input">
+              <div class="filter-field search-field">
+                <mat-icon class="search-icon">search</mat-icon>
+                <input type="text" class="search-input" placeholder="Search by name, email, bank, or reference..." [value]="searchTerm()" (input)="onSearchChange($event)" />
+                @if (searchTerm()) { <button type="button" class="search-clear-btn" (click)="clearSearch()"><mat-icon>close</mat-icon></button> }
               </div>
-
-              <div class="filter-buttons">
-                <button
-                  class="filter-btn"
-                  [class.active]="statusFilter() === 'all'"
-                  (click)="onStatusFilterChange('all')">
-                  All
-                </button>
-                <button
-                  class="filter-btn warning"
-                  [class.active]="statusFilter() === 'pending_approval'"
-                  (click)="onStatusFilterChange('pending_approval')">
-                  Pending Approval
-                </button>
-                <button
-                  class="filter-btn info"
-                  [class.active]="statusFilter() === 'processing'"
-                  (click)="onStatusFilterChange('processing')">
-                  Processing
-                </button>
-                <button
-                  class="filter-btn success"
-                  [class.active]="statusFilter() === 'successful'"
-                  (click)="onStatusFilterChange('successful')">
-                  Completed
-                </button>
-                <button
-                  class="filter-btn danger"
-                  [class.active]="statusFilter() === 'failed'"
-                  (click)="onStatusFilterChange('failed')">
-                  Failed
-                </button>
+              <div class="filter-chips">
+                <button type="button" class="filter-chip" [class.selected]="statusFilter() === 'all'" (click)="setStatusFilter('all')">All</button>
+                <button type="button" class="filter-chip" [class.selected]="statusFilter() === 'pending_approval'" (click)="setStatusFilter('pending_approval')">Pending Approval</button>
+                <button type="button" class="filter-chip" [class.selected]="statusFilter() === 'processing'" (click)="setStatusFilter('processing')">Processing</button>
+                <button type="button" class="filter-chip" [class.selected]="statusFilter() === 'successful'" (click)="setStatusFilter('successful')">Completed</button>
+                <button type="button" class="filter-chip" [class.selected]="statusFilter() === 'failed'" (click)="setStatusFilter('failed')">Failed</button>
               </div>
             </div>
-
-            <div class="action-buttons">
-              <button mat-icon-button class="btn btn-secondary" (click)="clearFilters()" matTooltip="Clear all filters">
-                <mat-icon>clear</mat-icon>
-              </button>
-              <button mat-flat-button class="btn btn-primary" (click)="exportWithdrawals()" matTooltip="Export to CSV">
-                <mat-icon>download</mat-icon>
-                Export
-              </button>
+            <div class="tab-actions">
+              <button type="button" class="ghost-btn" (click)="clearFilters()" matTooltip="Clear filters"><mat-icon>clear</mat-icon>Clear</button>
+              <button type="button" class="surface-btn" (click)="exportWithdrawals()" matTooltip="Export to CSV" [disabled]="isExporting()"><mat-icon>download</mat-icon>Export</button>
             </div>
           </div>
 
-          <div class="table-container">
-            @if (isWithdrawalsLoading()) {
-              <div class="loading-state">
-                <mat-spinner diameter="40"/>
-                <p>Loading withdrawal requests...</p>
-              </div>
-            } @else {
-              <table mat-table [dataSource]="paginatedWithdrawals()" class="financial-table">
-                <ng-container matColumnDef="user">
-                  <th mat-header-cell *matHeaderCellDef>User</th>
-                  <td mat-cell *matCellDef="let request">
-                    <div class="user-info">
-                      <div class="user-name">{{ request.userName }}</div>
-                      <div class="user-email">{{ request.userEmail }}</div>
-                    </div>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="amount">
-                  <th mat-header-cell *matHeaderCellDef>Amount</th>
-                  <td mat-cell *matCellDef="let request">
-                    <div class="amount-cell">
-                      <div class="amount" [class.text-danger]="request.status === 'failed'">
-                        {{ currencyLabel() }} {{ request.amount.toLocaleString() }}
-                      </div>
-                      <div class="date">{{ request.createdAt | date:'MMM d, y' }}</div>
-                    </div>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="amountPayable">
-                  <th mat-header-cell *matHeaderCellDef>Net Amount</th>
-                  <td mat-cell *matCellDef="let request">
-                    <div class="amount-cell">
-                      @if (request.amountPayable) {
-                        <div class="amount success-text">
-                          {{ currencyLabel() }} {{ request.amountPayable.toLocaleString() }}
+          @if (isWithdrawalsLoading()) {
+            <div class="loading-card"><mat-progress-bar mode="indeterminate" /><span>Loading withdrawals...</span></div>
+          } @else if (withdrawalRequests().length === 0) {
+            <div class="empty-state"><mat-icon>receipt_long</mat-icon><strong>No withdrawals found</strong><span>Try adjusting your filters.</span></div>
+          } @else {
+            <div class="table-wrap">
+              <table class="financial-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th class="sortable" (click)="toggleSort('amount')">Amount @if (getSortIcon('amount')) {<mat-icon class="sort-icon">{{getSortIcon('amount')}}</mat-icon>}</th>
+                    <th>Net Amount</th>
+                    <th>Bank Details</th>
+                    <th>Reference</th>
+                    <th class="sortable" (click)="toggleSort('status')">Status @if (getSortIcon('status')) {<mat-icon class="sort-icon">{{getSortIcon('status')}}</mat-icon>}</th>
+                    <th class="sortable" (click)="toggleSort('createdAt')">Date @if (getSortIcon('createdAt')) {<mat-icon class="sort-icon">{{getSortIcon('createdAt')}}</mat-icon>}</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (r of withdrawalRequests(); track r.withdrawalId) {
+                    <tr>
+                      <td><div class="user-info"><span class="user-name">{{ r.userName }}</span><span class="sub">{{ r.userEmail }}</span></div></td>
+                      <td><span class="amount" [class.text-danger]="r.status === 'failed'">{{ currencyLabel() }}{{ r.amount.toLocaleString() }}</span></td>
+                      <td>
+                        @if (r.amountPayable) { <span class="amount success-text">{{ currencyLabel() }}{{ r.amountPayable.toLocaleString() }}</span> }
+                        @else { <span class="muted">—</span> }
+                      </td>
+                      <td><div class="bank-info"><span class="name">{{ r.bankName }}</span><span class="sub">{{ r.accountNumber }}</span><span class="sub">{{ r.accountName }}</span></div></td>
+                      <td><span class="ref">{{ r.reference || 'N/A' }}</span></td>
+                      <td><span class="status-pill {{ getStatusConfig(r.status).css }}"><mat-icon class="pill-icon">{{ getStatusConfig(r.status).icon }}</mat-icon>{{ getStatusConfig(r.status).label }}</span></td>
+                      <td>{{ r.createdAt | date:'short' }}</td>
+                      <td>
+                        <div class="row-actions">
+                          <button type="button" class="icon-btn" title="View details" (click)="viewDetails(r)"><mat-icon>visibility</mat-icon></button>
+                          @if (r.status === 'pending_approval') {
+                            <button type="button" class="icon-btn" title="Approve" (click)="approveRequest(r)"><mat-icon>check_circle</mat-icon></button>
+                            <button type="button" class="icon-btn" title="Reject" (click)="rejectRequest(r)"><mat-icon>cancel</mat-icon></button>
+                          }
+                          @if (r.status === 'failed') { <button type="button" class="icon-btn" title="Retry" (click)="retryRequest(r)"><mat-icon>replay</mat-icon></button> }
                         </div>
-                        <div class="date">Fee: {{ currencyLabel() }} {{ (request.amount - request.amountPayable).toLocaleString() }}</div>
-                      } @else {
-                        <div class="amount">-</div>
-                      }
-                    </div>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="bankDetails">
-                  <th mat-header-cell *matHeaderCellDef>Bank Details</th>
-                  <td mat-cell *matCellDef="let request">
-                    <div class="bank-info">
-                      <div class="bank-name">{{ request.bankName }}</div>
-                      <div class="account-number">{{ request.accountNumber }}</div>
-                      <div class="account-name">{{ request.accountName }}</div>
-                    </div>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="reference">
-                  <th mat-header-cell *matHeaderCellDef>Reference</th>
-                  <td mat-cell *matCellDef="let request">
-                    <div class="reference-info">
-                      <div class="ref" matTooltip="{{ request.reference }}">
-                        {{ request.reference | slice:0:12 }}...
-                      </div>
-                      @if (request.transferCode) {
-                        <div class="provider-ref" matTooltip="Transfer code: {{ request.transferCode }}">
-                          <mat-icon class="small-icon">paid</mat-icon>
-                        </div>
-                      }
-                    </div>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="status">
-                  <th mat-header-cell *matHeaderCellDef>Status</th>
-                  <td mat-cell *matCellDef="let request">
-                    <div class="status-container">
-                      <mat-icon class="status-icon" [class]="getStatusClass(request.status)">
-                        {{ getStatusIcon(request.status) }}
-                      </mat-icon>
-                      <span class="status-badge" [class]="getStatusClass(request.status)">
-                        {{ getStatusLabel(request.status) }}
-                      </span>
-                    </div>
-                    @if (request.failureReason) {
-                      <div class="failure-reason" matTooltip="{{ request.failureReason }}">
-                        <mat-icon class="error-icon">error_outline</mat-icon>
-                      </div>
-                    }
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="date">
-                  <th mat-header-cell *matHeaderCellDef>Date</th>
-                  <td mat-cell *matCellDef="let request">
-                    <div class="date-cell">
-                      <div class="created-date">{{ request.createdAt | date:'MMM d, y' }}</div>
-                      <div class="time">{{ request.createdAt | date:'shortTime' }}</div>
-                      @if (request.processedAt) {
-                        <div class="processed-date" matTooltip="Processed: {{ request.processedAt | date:'medium' }}">
-                          <mat-icon class="small-icon">schedule</mat-icon>
-                        </div>
-                      }
-                    </div>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="actions">
-                  <th mat-header-cell *matHeaderCellDef>Actions</th>
-                  <td mat-cell *matCellDef="let request">
-                    <div class="action-buttons">
-                      <button
-                        class="btn-icon"
-                        (click)="viewWithdrawalDetails(request)"
-                        matTooltip="View Details">
-                        <mat-icon>visibility</mat-icon>
-                      </button>
-
-                      @if (request.status === 'pending_approval') {
-                        <button
-                          class="btn-icon success"
-                          (click)="approveWithdrawal(request)"
-                          matTooltip="Approve Withdrawal">
-                          <mat-icon>check_circle</mat-icon>
-                        </button>
-                        <button
-                          class="btn-icon danger"
-                          (click)="rejectWithdrawal(request)"
-                          matTooltip="Reject Withdrawal">
-                          <mat-icon>cancel</mat-icon>
-                        </button>
-                      }
-
-                      @if (request.status === 'failed') {
-                        <button
-                          class="btn-icon warning"
-                          (click)="retryWithdrawal(request)"
-                          matTooltip="Retry Failed Withdrawal">
-                          <mat-icon>refresh</mat-icon>
-                        </button>
-                      }
-                    </div>
-                  </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="withdrawalColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: withdrawalColumns;"></tr>
-              </table>
-
-              @if (paginatedWithdrawals().length === 0) {
-                <div class="empty-state">
-                  <mat-icon>payments</mat-icon>
-                  <h3>No withdrawal requests found</h3>
-                  <p>There are no withdrawal requests matching your current filters.</p>
-                  @if (statusFilter() !== 'all' || searchTerm()) {
-                    <button class="btn btn-secondary" (click)="clearFilters()">
-                      Clear Filters
-                    </button>
+                      </td>
+                    </tr>
                   }
-                </div>
-              }
+                </tbody>
+              </table>
+            </div>
 
-              @if (totalItems() > pageSize()) {
-                <mat-paginator
-                  [length]="totalItems()"
-                  [pageSize]="pageSize()"
-                  [pageIndex]="currentPage()"
-                  [pageSizeOptions]="[50, 100, 200, 500]"
-                  (page)="onPageChange($event)"
-                  aria-label="Select page"
-                  showFirstLastButtons>
-                </mat-paginator>
-              }
+            @if (totalPages() > 1) {
+              <div class="pagination-bar">
+                <div class="pagination-inner">
+                  <div class="page-size-select"><span class="page-size-label">Rows:</span><select class="page-size-dropdown" [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($any($event.target).value)">@for (o of pageSizeOptions; track o) {<option [value]="o">{{o}}</option>}</select></div>
+                  <button type="button" class="page-btn" [disabled]="currentPage()<=1" (click)="goToPage(1)"><mat-icon>first_page</mat-icon></button>
+                  <button type="button" class="page-btn" [disabled]="currentPage()<=1" (click)="goToPage(currentPage()-1)"><mat-icon>chevron_left</mat-icon></button>
+                  <div class="page-numbers">
+                    @if (currentPage()>3) { <button type="button" class="page-btn number" (click)="goToPage(1)">1</button> @if (currentPage()>4) {<span class="page-ellipsis">...</span>} }
+                    @for (p of withdrawalPageNumbers(); track p) { <button type="button" class="page-btn number" [class.active]="p===currentPage()" (click)="goToPage(p)">{{p}}</button> }
+                    @if (currentPage()<totalPages()-2) { @if (currentPage()<totalPages()-3) {<span class="page-ellipsis">...</span>} <button type="button" class="page-btn number" (click)="goToPage(totalPages())">{{totalPages()}}</button> }
+                  </div>
+                  <button type="button" class="page-btn" [disabled]="currentPage()>=totalPages()" (click)="goToPage(currentPage()+1)"><mat-icon>chevron_right</mat-icon></button>
+                  <button type="button" class="page-btn" [disabled]="currentPage()>=totalPages()" (click)="goToPage(totalPages())"><mat-icon>last_page</mat-icon></button>
+                  <div class="page-jump"><span class="page-jump-label">Go</span><input type="number" class="page-jump-input" min="1" [max]="totalPages()" placeholder="#" (keydown.enter)="onPageInput($event)" (blur)="onPageInput($event)"/></div>
+                  <span class="page-total">Page {{currentPage()}} of {{totalPages()}}</span>
+                </div>
+              </div>
             }
-          </div>
+          }
         </div>
       </mat-tab>
 
+      <!-- TRANSACTIONS TAB -->
       <mat-tab label="Transactions">
         <div class="tab-content">
           <div class="section-header">
-            <h3>All Transactions</h3>
-            <button mat-flat-button class="btn btn-secondary" (click)="exportTransactions()">
-              <mat-icon>download</mat-icon>
-              Export
-            </button>
-          </div>
-
-          <div class="table-container">
-            @if (isTransactionsLoading()) {
-              <div class="loading-state">
-                <mat-spinner diameter="40"/>
-                <p>Loading transactions...</p>
+            <div class="filters-container">
+              <div class="filter-field search-field">
+                <mat-icon class="search-icon">search</mat-icon>
+                <input type="text" class="search-input" placeholder="Search transactions..." [value]="transactionSearchTerm()" (input)="onTransactionSearchChange($event)" />
+                @if (transactionSearchTerm()) { <button type="button" class="search-clear-btn" (click)="clearTransactionSearch()"><mat-icon>close</mat-icon></button> }
               </div>
-            } @else {
-              <table mat-table [dataSource]="transactions()" class="financial-table">
-                <ng-container matColumnDef="user">
-                  <th mat-header-cell *matHeaderCellDef>User</th>
-                  <td mat-cell *matCellDef="let transaction">
-                    <div class="user-info">
-                      <div class="user-name">{{ transaction.userName }}</div>
-                      <div class="user-email">{{ transaction.userRole }}</div>
-                    </div>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="type">
-                  <th mat-header-cell *matHeaderCellDef>Type</th>
-                  <td mat-cell *matCellDef="let transaction">
-                    <span class="status-badge" [class.success-text]="transaction.type === 'credit'" [class.text-danger]="transaction.type === 'debit'">
-                      {{ getTypeLabel(transaction.type) }}
-                    </span>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="amount">
-                  <th mat-header-cell *matHeaderCellDef>Amount</th>
-                  <td mat-cell *matCellDef="let transaction">
-                    <div class="amount-cell">
-                      <div class="amount">{{ transaction.baseCurrency || currencyLabel() }} {{ transaction.amount.toLocaleString() }}</div>
-                      <div class="date">{{ transaction.currency || transaction.baseCurrency || currencyLabel() }}</div>
-                    </div>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="category">
-                  <th mat-header-cell *matHeaderCellDef>Category</th>
-                  <td mat-cell *matCellDef="let transaction">
-                    {{ getCategoryLabel(transaction.category) }}
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="description">
-                  <th mat-header-cell *matHeaderCellDef>Description</th>
-                  <td mat-cell *matCellDef="let transaction">
-                    {{ transaction.description }}
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="status">
-                  <th mat-header-cell *matHeaderCellDef>Status</th>
-                  <td mat-cell *matCellDef="let transaction">
-                    <div class="status-container">
-                      <mat-icon class="status-icon" [class]="getStatusClass(transaction.status)">
-                        {{ getStatusIcon(transaction.status) }}
-                      </mat-icon>
-                      <span class="status-badge" [class]="getStatusClass(transaction.status)">
-                        {{ getStatusLabel(transaction.status) }}
-                      </span>
-                    </div>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="date">
-                  <th mat-header-cell *matHeaderCellDef>Date</th>
-                  <td mat-cell *matCellDef="let transaction">
-                    <div class="date-cell">
-                      <div class="created-date">{{ transaction.createdAt | date:'MMM d, y' }}</div>
-                      <div class="time">{{ transaction.createdAt | date:'shortTime' }}</div>
-                    </div>
-                  </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="transactionColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: transactionColumns;"></tr>
-              </table>
-
-              @if (transactions().length === 0) {
-                <div class="empty-state">
-                  <mat-icon>receipt_long</mat-icon>
-                  <h3>No transactions found</h3>
-                  <p>We could not find any finance records for the current filter window.</p>
-                </div>
-              }
-            }
+            </div>
+            <div class="tab-actions">
+              <button type="button" class="surface-btn" (click)="exportTransactions()" matTooltip="Export to CSV" [disabled]="isExporting()"><mat-icon>download</mat-icon>Export</button>
+            </div>
           </div>
+
+          @if (isTransactionsLoading()) {
+            <div class="loading-card"><mat-progress-bar mode="indeterminate" /><span>Loading transactions...</span></div>
+          } @else if (transactions().length === 0) {
+            <div class="empty-state"><mat-icon>receipt_long</mat-icon><strong>No transactions found</strong><span>Try adjusting your filters.</span></div>
+          } @else {
+            <div class="table-wrap">
+              <table class="financial-table">
+                <thead>
+                  <tr>
+                    <th>User</th><th>Type</th><th>Amount</th><th>Category</th><th>Description</th><th>Status</th><th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (t of transactions(); track t.id) {
+                    <tr>
+                      <td><div class="user-info"><span class="user-name">{{ t.userName }}</span></div></td>
+                      <td><span class="type-pill" [class.credit]="t.type==='credit'" [class.debit]="t.type==='debit'">{{t.type|titlecase}}</span></td>
+                      <td><span class="amount" [class.success-text]="t.type==='credit'" [class.text-danger]="t.type==='debit'">{{currencyLabel()}}{{t.amount.toLocaleString()}}</span></td>
+                      <td><span class="category-pill">{{getCategoryLabel(t.category)}}</span></td>
+                      <td class="desc-cell">{{t.description}}</td>
+                      <td><span class="status-pill {{getStatusConfig(t.status).css}}"><mat-icon class="pill-icon">{{getStatusConfig(t.status).icon}}</mat-icon>{{getStatusConfig(t.status).label}}</span></td>
+                      <td>{{t.createdAt|date:'short'}}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            @if (transactionTotalPages() > 1) {
+              <div class="pagination-bar">
+                <div class="pagination-inner">
+                  <div class="page-size-select"><span class="page-size-label">Rows:</span><select class="page-size-dropdown" [ngModel]="transactionPageSize()" (ngModelChange)="onTransactionPageSizeChange($any($event.target).value)">@for (o of pageSizeOptions; track o) {<option [value]="o">{{o}}</option>}</select></div>
+                  <button type="button" class="page-btn" [disabled]="transactionPage()<=1" (click)="goToTransactionPage(1)"><mat-icon>first_page</mat-icon></button>
+                  <button type="button" class="page-btn" [disabled]="transactionPage()<=1" (click)="goToTransactionPage(transactionPage()-1)"><mat-icon>chevron_left</mat-icon></button>
+                  <div class="page-numbers">
+                    @if (transactionPage()>3) { <button type="button" class="page-btn number" (click)="goToTransactionPage(1)">1</button> @if (transactionPage()>4) {<span class="page-ellipsis">...</span>} }
+                    @for (p of transactionPageNumbers(); track p) { <button type="button" class="page-btn number" [class.active]="p===transactionPage()" (click)="goToTransactionPage(p)">{{p}}</button> }
+                    @if (transactionPage()<transactionTotalPages()-2) { @if (transactionPage()<transactionTotalPages()-3) {<span class="page-ellipsis">...</span>} <button type="button" class="page-btn number" (click)="goToTransactionPage(transactionTotalPages())">{{transactionTotalPages()}}</button> }
+                  </div>
+                  <button type="button" class="page-btn" [disabled]="transactionPage()>=transactionTotalPages()" (click)="goToTransactionPage(transactionPage()+1)"><mat-icon>chevron_right</mat-icon></button>
+                  <button type="button" class="page-btn" [disabled]="transactionPage()>=transactionTotalPages()" (click)="goToTransactionPage(transactionTotalPages())"><mat-icon>last_page</mat-icon></button>
+                  <div class="page-jump"><span class="page-jump-label">Go</span><input type="number" class="page-jump-input" min="1" [max]="transactionTotalPages()" placeholder="#" (keydown.enter)="onTransactionPageInput($event)" (blur)="onTransactionPageInput($event)"/></div>
+                  <span class="page-total">Page {{transactionPage()}} of {{transactionTotalPages()}}</span>
+                </div>
+              </div>
+            }
+          }
         </div>
       </mat-tab>
     </mat-tab-group>
   </section>
-</main>
+</div>

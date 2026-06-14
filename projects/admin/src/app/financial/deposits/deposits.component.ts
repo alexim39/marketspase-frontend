@@ -1,13 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { debounceTime, distinctUntilChanged, finalize, map } from 'rxjs';
 
@@ -43,12 +41,11 @@ const EMPTY_SUMMARY: DepositSummary = {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     RouterModule,
     MatIconModule,
-    MatPaginatorModule,
     MatProgressBarModule,
     MatSnackBarModule,
-    MatTableModule,
     MatTooltipModule,
     FinanceSectionNavComponent,
   ],
@@ -70,8 +67,18 @@ export class DepositsComponent {
   readonly deposits = signal<DepositRecord[]>([]);
   readonly summary = signal<DepositSummary>(EMPTY_SUMMARY);
   readonly totalItems = signal(0);
-  readonly currentPage = signal(0);
+  readonly currentPage = signal(1);
   readonly pageSize = signal(50);
+  readonly pageSizeOptions = [25, 50, 100, 200, 500];
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalItems() / this.pageSize())));
+
+  readonly pageNumbers = computed(() => {
+    const t = this.totalPages(); const c = this.currentPage();
+    const pages: number[] = [];
+    const start = Math.max(1, c - 2); const end = Math.min(t, c + 2);
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  });
 
   readonly displayedColumns = [
     'user',
@@ -182,13 +189,28 @@ export class DepositsComponent {
       fromDate: '',
       toDate: '',
     });
-    this.currentPage.set(0);
+    this.currentPage.set(1);
     this.loadDeposits();
   }
 
-  onPageChange(event: PageEvent): void {
-    this.currentPage.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
+  goToPage(page: number): void {
+    const t = Math.max(1, Math.min(page, this.totalPages()));
+    if (t === this.currentPage()) return;
+    this.currentPage.set(t);
+    this.loadDeposits();
+  }
+
+  onPageInput(e: Event): void {
+    const i = e.target as HTMLInputElement;
+    const p = parseInt(i.value, 10);
+    if (!isNaN(p) && p >= 1 && p <= this.totalPages()) this.goToPage(p);
+    i.value = '';
+  }
+
+  onPageSizeChange(size: string | number): void {
+    const n = typeof size === 'string' ? parseInt(size, 10) : size;
+    this.pageSize.set(n);
+    this.currentPage.set(1);
     this.loadDeposits();
   }
 
@@ -264,7 +286,7 @@ export class DepositsComponent {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
-        this.currentPage.set(0);
+        this.currentPage.set(1);
         this.loadDeposits();
       });
   }
@@ -280,7 +302,7 @@ export class DepositsComponent {
 
     this.financialService.getDeposits({
       ...this.buildFilterParams(),
-      page: this.currentPage() + 1,
+      page: this.currentPage(),
       limit: this.pageSize(),
     })
       .pipe(

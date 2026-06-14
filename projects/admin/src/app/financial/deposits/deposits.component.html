@@ -185,95 +185,70 @@
       </div>
     } @else {
       <div class="table-scroll">
-        <table mat-table [dataSource]="deposits()" class="deposit-table">
-          <ng-container matColumnDef="user">
-            <th mat-header-cell *matHeaderCellDef>User</th>
-            <td mat-cell *matCellDef="let deposit">
-              <div class="user-cell">
-                <strong>{{ deposit.userName }}</strong>
-                <span>{{ deposit.userEmail || 'No email' }}</span>
-                <small>{{ deposit.userRole }} · {{ deposit.walletType }} wallet</small>
-              </div>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="amount">
-            <th mat-header-cell *matHeaderCellDef>Amount</th>
-            <td mat-cell *matCellDef="let deposit">
-              <div class="amount-cell">
-                <strong>{{ deposit.amount | currency:deposit.baseCurrency:'symbol':'1.0-0' }}</strong>
-                <span>
-                  Native {{ deposit.nativeAmount | currency:deposit.currency:'symbol':'1.0-0' }}
-                </span>
-                @if (deposit.exchangeRate) {
-                  <small>Rate {{ deposit.exchangeRate }}</small>
-                }
-              </div>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="gateway">
-            <th mat-header-cell *matHeaderCellDef>Gateway</th>
-            <td mat-cell *matCellDef="let deposit">
-              <div class="gateway-cell">
-                <span class="gateway-pill">{{ deposit.gateway | titlecase }}</span>
-                <small>{{ deposit.paymentChannel || 'Channel unavailable' }}</small>
-              </div>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="reference">
-            <th mat-header-cell *matHeaderCellDef>Reference</th>
-            <td mat-cell *matCellDef="let deposit">
-              <button type="button" class="reference-btn" (click)="copyReference(deposit)" [matTooltip]="deposit.reference || 'No reference'">
-                <mat-icon>content_copy</mat-icon>
-                <span>{{ deposit.reference || 'N/A' }}</span>
-              </button>
-              @if (deposit.providerPaymentId) {
-                <small class="provider-id">Provider ID: {{ deposit.providerPaymentId }}</small>
-              }
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let deposit">
-              <span class="status-pill" [class]="getStatusClass(deposit.status)">
-                <mat-icon>{{ getStatusIcon(deposit.status) }}</mat-icon>
-                {{ deposit.status | titlecase }}
-              </span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef>Date</th>
-            <td mat-cell *matCellDef="let deposit">
-              <div class="date-cell">
-                <strong>{{ deposit.createdAt | date:'MMM d, y' }}</strong>
-                <span>{{ deposit.createdAt | date:'shortTime' }}</span>
-                @if (deposit.processedAt) {
-                  <small>Processed {{ deposit.processedAt | date:'MMM d, shortTime' }}</small>
-                }
-              </div>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
-            <td mat-cell *matCellDef="let deposit">
-              <div class="row-actions">
-                <a class="icon-btn" [routerLink]="['/dashboard/users', deposit.userId]" matTooltip="Open user profile">
-                  <mat-icon>person_search</mat-icon>
-                </a>
-                <button type="button" class="icon-btn" (click)="copyReference(deposit)" matTooltip="Copy reference">
-                  <mat-icon>content_copy</mat-icon>
-                </button>
-              </div>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <table class="deposit-table">
+          <thead>
+            <tr>
+              <th class="col-user">User</th>
+              <th class="col-amount">Amount</th>
+              <th class="col-gateway">Gateway</th>
+              <th class="col-reference">Reference</th>
+              <th class="col-status">Status</th>
+              <th class="col-date">Date</th>
+              <th class="col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (deposit of deposits(); track deposit.depositId) {
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <strong>{{ deposit.userName }}</strong>
+                    <span>{{ deposit.userEmail || 'No email' }}</span>
+                    <small>{{ deposit.userRole }} · {{ deposit.walletType }} wallet</small>
+                  </div>
+                </td>
+                <td>
+                  <div class="amount-cell">
+                    <strong>{{ deposit.amount | currency:deposit.baseCurrency:'symbol':'1.0-0' }}</strong>
+                    <span>Native {{ deposit.nativeAmount | currency:deposit.currency:'symbol':'1.0-0' }}</span>
+                    @if (deposit.exchangeRate) { <small>Rate {{ deposit.exchangeRate }}</small> }
+                  </div>
+                </td>
+                <td>
+                  <div class="gateway-cell">
+                    <span class="gateway-pill">{{ deposit.gateway | titlecase }}</span>
+                    <small>{{ deposit.paymentChannel || 'Channel unavailable' }}</small>
+                  </div>
+                </td>
+                <td>
+                  <button type="button" class="reference-btn" (click)="copyReference(deposit)" [matTooltip]="deposit.reference || 'No reference'">
+                    <mat-icon>content_copy</mat-icon>
+                    <span>{{ deposit.reference || 'N/A' }}</span>
+                  </button>
+                  @if (deposit.providerPaymentId) { <small class="provider-id">Provider ID: {{ deposit.providerPaymentId }}</small> }
+                </td>
+                <td>
+                  <span class="status-pill" [class]="getStatusClass(deposit.status)">
+                    <mat-icon>{{ getStatusIcon(deposit.status) }}</mat-icon>
+                    {{ deposit.status | titlecase }}
+                  </span>
+                </td>
+                <td>
+                  <div class="date-cell">
+                    <strong>{{ deposit.createdAt | date:'MMM d, y' }}</strong>
+                    <span>{{ deposit.createdAt | date:'shortTime' }}</span>
+                    @if (deposit.processedAt) { <small>Processed {{ deposit.processedAt | date:'MMM d, shortTime' }}</small> }
+                  </div>
+                </td>
+                <td>
+                  <div class="row-actions">
+                    <a class="icon-btn" [routerLink]="['/dashboard/users', deposit.userId]" matTooltip="Open user profile"><mat-icon>person_search</mat-icon></a>
+                    <button type="button" class="icon-btn" (click)="copyReference(deposit)" matTooltip="Copy reference"><mat-icon>content_copy</mat-icon></button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
         </table>
       </div>
 
@@ -286,16 +261,23 @@
         </div>
       }
 
-      @if (totalItems() > pageSize()) {
-        <mat-paginator
-          [length]="totalItems()"
-          [pageSize]="pageSize()"
-          [pageIndex]="currentPage()"
-          [pageSizeOptions]="[25, 50, 100, 200, 500]"
-          (page)="onPageChange($event)"
-          aria-label="Select deposits page"
-          showFirstLastButtons>
-        </mat-paginator>
+      @if (totalPages() > 1) {
+        <div class="pagination-bar">
+          <div class="pagination-inner">
+            <div class="page-size-select"><span class="page-size-label">Rows:</span><select class="page-size-dropdown" [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($any($event.target).value)">@for (o of pageSizeOptions; track o) {<option [value]="o">{{o}}</option>}</select></div>
+            <button type="button" class="page-btn" [disabled]="currentPage()<=1" (click)="goToPage(1)"><mat-icon>first_page</mat-icon></button>
+            <button type="button" class="page-btn" [disabled]="currentPage()<=1" (click)="goToPage(currentPage()-1)"><mat-icon>chevron_left</mat-icon></button>
+            <div class="page-numbers">
+              @if (currentPage()>3) { <button type="button" class="page-btn number" (click)="goToPage(1)">1</button> @if (currentPage()>4) {<span class="page-ellipsis">...</span>} }
+              @for (p of pageNumbers(); track p) { <button type="button" class="page-btn number" [class.active]="p===currentPage()" (click)="goToPage(p)">{{p}}</button> }
+              @if (currentPage()<totalPages()-2) { @if (currentPage()<totalPages()-3) {<span class="page-ellipsis">...</span>} <button type="button" class="page-btn number" (click)="goToPage(totalPages())">{{totalPages()}}</button> }
+            </div>
+            <button type="button" class="page-btn" [disabled]="currentPage()>=totalPages()" (click)="goToPage(currentPage()+1)"><mat-icon>chevron_right</mat-icon></button>
+            <button type="button" class="page-btn" [disabled]="currentPage()>=totalPages()" (click)="goToPage(totalPages())"><mat-icon>last_page</mat-icon></button>
+            <div class="page-jump"><span class="page-jump-label">Go</span><input type="number" class="page-jump-input" min="1" [max]="totalPages()" placeholder="#" (keydown.enter)="onPageInput($event)" (blur)="onPageInput($event)"/></div>
+            <span class="page-total">Page {{currentPage()}} of {{totalPages()}}</span>
+          </div>
+        </div>
       }
     }
   </section>
