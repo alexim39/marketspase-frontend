@@ -2,11 +2,16 @@
 @use '../../../../../styles/mixins' as mixins;
 
 :host {
-   background-color: $background-color;
+   display: block;
+   min-height: 100vh;
+   background-color: var(--background-color);
+   color: var(--text-primary);
 }
 
 /* ────── Page Shell ────── */
-.page-shell { padding: $spacing-6 $spacing-8; max-width: 1440px; margin: 0 auto;  }
+.page-shell { padding: $spacing-6 $spacing-8; max-width: 1440px; margin: 0 auto;
+  background-color: var(--background-color);
+}
 
 /* ────── Header ────── */
 .hero-section { margin-bottom: $spacing-5; }
@@ -66,7 +71,7 @@ h2 { font-size: $font-size-2xl; font-weight: $font-weight-bold; margin: 0 0 $spa
 
 /* ────── Table ────── */
 .table-wrapper { overflow-x: auto; }
-.contacts-table { width: 100%; border-collapse: collapse; th, td { text-align: left; padding: $spacing-3 $spacing-4; font-size: $font-size-sm; } th { color: var(--text-secondary); font-weight: $font-weight-semibold; text-transform: uppercase; letter-spacing: 0.04em; background: var(--divider-color); white-space: nowrap; font-size: $font-size-xs; } td { color: var(--text-primary); border-bottom: $border-width solid var(--divider-color); } }
+.contacts-table { width: 100%; border-collapse: collapse; th, td { text-align: left; padding: $spacing-3 $spacing-4; font-size: $font-size-sm; } th { color: var(--text-secondary); font-weight: $font-weight-semibold; text-transform: uppercase; letter-spacing: 0.04em; background: color-mix(in srgb, var(--surface-color) 60%, var(--background-color)); white-space: nowrap; font-size: $font-size-xs; } td { color: var(--text-primary); border-bottom: $border-width solid var(--divider-color); } }
 .item-row { transition: background $transition-fast; cursor: pointer; &:hover { background: color-mix(in srgb, var(--text-primary) 3%, transparent); } &.selected { background: color-mix(in srgb, var(--primary-color) 6%, transparent); } }
 .checkbox-cell { width: 36px; text-align: center !important; }
 .checkbox-input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary-color); }

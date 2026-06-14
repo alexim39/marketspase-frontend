@@ -1,6 +1,13 @@
 @use '../../../../../styles/variables' as *;
 @use '../../../../../styles/mixins' as mixins;
 
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: var(--background-color);
+  color: var(--text-primary);
+}
+
 .detail-shell { padding: $spacing-6 $spacing-8; max-width: 1200px; margin: 0 auto; }
 
 /* ────── States ────── */

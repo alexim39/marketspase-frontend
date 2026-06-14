@@ -1,742 +1,530 @@
-<div class="ppc-analytics">
-  <div class="page-header">
-    <div class="page-title">
-      <h2>PPC Analytics</h2>
-      <p>Promoter click, conversion, and fraud signals</p>
-    </div>
-
-    <div class="page-actions">
-      <button mat-stroked-button type="button" (click)="refresh()">
-        <mat-icon>refresh</mat-icon>
-        Refresh
-      </button>
-      <div class="last-updated">
-        @if (lastRefreshedAt()) {
-          Updated {{ lastRefreshedAt() | date:'medium' }}
-        } @else {
-          Not updated yet
-        }
+<div class="page-shell">
+  <!-- Header -->
+  <section class="hero-section">
+    <div class="page-header">
+      <div>
+        <p class="eyebrow">Promotion Analytics</p>
+        <h2>PPC Analytics</h2>
+        <p>Promoter click, conversion, and fraud signals</p>
       </div>
-    </div>
-  </div>
-
-  <mat-card class="filters-card">
-    <mat-card-content>
-      <div class="filters-grid">
-        <mat-form-field appearance="outline">
-          <mat-label>Quick range</mat-label>
-          <mat-select formControlName="rangeDays" [formGroup]="filtersForm">
-            <mat-option [value]="1">Last 24 hours</mat-option>
-            <mat-option [value]="7">Last 7 days</mat-option>
-            <mat-option [value]="30">Last 30 days</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Start date</mat-label>
-          <input matInput [matDatepicker]="startPicker" [formControl]="filtersForm.controls.startDate" />
-          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-          <mat-datepicker #startPicker></mat-datepicker>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>End date</mat-label>
-          <input matInput [matDatepicker]="endPicker" [formControl]="filtersForm.controls.endDate" />
-          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-          <mat-datepicker #endPicker></mat-datepicker>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Granularity</mat-label>
-          <mat-select [formControl]="filtersForm.controls.granularity">
-            <mat-option value="hourly">Hourly</mat-option>
-            <mat-option value="daily">Daily</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Country (click geo)</mat-label>
-          <input matInput [formControl]="filtersForm.controls.country" placeholder="e.g. NG" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Promoter ID</mat-label>
-          <input matInput [formControl]="filtersForm.controls.promoterId" placeholder="Filter to one promoter" />
-        </mat-form-field>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <div class="overview-section">
-    <mat-card class="overview-card">
-      <mat-card-header>
-        <mat-card-title>Overview</mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content>
-        @if (isLoadingOverview()) {
-          <div class="loading-block">
-            <mat-spinner diameter="34"></mat-spinner>
-            <span>Loading overview...</span>
-          </div>
-        } @else {
-          <div class="summary-grid">
-            @for (card of summaryCards(); track card.label) {
-              <div class="metric-tile" [class.tone-primary]="card.tone === 'primary'">
-                <div class="metric-icon">
-                  <mat-icon>{{ card.icon }}</mat-icon>
-                </div>
-                <div class="metric-meta">
-                  <div class="metric-label">{{ card.label }}</div>
-                  <div class="metric-value">
-                    @if (card.format === 'currency') {
-                      {{ card.value || 0 | currency:'NGN':'symbol':'1.0-0' }}
-                    } @else if (card.format === 'percent') {
-                      {{ card.value || 0 }}%
-                    } @else {
-                      {{ card.value || 0 }}
-                    }
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-
-          <div class="trend-grid">
-            <div class="trend-panel">
-              <div class="trend-header">
-                <div class="trend-title">Click trend</div>
-                <div class="trend-legend">
-                  <span class="legend-item">
-                    <span class="legend-swatch total"></span>
-                    Total
-                  </span>
-                  <span class="legend-item">
-                    <span class="legend-swatch billable"></span>
-                    Billable
-                  </span>
-                </div>
-              </div>
-
-              @if (timeSeriesHasData()) {
-                <svg class="sparkline" viewBox="0 0 640 120" preserveAspectRatio="none" aria-hidden="true">
-                  <polyline class="sparkline-total" [attr.points]="sparkline().total"></polyline>
-                  <polyline class="sparkline-billable" [attr.points]="sparkline().billable"></polyline>
-                </svg>
-              } @else {
-                <div class="no-trend">
-                  <mat-icon>show_chart</mat-icon>
-                  <span>No trend data for this range.</span>
-                </div>
-              }
-            </div>
-
-            <div class="trend-panel">
-              <div class="trend-header">
-                <div class="trend-title">Recent buckets</div>
-              </div>
-              <div class="bucket-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Bucket</th>
-                      <th class="num">Total</th>
-                      <th class="num">Billable</th>
-                      <th class="num">Spend</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (row of timeSeries().slice(-8); track row.bucket) {
-                      <tr>
-                        <td>{{ row.bucket }}</td>
-                        <td class="num">{{ row.totalClicks }}</td>
-                        <td class="num">{{ row.billableClicks }}</td>
-                        <td class="num">{{ row.spend | currency:'NGN':'symbol':'1.0-0' }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        }
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <mat-card class="promoters-card">
-    <mat-card-header>
-      <mat-card-title>Promoters</mat-card-title>
-    </mat-card-header>
-
-    <mat-card-content>
-      <div class="promoters-toolbar">
-        <div class="pager">
-          <button mat-icon-button type="button" (click)="changePage(-1)" [disabled]="pagination().page <= 1 || isLoadingPromoters()">
-            <mat-icon>chevron_left</mat-icon>
-          </button>
-          <div class="pager-meta">
-            Page {{ pagination().page }} of {{ pagination().totalPages || 1 }}
-            <span class="pager-total">({{ pagination().total }} total)</span>
-          </div>
-          <button mat-icon-button type="button" (click)="changePage(1)" [disabled]="pagination().page >= pagination().totalPages || isLoadingPromoters()">
-            <mat-icon>chevron_right</mat-icon>
-          </button>
-        </div>
-
-        <mat-form-field appearance="outline" class="limit-select">
-          <mat-label>Rows</mat-label>
-          <mat-select [value]="pagination().limit" (selectionChange)="changeLimit($event.value)">
-            <mat-option [value]="10">10</mat-option>
-            <mat-option [value]="25">25</mat-option>
-            <mat-option [value]="50">50</mat-option>
-            <mat-option [value]="100">100</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-        @if (isLoadingPromoters()) {
-          <div class="loading-block">
-            <mat-spinner diameter="34"></mat-spinner>
-            <span>Loading promoters...</span>
-          </div>
-        } @else {
-        <div class="table-wrap">
-          <table mat-table [dataSource]="promoters()" matSort (matSortChange)="onSortChange($event)" class="ppc-table">
-            <ng-container matColumnDef="promoter">
-              <th mat-header-cell *matHeaderCellDef>Promoter</th>
-              <td mat-cell *matCellDef="let row">
-                <div class="promoter-cell">
-                  <div class="promoter-name">{{ row.promoter.displayName }}</div>
-                  <div class="promoter-sub">
-                    <span class="mono">{{ row.promoter._id }}</span>
-                    @if (!row.promoter.isActive) {
-                      <span class="status-pill suspended">Suspended</span>
-                    }
-                  </div>
-                  <div class="promoter-sub">
-                    @if (row.promoter.email) { <span>{{ row.promoter.email }}</span> }
-                    @if (row.promoter.phone) { <span class="sep">|</span> <span>{{ row.promoter.phone }}</span> }
-                  </div>
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="clicks">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header="totalClicks">Clicks</th>
-              <td mat-cell *matCellDef="let row">
-                <div class="metric-stack">
-                  <div><span class="k">Total</span> <span class="v">{{ row.metrics.totalClicks }}</span></div>
-                  <div><span class="k">Unique</span> <span class="v">{{ row.metrics.uniqueClicks }}</span></div>
-                  <div><span class="k">Billable</span> <span class="v">{{ row.metrics.billableClicks }}</span></div>
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="spend">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header="spend">Spend</th>
-              <td mat-cell *matCellDef="let row">
-                <div class="metric-stack">
-                  <div class="big">{{ row.metrics.spend | currency:'NGN':'symbol':'1.0-0' }}</div>
-                  <div class="muted">Promoter payout {{ row.metrics.promoterEarnings | currency:'NGN':'symbol':'1.0-0' }}</div>
-                  @if (row.metrics.platformRetainedAmount > 0) {
-                    <div class="retained-note">Retained {{ row.metrics.platformRetainedAmount | currency:'NGN':'symbol':'1.0-0' }}</div>
-                  }
-                  <div class="muted">Dup {{ row.metrics.duplicateClicks }} | Inv {{ row.metrics.invalidClicks }}</div>
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="conversions">
-              <th mat-header-cell *matHeaderCellDef>Conversions</th>
-              <td mat-cell *matCellDef="let row">
-                <div class="metric-stack">
-                  <div class="big">{{ row.metrics.conversions }}</div>
-                  <div class="muted">{{ row.metrics.conversionRevenue | currency:'NGN':'symbol':'1.0-0' }}</div>
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="rates">
-              <th mat-header-cell *matHeaderCellDef>Rates</th>
-              <td mat-cell *matCellDef="let row">
-                <div class="metric-stack">
-                  <div><span class="k">Billable</span> <span class="v">{{ row.metrics.billableRate }}%</span></div>
-                  <div><span class="k">Click-&gt;Conv</span> <span class="v">{{ row.metrics.clickToConversionRate }}%</span></div>
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="anomalies">
-              <th mat-header-cell *matHeaderCellDef>Anomalies</th>
-              <td mat-cell *matCellDef="let row">
-                @if (row.anomalies?.length) {
-                  <mat-chip-set class="anomaly-chips">
-                    @for (code of row.anomalies.slice(0, 3); track code) {
-                      <mat-chip color="warn" selected>{{ resolveAnomalyLabel(code) }}</mat-chip>
-                    }
-                    @if (row.anomalies.length > 3) {
-                      <mat-chip class="more-chip">+{{ row.anomalies.length - 3 }}</mat-chip>
-                    }
-                  </mat-chip-set>
-                } @else {
-                  <span class="muted">None</span>
-                }
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="payoutPolicy">
-              <th mat-header-cell *matHeaderCellDef>Payout Policy</th>
-              <td mat-cell *matCellDef="let row">
-                @if (row.payoutPolicy?.isActive) {
-                  <div class="policy-cell">
-                    <span class="policy-pill active">
-                      {{ row.payoutPolicy.fixedPayoutPerClick | currency:'NGN':'symbol':'1.0-0' }}/click
-                    </span>
-                    <span class="muted">Ends {{ row.payoutPolicy.endsAt | date:'short' }}</span>
-                  </div>
-                } @else {
-                  <span class="policy-pill normal">Global CPC</span>
-                }
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Actions</th>
-              <td mat-cell *matCellDef="let row">
-                <div class="row-actions">
-                  <button mat-icon-button type="button" matTooltip="Details" (click)="openPromoterDetails(row)">
-                    <mat-icon>visibility</mat-icon>
-                  </button>
-                  <button mat-icon-button type="button" matTooltip="Promotion links behind spend" (click)="openPromotionLinks(row)">
-                    <mat-icon>link</mat-icon>
-                  </button>
-                  <button mat-icon-button type="button" matTooltip="Set Promoter CPC" (click)="openCpcPolicy(row)">
-                    <mat-icon>price_change</mat-icon>
-                  </button>
-                  <button mat-icon-button type="button" matTooltip="Flag for Review" (click)="openAction(row, 'flag')">
-                    <mat-icon>flag</mat-icon>
-                  </button>
-                  <button mat-icon-button type="button" matTooltip="Send Warning" (click)="openAction(row, 'warn')">
-                    <mat-icon>warning</mat-icon>
-                  </button>
-                  <button mat-icon-button type="button" matTooltip="Suspend Account" (click)="openAction(row, 'suspend')">
-                    <mat-icon>person_off</mat-icon>
-                  </button>
-                </div>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-          </table>
-        </div>
-      }
-    </mat-card-content>
-  </mat-card>
-
-  <ng-template #promoterDetailsDialog>
-    <div class="dialog-shell">
-      <div class="dialog-header">
-        <div class="dialog-title">
-          <div class="title-line">Promoter Details</div>
-          <div class="sub-line mono">{{ selectedPromoter()?.promoter?._id }}</div>
-        </div>
-        <button mat-icon-button type="button" (click)="closePromoterDetails()">
-          <mat-icon>close</mat-icon>
+      <div class="header-actions">
+        <button type="button" class="surface-btn" (click)="refresh()">
+          <mat-icon>refresh</mat-icon>
+          Refresh
         </button>
-      </div>
-
-      <div class="dialog-body">
-        <div class="details-grid">
-          <div class="details-block">
-            <div class="block-title">Identity</div>
-            <div class="kv"><span class="k">Name</span><span class="v">{{ selectedPromoter()?.promoter?.displayName }}</span></div>
-            <div class="kv"><span class="k">Email</span><span class="v">{{ selectedPromoter()?.promoter?.email }}</span></div>
-            <div class="kv"><span class="k">Phone</span><span class="v">{{ selectedPromoter()?.promoter?.phone }}</span></div>
-            <div class="kv"><span class="k">Status</span><span class="v">{{ selectedPromoter()?.promoter?.isActive ? 'Active' : 'Suspended' }}</span></div>
-          </div>
-
-          <div class="details-block">
-            <div class="block-title">Top IPs</div>
-            <div class="mini-list">
-              @for (ip of (selectedPromoter()?.patterns?.ips || []); track ip.ip) {
-                <div class="mini-row">
-                  <span class="mono">{{ ip.ip || 'unknown' }}</span>
-                  <span class="muted">{{ ip.country || '' }}</span>
-                  <span class="num">{{ ip.billableClicks }}/{{ ip.clicks }}</span>
-                </div>
-              }
-              @if (!(selectedPromoter()?.patterns?.ips || []).length) {
-                <div class="muted">No IP data.</div>
-              }
-            </div>
-          </div>
-
-          <div class="details-block">
-            <div class="block-title">Devices</div>
-            <div class="mini-list">
-              @for (d of (selectedPromoter()?.patterns?.devices || []); track d.deviceType) {
-                <div class="mini-row">
-                  <span>{{ d.deviceType }}</span>
-                  <span class="num">{{ d.billableClicks }}/{{ d.clicks }}</span>
-                </div>
-              }
-              @if (!(selectedPromoter()?.patterns?.devices || []).length) {
-                <div class="muted">No device data.</div>
-              }
-            </div>
-          </div>
-
-          <div class="details-block">
-            <div class="block-title">Top Countries</div>
-            <div class="mini-list">
-              @for (c of (selectedPromoter()?.patterns?.countries || []); track c.country) {
-                <div class="mini-row">
-                  <span>{{ c.country || 'N/A' }}</span>
-                  <span class="num">{{ c.billableClicks }}/{{ c.clicks }}</span>
-                </div>
-              }
-              @if (!(selectedPromoter()?.patterns?.countries || []).length) {
-                <div class="muted">No country data.</div>
-              }
-            </div>
-          </div>
-        </div>
-
-        <div class="details-block wide">
-          <div class="block-title">Anomalies</div>
-          @if (selectedPromoter()?.anomalies?.length) {
-            <mat-chip-set class="anomaly-chips">
-              @for (code of (selectedPromoter()?.anomalies || []); track code) {
-                <mat-chip color="warn" selected>{{ resolveAnomalyLabel(code) }}</mat-chip>
-              }
-            </mat-chip-set>
+        <div class="last-updated">
+          @if (lastRefreshedAt()) {
+            Updated {{ lastRefreshedAt() | date:'medium' }}
           } @else {
-            <span class="muted">None</span>
+            Not updated yet
           }
         </div>
       </div>
     </div>
-  </ng-template>
+  </section>
 
-  <ng-template #promotionLinksDialog>
-    <div class="dialog-shell links-dialog-shell">
-      <div class="dialog-header">
-        <div class="dialog-title">
-          <div class="title-line">Promotion Links Behind Spend</div>
-          <div class="sub-line">
-            {{ selectedPromoter()?.promoter?.displayName }} ·
-            <span class="mono">{{ selectedPromoter()?.promoter?._id }}</span>
-          </div>
-        </div>
-        <button mat-icon-button type="button" (click)="closePromotionLinks()">
-          <mat-icon>close</mat-icon>
-        </button>
+  <!-- Filters -->
+  <section class="filters-card">
+    <div class="filters-container">
+      <div class="filter-select-group">
+        <label class="filter-label">Quick Range</label>
+        <select class="filter-select" [formControl]="filtersForm.controls.rangeDays">
+          <option [value]="1">Last 24 hours</option>
+          <option [value]="7">Last 7 days</option>
+          <option [value]="30">Last 30 days</option>
+        </select>
       </div>
 
-      <div class="dialog-body link-attribution-body">
-        <div class="attribution-note">
-          <mat-icon>receipt_long</mat-icon>
-          <span>These are the exact tracked promotion links and billable clicks that make up this promoter's PPC spend for the selected filters.</span>
+      <div class="filter-select-group">
+        <label class="filter-label">Start Date</label>
+        <input type="date" class="filter-select date-input" [formControl]="filtersForm.controls.startDate" />
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">End Date</label>
+        <input type="date" class="filter-select date-input" [formControl]="filtersForm.controls.endDate" />
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">Granularity</label>
+        <select class="filter-select" [formControl]="filtersForm.controls.granularity">
+          <option value="hourly">Hourly</option>
+          <option value="daily">Daily</option>
+        </select>
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">Country</label>
+        <input type="text" class="filter-select" placeholder="e.g. NG" [formControl]="filtersForm.controls.country" />
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">Promoter ID</label>
+        <input type="text" class="filter-select" placeholder="Filter to one promoter" [formControl]="filtersForm.controls.promoterId" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Overview -->
+  <section class="overview-section">
+    <div class="section-header">
+      <p class="eyebrow">Overview</p>
+    </div>
+
+    @if (isLoadingOverview()) {
+      <div class="loading-card">
+        <mat-progress-bar mode="indeterminate" />
+        <span>Loading overview...</span>
+      </div>
+    } @else {
+      <div class="summary-grid">
+        @for (card of summaryCards(); track card.label) {
+          <div class="metric-tile" [class.tone-primary]="card.tone === 'primary'">
+            <div class="metric-icon">
+              <mat-icon>{{ card.icon }}</mat-icon>
+            </div>
+            <div class="metric-meta">
+              <div class="metric-label">{{ card.label }}</div>
+              <div class="metric-value">
+                @if (card.format === 'currency') {
+                  {{ card.value || 0 | currency:'NGN':'symbol':'1.0-0' }}
+                } @else if (card.format === 'percent') {
+                  {{ card.value || 0 }}%
+                } @else {
+                  {{ card.value || 0 }}
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="trend-grid">
+        <div class="trend-panel">
+          <div class="trend-header">
+            <span class="trend-title">Click trend</span>
+            <div class="trend-legend">
+              <span class="legend-item"><span class="legend-swatch total"></span> Total</span>
+              <span class="legend-item"><span class="legend-swatch billable"></span> Billable</span>
+            </div>
+          </div>
+          @if (timeSeriesHasData()) {
+            <svg class="sparkline" viewBox="0 0 640 120" preserveAspectRatio="none" aria-hidden="true">
+              <polyline class="sparkline-total" [attr.points]="sparkline().total"></polyline>
+              <polyline class="sparkline-billable" [attr.points]="sparkline().billable"></polyline>
+            </svg>
+          } @else {
+            <div class="no-trend"><mat-icon>show_chart</mat-icon><span>No trend data for this range.</span></div>
+          }
         </div>
 
-        <div class="attribution-summary">
-          <div class="summary-pill">
-            <span>Spend</span>
-            <strong>{{ (promotionLinksSummary()?.spend || 0) | currency:'NGN':'symbol':'1.0-0' }}</strong>
-          </div>
-          <div class="summary-pill">
-            <span>Promoter payout</span>
-            <strong>{{ (promotionLinksSummary()?.promoterEarnings || 0) | currency:'NGN':'symbol':'1.0-0' }}</strong>
-          </div>
-          <div class="summary-pill retained">
-            <span>Policy retained</span>
-            <strong>{{ (promotionLinksSummary()?.platformRetainedAmount || 0) | currency:'NGN':'symbol':'1.0-0' }}</strong>
-          </div>
-          <div class="summary-pill">
-            <span>Billable clicks</span>
-            <strong>{{ promotionLinksSummary()?.billableClicks || 0 }}</strong>
-          </div>
-          <div class="summary-pill">
-            <span>Total clicks</span>
-            <strong>{{ promotionLinksSummary()?.totalClicks || 0 }}</strong>
-          </div>
-          <div class="summary-pill">
-            <span>Promotion links</span>
-            <strong>{{ promotionLinksSummary()?.promotionLinks || 0 }}</strong>
+        <div class="trend-panel">
+          <div class="trend-header"><span class="trend-title">Recent buckets</span></div>
+          <div class="bucket-table">
+            <table>
+              <thead><tr><th>Bucket</th><th class="num">Total</th><th class="num">Billable</th><th class="num">Spend</th></tr></thead>
+              <tbody>
+                @for (row of timeSeries().slice(-8); track row.bucket) {
+                  <tr>
+                    <td>{{ row.bucket }}</td>
+                    <td class="num">{{ row.totalClicks }}</td>
+                    <td class="num">{{ row.billableClicks }}</td>
+                    <td class="num">{{ row.spend | currency:'NGN':'symbol':'1.0-0' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           </div>
         </div>
+      </div>
+    }
+  </section>
 
-        @if (isLoadingPromotionLinks()) {
-          <div class="loading-block">
-            <mat-spinner diameter="34"></mat-spinner>
-            <span>Loading promotion link attribution...</span>
-          </div>
-        } @else if (promotionLinksError()) {
-          <div class="empty-attribution error">
-            <mat-icon>error_outline</mat-icon>
-            <span>{{ promotionLinksError() }}</span>
-            <button mat-stroked-button type="button" (click)="loadPromotionLinks()">Retry</button>
-          </div>
-        } @else if (!promotionLinks().length) {
-          <div class="empty-attribution">
-            <mat-icon>link_off</mat-icon>
-            <span>No promotion link clicks were found for this promoter and filter range.</span>
-          </div>
-        } @else {
-          <div class="promotion-link-list">
-            @for (link of promotionLinks(); track link.promotionId + link.upi) {
-              <div class="promotion-link-card">
-                <div class="link-card-header">
-                  <div class="link-title-group">
-                    <div class="link-title">{{ link.campaign.title }}</div>
-                    <div class="link-subline">
-                      <span class="mono">{{ link.upi || 'no-upi' }}</span>
-                      <span class="status-pill" [class.suspended]="!link.promotion.isActive">
-                        {{ link.promotion.status || 'unknown' }}
-                      </span>
-                      @if (link.campaign.status) {
-                        <span class="status-pill campaign-status">{{ link.campaign.status }}</span>
+  <!-- Promoters Table -->
+  <section class="management-section">
+    <div class="section-header">
+      <p class="eyebrow">Promoters</p>
+      <span class="table-count">{{ pagination().total }} total</span>
+    </div>
+
+    @if (isLoadingPromoters()) {
+      <div class="loading-card">
+        <mat-progress-bar mode="indeterminate" />
+        <span>Loading promoters...</span>
+      </div>
+    } @else if (promoters().length === 0) {
+      <div class="empty-state">
+        <mat-icon>people</mat-icon>
+        <strong>No promoters found</strong>
+        <span>Try adjusting your filters.</span>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="ppc-table">
+          <thead>
+            <tr>
+              <th class="col-promoter">Promoter</th>
+              <th class="col-clicks sortable" (click)="toggleSort('totalClicks')">
+                Clicks
+                @if (getSortIndicator('totalClicks')) { <mat-icon class="sort-icon">{{ getSortIndicator('totalClicks') }}</mat-icon> }
+              </th>
+              <th class="col-spend sortable" (click)="toggleSort('spend')">
+                Spend
+                @if (getSortIndicator('spend')) { <mat-icon class="sort-icon">{{ getSortIndicator('spend') }}</mat-icon> }
+              </th>
+              <th class="col-conversions">Conversions</th>
+              <th class="col-rates">Rates</th>
+              <th class="col-anomalies">Anomalies</th>
+              <th class="col-policy">Payout Policy</th>
+              <th class="col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of promoters(); track row.promoter._id) {
+              <tr>
+                <td>
+                  <div class="promoter-cell">
+                    <span class="promoter-name">{{ row.promoter.displayName }}</span>
+                    <span class="promoter-sub mono">{{ row.promoter._id }}</span>
+                    <span class="promoter-sub">
+                      @if (row.promoter.email) { {{ row.promoter.email }} }
+                      @if (row.promoter.phone) { | {{ row.promoter.phone }} }
+                    </span>
+                    @if (!row.promoter.isActive) {
+                      <span class="status-pill suspended">Suspended</span>
+                    }
+                  </div>
+                </td>
+                <td>
+                  <div class="metric-stack">
+                    <div><span class="k">Total</span> <span class="v">{{ row.metrics.totalClicks }}</span></div>
+                    <div><span class="k">Unique</span> <span class="v">{{ row.metrics.uniqueClicks }}</span></div>
+                    <div><span class="k">Billable</span> <span class="v">{{ row.metrics.billableClicks }}</span></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="metric-stack">
+                    <div class="big">{{ row.metrics.spend | currency:'NGN':'symbol':'1.0-0' }}</div>
+                    <div class="muted">Payout {{ row.metrics.promoterEarnings | currency:'NGN':'symbol':'1.0-0' }}</div>
+                    @if (row.metrics.platformRetainedAmount > 0) {
+                      <div class="retained-note">Retained {{ row.metrics.platformRetainedAmount | currency:'NGN':'symbol':'1.0-0' }}</div>
+                    }
+                    <div class="muted">Dup {{ row.metrics.duplicateClicks }} | Inv {{ row.metrics.invalidClicks }}</div>
+                  </div>
+                </td>
+                <td>
+                  <div class="metric-stack">
+                    <div class="big">{{ row.metrics.conversions }}</div>
+                    <div class="muted">{{ row.metrics.conversionRevenue | currency:'NGN':'symbol':'1.0-0' }}</div>
+                  </div>
+                </td>
+                <td>
+                  <div class="metric-stack">
+                    <div><span class="k">Billable</span> <span class="v">{{ row.metrics.billableRate }}%</span></div>
+                    <div><span class="k">Click→Conv</span> <span class="v">{{ row.metrics.clickToConversionRate }}%</span></div>
+                  </div>
+                </td>
+                <td>
+                  @if ((row.anomalies ?? []).length) {
+                    <div class="anomaly-chips">
+                      @for (code of row.anomalies.slice(0, 3); track code) {
+                        <span class="anomaly-pill">{{ resolveAnomalyLabel(code) }}</span>
+                      }
+                      @if (row.anomalies.length > 3) {
+                        <span class="anomaly-pill more">+{{ row.anomalies.length - 3 }}</span>
                       }
                     </div>
-                  </div>
-
-                  <div class="link-card-actions">
-                    <button mat-icon-button type="button" matTooltip="Copy UPI" (click)="copyUpi(link)">
-                      <mat-icon>tag</mat-icon>
-                    </button>
-                    <button mat-icon-button type="button" matTooltip="Copy promotion link" (click)="copyPromotionLink(link)">
-                      <mat-icon>content_copy</mat-icon>
-                    </button>
-                    <button mat-icon-button type="button" matTooltip="Open tracked link" (click)="openPromotionLink(link)">
-                      <mat-icon>open_in_new</mat-icon>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="tracked-url-row">
-                  <mat-icon>link</mat-icon>
-                  <span class="mono">{{ link.promotionUrl || 'No stored promotion URL' }}</span>
-                </div>
-
-                @if (link.destinationUrl) {
-                  <div class="tracked-url-row destination">
-                    <mat-icon>near_me</mat-icon>
-                    <span>{{ link.destinationUrl }}</span>
-                  </div>
-                }
-
-                <div class="link-metrics-grid">
-                  <div class="link-metric">
-                    <span>Spend</span>
-                    <strong>{{ link.metrics.spend | currency:'NGN':'symbol':'1.0-0' }}</strong>
-                  </div>
-                  <div class="link-metric">
-                    <span>Promoter payout</span>
-                    <strong>{{ link.metrics.promoterEarnings | currency:'NGN':'symbol':'1.0-0' }}</strong>
-                  </div>
-                  <div class="link-metric retained">
-                    <span>Policy retained</span>
-                    <strong>{{ link.metrics.platformRetainedAmount | currency:'NGN':'symbol':'1.0-0' }}</strong>
-                  </div>
-                  <div class="link-metric">
-                    <span>Billable</span>
-                    <strong>{{ link.metrics.billableClicks }}</strong>
-                  </div>
-                  <div class="link-metric">
-                    <span>Total</span>
-                    <strong>{{ link.metrics.totalClicks }}</strong>
-                  </div>
-                  <div class="link-metric">
-                    <span>Unique</span>
-                    <strong>{{ link.metrics.uniqueClicks }}</strong>
-                  </div>
-                  <div class="link-metric">
-                    <span>Duplicate</span>
-                    <strong>{{ link.metrics.duplicateClicks }}</strong>
-                  </div>
-                  <div class="link-metric">
-                    <span>Invalid</span>
-                    <strong>{{ link.metrics.invalidClicks }}</strong>
-                  </div>
-                  <div class="link-metric">
-                    <span>Rate</span>
-                    <strong>{{ link.metrics.billableRate }}%</strong>
-                  </div>
-                  <div class="link-metric">
-                    <span>Promoter CPC</span>
-                    <strong>{{ link.metrics.promoterPayoutAmount | currency:'NGN':'symbol':'1.0-0' }}</strong>
-                  </div>
-                  <div class="link-metric">
-                    <span>Last click</span>
-                    <strong>{{ link.metrics.lastClickAt ? (link.metrics.lastClickAt | date:'short') : 'N/A' }}</strong>
-                  </div>
-                </div>
-
-                @if (link.patterns.sources.length || link.patterns.countries.length || link.patterns.devices.length) {
-                  <div class="pattern-strip">
-                    @for (source of link.patterns.sources; track source) {
-                      <span class="pattern-chip">Source: {{ source }}</span>
-                    }
-                    @for (country of link.patterns.countries; track country) {
-                      <span class="pattern-chip">Geo: {{ country }}</span>
-                    }
-                    @for (device of link.patterns.devices; track device) {
-                      <span class="pattern-chip">Device: {{ device }}</span>
-                    }
-                  </div>
-                }
-
-                <div class="recent-clicks">
-                  <div class="mini-section-title">Recent clicks</div>
-                  @if (link.recentClicks.length) {
-                    @for (click of link.recentClicks; track click.clickedAt + click.status + $index) {
-                      <div class="recent-click-row">
-                        <span class="status-dot" [class.billable]="click.status === 'billable'" [class.invalid]="click.status === 'invalid'" [class.duplicate]="click.status === 'duplicate'"></span>
-                        <span>{{ click.clickedAt | date:'short' }}</span>
-                        <span class="status-label">{{ click.status }}</span>
-                        <span>{{ click.deviceType || 'unknown' }}</span>
-                        <span>{{ click.country || 'N/A' }}</span>
-                        <span class="mono">{{ click.ip || 'masked/empty' }}</span>
-                        <strong>
-                          {{ click.cost | currency:'NGN':'symbol':'1.0-0' }}
-                          @if ((click.platformRetainedAmount || 0) > 0) {
-                            <small>paid {{ click.promoterPayoutAmount | currency:'NGN':'symbol':'1.0-0' }}</small>
-                          }
-                        </strong>
-                      </div>
-                    }
                   } @else {
-                    <div class="muted">No recent click samples.</div>
+                    <span class="muted">None</span>
                   }
+                </td>
+                <td>
+                  @if (row.payoutPolicy?.isActive) {
+                    <div class="policy-cell">
+                      <span class="policy-pill active">{{ $any(row.payoutPolicy).fixedPayoutPerClick | currency:'NGN':'symbol':'1.0-0' }}/click</span>
+                      <span class="policy-ends">Ends {{ $any(row.payoutPolicy).endsAt | date:'short' }}</span>
+                    </div>
+                  } @else {
+                    <span class="policy-pill normal">Global CPC</span>
+                  }
+                </td>
+                <td>
+                  <div class="row-actions">
+                    <button type="button" class="icon-btn" title="Details" (click)="openPromoterDetails(row)"><mat-icon>visibility</mat-icon></button>
+                    <button type="button" class="icon-btn" title="Promotion links" (click)="openPromotionLinks(row)"><mat-icon>link</mat-icon></button>
+                    <button type="button" class="icon-btn" title="Set CPC" (click)="openCpcPolicy(row)"><mat-icon>price_change</mat-icon></button>
+                    <button type="button" class="icon-btn" title="Flag" (click)="openAction(row, 'flag')"><mat-icon>flag</mat-icon></button>
+                    <button type="button" class="icon-btn" title="Warn" (click)="openAction(row, 'warn')"><mat-icon>warning</mat-icon></button>
+                    <button type="button" class="icon-btn" title="Suspend" (click)="openAction(row, 'suspend')"><mat-icon>person_off</mat-icon></button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (pagination().totalPages > 1) {
+        <div class="pagination-bar">
+          <div class="pagination-inner">
+            <div class="page-size-select">
+              <span class="page-size-label">Rows:</span>
+              <select class="page-size-dropdown" [ngModel]="pagination().limit" (ngModelChange)="onPageSizeChange($event)">
+                <option [value]="10">10</option>
+                <option [value]="25">25</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+              </select>
+            </div>
+
+            <button type="button" class="page-btn" [disabled]="pagination().page <= 1" (click)="goToPage(1)"><mat-icon>first_page</mat-icon></button>
+            <button type="button" class="page-btn" [disabled]="pagination().page <= 1" (click)="goToPage(pagination().page - 1)"><mat-icon>chevron_left</mat-icon></button>
+
+            <div class="page-numbers">
+              @if (pagination().page > 3) {
+                <button type="button" class="page-btn number" (click)="goToPage(1)">1</button>
+                @if (pagination().page > 4) { <span class="page-ellipsis">...</span> }
+              }
+              @for (p of promotorPageNumbers(); track p) {
+                <button type="button" class="page-btn number" [class.active]="p === pagination().page" (click)="goToPage(p)">{{ p }}</button>
+              }
+              @if (pagination().page < pagination().totalPages - 2) {
+                @if (pagination().page < pagination().totalPages - 3) { <span class="page-ellipsis">...</span> }
+                <button type="button" class="page-btn number" (click)="goToPage(pagination().totalPages)">{{ pagination().totalPages }}</button>
+              }
+            </div>
+
+            <button type="button" class="page-btn" [disabled]="pagination().page >= pagination().totalPages" (click)="goToPage(pagination().page + 1)"><mat-icon>chevron_right</mat-icon></button>
+            <button type="button" class="page-btn" [disabled]="pagination().page >= pagination().totalPages" (click)="goToPage(pagination().totalPages)"><mat-icon>last_page</mat-icon></button>
+
+            <div class="page-jump">
+              <span class="page-jump-label">Go to</span>
+              <input type="number" class="page-jump-input" min="1" [max]="pagination().totalPages" placeholder="#" (keydown.enter)="onPageInput($event)" (blur)="onPageInput($event)" />
+            </div>
+
+            <span class="page-total">Page {{ pagination().page }} of {{ pagination().totalPages }}</span>
+          </div>
+        </div>
+      }
+    }
+  </section>
+</div>
+
+<!-- Dialogs (kept as-is, rendered via MatDialog) -->
+<ng-template #promoterDetailsDialog>
+  <div class="dialog-shell">
+    <div class="dialog-header">
+      <div class="dialog-title">
+        <div class="title-line">Promoter Details</div>
+        <div class="sub-line mono">{{ selectedPromoter()?.promoter?._id }}</div>
+      </div>
+      <button mat-icon-button type="button" (click)="closePromoterDetails()"><mat-icon>close</mat-icon></button>
+    </div>
+    <div class="dialog-body">
+      <div class="details-grid">
+        <div class="details-block">
+          <div class="block-title">Identity</div>
+          <div class="kv"><span class="k">Name</span><span class="v">{{ selectedPromoter()?.promoter?.displayName }}</span></div>
+          <div class="kv"><span class="k">Email</span><span class="v">{{ selectedPromoter()?.promoter?.email }}</span></div>
+          <div class="kv"><span class="k">Phone</span><span class="v">{{ selectedPromoter()?.promoter?.phone }}</span></div>
+          <div class="kv"><span class="k">Status</span><span class="v">{{ selectedPromoter()?.promoter?.isActive ? 'Active' : 'Suspended' }}</span></div>
+        </div>
+        <div class="details-block">
+          <div class="block-title">Top IPs</div>
+          <div class="mini-list">
+            @for (ip of (selectedPromoter()?.patterns?.ips || []); track ip.ip) {
+              <div class="mini-row"><span class="mono">{{ ip.ip || 'unknown' }}</span><span class="muted">{{ ip.country || '' }}</span><span class="num">{{ ip.billableClicks }}/{{ ip.clicks }}</span></div>
+            }
+            @if (!(selectedPromoter()?.patterns?.ips || []).length) { <div class="muted">No IP data.</div> }
+          </div>
+        </div>
+        <div class="details-block">
+          <div class="block-title">Devices</div>
+          <div class="mini-list">
+            @for (d of (selectedPromoter()?.patterns?.devices || []); track d.deviceType) {
+              <div class="mini-row"><span>{{ d.deviceType }}</span><span class="num">{{ d.billableClicks }}/{{ d.clicks }}</span></div>
+            }
+            @if (!(selectedPromoter()?.patterns?.devices || []).length) { <div class="muted">No device data.</div> }
+          </div>
+        </div>
+        <div class="details-block">
+          <div class="block-title">Top Countries</div>
+          <div class="mini-list">
+            @for (c of (selectedPromoter()?.patterns?.countries || []); track c.country) {
+              <div class="mini-row"><span>{{ c.country || 'N/A' }}</span><span class="num">{{ c.billableClicks }}/{{ c.clicks }}</span></div>
+            }
+            @if (!(selectedPromoter()?.patterns?.countries || []).length) { <div class="muted">No country data.</div> }
+          </div>
+        </div>
+      </div>
+      <div class="details-block wide">
+        <div class="block-title">Anomalies</div>
+        @if (selectedPromoter()?.anomalies?.length) {
+          <mat-chip-set class="anomaly-chips">
+            @for (code of (selectedPromoter()?.anomalies || []); track code) { <mat-chip color="warn" selected>{{ resolveAnomalyLabel(code) }}</mat-chip> }
+          </mat-chip-set>
+        } @else { <span class="muted">None</span> }
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #promotionLinksDialog>
+  <div class="dialog-shell links-dialog-shell">
+    <div class="dialog-header">
+      <div class="dialog-title">
+        <div class="title-line">Promotion Links Behind Spend</div>
+        <div class="sub-line">{{ selectedPromoter()?.promoter?.displayName }} · <span class="mono">{{ selectedPromoter()?.promoter?._id }}</span></div>
+      </div>
+      <button mat-icon-button type="button" (click)="closePromotionLinks()"><mat-icon>close</mat-icon></button>
+    </div>
+    <div class="dialog-body link-attribution-body">
+      <div class="attribution-note"><mat-icon>receipt_long</mat-icon><span>These are the exact tracked promotion links and billable clicks that make up this promoter's PPC spend for the selected filters.</span></div>
+      <div class="attribution-summary">
+        <div class="summary-pill"><span>Spend</span><strong>{{ (promotionLinksSummary()?.spend || 0) | currency:'NGN':'symbol':'1.0-0' }}</strong></div>
+        <div class="summary-pill"><span>Promoter payout</span><strong>{{ (promotionLinksSummary()?.promoterEarnings || 0) | currency:'NGN':'symbol':'1.0-0' }}</strong></div>
+        <div class="summary-pill retained"><span>Policy retained</span><strong>{{ (promotionLinksSummary()?.platformRetainedAmount || 0) | currency:'NGN':'symbol':'1.0-0' }}</strong></div>
+        <div class="summary-pill"><span>Billable clicks</span><strong>{{ promotionLinksSummary()?.billableClicks || 0 }}</strong></div>
+        <div class="summary-pill"><span>Total clicks</span><strong>{{ promotionLinksSummary()?.totalClicks || 0 }}</strong></div>
+        <div class="summary-pill"><span>Promotion links</span><strong>{{ promotionLinksSummary()?.promotionLinks || 0 }}</strong></div>
+      </div>
+      @if (isLoadingPromotionLinks()) { <div class="loading-block"><mat-spinner diameter="34"></mat-spinner><span>Loading...</span></div> }
+      @else if (promotionLinksError()) { <div class="empty-attribution error"><mat-icon>error_outline</mat-icon><span>{{ promotionLinksError() }}</span><button mat-stroked-button type="button" (click)="loadPromotionLinks()">Retry</button></div> }
+      @else if (!promotionLinks().length) { <div class="empty-attribution"><mat-icon>link_off</mat-icon><span>No promotion link clicks found for this promoter and filter range.</span></div> }
+      @else {
+        <div class="promotion-link-list">
+          @for (link of promotionLinks(); track link.promotionId + link.upi) {
+            <div class="promotion-link-card">
+              <div class="link-card-header">
+                <div class="link-title-group">
+                  <div class="link-title">{{ link.campaign.title }}</div>
+                  <div class="link-subline">
+                    <span class="mono">{{ link.upi || 'no-upi' }}</span>
+                    <span class="status-pill" [class.suspended]="!link.promotion.isActive">{{ link.promotion.status || 'unknown' }}</span>
+                    @if (link.campaign.status) { <span class="status-pill campaign-status">{{ link.campaign.status }}</span> }
+                  </div>
+                </div>
+                <div class="link-card-actions">
+                  <button mat-icon-button type="button" matTooltip="Copy UPI" (click)="copyUpi(link)"><mat-icon>tag</mat-icon></button>
+                  <button mat-icon-button type="button" matTooltip="Copy link" (click)="copyPromotionLink(link)"><mat-icon>content_copy</mat-icon></button>
+                  <button mat-icon-button type="button" matTooltip="Open link" (click)="openPromotionLink(link)"><mat-icon>open_in_new</mat-icon></button>
                 </div>
               </div>
-            }
-          </div>
-
-          <div class="links-pager">
-            <button mat-icon-button type="button" (click)="changePromotionLinksPage(-1)" [disabled]="promotionLinksPagination().page <= 1 || isLoadingPromotionLinks()">
-              <mat-icon>chevron_left</mat-icon>
-            </button>
-            <div class="pager-meta">
-              Page {{ promotionLinksPagination().page }} of {{ promotionLinksPagination().totalPages || 1 }}
-              <span class="pager-total">({{ promotionLinksPagination().total }} links)</span>
+              <div class="tracked-url-row"><mat-icon>link</mat-icon><span class="mono">{{ link.promotionUrl || 'No stored URL' }}</span></div>
+              @if (link.destinationUrl) { <div class="tracked-url-row destination"><mat-icon>near_me</mat-icon><span>{{ link.destinationUrl }}</span></div> }
+              <div class="link-metrics-grid">
+                <div class="link-metric"><span>Spend</span><strong>{{ link.metrics.spend | currency:'NGN':'symbol':'1.0-0' }}</strong></div>
+                <div class="link-metric"><span>Payout</span><strong>{{ link.metrics.promoterEarnings | currency:'NGN':'symbol':'1.0-0' }}</strong></div>
+                <div class="link-metric retained"><span>Retained</span><strong>{{ link.metrics.platformRetainedAmount | currency:'NGN':'symbol':'1.0-0' }}</strong></div>
+                <div class="link-metric"><span>Billable</span><strong>{{ link.metrics.billableClicks }}</strong></div>
+                <div class="link-metric"><span>Total</span><strong>{{ link.metrics.totalClicks }}</strong></div>
+                <div class="link-metric"><span>Unique</span><strong>{{ link.metrics.uniqueClicks }}</strong></div>
+                <div class="link-metric"><span>Duplicate</span><strong>{{ link.metrics.duplicateClicks }}</strong></div>
+                <div class="link-metric"><span>Invalid</span><strong>{{ link.metrics.invalidClicks }}</strong></div>
+                <div class="link-metric"><span>Rate</span><strong>{{ link.metrics.billableRate }}%</strong></div>
+                <div class="link-metric"><span>CPC</span><strong>{{ link.metrics.promoterPayoutAmount | currency:'NGN':'symbol':'1.0-0' }}</strong></div>
+                <div class="link-metric"><span>Last click</span><strong>{{ link.metrics.lastClickAt ? (link.metrics.lastClickAt | date:'short') : 'N/A' }}</strong></div>
+              </div>
+              @if (link.patterns.sources.length || link.patterns.countries.length || link.patterns.devices.length) {
+                <div class="pattern-strip">
+                  @for (s of link.patterns.sources; track s) { <span class="pattern-chip">Source: {{ s }}</span> }
+                  @for (c of link.patterns.countries; track c) { <span class="pattern-chip">Geo: {{ c }}</span> }
+                  @for (d of link.patterns.devices; track d) { <span class="pattern-chip">Device: {{ d }}</span> }
+                </div>
+              }
+              <div class="recent-clicks">
+                <div class="mini-section-title">Recent clicks</div>
+                @if (link.recentClicks.length) {
+                  @for (click of link.recentClicks; track click.clickedAt + click.status + $index) {
+                    <div class="recent-click-row">
+                      <span class="status-dot" [class.billable]="click.status === 'billable'" [class.invalid]="click.status === 'invalid'" [class.duplicate]="click.status === 'duplicate'"></span>
+                      <span>{{ click.clickedAt | date:'short' }}</span>
+                      <span class="status-label">{{ click.status }}</span>
+                      <span>{{ click.deviceType || 'unknown' }}</span>
+                      <span>{{ click.country || 'N/A' }}</span>
+                      <span class="mono">{{ click.ip || 'masked' }}</span>
+                      <strong>{{ click.cost | currency:'NGN':'symbol':'1.0-0' }}
+                        @if ((click.platformRetainedAmount || 0) > 0) { <small>paid {{ click.promoterPayoutAmount | currency:'NGN':'symbol':'1.0-0' }}</small> }
+                      </strong>
+                    </div>
+                  }
+                } @else { <div class="muted">No recent click samples.</div> }
+              </div>
             </div>
-            <button mat-icon-button type="button" (click)="changePromotionLinksPage(1)" [disabled]="promotionLinksPagination().page >= promotionLinksPagination().totalPages || isLoadingPromotionLinks()">
-              <mat-icon>chevron_right</mat-icon>
-            </button>
-          </div>
-        }
+          }
+        </div>
+        <div class="links-pager">
+          <button mat-icon-button type="button" (click)="changePromotionLinksPage(-1)" [disabled]="promotionLinksPagination().page <= 1 || isLoadingPromotionLinks()"><mat-icon>chevron_left</mat-icon></button>
+          <div class="pager-meta">Page {{ promotionLinksPagination().page }} of {{ promotionLinksPagination().totalPages || 1 }} <span class="pager-total">({{ promotionLinksPagination().total }} links)</span></div>
+          <button mat-icon-button type="button" (click)="changePromotionLinksPage(1)" [disabled]="promotionLinksPagination().page >= promotionLinksPagination().totalPages || isLoadingPromotionLinks()"><mat-icon>chevron_right</mat-icon></button>
+        </div>
+      }
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #actionDialog>
+  <div class="dialog-shell">
+    <div class="dialog-header">
+      <div class="dialog-title">
+        @if (selectedAction() === 'flag') { Flag Promoter } @else if (selectedAction() === 'warn') { Send Warning } @else { Suspend Account }
+        <div class="sub-line">{{ selectedPromoter()?.promoter?.displayName }}</div>
+      </div>
+      <button mat-icon-button type="button" (click)="closeActionDialog()"><mat-icon>close</mat-icon></button>
+    </div>
+    <div class="dialog-body">
+      <mat-form-field appearance="outline" class="action-textarea">
+        <mat-label>Reason / notes</mat-label>
+        <textarea matInput rows="4" [(ngModel)]="actionText" placeholder="Describe why this action is being taken..."></textarea>
+      </mat-form-field>
+      <div class="dialog-actions">
+        <button mat-stroked-button type="button" (click)="closeActionDialog()">Cancel</button>
+        <button mat-flat-button color="warn" type="button" (click)="confirmAction()" [disabled]="actionBusy() || !actionText().trim()">Confirm</button>
       </div>
     </div>
-  </ng-template>
+  </div>
+</ng-template>
 
-  <ng-template #actionDialog>
-    <div class="dialog-shell">
-      <div class="dialog-header">
-        <div class="dialog-title">
-          @if (selectedAction() === 'flag') { Flag Promoter } @else if (selectedAction() === 'warn') { Send Warning } @else { Suspend Account }
-          <div class="sub-line">{{ selectedPromoter()?.promoter?.displayName }}</div>
-        </div>
-        <button mat-icon-button type="button" (click)="closeActionDialog()" [disabled]="actionBusy()">
-          <mat-icon>close</mat-icon>
-        </button>
+<ng-template #cpcPolicyDialog>
+  <div class="dialog-shell">
+    <div class="dialog-header">
+      <div class="dialog-title">
+        Set Promoter CPC Policy
+        <div class="sub-line">{{ selectedPromoter()?.promoter?.displayName }}</div>
       </div>
-
-      <div class="dialog-body">
-        <mat-form-field appearance="outline" class="action-textarea">
-          <mat-label>Reason / message</mat-label>
-          <textarea matInput rows="4" [value]="actionText()" (input)="actionText.set(($any($event.target).value || ''))"></textarea>
+      <button mat-icon-button type="button" (click)="closeCpcPolicyDialog()"><mat-icon>close</mat-icon></button>
+    </div>
+    <div class="dialog-body">
+      <div class="policy-warning">
+        <mat-icon>warning</mat-icon>
+        <div><strong>CPC Punishment</strong><span>This will override the global PPC payout rate for this promoter and send an email notice. Use only for fraudulent or suspicious activity.</span></div>
+      </div>
+      @if (selectedPromoter()?.payoutPolicy?.isActive) {
+        <div class="current-policy">Current: {{ selectedPromoter()?.payoutPolicy?.fixedPayoutPerClick | currency:'NGN':'symbol':'1.0-0' }}/click until {{ selectedPromoter()?.payoutPolicy?.endsAt | date:'medium' }}</div>
+      }
+      <form [formGroup]="cpcPolicyForm" class="cpc-policy-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Fixed payout per click (₦)</mat-label>
+          <input matInput type="number" formControlName="fixedPayoutPerClick" min="0" />
         </mat-form-field>
-
-        <div class="dialog-actions">
-          <button mat-stroked-button type="button" (click)="closeActionDialog()" [disabled]="actionBusy()">Cancel</button>
-          <button mat-flat-button color="warn" type="button" (click)="confirmAction()" [disabled]="actionBusy()">
-            @if (actionBusy()) {
-              Working...
-            } @else {
-              Confirm
-            }
-          </button>
-        </div>
-      </div>
-    </div>
-  </ng-template>
-
-  <ng-template #cpcPolicyDialog>
-    <div class="dialog-shell">
-      <div class="dialog-header">
-        <div class="dialog-title">
-          Set Promoter CPC
-          <div class="sub-line">{{ selectedPromoter()?.promoter?.displayName }}</div>
-        </div>
-        <button mat-icon-button type="button" (click)="closeCpcPolicyDialog()" [disabled]="actionBusy()">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-
-      <div class="dialog-body">
-        <div class="policy-warning">
-          <mat-icon>gpp_bad</mat-icon>
-          <div>
-            <strong>Policy punishment</strong>
-            <span>
-              The marketer will still be charged the campaign CPC. This promoter will receive the reduced CPC below, and the difference will be retained as a policy penalty until the end date.
-            </span>
-          </div>
-        </div>
-
+        <mat-form-field appearance="outline">
+          <mat-label>Policy ends at</mat-label>
+          <input matInput [matDatepicker]="cpcEndPicker" [formControl]="cpcPolicyForm.controls.endsAt" />
+          <mat-datepicker-toggle matSuffix [for]="cpcEndPicker"></mat-datepicker-toggle>
+          <mat-datepicker #cpcEndPicker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Reason</mat-label>
+          <textarea matInput rows="3" formControlName="reason"></textarea>
+        </mat-form-field>
+      </form>
+      <div class="dialog-actions split">
         @if (selectedPromoter()?.payoutPolicy?.isActive) {
-          <div class="current-policy">
-            Current policy: {{ selectedPromoter()?.payoutPolicy?.fixedPayoutPerClick | currency:'NGN':'symbol':'1.0-0' }}/click
-            until {{ selectedPromoter()?.payoutPolicy?.endsAt | date:'medium' }}
-          </div>
-        }
-
-        <form [formGroup]="cpcPolicyForm" class="cpc-policy-form">
-          <mat-form-field appearance="outline">
-            <mat-label>Promoter payout per billable click</mat-label>
-            <input matInput type="number" min="0" formControlName="fixedPayoutPerClick" />
-            <span matTextPrefix>₦&nbsp;</span>
-            <mat-hint>Example: set ₦20 when normal CPC is ₦80.</mat-hint>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Punishment ends</mat-label>
-            <input matInput [matDatepicker]="cpcEndsPicker" formControlName="endsAt" />
-            <mat-datepicker-toggle matSuffix [for]="cpcEndsPicker"></mat-datepicker-toggle>
-            <mat-datepicker #cpcEndsPicker></mat-datepicker>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="action-textarea">
-            <mat-label>Policy reason sent to promoter</mat-label>
-            <textarea matInput rows="5" formControlName="reason"></textarea>
-            <mat-hint>This reason is included in the email notice.</mat-hint>
-          </mat-form-field>
-        </form>
-
-        <div class="dialog-actions split">
-          <button
-            mat-stroked-button
-            color="warn"
-            type="button"
-            (click)="clearCpcPolicy()"
-            [disabled]="actionBusy() || !selectedPromoter()?.payoutPolicy?.isActive"
-          >
-            Clear Policy
-          </button>
-          <span class="dialog-spacer"></span>
-          <button mat-stroked-button type="button" (click)="closeCpcPolicyDialog()" [disabled]="actionBusy()">Cancel</button>
-          <button mat-flat-button color="warn" type="button" (click)="confirmCpcPolicy()" [disabled]="actionBusy()">
-            @if (actionBusy()) {
-              Saving...
-            } @else {
-              Enable Punishment
-            }
-          </button>
-        </div>
+          <button mat-stroked-button color="warn" type="button" (click)="clearCpcPolicy()" [disabled]="actionBusy()">Clear Policy</button>
+        } @else { <span class="dialog-spacer"></span> }
+        <button mat-stroked-button type="button" (click)="closeCpcPolicyDialog()">Cancel</button>
+        <button mat-flat-button color="primary" type="button" (click)="confirmCpcPolicy()" [disabled]="actionBusy()">Apply CPC Policy</button>
       </div>
     </div>
-  </ng-template>
-</div>
+  </div>
+</ng-template>

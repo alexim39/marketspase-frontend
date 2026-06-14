@@ -1,6 +1,13 @@
 @import '../../../../styles/variables';
 @import '../../../../styles/mixins';
 
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: var(--background-color);
+  color: var(--text-primary);
+}
+
 .subscribers-page {
   padding: $spacing-6 $spacing-4 $spacing-8;
   display: flex;
@@ -116,7 +123,7 @@ h1 {
   font-size: $font-size-xs;
   color: $text-secondary;
   font-weight: $font-weight-semibold;
-  background: color-mix(in srgb, var(--surface-color), black 4%);
+  background: color-mix(in srgb, var(--surface-color) 70%, var(--background-color));
   position: sticky;
   top: 0;
   z-index: $z-index-sticky;

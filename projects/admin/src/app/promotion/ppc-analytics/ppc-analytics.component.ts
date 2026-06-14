@@ -2,7 +2,6 @@ import { Component, DestroyRef, TemplateRef, ViewChild, computed, inject, signal
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,10 +10,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
-import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { debounceTime, distinctUntilChanged, timer } from 'rxjs';
@@ -37,7 +35,6 @@ type PromoterAction = 'flag' | 'warn' | 'suspend';
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    MatCardModule,
     MatIconModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -46,10 +43,9 @@ type PromoterAction = 'flag' | 'warn' | 'suspend';
     MatChipsModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatDialogModule,
     MatSnackBarModule,
-    MatTableModule,
-    MatSortModule,
     MatDatepickerModule,
     MatNativeDateModule,
   ],
@@ -117,7 +113,6 @@ export class PpcAnalyticsComponent {
   readonly summaryCards = computed(() => {
     const summary = this.overview()?.summary;
     if (!summary) return [];
-
     return [
       { label: 'Billable clicks', value: summary.billableClicks, icon: 'ads_click', tone: 'primary' },
       { label: 'Unique clicks', value: summary.uniqueClicks, icon: 'fingerprint', tone: 'neutral' },
@@ -129,17 +124,14 @@ export class PpcAnalyticsComponent {
   });
 
   readonly timeSeries = computed(() => this.overview()?.timeSeries ?? []);
-
   readonly timeSeriesHasData = computed(() => this.timeSeries().some((p) => (p.totalClicks ?? 0) > 0));
 
   readonly sparkline = computed(() => {
     const points = this.timeSeries();
     if (!points.length) return { total: '', billable: '', max: 0 };
-
     const totals = points.map((p) => Number(p.totalClicks || 0));
     const billables = points.map((p) => Number(p.billableClicks || 0));
     const max = Math.max(1, ...totals, ...billables);
-
     return {
       total: this.buildSparklinePath(totals, 640, 120, max),
       billable: this.buildSparklinePath(billables, 640, 120, max),
@@ -147,16 +139,7 @@ export class PpcAnalyticsComponent {
     };
   });
 
-  readonly displayedColumns: string[] = [
-    'promoter',
-    'clicks',
-    'spend',
-    'conversions',
-    'rates',
-    'anomalies',
-    'payoutPolicy',
-    'actions',
-  ];
+  readonly displayedColumns: string[] = ['promoter', 'clicks', 'spend', 'conversions', 'rates', 'anomalies', 'payoutPolicy', 'actions'];
 
   readonly selectedPromoter = signal<PpcPromoterRow | null>(null);
   readonly selectedAction = signal<PromoterAction | null>(null);
@@ -166,62 +149,42 @@ export class PpcAnalyticsComponent {
   private promotionLinksDialogRef: MatDialogRef<unknown> | null = null;
   private cpcPolicyDialogRef: MatDialogRef<unknown> | null = null;
 
+  readonly promotorPageNumbers = computed(() => {
+    const total = Math.max(1, this.pagination().totalPages);
+    const current = this.pagination().page;
+    const pages: number[] = [];
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, current + 2);
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  });
+
   constructor() {
-    // Initial load + 5-minute refresh loop.
     timer(0, 5 * 60 * 1000)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.refresh());
 
-    // Filter changes.
     this.filtersForm.valueChanges
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        debounceTime(250),
-        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-      )
-      .subscribe(() => {
-        this.pagination.update((p) => ({ ...p, page: 1 }));
-        this.refresh();
-      });
+      .pipe(takeUntilDestroyed(this.destroyRef), debounceTime(250), distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
+      .subscribe(() => { this.pagination.update((p) => ({ ...p, page: 1 })); this.refresh(); });
   }
 
-  refresh(): void {
-    this.loadOverview();
-    this.loadPromoters();
-  }
+  refresh(): void { this.loadOverview(); this.loadPromoters(); }
 
   private loadOverview(): void {
     this.isLoadingOverview.set(true);
     const filters = this.filtersForm.getRawValue();
-
-    this.service
-      .getOverview({
-        startDate: filters.startDate,
-        endDate: filters.endDate,
-        range: filters.rangeDays,
-        promoterId: filters.promoterId?.trim() || null,
-        country: filters.country?.trim() || null,
-        granularity: filters.granularity ?? 'daily',
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (resp) => {
-          if (!resp?.success) {
-            this.snackBar.open(resp?.message || 'Failed to load PPC overview', 'OK', { duration: 3000 });
-            this.isLoadingOverview.set(false);
-            return;
-          }
-
-          this.overview.set(resp.data);
-          this.lastRefreshedAt.set(new Date());
-          this.isLoadingOverview.set(false);
-        },
-        error: (err) => {
-          console.error('PPC overview error:', err);
-          this.snackBar.open('Unable to load PPC overview.', 'OK', { duration: 3500 });
-          this.isLoadingOverview.set(false);
-        },
-      });
+    this.service.getOverview({
+      startDate: filters.startDate, endDate: filters.endDate, range: filters.rangeDays,
+      promoterId: filters.promoterId?.trim() || null, country: filters.country?.trim() || null,
+      granularity: filters.granularity ?? 'daily',
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (resp) => {
+        if (!resp?.success) { this.snackBar.open(resp?.message || 'Failed to load PPC overview', 'OK', { duration: 3000 }); this.isLoadingOverview.set(false); return; }
+        this.overview.set(resp.data); this.lastRefreshedAt.set(new Date()); this.isLoadingOverview.set(false);
+      },
+      error: () => { this.snackBar.open('Unable to load PPC overview.', 'OK', { duration: 3500 }); this.isLoadingOverview.set(false); },
+    });
   }
 
   private loadPromoters(): void {
@@ -230,151 +193,94 @@ export class PpcAnalyticsComponent {
     const sort = this.sortState();
     const page = this.pagination().page;
     const limit = this.pagination().limit;
-
-    this.service
-      .getPromoters({
-        startDate: filters.startDate,
-        endDate: filters.endDate,
-        range: filters.rangeDays,
-        promoterId: filters.promoterId?.trim() || null,
-        country: filters.country?.trim() || null,
-        page,
-        limit,
-        sortBy: sort.sortBy,
-        sortOrder: sort.sortOrder,
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (resp) => {
-          if (!resp?.success) {
-            this.snackBar.open(resp?.message || 'Failed to load promoters', 'OK', { duration: 3000 });
-            this.isLoadingPromoters.set(false);
-            return;
-          }
-
-          this.promoters.set(resp.data.promoters || []);
-          this.pagination.set(resp.data.pagination);
-          this.isLoadingPromoters.set(false);
-        },
-        error: (err) => {
-          console.error('PPC promoters error:', err);
-          this.snackBar.open('Unable to load promoter PPC analytics.', 'OK', { duration: 3500 });
-          this.isLoadingPromoters.set(false);
-        },
-      });
+    this.service.getPromoters({
+      startDate: filters.startDate, endDate: filters.endDate, range: filters.rangeDays,
+      promoterId: filters.promoterId?.trim() || null, country: filters.country?.trim() || null,
+      page, limit, sortBy: sort.sortBy, sortOrder: sort.sortOrder,
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (resp) => {
+        if (!resp?.success) { this.snackBar.open(resp?.message || 'Failed to load promoters', 'OK', { duration: 3000 }); this.isLoadingPromoters.set(false); return; }
+        this.promoters.set(resp.data.promoters || []); this.pagination.set(resp.data.pagination); this.isLoadingPromoters.set(false);
+      },
+      error: () => { this.snackBar.open('Unable to load promoter PPC analytics.', 'OK', { duration: 3500 }); this.isLoadingPromoters.set(false); },
+    });
   }
 
-  changePage(delta: number): void {
-    const current = this.pagination();
-    const nextPage = current.page + delta;
-    if (nextPage < 1 || nextPage > current.totalPages || this.isLoadingPromoters()) return;
-    this.pagination.set({ ...current, page: nextPage });
-    this.loadPromoters();
-  }
-
-  changeLimit(limit: number): void {
-    if (this.isLoadingPromoters()) return;
-    this.pagination.update((p) => ({ ...p, limit, page: 1 }));
-    this.loadPromoters();
-  }
-
-  onSortChange(sort: Sort): void {
-    const active = String(sort.active || '').trim();
-    const direction = (sort.direction || 'desc') as 'asc' | 'desc';
-    if (!active) return;
-
-    const allowed = new Set(['billableClicks', 'totalClicks', 'spend', 'invalidClicks', 'duplicateClicks', 'lastClickAt']);
-    const sortBy = allowed.has(active) ? active : 'billableClicks';
-
-    this.sortState.set({ sortBy, sortOrder: direction || 'desc' });
+  toggleSort(field: string): void {
+    const current = this.sortState();
+    if (field === current.sortBy) {
+      this.sortState.set({ sortBy: field, sortOrder: current.sortOrder === 'asc' ? 'desc' : 'asc' });
+    } else {
+      this.sortState.set({ sortBy: field, sortOrder: 'desc' });
+    }
     this.pagination.update((p) => ({ ...p, page: 1 }));
+    this.loadPromoters();
+  }
+
+  getSortIndicator(field: string): string {
+    if (this.sortState().sortBy !== field) return '';
+    return this.sortState().sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward';
+  }
+
+  goToPage(page: number): void {
+    const total = Math.max(1, this.pagination().totalPages);
+    const target = Math.max(1, Math.min(page, total));
+    if (target === this.pagination().page || this.isLoadingPromoters()) return;
+    this.pagination.update((p) => ({ ...p, page: target }));
+    this.loadPromoters();
+  }
+
+  onPageInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const page = parseInt(input.value, 10);
+    if (!isNaN(page) && page >= 1 && page <= this.pagination().totalPages) this.goToPage(page);
+    input.value = '';
+  }
+
+  onPageSizeChange(size: string | number): void {
+    const parsed = typeof size === 'string' ? parseInt(size, 10) : size;
+    if (this.isLoadingPromoters()) return;
+    this.pagination.update((p) => ({ ...p, limit: parsed, page: 1 }));
     this.loadPromoters();
   }
 
   openPromoterDetails(row: PpcPromoterRow): void {
     this.selectedPromoter.set(row);
-    this.detailsDialogRef = this.dialog.open(this.promoterDetailsDialog, {
-      width: '820px',
-      maxWidth: '94vw',
-      panelClass: 'ppc-details-dialog',
-    });
+    this.detailsDialogRef = this.dialog.open(this.promoterDetailsDialog, { width: '820px', maxWidth: '94vw', panelClass: 'ppc-details-dialog' });
   }
 
-  closePromoterDetails(): void {
-    this.detailsDialogRef?.close();
-    this.detailsDialogRef = null;
-    this.selectedPromoter.set(null);
-  }
+  closePromoterDetails(): void { this.detailsDialogRef?.close(); this.detailsDialogRef = null; this.selectedPromoter.set(null); }
 
   openPromotionLinks(row: PpcPromoterRow): void {
     this.selectedPromoter.set(row);
-    this.promotionLinks.set([]);
-    this.promotionLinksSummary.set(null);
-    this.promotionLinksError.set('');
+    this.promotionLinks.set([]); this.promotionLinksSummary.set(null); this.promotionLinksError.set('');
     this.promotionLinksPagination.set({ page: 1, limit: 10, total: 0, totalPages: 0 });
-
-    this.promotionLinksDialogRef = this.dialog.open(this.promotionLinksDialog, {
-      width: '980px',
-      maxWidth: '96vw',
-      maxHeight: '92vh',
-      panelClass: 'ppc-links-dialog',
-    });
-
+    this.promotionLinksDialogRef = this.dialog.open(this.promotionLinksDialog, { width: '980px', maxWidth: '96vw', maxHeight: '92vh', panelClass: 'ppc-links-dialog' });
     this.loadPromotionLinks(1);
   }
 
   closePromotionLinks(): void {
-    this.promotionLinksDialogRef?.close();
-    this.promotionLinksDialogRef = null;
-    this.promotionLinks.set([]);
-    this.promotionLinksSummary.set(null);
-    this.promotionLinksError.set('');
-    this.selectedPromoter.set(null);
+    this.promotionLinksDialogRef?.close(); this.promotionLinksDialogRef = null;
+    this.promotionLinks.set([]); this.promotionLinksSummary.set(null); this.promotionLinksError.set(''); this.selectedPromoter.set(null);
   }
 
   loadPromotionLinks(page = this.promotionLinksPagination().page): void {
     const row = this.selectedPromoter();
     if (!row?.promoter?._id || this.isLoadingPromotionLinks()) return;
-
     const filters = this.filtersForm.getRawValue();
     const limit = this.promotionLinksPagination().limit;
-    this.isLoadingPromotionLinks.set(true);
-    this.promotionLinksError.set('');
-
-    this.service
-      .getPromoterPromotionLinks(row.promoter._id, {
-        startDate: filters.startDate,
-        endDate: filters.endDate,
-        range: filters.rangeDays,
-        country: filters.country?.trim() || null,
-        page,
-        limit,
-        sortBy: 'spend',
-        sortOrder: 'desc',
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (resp) => {
-          if (!resp?.success) {
-            const message = resp?.message || 'Failed to load promotion link attribution.';
-            this.promotionLinksError.set(message);
-            this.snackBar.open(message, 'OK', { duration: 3500 });
-            this.isLoadingPromotionLinks.set(false);
-            return;
-          }
-
-          this.promotionLinks.set(resp.data.links || []);
-          this.promotionLinksSummary.set(resp.data.summary);
-          this.promotionLinksPagination.set(resp.data.pagination);
-          this.isLoadingPromotionLinks.set(false);
-        },
-        error: (err) => {
-          console.error('PPC promotion link attribution error:', err);
-          this.promotionLinksError.set('Unable to load promotion links behind this spend.');
-          this.snackBar.open('Unable to load promotion links behind this spend.', 'OK', { duration: 3500 });
-          this.isLoadingPromotionLinks.set(false);
-        },
-      });
+    this.isLoadingPromotionLinks.set(true); this.promotionLinksError.set('');
+    this.service.getPromoterPromotionLinks(row.promoter._id, {
+      startDate: filters.startDate, endDate: filters.endDate, range: filters.rangeDays,
+      country: filters.country?.trim() || null, page, limit, sortBy: 'spend', sortOrder: 'desc',
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (resp) => {
+        if (!resp?.success) { this.promotionLinksError.set(resp?.message || 'Failed to load promotion link attribution.'); this.isLoadingPromotionLinks.set(false); return; }
+        this.promotionLinks.set(resp.data.links || []); this.promotionLinksSummary.set(resp.data.summary);
+        this.promotionLinksPagination.set(resp.data.pagination); this.isLoadingPromotionLinks.set(false);
+      },
+      error: () => { this.promotionLinksError.set('Unable to load promotion links behind this spend.'); this.isLoadingPromotionLinks.set(false); },
+    });
   }
 
   changePromotionLinksPage(delta: number): void {
@@ -385,230 +291,87 @@ export class PpcAnalyticsComponent {
     this.loadPromotionLinks(nextPage);
   }
 
-  copyPromotionLink(link: PpcPromotionLinkBreakdown): void {
-    const value = String(link.promotionUrl || '').trim();
-    if (!value) {
-      this.snackBar.open('No promotion link is available for this attribution row.', 'OK', { duration: 2500 });
-      return;
-    }
-
-    this.copyText(value, 'Promotion link copied.');
-  }
-
-  copyUpi(link: PpcPromotionLinkBreakdown): void {
-    const value = String(link.upi || '').trim();
-    if (!value) {
-      this.snackBar.open('No UPI is available for this attribution row.', 'OK', { duration: 2500 });
-      return;
-    }
-
-    this.copyText(value, 'Promotion UPI copied.');
-  }
+  copyPromotionLink(link: PpcPromotionLinkBreakdown): void { const v = String(link.promotionUrl || '').trim(); if (!v) { this.snackBar.open('No promotion link available.', 'OK', { duration: 2500 }); return; } this.copyText(v, 'Promotion link copied.'); }
+  copyUpi(link: PpcPromotionLinkBreakdown): void { const v = String(link.upi || '').trim(); if (!v) { this.snackBar.open('No UPI available.', 'OK', { duration: 2500 }); return; } this.copyText(v, 'Promotion UPI copied.'); }
 
   openPromotionLink(link: PpcPromotionLinkBreakdown): void {
     const url = String(link.promotionUrl || '').trim();
-    if (!/^https?:\/\//i.test(url)) {
-      this.snackBar.open('This promotion link is not a valid URL.', 'OK', { duration: 3000 });
-      return;
-    }
-
+    if (!/^https?:\/\//i.test(url)) { this.snackBar.open('This promotion link is not a valid URL.', 'OK', { duration: 3000 }); return; }
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   openAction(row: PpcPromoterRow, action: PromoterAction): void {
-    this.selectedPromoter.set(row);
-    this.selectedAction.set(action);
-    this.actionText.set('');
-
-    this.actionDialogRef = this.dialog.open(this.actionDialog, {
-      width: '520px',
-      maxWidth: '94vw',
-      panelClass: 'ppc-action-dialog',
-    });
+    this.selectedPromoter.set(row); this.selectedAction.set(action); this.actionText.set('');
+    this.actionDialogRef = this.dialog.open(this.actionDialog, { width: '520px', maxWidth: '94vw', panelClass: 'ppc-action-dialog' });
   }
 
-  closeActionDialog(): void {
-    this.actionDialogRef?.close();
-    this.actionDialogRef = null;
-    this.selectedAction.set(null);
-    this.actionText.set('');
-  }
+  closeActionDialog(): void { this.actionDialogRef?.close(); this.actionDialogRef = null; this.selectedAction.set(null); this.actionText.set(''); }
 
   confirmAction(): void {
-    const row = this.selectedPromoter();
-    const action = this.selectedAction();
+    const row = this.selectedPromoter(); const action = this.selectedAction();
     if (!row || !action) return;
-
     this.actionBusy.set(true);
-
-    const promoterId = row.promoter._id;
-    const text = this.actionText().trim();
-    const request$ =
-      action === 'flag'
-        ? this.service.flagPromoter(promoterId, text)
-        : action === 'warn'
-          ? this.service.warnPromoter(promoterId, text)
-          : this.service.suspendPromoter(promoterId, text);
-
+    const promoterId = row.promoter._id; const text = this.actionText().trim();
+    const request$ = action === 'flag' ? this.service.flagPromoter(promoterId, text) : action === 'warn' ? this.service.warnPromoter(promoterId, text) : this.service.suspendPromoter(promoterId, text);
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.snackBar.open('Action completed.', 'OK', { duration: 2500 });
-        this.actionBusy.set(false);
-        this.closeActionDialog();
-        this.refresh();
-      },
-      error: (err) => {
-        console.error('PPC action failed:', err);
-        this.snackBar.open('Unable to complete that action right now.', 'OK', { duration: 3500 });
-        this.actionBusy.set(false);
-      },
+      next: () => { this.snackBar.open('Action completed.', 'OK', { duration: 2500 }); this.actionBusy.set(false); this.closeActionDialog(); this.refresh(); },
+      error: () => { this.snackBar.open('Unable to complete that action.', 'OK', { duration: 3500 }); this.actionBusy.set(false); },
     });
   }
 
   resolveAnomalyLabel(code: string): string {
-    const labels: Record<string, string> = {
-      high_click_volume: 'High click volume',
-      low_billable_rate: 'Low billable rate',
-      high_invalid_rate: 'High invalid rate',
-      high_duplicate_rate: 'High duplicate rate',
-      repeat_click_pattern: 'Repeat click pattern',
-      high_spend_low_quality: 'High spend, low quality',
-      zero_conversions: 'Zero conversions',
-      low_conversion_rate: 'Low conversion rate',
-    };
+    const labels: Record<string, string> = { high_click_volume: 'High click volume', low_billable_rate: 'Low billable rate', high_invalid_rate: 'High invalid rate', high_duplicate_rate: 'High duplicate rate', repeat_click_pattern: 'Repeat click pattern', high_spend_low_quality: 'High spend, low quality', zero_conversions: 'Zero conversions', low_conversion_rate: 'Low conversion rate' };
     return labels[code] || code;
   }
 
   openCpcPolicy(row: PpcPromoterRow): void {
     this.selectedPromoter.set(row);
-    const defaultEnd = new Date();
-    defaultEnd.setDate(defaultEnd.getDate() + 7);
-
+    const defaultEnd = new Date(); defaultEnd.setDate(defaultEnd.getDate() + 7);
     this.cpcPolicyForm.reset({
       fixedPayoutPerClick: row.payoutPolicy?.isActive ? row.payoutPolicy.fixedPayoutPerClick : 20,
-      endsAt: row.payoutPolicy?.isActive && row.payoutPolicy.endsAt
-        ? new Date(row.payoutPolicy.endsAt)
-        : defaultEnd,
-      reason: row.payoutPolicy?.isActive
-        ? row.payoutPolicy.reason
-        : 'Temporary PPC punishment for suspicious or fraudulent click activity.',
+      endsAt: row.payoutPolicy?.isActive && row.payoutPolicy.endsAt ? new Date(row.payoutPolicy.endsAt) : defaultEnd,
+      reason: row.payoutPolicy?.isActive ? row.payoutPolicy.reason : 'Temporary PPC punishment for suspicious or fraudulent click activity.',
     });
-
-    this.cpcPolicyDialogRef = this.dialog.open(this.cpcPolicyDialog, {
-      width: '560px',
-      maxWidth: '94vw',
-      panelClass: 'ppc-action-dialog',
-    });
+    this.cpcPolicyDialogRef = this.dialog.open(this.cpcPolicyDialog, { width: '560px', maxWidth: '94vw', panelClass: 'ppc-action-dialog' });
   }
 
-  closeCpcPolicyDialog(): void {
-    this.cpcPolicyDialogRef?.close();
-    this.cpcPolicyDialogRef = null;
-    this.cpcPolicyForm.markAsPristine();
-  }
+  closeCpcPolicyDialog(): void { this.cpcPolicyDialogRef?.close(); this.cpcPolicyDialogRef = null; this.cpcPolicyForm.markAsPristine(); }
 
   confirmCpcPolicy(): void {
-    const row = this.selectedPromoter();
-    if (!row) return;
-
+    const row = this.selectedPromoter(); if (!row) return;
     this.cpcPolicyForm.markAllAsTouched();
-    if (this.cpcPolicyForm.invalid) {
-      this.snackBar.open('Enter a valid payout amount, end date, and clear policy reason.', 'OK', { duration: 3200 });
-      return;
-    }
-
+    if (this.cpcPolicyForm.invalid) { this.snackBar.open('Enter a valid payout amount, end date, and clear policy reason.', 'OK', { duration: 3200 }); return; }
     const value = this.cpcPolicyForm.getRawValue();
     const endsAt = value.endsAt ? new Date(value.endsAt) : null;
-    if (!endsAt || Number.isNaN(endsAt.getTime()) || endsAt <= new Date()) {
-      this.snackBar.open('Punishment end date must be in the future.', 'OK', { duration: 3200 });
-      return;
-    }
-
+    if (!endsAt || Number.isNaN(endsAt.getTime()) || endsAt <= new Date()) { this.snackBar.open('Punishment end date must be in the future.', 'OK', { duration: 3200 }); return; }
     this.actionBusy.set(true);
-    this.service
-      .setPromoterCpcPolicy(row.promoter._id, {
-        fixedPayoutPerClick: Number(value.fixedPayoutPerClick || 0),
-        endsAt: endsAt.toISOString(),
-        reason: String(value.reason || '').trim(),
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Promoter CPC punishment enabled and email notice queued.', 'OK', { duration: 3200 });
-          this.actionBusy.set(false);
-          this.closeCpcPolicyDialog();
-          this.refresh();
-        },
-        error: (err) => {
-          console.error('Unable to set promoter CPC policy:', err);
-          this.snackBar.open(err?.error?.message || 'Unable to set promoter CPC policy.', 'OK', { duration: 3800 });
-          this.actionBusy.set(false);
-        },
+    this.service.setPromoterCpcPolicy(row.promoter._id, { fixedPayoutPerClick: Number(value.fixedPayoutPerClick || 0), endsAt: endsAt.toISOString(), reason: String(value.reason || '').trim() })
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: () => { this.snackBar.open('Promoter CPC punishment enabled.', 'OK', { duration: 3200 }); this.actionBusy.set(false); this.closeCpcPolicyDialog(); this.refresh(); },
+        error: (err) => { this.snackBar.open(err?.error?.message || 'Unable to set promoter CPC policy.', 'OK', { duration: 3800 }); this.actionBusy.set(false); },
       });
   }
 
   clearCpcPolicy(): void {
-    const row = this.selectedPromoter();
-    if (!row) return;
-
+    const row = this.selectedPromoter(); if (!row) return;
     this.actionBusy.set(true);
-    this.service
-      .clearPromoterCpcPolicy(row.promoter._id, 'Policy manually cleared by admin from PPC analytics.')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Promoter CPC policy cleared.', 'OK', { duration: 2600 });
-          this.actionBusy.set(false);
-          this.closeCpcPolicyDialog();
-          this.refresh();
-        },
-        error: (err) => {
-          console.error('Unable to clear promoter CPC policy:', err);
-          this.snackBar.open(err?.error?.message || 'Unable to clear promoter CPC policy.', 'OK', { duration: 3600 });
-          this.actionBusy.set(false);
-        },
+    this.service.clearPromoterCpcPolicy(row.promoter._id, 'Policy manually cleared by admin from PPC analytics.')
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: () => { this.snackBar.open('Promoter CPC policy cleared.', 'OK', { duration: 2600 }); this.actionBusy.set(false); this.closeCpcPolicyDialog(); this.refresh(); },
+        error: (err) => { this.snackBar.open(err?.error?.message || 'Unable to clear promoter CPC policy.', 'OK', { duration: 3600 }); this.actionBusy.set(false); },
       });
   }
 
   private copyText(value: string, successMessage: string): void {
-    const fallbackCopy = () => {
-      const textarea = document.createElement('textarea');
-      textarea.value = value;
-      textarea.setAttribute('readonly', '');
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-    };
-
-    if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(value)
-        .then(() => this.snackBar.open(successMessage, 'OK', { duration: 2200 }))
-        .catch(() => {
-          fallbackCopy();
-          this.snackBar.open(successMessage, 'OK', { duration: 2200 });
-        });
-      return;
-    }
-
-    fallbackCopy();
-    this.snackBar.open(successMessage, 'OK', { duration: 2200 });
+    const fallbackCopy = () => { const t = document.createElement('textarea'); t.value = value; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0'; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); };
+    if (navigator?.clipboard?.writeText) { navigator.clipboard.writeText(value).then(() => this.snackBar.open(successMessage, 'OK', { duration: 2200 })).catch(() => { fallbackCopy(); this.snackBar.open(successMessage, 'OK', { duration: 2200 }); }); return; }
+    fallbackCopy(); this.snackBar.open(successMessage, 'OK', { duration: 2200 });
   }
 
   private buildSparklinePath(values: number[], width: number, height: number, max: number): string {
     if (!values.length) return '';
-    const w = Math.max(1, width);
-    const h = Math.max(1, height);
+    const w = Math.max(1, width); const h = Math.max(1, height);
     const step = values.length > 1 ? w / (values.length - 1) : 0;
-
-    const points = values.map((v, idx) => {
-      const x = idx * step;
-      const y = h - (Math.min(Math.max(v, 0), max) / max) * h;
-      return `${x.toFixed(2)},${y.toFixed(2)}`;
-    });
-
-    return points.join(' ');
+    return values.map((v, idx) => { const x = idx * step; const y = h - (Math.min(Math.max(v, 0), max) / max) * h; return `${x.toFixed(2)},${y.toFixed(2)}`; }).join(' ');
   }
 }
