@@ -1,0 +1,174 @@
+@use '../../../../../styles/variables' as *;
+@use '../../../../../styles/mixins' as mixins;
+
+.detail-shell { padding: $spacing-6 $spacing-8; max-width: 1200px; margin: 0 auto; }
+
+/* ────── States ────── */
+.loading-card, .error-state {
+  @include mixins.flex-column-center;
+  padding: $spacing-12; gap: $spacing-3;
+  span { font-size: $font-size-sm; color: var(--text-secondary); }
+}
+
+.error-state {
+  mat-icon { font-size: 2.5rem; width: 2.5rem; height: 2.5rem; color: var(--text-tertiary); }
+  strong { font-size: $font-size-base; color: var(--text-primary); }
+}
+
+/* ────── Header ────── */
+.detail-header { margin-bottom: $spacing-5; }
+
+.back-btn {
+  display: inline-flex; align-items: center; gap: $spacing-1; cursor: pointer;
+  border: none; background: transparent; color: var(--text-secondary); font-size: $font-size-sm; margin-bottom: $spacing-3;
+  mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
+  &:hover { color: var(--text-primary); }
+}
+
+.header-main { display: flex; align-items: center; gap: $spacing-4; }
+
+.avatar-lg {
+  width: 48px; height: 48px; border-radius: 50%; background: var(--gradient-primary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: $font-weight-bold; font-size: $font-size-lg; color: $white; flex-shrink: 0;
+}
+
+.header-info h2 { font-size: $font-size-2xl; font-weight: $font-weight-bold; margin: 0; color: var(--text-primary); }
+
+.header-meta { display: flex; gap: $spacing-2; margin-top: $spacing-1; }
+.meta-badge { padding: 2px $spacing-2; border-radius: $border-radius-sm; background: color-mix(in srgb, var(--text-secondary) 8%, transparent); font-size: $font-size-xs; color: var(--text-secondary); font-weight: $font-weight-semibold; }
+.meta-date { font-size: $font-size-xs; color: var(--text-secondary); }
+
+/* ────── Grid ────── */
+.detail-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: $spacing-5; margin-bottom: $spacing-5; }
+
+/* ────── Panels ────── */
+.panel-card {
+  @include mixins.card-base;
+  padding: $spacing-5; margin-bottom: $spacing-4;
+}
+
+.panel-heading {
+  @include mixins.caption;
+  text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: $spacing-3;
+}
+
+/* Info rows */
+.info-rows { display: flex; flex-direction: column; gap: $spacing-2; }
+
+.info-row {
+  display: flex; align-items: center; gap: $spacing-2; font-size: $font-size-sm;
+  mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; color: var(--text-secondary); }
+  span { flex: 1; color: var(--text-primary); }
+}
+
+.copy-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: $border-radius-sm; border: none; background: transparent; cursor: pointer;
+  color: var(--text-secondary);
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  &:hover { background: color-mix(in srgb, var(--text-secondary) 8%, transparent); }
+}
+
+/* Stage selector */
+.stage-selector { display: flex; flex-wrap: wrap; gap: $spacing-1; }
+
+.stage-option {
+  cursor: pointer; padding: $spacing-1 $spacing-2; border-radius: $border-radius-full; border: $border-width solid var(--border-color);
+  background: transparent; color: var(--text-secondary); font-size: $font-size-xs; font-weight: $font-weight-medium; transition: $transition-fast;
+  &.selected {
+    border-color: var(--stage-color, var(--primary-color));
+    background: color-mix(in srgb, var(--stage-color, var(--primary-color)) 12%, transparent);
+    color: var(--stage-color, var(--primary-color)); font-weight: $font-weight-semibold;
+  }
+  &:hover:not(.selected) { border-color: var(--text-secondary); }
+}
+
+/* Tags */
+.tags-display { display: flex; flex-wrap: wrap; gap: $spacing-1; }
+
+.tag-pill {
+  padding: 2px $spacing-2; border-radius: $border-radius-sm;
+  background: color-mix(in srgb, var(--text-secondary) 8%, transparent); font-size: $font-size-xs; color: var(--text-primary);
+}
+
+.muted-text { font-size: $font-size-sm; color: var(--text-secondary); }
+
+/* Consent toggles */
+.consent-toggles { display: flex; flex-direction: column; gap: $spacing-2; }
+
+.consent-row { display: flex; justify-content: space-between; align-items: center; font-size: $font-size-sm; color: var(--text-primary); }
+
+.toggle-btn {
+  cursor: pointer; padding: $spacing-1 $spacing-2; border-radius: $border-radius; border: $border-width solid var(--border-color);
+  background: transparent; color: var(--text-secondary); font-size: $font-size-xs; font-weight: $font-weight-medium;
+  &.active { background: color-mix(in srgb, #{$success-color-hex} 12%, transparent); border-color: $success-color-hex; color: $success-color-hex; }
+}
+
+.consent-source { font-size: $font-size-xs; color: var(--text-secondary); margin-top: $spacing-1; }
+
+/* ────── Activity Log ────── */
+.add-note-form { margin-bottom: $spacing-4; }
+
+.note-input {
+  @include mixins.form-input;
+  resize: vertical; min-height: 60px; margin-bottom: $spacing-2;
+}
+
+.primary-btn-sm {
+  @include mixins.button-primary;
+  padding: $spacing-1 $spacing-3; font-size: $font-size-sm;
+  mat-icon { font-size: 1rem; width: 1rem; height: 1rem; }
+  &[disabled] { opacity: 0.5; cursor: default; }
+}
+
+/* Timeline */
+.log-timeline { display: flex; flex-direction: column; gap: $spacing-3; }
+
+.log-empty { font-size: $font-size-sm; color: var(--text-secondary); text-align: center; padding: $spacing-5; }
+
+.log-entry { display: flex; gap: $spacing-3; }
+
+.log-icon {
+  width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+.log-body { flex: 1; min-width: 0; }
+
+.log-header { display: flex; align-items: center; gap: $spacing-1; margin-bottom: 2px; flex-wrap: wrap; }
+
+.log-type { font-size: $font-size-xs; font-weight: $font-weight-bold; color: var(--text-primary); }
+.log-direction { font-size: $font-size-xs; color: var(--text-secondary); &.incoming { color: $info-color-hex; } }
+.log-time { font-size: $font-size-xs; color: var(--text-tertiary); margin-left: auto; }
+
+.log-subject { font-size: $font-size-sm; font-weight: $font-weight-semibold; color: var(--text-primary); margin-bottom: 2px; }
+
+.log-content {
+  font-size: $font-size-sm; color: var(--text-primary); line-height: $line-height-relaxed;
+  white-space: pre-wrap; word-break: break-word;
+}
+
+/* ────── Metrics ────── */
+.metrics-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: $spacing-3; }
+
+.metric-card {
+  @include mixins.card-base;
+  padding: $spacing-4; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: $spacing-1;
+  mat-icon { font-size: 1.3rem; width: 1.3rem; height: 1.3rem; color: var(--text-tertiary); }
+}
+
+.metric-value { font-size: $font-size-lg; font-weight: $font-weight-bold; color: var(--text-primary); }
+.metric-label { @include mixins.caption; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* ────── Responsive ────── */
+@include mixins.tablet {
+  .detail-shell { padding: $spacing-4; }
+  .detail-grid { grid-template-columns: 1fr; }
+}
+@include mixins.mobile {
+  .detail-shell { padding: $spacing-3; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .metrics-row { grid-template-columns: repeat(2, 1fr); }
+}

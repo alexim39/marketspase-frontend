@@ -88,10 +88,15 @@ export const StoreRoutes: Routes = [
         title: "Store Products - Browse Published Products",
     },
     
-    {
+        {
         path: 'promotions',
         loadComponent: () => import('./promoter/promoted-products').then(c => c.PromotionsIndexComponent),
         title: "Promoted Products - Affiliate Analytics",
+    },
+
+        {
+        path: 'contacts',
+        loadChildren: () => import('./marketer/contacts/contacts.routes').then(r => r.ContactsRoutes),
     },
     
 ]

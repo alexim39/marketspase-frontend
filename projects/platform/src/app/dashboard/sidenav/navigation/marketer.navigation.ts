@@ -57,6 +57,7 @@ export function getMarketerNavigation(
           expanded: false,
           children: [
             { icon: 'supervisor_account', label: 'Customers', route: '/dashboard/stores/support' },
+            { icon: 'contacts', label: 'Contacts', route: '/dashboard/stores/contacts' },
             { icon: 'mark_email_read', label: 'Email Subscribers', route: '/dashboard/stores/subscribers' }
           ]
         }

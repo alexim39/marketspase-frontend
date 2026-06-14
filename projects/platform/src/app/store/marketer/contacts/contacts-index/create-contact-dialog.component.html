@@ -1,0 +1,164 @@
+<div class="dialog-shell">
+  <!-- Header -->
+  <div class="dialog-header">
+    <h2>{{ isEditMode() ? 'Edit Contact' : 'Add Contact' }}</h2>
+    <button type="button" class="dialog-close-btn" (click)="onCancel()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Body -->
+  <form class="dialog-body" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <!-- Display Name -->
+      <div class="form-field full-width">
+        <label class="form-label">Full Name <span class="required-star">*</span></label>
+        <input
+          type="text"
+          class="form-input"
+          formControlName="displayName"
+          placeholder="e.g. Jane Doe"
+          autocomplete="name"
+        />
+        @if (form.controls.displayName.touched && form.controls.displayName.invalid) {
+          <span class="form-error">Name is required (min 2 chars)</span>
+        }
+      </div>
+
+      <!-- Email -->
+      <div class="form-field">
+        <label class="form-label">Email</label>
+        <input
+          type="email"
+          class="form-input"
+          formControlName="email"
+          placeholder="jane@example.com"
+          autocomplete="email"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <span class="form-error">Enter a valid email</span>
+        }
+      </div>
+
+      <!-- Phone -->
+      <div class="form-field">
+        <label class="form-label">Phone</label>
+        <div style="display:flex;gap:4px;">
+          <input
+            type="text"
+            class="form-input"
+            formControlName="phoneCountryCode"
+            style="width:70px;flex-shrink:0;"
+            placeholder="+234"
+          />
+          <input
+            type="tel"
+            class="form-input"
+            formControlName="phone"
+            placeholder="8012345678"
+            autocomplete="tel"
+          />
+        </div>
+        @if (form.controls.phone.touched && form.controls.phone.invalid) {
+          <span class="form-error">Invalid phone format</span>
+        }
+      </div>
+
+      <!-- Lifecycle Stage -->
+      <div class="form-field">
+        <label class="form-label">Lifecycle Stage</label>
+        <select class="form-select" formControlName="lifecycleStage">
+          @for (opt of lifecycleOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Tags -->
+      <div class="form-field full-width">
+        <label class="form-label">Tags</label>
+        <div class="tag-input-area" (click)="tagInputEl?.focus()">
+          @for (tag of selectedTags(); track tag) {
+            <span class="tag-chip">
+              {{ tag }}
+              <button type="button" class="tag-remove" (click)="removeTag(tag)">&times;</button>
+            </span>
+          }
+          <input
+            #tagInputEl
+            class="tag-input-inline"
+            [value]="tagInput()"
+            (input)="tagInput.set($any($event).target.value)"
+            (keydown.enter)="$event.preventDefault(); addTag(tagInput())"
+            (keydown.,)="$event.preventDefault(); addTag(tagInput())"
+            placeholder="{{ selectedTags().length === 0 ? 'Type and press Enter or comma to add...' : 'Add more...' }}"
+          />
+        </div>
+
+        <!-- Tag suggestions -->
+        @if (availableTags().length > 0) {
+          <div class="tag-suggestions">
+            @for (sug of availableTags(); track sug) {
+              @if (!selectedTags().includes(sug)) {
+                <button type="button" class="tag-suggestion" (click)="addTag(sug)">
+                  + {{ sug }}
+                </button>
+              }
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Groups -->
+      @if (groups().length > 0) {
+        <div class="form-field full-width">
+          <label class="form-label">Groups</label>
+          <div class="groups-grid">
+            @for (g of groups(); track g._id) {
+              <button
+                type="button"
+                class="group-chip"
+                [class.selected]="(form.controls.groups.value || []).includes(g._id)"
+                (click)="toggleGroup(g._id)"
+              >
+                <span class="group-dot" [style.background]="g.color || '#6366f1'"></span>
+                {{ g.name }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Notes -->
+      <div class="form-field full-width">
+        <label class="form-label">Notes</label>
+        <textarea
+          class="form-textarea"
+          formControlName="notes"
+          placeholder="Any initial notes about this contact..."
+          rows="3"
+        ></textarea>
+      </div>
+    </div>
+  </form>
+
+  <!-- Footer -->
+  <div class="dialog-footer">
+    <button type="button" class="cancel-btn" (click)="onCancel()" [disabled]="isSubmitting()">
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="submit-btn"
+      [disabled]="form.invalid || isSubmitting()"
+      (click)="onSubmit()"
+    >
+      @if (isSubmitting()) {
+        <mat-spinner diameter="18" strokeWidth="2" />
+      } @else {
+        <mat-icon>{{ isEditMode() ? 'save' : 'person_add' }}</mat-icon>
+      }
+      {{ isEditMode() ? 'Save Changes' : 'Add Contact' }}
+    </button>
+  </div>
+</div>
