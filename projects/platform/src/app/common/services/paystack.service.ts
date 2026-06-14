@@ -87,6 +87,8 @@ export class PaystackService {
       const reference = request.reference || this.generateReference();
       const currency = request.currency || this.config.currency;
 
+      const customFields = this.buildCustomFields(request.user, request.customer, request.metadata);
+
       const paystackOptions = {
         key: this.config.publicKey,
         email,
@@ -94,7 +96,7 @@ export class PaystackService {
         currency,
         ref: reference,
         metadata: {
-          custom_fields: this.buildCustomFields(request.user, request.customer),
+          custom_fields: customFields,
           ...request.metadata
         },
         callback: (response: PaymentResponse) => {
@@ -208,7 +210,7 @@ export class PaystackService {
   /**
    * Builds custom fields for Paystack metadata
    */
-  private buildCustomFields(user?: UserInterface, customer?: PaymentCustomer): Array<{ display_name: string; variable_name: string; value: string }> {
+  private buildCustomFields(user?: UserInterface, customer?: PaymentCustomer, metadata?: Record<string, any>): Array<{ display_name: string; variable_name: string; value: string }> {
     const customFields: Array<{ display_name: string; variable_name: string; value: string }> = [];
 
     const customerName = customer?.fullName?.trim() || customer?.name?.trim();
@@ -241,6 +243,38 @@ export class PaystackService {
         display_name: 'Username',
         variable_name: 'username',
         value: user.username.trim()
+      });
+    }
+
+    if (metadata?.['userId']) {
+      customFields.push({
+        display_name: 'User ID',
+        variable_name: 'user_id',
+        value: String(metadata['userId'] || user?._id || '')
+      });
+    }
+
+    if (metadata?.['fundingAmount'] != null) {
+      customFields.push({
+        display_name: 'Funding Amount',
+        variable_name: 'funding_amount',
+        value: String(metadata['fundingAmount'])
+      });
+    }
+
+    if (metadata?.['userEmail']) {
+      customFields.push({
+        display_name: 'User Email',
+        variable_name: 'user_email',
+        value: String(metadata['userEmail'])
+      });
+    }
+
+    if (metadata?.['webhookIdentifier']) {
+      customFields.push({
+        display_name: 'Webhook Identifier',
+        variable_name: 'webhook_identifier',
+        value: String(metadata['webhookIdentifier'])
       });
     }
 

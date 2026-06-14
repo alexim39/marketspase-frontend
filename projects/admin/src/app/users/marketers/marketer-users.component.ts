@@ -1,162 +1,261 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild, DestroyRef, AfterViewInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, DestroyRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 
-// Angular Material imports
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatSortModule, MatSort } from '@angular/material/sort';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
-// Services
 import { AdminService } from '../../common/services/user.service';
 import { UserService } from '../users.service';
-import { Router } from '@angular/router';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RoleStatisticsComponent } from '../statistics/statistics.component';
-
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { EditDisplayNameDialogComponent } from '../edit-display-name-dialog/edit-display-name-dialog.component';
 @Component({
   selector: 'admin-marketers-mgt',
   standalone: true,
   providers: [UserService],
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    // Material Modules
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatFormFieldModule,
-    MatInputModule,
+    FormsModule,
+    RouterModule,
     MatIconModule,
     MatButtonModule,
-    MatCardModule,
     MatTooltipModule,
-    MatChipsModule,
     MatProgressSpinnerModule,
     MatDialogModule,
     MatSnackBarModule,
+    MatProgressBarModule
   ],
   templateUrl: './marketer-users.component.html',
   styleUrls: ['./marketer-users.component.scss'],
 })
-export class MarketerUserMgtComponent implements OnInit, AfterViewInit {
+export class MarketerUserMgtComponent implements OnInit, OnDestroy {
   readonly adminService = inject(AdminService);
   readonly userService = inject(UserService);
   readonly router = inject(Router);
+  readonly snackBar = inject(MatSnackBar);
 
-  // Table properties
-  displayedColumns: string[] = ['avatar', 'displayName', 'email', 'role', 'balance', 'status', 'createdAt', 'updatedAt', 'actions'];
-  dataSource: MatTableDataSource<UserInterface> = new MatTableDataSource<UserInterface>([]);
-  isLoading = true;
+  readonly users = signal<UserInterface[]>([]);
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  readonly isLoading = signal(true);
+  readonly searchTerm = signal('');
+  readonly showActiveOnly = signal<boolean | null>(null);
+  readonly showVerifiedOnly = signal<boolean | null>(null);
+
+  readonly totalUsers = signal(0);
+  readonly pageSize = signal(50);
+  readonly currentPage = signal(1);
+  readonly totalPages = signal(0);
+  readonly pageSizeOptions = [25, 50, 100, 200];
+
+  readonly sortField = signal<string>('createdAt');
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
+
+  readonly roleStats = signal<{
+    counts: { total: number; active: number; inactive: number; verified: number; unverified: number; deleted: number; recent: number };
+    financial: { totalBalance: number; averageBalance: number; currency: string };
+    engagement: { averageRating: number; totalRatings: number; percentageRated: number };
+    activity: { totalReferrals: number; totalEarned: number };
+  } | null>(null);
+  readonly statsLoading = signal(false);
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly searchSubject = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
+  private readonly dialog = inject(MatDialog);
 
-  constructor() {
-    // Initialize the data source with the correct filter predicate
-    this.dataSource.filterPredicate = this.createFilter();
-  }
+  readonly pageNumbers = computed(() => {
+    const total = Math.max(1, this.totalPages());
+    const current = this.currentPage();
+    const pages: number[] = [];
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, current + 2);
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  });
 
   ngOnInit(): void {
     this.adminService.fetchAdmin();
+    this.setupSearchListener();
+    this.loadRoleStats();
+    this.loadMarketers();
+  }
 
-    this.userService.getUsersByRole('marketer')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.dataSource.data = response.data.users;
-            //console.log('Fetched app users:', response.data);
-            this.isLoading = false;
-          } else {
-            console.error('Failed to fetch app users:', response.message);
-            this.isLoading = false;
-          }
-        },
-        error: (error) => {
-          console.error('Error fetching app users:', error);
-          this.isLoading = false;
+  private setupSearchListener(): void {
+    this.searchSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(searchTerm => {
+      this.currentPage.set(1);
+      this.loadMarketers();
+    });
+  }
+
+  private loadRoleStats(): void {
+    this.statsLoading.set(true);
+    this.userService.getStatsByRole('marketer').pipe(takeUntil(this.destroy$)).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.roleStats.set(response.data as any);
         }
-      })
+        this.statsLoading.set(false);
+      },
+      error: () => this.statsLoading.set(false)
+    });
   }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
+  loadMarketers(): void {
+    this.isLoading.set(true);
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    
-    // Ensure filterValue is trimmed and in lowercase
-    const trimmedFilter = filterValue.trim().toLowerCase();
-    this.dataSource.filter = trimmedFilter;
-
-    // Reset paginator to first page
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
-
-  createFilter(): (data: UserInterface, filter: string) => boolean {
-    return (data: UserInterface, filter: string): boolean => {
-      // If the filter is empty, return true for all items
-      if (!filter || filter.trim() === '') return true;
-      
-      const searchData = filter.toLowerCase().trim();
-      
-      // Check if any of the user properties contain the search term
-      return (
-        (data.displayName?.toLowerCase() || '').includes(searchData) ||
-        (data.email?.toLowerCase() || '').includes(searchData) ||
-        (data.username?.toLowerCase() || '').includes(searchData)
-      );
+    const filters: any = {
+      page: this.currentPage(),
+      limit: this.pageSize(),
+      sort: this.sortDirection() === 'desc' ? `-${this.sortField()}` : this.sortField(),
     };
+
+    if (this.searchTerm()) filters.search = this.searchTerm();
+    if (this.showActiveOnly() !== null) filters.isActive = this.showActiveOnly();
+    if (this.showVerifiedOnly() !== null) filters.isVerified = this.showVerifiedOnly();
+
+    this.userService.getUsersByRole('marketer', filters).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.users.set(response.data.users);
+          this.totalUsers.set(response.data.pagination.total);
+          this.totalPages.set(response.data.pagination.totalPages || 1);
+        }
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.showError('Failed to load marketers');
+      }
+    });
   }
 
-  viewUserDetails(user: UserInterface) {
+  onSearchInput(value: string): void {
+    this.searchTerm.set(value);
+    this.searchSubject.next(value);
+  }
+
+  onActiveFilterChange(active: boolean | null): void {
+    this.showActiveOnly.set(active);
+    this.currentPage.set(1);
+    this.loadMarketers();
+  }
+
+  onVerifiedFilterChange(verified: boolean | null): void {
+    this.showVerifiedOnly.set(verified);
+    this.currentPage.set(1);
+    this.loadMarketers();
+  }
+
+  clearFilters(): void {
+    this.searchTerm.set('');
+    this.showActiveOnly.set(null);
+    this.showVerifiedOnly.set(null);
+    this.currentPage.set(1);
+    this.loadMarketers();
+  }
+
+  toggleSort(field: string): void {
+    if (this.sortField() === field) {
+      this.sortDirection.update(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortField.set(field);
+      this.sortDirection.set('desc');
+    }
+    this.currentPage.set(1);
+    this.loadMarketers();
+  }
+
+  getSortIndicator(field: string): string {
+    if (this.sortField() !== field) return '';
+    return this.sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward';
+  }
+
+  viewUserDetails(user: UserInterface): void {
     this.router.navigate(['dashboard/users', user._id]);
   }
 
-  editUser(user: UserInterface) {
-    console.log('Edit user:', user);
-    // Implement edit user functionality
+  editUser(user: UserInterface): void {
+    const dialogRef = this.dialog.open(EditDisplayNameDialogComponent, {
+      width: '500px',
+      data: { user, currentDisplayName: user.displayName },
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
+      if (result?.success) {
+        const updated = this.users().map(u =>
+          u._id === result.user._id ? { ...u, displayName: result.displayName } : u
+        );
+        this.users.set(updated);
+        this.showSuccess('Display name updated successfully');
+      }
+    });
   }
 
-  activateUser(user: UserInterface) {
-    console.log('Activate user:', user);
-    // Implement activate user functionality
+  activateUser(user: UserInterface): void {
+    this.userService.updateUserStatus(user._id, true).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => { this.showSuccess('User activated'); this.loadMarketers(); this.loadRoleStats(); },
+      error: () => this.showError('Failed to activate user')
+    });
   }
 
-  deactivateUser(user: UserInterface) {
-    console.log('Deactivate user:', user);
-    // Implement deactivate user functionality
+  deactivateUser(user: UserInterface): void {
+    this.userService.updateUserStatus(user._id, false).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => { this.showSuccess('User deactivated'); this.loadMarketers(); this.loadRoleStats(); },
+      error: () => this.showError('Failed to deactivate user')
+    });
   }
 
-  deleteUser(user: UserInterface) {
-    console.log('Delete user:', user);
-    // Implement delete user functionality
+  goToPage(page: number): void {
+    const target = Math.max(1, Math.min(page, Math.max(1, this.totalPages())));
+    if (target === this.currentPage()) return;
+    this.currentPage.set(target);
+    this.loadMarketers();
   }
 
-  restoreUser(user: UserInterface) {
-    console.log('Restore user:', user);
-    // Implement restore user functionality
+  onPageInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const page = parseInt(input.value, 10);
+    if (!isNaN(page) && page >= 1 && page <= this.totalPages()) {
+      this.goToPage(page);
+    }
+    input.value = '';
+  }
+
+  onPageSizeChange(size: string | number): void {
+    const parsed = typeof size === 'string' ? parseInt(size, 10) : size;
+    this.pageSize.set(parsed);
+    this.currentPage.set(1);
+    this.loadMarketers();
+  }
+
+  onAvatarError(event: Event): void {
+    (event.target as HTMLImageElement).src = '/img/avatar.png';
+  }
+
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
+  }
+
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
   }
 
   ngOnDestroy(): void {
-    // Cleanup if needed
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.searchSubject.complete();
   }
 }

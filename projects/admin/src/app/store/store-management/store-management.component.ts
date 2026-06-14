@@ -1,26 +1,17 @@
-import { Component, OnInit, signal, computed, inject, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent, MatPaginator } from '@angular/material/paginator';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatCardModule } from '@angular/material/card';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatTabsModule } from '@angular/material/tabs';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { debounceTime, Subject } from 'rxjs';
+
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { StoreService } from '../store.service';
 import { Store } from '../shared/store.model';
@@ -29,33 +20,21 @@ import { StoreDetailDialogComponent } from './store-detail-dialog/store-detail-d
 import { StoreEditDialogComponent } from './store-edit-dialog/store-edit-dialog.component';
 import { StoreAnalyticsDialogComponent } from './store-analytics-dialog/store-analytics-dialog.component';
 import { User } from '../shared/user.model';
-import { TruncatePipe } from '../shared/truncate.pipe';
+
 
 @Component({
   selector: 'admin-store-mgt',
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     FormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatCardModule,
-    MatMenuModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSlideToggleModule,
-    MatTabsModule,
     RouterModule,
-    TruncatePipe
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule,
+    MatDialogModule,
+    MatMenuModule,
+    MatProgressBarModule
   ],
   providers: [StoreService],
   templateUrl: './store-management.component.html',
@@ -65,35 +44,33 @@ export class StoreManagementComponent implements OnInit {
   private storeService = inject(StoreService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
-  private cdr = inject(ChangeDetectorRef);
   readonly router = inject(Router);
 
   // State with signals
-  stores = signal<Store[]>([]);
-  users = signal<User[]>([]);
-  isLoading = signal(true);
-  isLoadingUsers = signal(false);
-  
+  readonly stores = signal<Store[]>([]);
+  readonly users = signal<User[]>([]);
+  readonly isLoading = signal(true);
+  readonly isLoadingUsers = signal(false);
+
   // Filter signals
-  searchQuery = signal('');
-  verificationFilter = signal('all');
-  categoryFilter = signal('all');
-  dateRangeFilter = signal<{start: Date | null, end: Date | null}>({ start: null, end: null });
-  
-  // Table data source
-  dataSource = new MatTableDataSource<Store>([]);
-  displayedColumns: string[] = ['store', 'owner', 'category', 'verification', 'analytics', 'products', 'date', 'actions'];
-  
-  // Pagination - these are bound to the mat-paginator
-  pageSize = signal(10);
-  pageIndex = signal(0);
-  totalStores = signal(0);
-  
-  // For debounced search
-  private searchSubject = new Subject<string>();
-  
+  readonly searchQuery = signal('');
+  readonly verificationFilter = signal('all');
+  readonly categoryFilter = signal('all');
+  readonly dateRangeFilter = signal<{start: Date | null, end: Date | null}>({ start: null, end: null });
+
+  // Pagination
+  readonly currentPage = signal(1);
+  readonly pageSize = signal(10);
+  readonly totalStores = signal(0);
+  readonly totalPages = signal(0);
+  readonly pageSizeOptions = [10, 25, 50, 100];
+
+  // Sort
+  readonly sortField = signal('createdAt');
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
+
   // Statistics
-  stats = signal({
+  readonly stats = signal({
     totalStores: 0,
     activeStores: 0,
     verifiedStores: 0,
@@ -102,83 +79,68 @@ export class StoreManagementComponent implements OnInit {
   });
 
   // Available categories
-  categories = signal<string[]>([]);
+  readonly categories = signal<string[]>([]);
+
+  // For debounced search
+  private searchSubject = new Subject<string>();
+
+  // Export state
+  readonly isExporting = signal(false);
+
+  readonly pageNumbers = computed(() => {
+    const total = Math.max(1, this.totalPages());
+    const current = this.currentPage();
+    const pages: number[] = [];
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, current + 2);
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  });
 
   ngOnInit(): void {
     this.loadCategories();
     this.loadStatistics();
     this.loadUsers();
     this.loadStores();
-    
-    // Set up debounced search
+
     this.searchSubject.pipe(debounceTime(500)).subscribe(() => {
-      this.pageIndex.set(0); // Reset to first page on search
+      this.currentPage.set(1);
       this.loadStores();
     });
   }
 
-  async loadStores(): Promise<void> {
-    try {
-      this.isLoading.set(true);
-      
-      // Build query parameters
-      const params: any = {
-        page: this.pageIndex() + 1, // Backend uses 1-based page
-        limit: this.pageSize(),
-        sortBy: 'createdAt',
-        sortOrder: 'desc'
-      };
-      
-      // Add filters if they have values
-      if (this.searchQuery()) {
-        params.search = this.searchQuery();
+  loadStores(): void {
+    this.isLoading.set(true);
+
+    const params: any = {
+      page: this.currentPage(),
+      limit: this.pageSize(),
+      sortBy: this.sortField(),
+      sortOrder: this.sortDirection()
+    };
+
+    if (this.searchQuery()) params.search = this.searchQuery();
+    if (this.verificationFilter() !== 'all') params.verification = this.verificationFilter();
+    if (this.categoryFilter() !== 'all') params.category = this.categoryFilter();
+    if (this.dateRangeFilter().start) params.startDate = this.dateRangeFilter().start;
+    if (this.dateRangeFilter().end) params.endDate = this.dateRangeFilter().end;
+
+    this.storeService.getStores(params).subscribe({
+      next: (response) => {
+        this.stores.set(response.data || []);
+        this.totalStores.set(response.pagination?.total || 0);
+        this.totalPages.set(response.pagination?.pages || 1);
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading stores:', error);
+        this.isLoading.set(false);
+        this.showSnackbar('Failed to load stores', 'error');
       }
-      
-      if (this.verificationFilter() !== 'all') {
-        params.verification = this.verificationFilter();
-      }
-      
-      if (this.categoryFilter() !== 'all') {
-        params.category = this.categoryFilter();
-      }
-      
-      if (this.dateRangeFilter().start) {
-        params.startDate = this.dateRangeFilter().start?.toISOString();
-      }
-      
-      if (this.dateRangeFilter().end) {
-        params.endDate = this.dateRangeFilter().end?.toISOString();
-      }
-      
-      console.log('Loading stores with params:', params);
-      
-      this.storeService.getStores(params).subscribe({
-        next: (response) => {
-          console.log('Stores loaded:', response);
-          this.stores.set(response.data || []);
-          this.dataSource.data = response.data || [];
-          this.totalStores.set(response.pagination?.total || 0);
-          this.isLoading.set(false);
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error loading stores:', error);
-          this.isLoading.set(false);
-          this.showSnackbar('Failed to load stores', 'error');
-          this.cdr.detectChanges();
-        }
-      });
-    } catch (error) {
-      console.error('Error loading stores:', error);
-      this.isLoading.set(false);
-      this.showSnackbar('Failed to load stores', 'error');
-      this.cdr.detectChanges();
-    }
+    });
   }
 
-  async loadCategories(): Promise<void> {
-    // Extract categories from stores when they load
-    // For now, we'll just use an empty array and populate when stores load
+  loadCategories(): void {
     this.storeService.getStores({ limit: 100 }).subscribe({
       next: (response) => {
         const categoriesSet = new Set<string>();
@@ -187,78 +149,69 @@ export class StoreManagementComponent implements OnInit {
         });
         this.categories.set(Array.from(categoriesSet));
       },
-      error: (error) => {
-        console.error('Error loading categories:', error);
-      }
+      error: (error) => console.error('Error loading categories:', error)
     });
   }
 
-  async loadUsers(): Promise<void> {
-    try {
-      this.isLoadingUsers.set(true);
-      this.storeService.getStoreOwners().subscribe({
-        next: (response) => {
-          this.users.set(response.data || []);
-          this.isLoadingUsers.set(false);
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error loading users:', error);
-          this.isLoadingUsers.set(false);
-          this.cdr.detectChanges();
-        }
-      });
-    } catch (error) {
-      console.error('Error loading users:', error);
-      this.isLoadingUsers.set(false);
-      this.cdr.detectChanges();
-    }
-  }
-
-  async loadStatistics(): Promise<void> {
-    this.storeService.getStoreStatistics().subscribe({
-      next: (stats) => {
-        this.stats.set(stats);
-        this.cdr.detectChanges();
+  loadUsers(): void {
+    this.isLoadingUsers.set(true);
+    this.storeService.getStoreOwners().subscribe({
+      next: (response) => {
+        this.users.set(response.data || []);
+        this.isLoadingUsers.set(false);
       },
       error: (error) => {
-        console.error('Error loading statistics:', error);
+        console.error('Error loading users:', error);
+        this.isLoadingUsers.set(false);
       }
     });
   }
 
-  // This method is called when the user interacts with the paginator
-  onPageChange(event: PageEvent): void {
-    console.log('Page changed:', event);
-    this.pageSize.set(event.pageSize);
-    this.pageIndex.set(event.pageIndex);
-    this.loadStores(); // Reload data for the new page
+  loadStatistics(): void {
+    this.storeService.getStoreStatistics().subscribe({
+      next: (stats) => this.stats.set(stats),
+      error: (error) => console.error('Error loading statistics:', error)
+    });
   }
 
-  onSearchChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.searchQuery.set(input.value);
-    this.searchSubject.next(input.value); // Debounced search
+  onSearchChange(value: string): void {
+    this.searchQuery.set(value);
+    this.searchSubject.next(value);
   }
 
-  onVerificationFilterChange(event: any): void {
-    console.log('Verification filter changed:', event.value);
-    this.verificationFilter.set(event.value);
-    this.pageIndex.set(0); // Reset to first page
+  clearSearch(): void {
+    this.searchQuery.set('');
+    this.currentPage.set(1);
     this.loadStores();
   }
 
-  onCategoryFilterChange(event: any): void {
-    console.log('Category filter changed:', event.value);
-    this.categoryFilter.set(event.value);
-    this.pageIndex.set(0); // Reset to first page
+  setVerificationFilter(value: string): void {
+    this.verificationFilter.set(value);
+    this.currentPage.set(1);
     this.loadStores();
   }
 
-  onDateRangeChange(start: Date | null, end: Date | null): void {
-    console.log('Date range changed:', start, end);
-    this.dateRangeFilter.set({ start, end });
-    this.pageIndex.set(0); // Reset to first page
+  toggleVerificationFilter(value: string): void {
+    this.setVerificationFilter(this.verificationFilter() === value ? 'all' : value);
+  }
+
+  onCategoryFilterChange(value: string): void {
+    this.categoryFilter.set(value);
+    this.currentPage.set(1);
+    this.loadStores();
+  }
+
+  onDateStartChange(value: string): void {
+    const start = value ? new Date(value) : null;
+    this.dateRangeFilter.set({ start, end: this.dateRangeFilter().end });
+    this.currentPage.set(1);
+    this.loadStores();
+  }
+
+  onDateEndChange(value: string): void {
+    const end = value ? new Date(value) : null;
+    this.dateRangeFilter.set({ start: this.dateRangeFilter().start, end });
+    this.currentPage.set(1);
     this.loadStores();
   }
 
@@ -266,6 +219,22 @@ export class StoreManagementComponent implements OnInit {
     if (store.owner?.name) return store.owner.name;
     if (store.owner?.email) return store.owner.email;
     return 'Unknown Owner';
+  }
+
+  toggleSort(field: string): void {
+    if (this.sortField() === field) {
+      this.sortDirection.update(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortField.set(field);
+      this.sortDirection.set('desc');
+    }
+    this.currentPage.set(1);
+    this.loadStores();
+  }
+
+  getSortIndicator(field: string): string {
+    if (this.sortField() !== field) return '';
+    return this.sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward';
   }
 
   viewStoreDetails(store: Store): void {
@@ -280,10 +249,7 @@ export class StoreManagementComponent implements OnInit {
   editStore(store: Store): void {
     const dialogRef = this.dialog.open(StoreEditDialogComponent, {
       width: '600px',
-      data: { 
-        store,
-        users: this.users()
-      }
+      data: { store, users: this.users() }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -298,7 +264,7 @@ export class StoreManagementComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         title: store.isVerified ? 'Unverify Store' : 'Verify Store',
-        message: store.isVerified 
+        message: store.isVerified
           ? 'Are you sure you want to remove verification from this store?'
           : 'Are you sure you want to verify this store? This will grant the store additional privileges.'
       }
@@ -309,8 +275,8 @@ export class StoreManagementComponent implements OnInit {
         this.storeService.toggleStoreVerification(store._id, !store.isVerified)
           .subscribe({
             next: () => {
-              this.loadStores(); // Reload to get updated data
-              this.loadStatistics(); // Update stats
+              this.loadStores();
+              this.loadStatistics();
               this.showSnackbar(
                 store.isVerified ? 'Store unverified successfully' : 'Store verified successfully',
                 'success'
@@ -329,7 +295,7 @@ export class StoreManagementComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         title: store.isActive ? 'Deactivate Store' : 'Activate Store',
-        message: store.isActive 
+        message: store.isActive
           ? 'Are you sure you want to deactivate this store? The store will not be accessible to users.'
           : 'Are you sure you want to activate this store?'
       }
@@ -340,8 +306,8 @@ export class StoreManagementComponent implements OnInit {
         this.storeService.toggleStoreActive(store._id, !store.isActive)
           .subscribe({
             next: () => {
-              this.loadStores(); // Reload to get updated data
-              this.loadStatistics(); // Update stats
+              this.loadStores();
+              this.loadStatistics();
               this.showSnackbar(
                 store.isActive ? 'Store deactivated successfully' : 'Store activated successfully',
                 'success'
@@ -369,7 +335,7 @@ export class StoreManagementComponent implements OnInit {
         this.storeService.upgradeStoreTier(store._id, 'premium')
           .subscribe({
             next: () => {
-              this.loadStores(); // Reload to get updated data
+              this.loadStores();
               this.showSnackbar('Store upgraded to premium successfully', 'success');
             },
             error: (error) => {
@@ -403,8 +369,8 @@ export class StoreManagementComponent implements OnInit {
         this.storeService.deleteStore(store._id)
           .subscribe({
             next: () => {
-              this.loadStores(); // Reload to get updated data
-              this.loadStatistics(); // Update stats
+              this.loadStores();
+              this.loadStatistics();
               this.showSnackbar('Store deleted successfully', 'success');
             },
             error: (error) => {
@@ -417,7 +383,7 @@ export class StoreManagementComponent implements OnInit {
   }
 
   exportStores(format: 'csv' | 'excel' = 'csv'): void {
-    // Export all stores (you might want to add a separate API for exporting all)
+    this.isExporting.set(true);
     const storesToExport = this.stores();
     this.storeService.exportStores(format, storesToExport)
       .subscribe({
@@ -430,17 +396,19 @@ export class StoreManagementComponent implements OnInit {
           a.click();
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
+          this.isExporting.set(false);
           this.showSnackbar(`Stores exported as ${format.toUpperCase()} successfully`, 'success');
         },
         error: (error) => {
           console.error('Error exporting stores:', error);
+          this.isExporting.set(false);
           this.showSnackbar('Failed to export stores', 'error');
         }
       });
   }
 
   refreshData(): void {
-    this.pageIndex.set(0);
+    this.currentPage.set(1);
     this.loadStores();
     this.loadStatistics();
     this.showSnackbar('Data refreshed successfully', 'success');
@@ -451,8 +419,43 @@ export class StoreManagementComponent implements OnInit {
     this.verificationFilter.set('all');
     this.categoryFilter.set('all');
     this.dateRangeFilter.set({ start: null, end: null });
-    this.pageIndex.set(0);
+    this.currentPage.set(1);
     this.loadStores();
+  }
+
+  goToPage(page: number): void {
+    const target = Math.max(1, Math.min(page, Math.max(1, this.totalPages())));
+    if (target === this.currentPage()) return;
+    this.currentPage.set(target);
+    this.loadStores();
+  }
+
+  onPageInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const page = parseInt(input.value, 10);
+    if (!isNaN(page) && page >= 1 && page <= this.totalPages()) {
+      this.goToPage(page);
+    }
+    input.value = '';
+  }
+
+  onPageSizeChange(size: string | number): void {
+    const parsed = typeof size === 'string' ? parseInt(size, 10) : size;
+    this.pageSize.set(parsed);
+    this.currentPage.set(1);
+    this.loadStores();
+  }
+
+  onStoreLogoError(event: Event): void {
+    (event.target as HTMLImageElement).src = '/img/store-default.png';
+  }
+
+  onOwnerAvatarError(event: Event): void {
+    (event.target as HTMLImageElement).src = '/img/avatar.png';
+  }
+
+  viewStoreProducts(store: Store): void {
+    this.router.navigate(['/dashboard/stores/products', store._id]);
   }
 
   private showSnackbar(message: string, type: 'success' | 'error' | 'info' | 'warning'): void {
@@ -460,9 +463,5 @@ export class StoreManagementComponent implements OnInit {
       duration: 3000,
       panelClass: `snackbar-${type}`
     });
-  }
-
-  viewStoreProducts(store: Store): void {
-    this.router.navigate(['/dashboard/stores/products', store._id]);
   }
 }

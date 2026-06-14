@@ -1,16 +1,12 @@
-import { Component, OnInit, signal, computed, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent, MatPaginator } from '@angular/material/paginator';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
+import { FormsModule } from '@angular/forms';
+
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -23,18 +19,12 @@ import { TestimonialDetailDialogComponent } from './testimonial-detail-dialog/te
   selector: 'admin-testimonial-mgt',
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     FormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
     MatIconModule,
-    MatChipsModule,
+    MatButtonModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatProgressBarModule
   ],
   templateUrl: './testimonial.component.html',
   styleUrl: './testimonial.component.scss',
@@ -44,236 +34,207 @@ export class TestimonialMgtComponent implements OnInit {
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
-  // State with signals
-  testimonials = signal<Testimonial[]>([]);
-  isLoading = signal(true);
-  searchQuery = signal('');
-  statusFilter = signal('all');
-  ratingFilter = signal('all');
-  
-  // Table data source
-  dataSource = new MatTableDataSource<Testimonial>([]);
-  displayedColumns: string[] = ['user', 'message', 'rating', 'status', 'reactions', 'date', 'actions'];
-  
-  // Pagination
-  pageSize = signal(10);
-  pageIndex = signal(0);
-  totalTestimonials = signal(0);
-  
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  readonly allTestimonials = signal<Testimonial[]>([]);
+  readonly isLoading = signal(true);
 
-  // Computed values
-  filteredTestimonials = computed(() => {
-    let filtered = this.testimonials();
-    
-    // Apply search filter
+  readonly searchQuery = signal('');
+  readonly statusFilter = signal('all');
+  readonly ratingFilter = signal('all');
+
+  readonly currentPage = signal(1);
+  readonly pageSize = signal(25);
+  readonly pageSizeOptions = [10, 25, 50, 100];
+
+  readonly filteredTestimonials = computed(() => {
+    let filtered = this.allTestimonials();
+
     if (this.searchQuery()) {
       const query = this.searchQuery().toLowerCase();
-      filtered = filtered.filter(testimonial => 
-        testimonial.message.toLowerCase().includes(query) ||
-        testimonial.user.name.toLowerCase().includes(query) ||
-        testimonial.user.username.toLowerCase().includes(query)
+      filtered = filtered.filter(t =>
+        t.message.toLowerCase().includes(query) ||
+        t.user.name.toLowerCase().includes(query) ||
+        t.user.username.toLowerCase().includes(query)
       );
     }
-    
-    // Apply status filter
+
     if (this.statusFilter() !== 'all') {
-      filtered = filtered.filter(testimonial => testimonial.status === this.statusFilter());
+      filtered = filtered.filter(t => t.status === this.statusFilter());
     }
-    
-    // Apply rating filter
+
     if (this.ratingFilter() !== 'all') {
-      filtered = filtered.filter(testimonial => testimonial.rating === parseInt(this.ratingFilter()));
+      filtered = filtered.filter(t => t.rating === parseInt(this.ratingFilter()));
     }
-    
+
     return filtered;
+  });
+
+  readonly totalFiltered = computed(() => this.filteredTestimonials().length);
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalFiltered() / this.pageSize())));
+
+  readonly displayedData = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.filteredTestimonials().slice(start, start + this.pageSize());
+  });
+
+  readonly totalPending = computed(() => this.allTestimonials().filter(t => t.status === 'pending').length);
+  readonly totalApproved = computed(() => this.allTestimonials().filter(t => t.status === 'approved').length);
+  readonly totalRejected = computed(() => this.allTestimonials().filter(t => t.status === 'rejected').length);
+  readonly totalFeatured = computed(() => this.allTestimonials().filter(t => t.isFeatured).length);
+
+  readonly pageNumbers = computed(() => {
+    const total = Math.max(1, this.totalPages());
+    const current = this.currentPage();
+    const pages: number[] = [];
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, current + 2);
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
   });
 
   ngOnInit(): void {
     this.loadTestimonials();
   }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
+  loadTestimonials(): void {
+    this.isLoading.set(true);
+    this.testimonialService.getTestimonials().subscribe({
+      next: (response) => {
+        this.allTestimonials.set(response.data || []);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.showSnackbar('Failed to load testimonials', 'error');
+      }
+    });
   }
 
-  async loadTestimonials(): Promise<void> {
-    try {
-      this.isLoading.set(true);
-      this.testimonialService.getTestimonials().subscribe({
-        next: (testimonials) => {
-          console.log('testimonials ',testimonials)
-          this.testimonials.set(testimonials.data || []);
-          this.applyFilters();
-          this.isLoading.set(false);
-        }
-      });
-
-    } catch (error) {
-      console.error('Error loading testimonials:', error);
-      this.isLoading.set(false);
-      this.showSnackbar('Failed to load testimonials', 'error');
-    }
+  onSearchChange(value: string): void {
+    this.searchQuery.set(value);
+    this.currentPage.set(1);
   }
 
-  applyFilters(): void {
-    const filtered = this.filteredTestimonials();
-    this.dataSource.data = filtered;
-    this.totalTestimonials.set(filtered.length);
-    
-    // Reset paginator to first page
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
-    this.pageIndex.set(0);
+  clearSearch(): void {
+    this.searchQuery.set('');
+    this.currentPage.set(1);
   }
 
-  onSearchChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.searchQuery.set(input.value);
-    this.applyFilters();
+  toggleStatusFilter(value: string): void {
+    this.statusFilter.update(s => s === value ? 'all' : value);
+    this.currentPage.set(1);
   }
 
-  onStatusFilterChange(event: any): void {
-    this.statusFilter.set(event.value);
-    this.applyFilters();
+  toggleRatingFilter(value: string): void {
+    this.ratingFilter.update(r => r === value ? 'all' : value);
+    this.currentPage.set(1);
   }
 
-  onRatingFilterChange(event: any): void {
-    this.ratingFilter.set(event.value);
-    this.applyFilters();
-  }
-
-  onPageChange(event: PageEvent): void {
-    this.pageSize.set(event.pageSize);
-    this.pageIndex.set(event.pageIndex);
+  clearFilters(): void {
+    this.searchQuery.set('');
+    this.statusFilter.set('all');
+    this.ratingFilter.set('all');
+    this.currentPage.set(1);
   }
 
   getStars(rating: number): number[] {
     return Array(rating).fill(0);
   }
 
-  approveTestimonial(testimonial: Testimonial): void {
+  approveTestimonial(t: Testimonial): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Approve Testimonial',
-        message: 'Are you sure you want to approve this testimonial? It will be visible to all users.'
-      }
+      data: { title: 'Approve Testimonial', message: 'Are you sure you want to approve this testimonial? It will be visible to all users.' }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.testimonialService.updateTestimonialStatus(testimonial._id, 'approved')
-          .subscribe({
-            next: (updatedTestimonial) => {
-              // Update the testimonial in our data
-              const index = this.testimonials().findIndex(t => t._id === testimonial._id);
-              if (index !== -1) {
-                const updatedTestimonials = [...this.testimonials()];
-                updatedTestimonials[index] = updatedTestimonial;
-                this.testimonials.set(updatedTestimonials);
-                this.applyFilters();
-                this.showSnackbar('Testimonial approved successfully', 'success');
-              }
-            },
-            error: (error) => {
-              console.error('Error approving testimonial:', error);
-              this.showSnackbar('Failed to approve testimonial', 'error');
-            }
-          });
+        this.testimonialService.updateTestimonialStatus(t._id, 'approved').subscribe({
+          next: (updated) => {
+            const updatedList = this.allTestimonials().map(item => item._id === t._id ? updated : item);
+            this.allTestimonials.set(updatedList);
+            this.showSnackbar('Testimonial approved', 'success');
+          },
+          error: () => this.showSnackbar('Failed to approve testimonial', 'error')
+        });
       }
     });
   }
 
-  rejectTestimonial(testimonial: Testimonial): void {
+  rejectTestimonial(t: Testimonial): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Reject Testimonial',
-        message: 'Are you sure you want to reject this testimonial?'
-      }
+      data: { title: 'Reject Testimonial', message: 'Are you sure you want to reject this testimonial?' }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.testimonialService.updateTestimonialStatus(testimonial._id, 'rejected')
-          .subscribe({
-            next: (updatedTestimonial) => {
-              // Update the testimonial in our data
-              const index = this.testimonials().findIndex(t => t._id === testimonial._id);
-              if (index !== -1) {
-                const updatedTestimonials = [...this.testimonials()];
-                updatedTestimonials[index] = updatedTestimonial;
-                this.testimonials.set(updatedTestimonials);
-                this.applyFilters();
-                this.showSnackbar('Testimonial rejected successfully', 'success');
-              }
-            },
-            error: (error) => {
-              console.error('Error rejecting testimonial:', error);
-              this.showSnackbar('Failed to reject testimonial', 'error');
-            }
-          });
+        this.testimonialService.updateTestimonialStatus(t._id, 'rejected').subscribe({
+          next: (updated) => {
+            const updatedList = this.allTestimonials().map(item => item._id === t._id ? updated : item);
+            this.allTestimonials.set(updatedList);
+            this.showSnackbar('Testimonial rejected', 'success');
+          },
+          error: () => this.showSnackbar('Failed to reject testimonial', 'error')
+        });
       }
     });
   }
 
-  toggleFeatured(testimonial: Testimonial): void {
-    this.testimonialService.toggleFeatured(testimonial._id, !testimonial.isFeatured)
-      .subscribe({
-        next: (updatedTestimonial) => {
-          // Update the testimonial in our data
-          const index = this.testimonials().findIndex(t => t._id === testimonial._id);
-          if (index !== -1) {
-            const updatedTestimonials = [...this.testimonials()];
-            updatedTestimonials[index] = updatedTestimonial;
-            this.testimonials.set(updatedTestimonials);
-            this.applyFilters();
-            const message = updatedTestimonial.isFeatured 
-              ? 'Testimonial featured successfully' 
-              : 'Testimonial unfeatured successfully';
-            this.showSnackbar(message, 'success');
-          }
-        },
-        error: (error) => {
-          console.error('Error toggling featured status:', error);
-          this.showSnackbar('Failed to update featured status', 'error');
-        }
-      });
+  toggleFeatured(t: Testimonial): void {
+    this.testimonialService.toggleFeatured(t._id, !t.isFeatured).subscribe({
+      next: (updated) => {
+        const updatedList = this.allTestimonials().map(item => item._id === t._id ? updated : item);
+        this.allTestimonials.set(updatedList);
+        this.showSnackbar(updated.isFeatured ? 'Testimonial featured' : 'Testimonial unfeatured', 'success');
+      },
+      error: () => this.showSnackbar('Failed to update featured status', 'error')
+    });
   }
 
-  viewDetails(testimonial: Testimonial): void {
+  viewDetails(t: Testimonial): void {
     this.dialog.open(TestimonialDetailDialogComponent, {
       width: '600px',
-      data: { testimonial }
+      data: { testimonial: t }
     });
   }
 
-  deleteTestimonial(testimonial: Testimonial): void {
+  deleteTestimonial(t: Testimonial): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Delete Testimonial',
-        message: 'Are you sure you want to delete this testimonial? This action cannot be undone.'
-      }
+      data: { title: 'Delete Testimonial', message: 'Are you sure you want to delete this testimonial? This action cannot be undone.' }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.testimonialService.deleteTestimonial(testimonial._id)
-          .subscribe({
-            next: () => {
-              // Remove from local array
-              const updatedTestimonials = this.testimonials().filter(t => t._id !== testimonial._id);
-              this.testimonials.set(updatedTestimonials);
-              this.applyFilters();
-              this.showSnackbar('Testimonial deleted successfully', 'success');
-            },
-            error: (error) => {
-              console.error('Error deleting testimonial:', error);
-              this.showSnackbar('Failed to delete testimonial', 'error');
-            }
-          });
+        this.testimonialService.deleteTestimonial(t._id).subscribe({
+          next: () => {
+            this.allTestimonials.update(list => list.filter(item => item._id !== t._id));
+            this.showSnackbar('Testimonial deleted', 'success');
+          },
+          error: () => this.showSnackbar('Failed to delete testimonial', 'error')
+        });
       }
     });
+  }
+
+  onAvatarError(event: Event): void {
+    (event.target as HTMLImageElement).src = '/img/avatar.png';
+  }
+
+  goToPage(page: number): void {
+    const target = Math.max(1, Math.min(page, Math.max(1, this.totalPages())));
+    if (target === this.currentPage()) return;
+    this.currentPage.set(target);
+  }
+
+  onPageInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const page = parseInt(input.value, 10);
+    if (!isNaN(page) && page >= 1 && page <= this.totalPages()) this.goToPage(page);
+    input.value = '';
+  }
+
+  onPageSizeChange(size: string | number): void {
+    const parsed = typeof size === 'string' ? parseInt(size, 10) : size;
+    this.pageSize.set(parsed);
+    this.currentPage.set(1);
   }
 
   private showSnackbar(message: string, type: 'success' | 'error'): void {
