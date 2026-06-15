@@ -233,7 +233,7 @@ export class FinancialMgtComponent implements OnInit, OnDestroy {
   private downloadBlob(blob: Blob, filename: string): void { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url); }
 
   getStatusConfig(status: string): { label: string; css: string; icon: string } { return this.statusMap[status] || { label: status, css: 'status-default', icon: 'help' }; }
-  getCategoryLabel(cat: string): string { const m: Record<string,string> = { deposit:'Deposit', withdrawal:'Withdrawal', campaign:'Campaign', promotion:'Promotion', fee:'Fee', refund:'Refund', transfer:'Transfer', commission:'Commission', store_sale:'Store Sale', store_promotion:'Store Promo', ai_subscription:'AI Sub' }; return m[cat] || cat; }
+  getCategoryLabel(cat: string): string { const m: Record<string,string> = { deposit:'Deposit', withdrawal:'Withdrawal', campaign:'Campaign', promotion:'Promotion', fee:'Fee', refund:'Refund', transfer:'Transfer', commission:'Commission', store_sale:'Store Sale', store_promotion:'Store Promo', ai_subscription:'AI Sub', sms:'SMS Charge' }; return m[cat] || cat; }
 
   clearFilters(): void { this.searchTerm.set(''); this.statusFilter.set('all'); this.currentPage.set(1); this.loadWithdrawals(); }
 

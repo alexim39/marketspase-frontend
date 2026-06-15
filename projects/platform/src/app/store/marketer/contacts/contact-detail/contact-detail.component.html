@@ -59,6 +59,18 @@
         </div>
 
         <div class="panel-card">
+          <div class="panel-heading">Quick Actions</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="primary-btn-sm" (click)="openSendSms()" [disabled]="!c.phone">
+              <mat-icon>sms</mat-icon> Send SMS
+            </button>
+            <button type="button" class="primary-btn-sm" (click)="openSendEmail()" [disabled]="!c.email">
+              <mat-icon>email</mat-icon> Send Email
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-card">
           <div class="panel-heading">Lifecycle Stage</div>
           <div class="stage-selector">
             @for (stage of ['new', 'active', 'repeat', 'vip', 'at_risk', 'suppressed']; track stage) {

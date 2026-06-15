@@ -11,6 +11,11 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatSnackBarModule, MatSnackBar } from "@angular/material/snack-bar";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { MatSelectModule } from "@angular/material/select";
+import { MatDatepickerModule } from "@angular/material/datepicker";
+import { MatNativeDateModule } from "@angular/material/core";
 import {
   MatDialogModule,
   MatDialog,
@@ -23,6 +28,8 @@ import {
   CustomerGroup,
 } from "../contact.service";
 import { CreateContactDialogComponent } from "./create-contact-dialog.component";
+import { SmsDialogComponent } from "./sms-dialog.component";
+import { BulkSmsDialogComponent } from "./bulk-sms-dialog.component";
 
 @Component({
   selector: "app-contacts-index",
@@ -38,6 +45,11 @@ import { CreateContactDialogComponent } from "./create-contact-dialog.component"
     MatProgressSpinnerModule,
     MatProgressBarModule,
     MatSnackBarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     MatDialogModule,
     CreateContactDialogComponent,
   ],
@@ -400,6 +412,25 @@ export class ContactsIndexComponent {
           this.loadAnalytics();
         }
       });
+  }
+
+  // ── SMS & Email Actions ──
+  openSendSms(customer: CustomerContact): void {
+    if (!customer.phone) { this.snackBar.open('Customer has no phone number.', 'OK', { duration: 3000 }); return; }
+    const ref = this.dialog.open(SmsDialogComponent, { width: '500px', maxWidth: '95vw', data: { customerId: customer._id, customerName: customer.displayName, phone: customer.phone } });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.loadCustomers());
+  }
+
+  openBulkSms(): void {
+    const ids = [...this.selectedIds()];
+    if (!ids.length) { this.snackBar.open('Select customers to send SMS.', 'OK', { duration: 3000 }); return; }
+    const ref = this.dialog.open(BulkSmsDialogComponent, { width: '500px', maxWidth: '95vw', data: { customerIds: ids, count: ids.length } });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.loadCustomers());
+  }
+
+  openSendEmail(customer: CustomerContact): void {
+    if (!customer.email) { this.snackBar.open('Customer has no email.', 'OK', { duration: 3000 }); return; }
+    window.location.href = `mailto:${encodeURIComponent(customer.email)}?subject=Message from MarketSpase`;
   }
 
   // ── Helpers ──

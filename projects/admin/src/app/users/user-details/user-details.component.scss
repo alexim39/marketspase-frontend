@@ -221,9 +221,9 @@
     .pill-dot { background: #10b981; }
   }
   &.tx-completed {
-    background: rgba(22, 152, 109, 0.12); color: #346b55;
-    border-color: rgba(50, 125, 100, 0.25);
-    .pill-dot { background: #066b49; }
+    background: rgba(22, 152, 109, 0.12); color: #3dc991;
+    border-color: rgba(81, 199, 160, 0.25);
+    .pill-dot { background: #056b49; }
   }
   &.tx-pending, &.tx-processing, &.tx-reserved, &.tx-awaiting {
     background: rgba(245, 158, 11, 0.12); color: #fcd34d;

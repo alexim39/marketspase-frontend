@@ -1,300 +1,197 @@
 <div class="page-shell">
   <!-- Header -->
-  <section class="hero-section">
-    <div class="page-header">
-      <div>
-        <p class="eyebrow">Customer Relationship Manager</p>
-        <h2>Contacts</h2>
-        <p>Manage, segment, and engage your customer contacts. Track interactions, consent preferences, and conversion activity.</p>
-      </div>
-      <div class="header-actions">
-        <button type="button" class="primary-btn" (click)="openCreateDialog()">
-          <mat-icon>person_add</mat-icon>
-          Add Contact
-        </button>
-      </div>
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Customer Relationship Manager</p>
+      <h2>Contacts</h2>
+      <p class="subcopy">Build and manage your customer contact list, prepare SMS and email outreach, and keep your marketing audience organised.</p>
     </div>
+    <div class="header-actions">
+      <label class="ghost-btn file-upload-btn" [class.loading]="isImporting()">
+        <mat-icon>file_upload</mat-icon> Import CSV
+        <input type="file" accept=".csv" (change)="handleFileImport($event)" />
+      </label>
+      <button type="button" class="primary-btn" (click)="openCreateDialog()">
+        <mat-icon>person_add</mat-icon> Add Contact
+      </button>
+    </div>
+  </header>
 
-    @if (analytics(); as a) {
-      <div class="stats-grid">
-        <div class="stat-card">
-          <mat-icon class="stat-icon">people</mat-icon>
-          <div class="stat-details">
-            <span class="stat-value">{{ a.totals.total }}</span>
-            <span class="stat-label">Total Contacts</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <span class="stat-dot good"></span>
-          <div class="stat-details">
-            <span class="stat-value">{{ a.totals.withEmailConsent }}</span>
-            <span class="stat-label">Email Consent</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <span class="stat-dot premium"></span>
-          <div class="stat-details">
-            <span class="stat-value">{{ a.totals.withSmsConsent }}</span>
-            <span class="stat-label">SMS Consent</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <mat-icon class="stat-icon">insights</mat-icon>
-          <div class="stat-details">
-            <span class="stat-value">{{ a.lifecycleBreakdown['vip'] || 0 }}</span>
-            <span class="stat-label">VIP Customers</span>
-          </div>
-        </div>
+  <!-- Stats -->
+  @if (analytics(); as a) {
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon info"><mat-icon>people</mat-icon></div>
+        <div class="stat-details"><span class="stat-value">{{ a.totals.total }}</span><span class="stat-label">Total Contacts</span></div>
       </div>
-    }
-  </section>
+      <div class="stat-card">
+        <div class="stat-icon warning"><mat-icon>mark_email_read</mat-icon></div>
+        <div class="stat-details"><span class="stat-value">{{ a.totals.withEmailConsent }}</span><span class="stat-label">Email Consent</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon info"><mat-icon>sms</mat-icon></div>
+        <div class="stat-details"><span class="stat-value">{{ a.totals.withSmsConsent }}</span><span class="stat-label">SMS Consent</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon critical"><mat-icon>star</mat-icon></div>
+        <div class="stat-details"><span class="stat-value">{{ a.recentAdditions?.length || 0 }}</span><span class="stat-label">Recent Additions</span></div>
+      </div>
+    </section>
+  }
 
   <!-- Filters -->
   <section class="filters-card">
-    <div class="filters-container">
-      <div class="filter-field search-field">
-        <mat-icon class="search-icon">search</mat-icon>
-        <input
-          type="text"
-          class="search-input"
-          placeholder="Search name, email, phone..."
-          [formControl]="filtersForm.controls.search"
-        />
-        @if (filtersForm.controls.search.value) {
-          <button type="button" class="search-clear-btn" (click)="filtersForm.controls.search.setValue('')">
-            <mat-icon>close</mat-icon>
-          </button>
-        }
-      </div>
+    <div class="filters-grid">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search buyers</mat-label>
+        <input matInput [formControl]="filtersForm.controls.search" placeholder="Search by name, email, phone, or tag">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
 
-      <div class="filter-select-group">
-        <label class="filter-label">Stage</label>
-        <select class="filter-select" [formControl]="filtersForm.controls.lifecycleStage">
-          @for (s of lifecycleStages; track s.value) {
-            <option [value]="s.value">{{ s.label }}</option>
-          }
-        </select>
-      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Lifecycle stage</mat-label>
+        <mat-select [formControl]="filtersForm.controls.lifecycleStage">
+          <mat-option value="">All stages</mat-option>
+          <mat-option value="new">New</mat-option>
+          <mat-option value="active">Active</mat-option>
+          <mat-option value="repeat">Repeat</mat-option>
+          <mat-option value="vip">VIP</mat-option>
+          <mat-option value="at_risk">At risk</mat-option>
+          <mat-option value="suppressed">Suppressed</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-      <div class="filter-select-group">
-        <label class="filter-label">Source</label>
-        <select class="filter-select" [formControl]="filtersForm.controls.source">
-          @for (s of sources; track s.value) {
-            <option [value]="s.value">{{ s.label }}</option>
-          }
-        </select>
-      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Tag</mat-label>
+        <mat-select [formControl]="filtersForm.controls.tag">
+          <mat-option value="">All tags</mat-option>
+          @for (t of availableTags(); track t) { <mat-option [value]="t">{{ t }}</mat-option> }
+        </mat-select>
+      </mat-form-field>
 
-      <div class="filter-select-group">
-        <label class="filter-label">Tag</label>
-        <select class="filter-select" [formControl]="filtersForm.controls.tag">
-          <option value="">All tags</option>
-          @for (tag of availableTags(); track tag) {
-            <option [value]="tag">{{ tag }}</option>
-          }
-        </select>
-      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Group</mat-label>
+        <mat-select [formControl]="filtersForm.controls.group">
+          <mat-option value="">All groups</mat-option>
+          @for (g of groups(); track g._id) { <mat-option [value]="g._id">{{ g.name }}</mat-option> }
+        </mat-select>
+      </mat-form-field>
 
-      <div class="filter-select-group">
-        <label class="filter-label">Group</label>
-        <select class="filter-select" [formControl]="filtersForm.controls.group">
-          <option value="">All groups</option>
-          @for (g of groups(); track g._id) {
-            <option [value]="g._id">{{ g.name }}</option>
-          }
-        </select>
-      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Start date</mat-label>
+        <input matInput [matDatepicker]="startPicker" [formControl]="filtersForm.controls.startDate">
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
 
-      <div class="filter-select-group">
-        <label class="filter-label">Date Range</label>
-        <div class="date-range-group">
-          <input type="date" class="filter-select date-input" [formControl]="filtersForm.controls.startDate" />
-          <span class="date-separator">—</span>
-          <input type="date" class="filter-select date-input" [formControl]="filtersForm.controls.endDate" />
-        </div>
-      </div>
-
-      <button type="button" class="ghost-btn" (click)="clearFilters()">
-        <mat-icon>close</mat-icon> Clear
-      </button>
+      <mat-form-field appearance="outline">
+        <mat-label>End date</mat-label>
+        <input matInput [matDatepicker]="endPicker" [formControl]="filtersForm.controls.endDate">
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
     </div>
 
     <div class="filters-actions">
-      <label class="file-upload-btn" [class.loading]="isImporting()">
-        <mat-icon>file_upload</mat-icon>
-        Import CSV
-        <input type="file" accept=".csv" (change)="handleFileImport($event)" [disabled]="isImporting()" />
-      </label>
-      @if (isImporting()) {
-        <span class="import-badge">Importing...</span>
-      }
+      <button type="button" class="ghost-btn" (click)="clearFilters()"><mat-icon>close</mat-icon> Clear</button>
     </div>
   </section>
 
-  <!-- Table -->
-  <section class="management-section">
-    <div class="section-header">
-      <span class="table-count">Showing {{ customers().length }} of {{ totalItems() }} contacts</span>
+  <!-- Selection toolbar -->
+  @if (selectedIds().size > 0) {
+    <section class="selection-toolbar">
+      <div><strong>{{ selectedIds().size }}</strong> <span>contacts selected</span></div>
+      <div class="selection-actions">
+        <button type="button" class="primary-btn" (click)="openBulkSms()"><mat-icon>sms</mat-icon> Send SMS</button>
+        <button type="button" class="ghost-btn" (click)="bulkDelete()"><mat-icon>delete</mat-icon> Delete</button>
+      </div>
+    </section>
+  }
+
+  <!-- Customer list -->
+  <section class="list-panel">
+    <div class="panel-topbar">
+      <span>{{ totalItems() }} contacts</span>
     </div>
 
     @if (isLoading()) {
-      <div class="loading-card">
-        <mat-progress-bar mode="indeterminate" />
-        <span>Loading contacts...</span>
-      </div>
+      <div class="state-panel"><mat-spinner diameter="40"></mat-spinner><span>Loading contacts...</span></div>
     } @else if (error()) {
-      <div class="error-state">
-        <mat-icon>error_outline</mat-icon>
-        <strong>{{ error() }}</strong>
-        <button type="button" class="ghost-btn" (click)="loadCustomers()">
-          <mat-icon>refresh</mat-icon> Retry
-        </button>
-      </div>
+      <div class="state-panel"><mat-icon>error_outline</mat-icon><strong>{{ error() }}</strong><button type="button" class="ghost-btn" (click)="loadCustomers()"><mat-icon>refresh</mat-icon> Retry</button></div>
     } @else if (customers().length === 0) {
-      <div class="empty-state">
-        <mat-icon>contact_mail</mat-icon>
-        <strong>No contacts yet</strong>
-        <span>Add a contact manually or import a CSV to get started.</span>
-        <div class="empty-actions">
-          <button type="button" class="primary-btn" (click)="openCreateDialog()">
-            <mat-icon>person_add</mat-icon> Add First Contact
-          </button>
-          <label class="ghost-btn file-upload-btn">
-            <mat-icon>file_upload</mat-icon> Import CSV
-            <input type="file" accept=".csv" (change)="handleFileImport($event)" />
-          </label>
+      <div class="state-panel">
+        <mat-icon>contact_mail</mat-icon><strong>No contacts yet</strong><span>Add a contact manually or import a CSV to get started.</span>
+        <div class="state-actions">
+          <button type="button" class="primary-btn" (click)="openCreateDialog()"><mat-icon>person_add</mat-icon> Add First Contact</button>
+          <label class="ghost-btn file-upload-btn"><mat-icon>file_upload</mat-icon> Import CSV<input type="file" accept=".csv" (change)="handleFileImport($event)" /></label>
         </div>
       </div>
     } @else {
-      <table class="contacts-table">
-        <thead>
-          <tr>
-            <th>Contact</th>
-            <th>Contact Info</th>
-            <th>Stage</th>
-            <th>Tags</th>
-            <th>Consent</th>
-            <th>Last Contact</th>
-            <th>Source</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (c of customers(); track c._id) {
-            <tr class="item-row" [routerLink]="[c._id]">
-              <td>
-                <div class="contact-primary">
-                  <div class="avatar">{{ c.displayName.charAt(0).toUpperCase() }}</div>
-                  <div class="contact-name-group">
-                    <span class="contact-name">{{ c.displayName }}</span>
-                    <span class="contact-created">Added {{ c.createdAt | date:'mediumDate' }}</span>
-                  </div>
+      <div class="customer-list">
+        @for (c of customers(); track c._id) {
+          <article class="customer-card" [routerLink]="[c._id]">
+            <div class="customer-card-top">
+              <div class="customer-avatar">{{ c.displayName.charAt(0).toUpperCase() }}</div>
+              <div class="customer-copy">
+                <div class="customer-title-row">
+                  <h2>{{ c.displayName }}</h2>
+                  <span class="badge stage-pill" [class]="getStageColor(c.lifecycleStage)">
+                    {{ c.lifecycleStage || 'new' | titlecase }}
+                  </span>
+                  <span class="badge stage-pill muted">{{ getSourceLabel(c.source) }}</span>
                 </div>
-              </td>
-              <td>
-                <div class="contact-info-list">
-                  @if (c.email) {
-                    <span class="contact-email">
-                      <mat-icon>email</mat-icon> {{ c.email }}
-                    </span>
-                  }
-                  @if (c.phone) {
-                    <span class="contact-phone">
-                      <mat-icon>phone</mat-icon> {{ c.phoneCountryCode }}{{ c.phone }}
-                    </span>
-                  }
-                </div>
-              </td>
-              <td>
-                <span class="stage-pill {{ getStageColor(c.lifecycleStage) }}">
-                  {{ c.lifecycleStage }}
-                </span>
-              </td>
-              <td>
-                <div class="tags-list">
-                  @for (tag of c.tags.slice(0, 3); track tag) {
-                    <span class="tag-badge">{{ tag }}</span>
-                  }
-                  @if (c.tags.length > 3) {
-                    <span class="tag-badge more">+{{ c.tags.length - 3 }}</span>
-                  }
-                </div>
-              </td>
-              <td>
-                <div class="consent-indicators">
-                  @if (c.consent.email) {
-                    <span class="consent-dot good" title="Email consent">E</span>
-                  } @else {
-                    <span class="consent-dot muted" title="No email consent">E</span>
-                  }
-                  @if (c.consent.sms) {
-                    <span class="consent-dot premium" title="SMS consent">S</span>
-                  } @else {
-                    <span class="consent-dot muted" title="No SMS consent">S</span>
-                  }
-                </div>
-              </td>
-              <td>
-                <span class="activity-time">
-                  {{ c.lastContactedAt ? (c.lastContactedAt | date:'short') : '—' }}
-                </span>
-              </td>
-              <td>
-                <span class="source-badge">{{ getSourceLabel(c.source) }}</span>
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <button type="button" class="icon-btn" title="View contact" [routerLink]="[c._id]">
-                    <mat-icon>visibility</mat-icon>
-                  </button>
-                  <button type="button" class="icon-btn" title="Delete" (click)="$event.stopPropagation(); deleteContact(c._id, c.displayName)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-
-      <!-- Pagination -->
-      @if (totalPages() > 1) {
-        <div class="pagination-bar">
-          <div class="pagination-inner">
-            <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(1)">
-              <mat-icon>first_page</mat-icon>
-            </button>
-            <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)">
-              <mat-icon>chevron_left</mat-icon>
-            </button>
-            <div class="page-numbers">
-              @if (currentPage() > 3) {
-                <button type="button" class="page-btn number" (click)="goToPage(1)">1</button>
-                @if (currentPage() > 4) { <span class="page-ellipsis">...</span> }
-              }
-              @for (p of pageNumbers(); track p) {
-                <button type="button" class="page-btn number" [class.active]="p === currentPage()" (click)="goToPage(p)">
-                  {{ p }}
+                @if (c.email) { <p class="contact-email"><mat-icon>email</mat-icon>{{ c.email }}</p> }
+                @if (c.phone) { <p class="contact-phone"><mat-icon>phone</mat-icon>{{ c.phoneCountryCode }}{{ c.phone }}</p> }
+              </div>
+              <div class="customer-actions" (click)="$event.stopPropagation()">
+                <button type="button" class="ghost-btn icon-only" title="Send SMS" (click)="openSendSms(c)" [disabled]="!c.phone">
+                  <mat-icon>sms</mat-icon>
                 </button>
-              }
-              @if (currentPage() < totalPages() - 2) {
-                @if (currentPage() < totalPages() - 3) { <span class="page-ellipsis">...</span> }
-                <button type="button" class="page-btn number" (click)="goToPage(totalPages())">{{ totalPages() }}</button>
-              }
+                <button type="button" class="ghost-btn icon-only" title="Send Email" (click)="openSendEmail(c)" [disabled]="!c.email">
+                  <mat-icon>email</mat-icon>
+                </button>
+                <button type="button" class="ghost-btn icon-only" title="Delete" (click)="deleteContact(c._id, c.displayName)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
             </div>
-            <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(currentPage() + 1)">
-              <mat-icon>chevron_right</mat-icon>
-            </button>
-            <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(totalPages())">
-              <mat-icon>last_page</mat-icon>
-            </button>
-            <div class="page-jump">
-              <span class="page-jump-label">Go to</span>
-              <input type="number" class="page-jump-input" min="1" [max]="totalPages()" placeholder="#" (keydown.enter)="onPageInput($event)" (blur)="onPageInput($event)" />
+            <div class="customer-footer">
+              <div class="tags-list">
+                @for (tag of c.tags.slice(0, 3); track tag) { <span class="tag-badge">{{ tag }}</span> }
+                @if (c.tags.length > 3) { <span class="tag-badge more">+{{ c.tags.length - 3 }}</span> }
+                @if (!c.tags.length) { <span class="tag-badge" style="opacity:0.5">No tags</span> }
+              </div>
+              <div class="consent-indicators">
+                <span class="consent-dot" [class.good]="c.consent.email" [class.muted]="!c.consent.email">E</span>
+                <span class="consent-dot" [class.good]="c.consent.sms" [class.muted]="!c.consent.sms">S</span>
+              </div>
+              <div class="customer-meta">
+                <span>Last contact {{ c.lastContactedAt ? (c.lastContactedAt | date:'shortDate') : 'never' }}</span>
+                <span>Added {{ c.createdAt | date:'mediumDate' }}</span>
+              </div>
             </div>
+          </article>
+        }
+      </div>
+    }
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination-bar">
+        <span>Page {{ currentPage() }} of {{ totalPages() }}</span>
+        <div class="pagination-inner">
+          <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(1)"><mat-icon>first_page</mat-icon></button>
+          <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)"><mat-icon>chevron_left</mat-icon></button>
+          <div class="page-numbers">
+            @if (currentPage() > 3) { <button class="page-btn" (click)="goToPage(1)">1</button> @if (currentPage() > 4) {<span class="page-ellipsis">...</span>} }
+            @for (p of pageNumbers(); track p) { <button class="page-btn" [class.active]="p === currentPage()" (click)="goToPage(p)">{{ p }}</button> }
+            @if (currentPage() < totalPages() - 2) { @if (currentPage() < totalPages() - 3) {<span class="page-ellipsis">...</span>} <button class="page-btn" (click)="goToPage(totalPages())">{{ totalPages() }}</button> }
           </div>
+          <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(currentPage() + 1)"><mat-icon>chevron_right</mat-icon></button>
+          <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(totalPages())"><mat-icon>last_page</mat-icon></button>
+          <div class="page-jump"><span class="page-jump-label">Go</span><input class="page-jump-input" min="1" [max]="totalPages()" placeholder="#" (keydown.enter)="onPageInput($event)" (blur)="onPageInput($event)"/></div>
         </div>
-      }
+      </div>
     }
   </section>
 </div>

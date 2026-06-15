@@ -26,7 +26,6 @@ import { StorefrontService } from '../../../storefront/services/storefront.servi
 
 // Models & Pipes
 import { Product } from '../../models';
-import { CurrencyUtilsPipe } from '@shared/services';
 import { TruncatePipe } from '@shared/services';
 
 // Components
@@ -40,7 +39,6 @@ import { RelatedProductsComponent } from './components/related-products/related-
 
 import { MatChipsModule } from '@angular/material/chips';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ProductLoaderComponent } from './components/product-loader/product-loader.component';
 import { PromotionService } from '../services/promotion.service';
 
 @Component({
@@ -61,7 +59,6 @@ import { PromotionService } from '../services/promotion.service';
     MatCardModule,
     MatProgressSpinnerModule,
     MatDialogModule,
-    CurrencyUtilsPipe,
     ProductImageGalleryComponent,
     ProductHeaderComponent,
     ProductActionsComponent,
@@ -70,9 +67,7 @@ import { PromotionService } from '../services/promotion.service';
     StoreInfoCardComponent,
     RelatedProductsComponent,
     TruncatePipe,
-    MatChipsModule,
-    ProductLoaderComponent,
-    
+    MatChipsModule,    
   ],
   templateUrl: './promoter-product-details.component.html',
   styleUrls: ['./promoter-product-details.component.scss']

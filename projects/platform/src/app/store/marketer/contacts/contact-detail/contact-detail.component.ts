@@ -8,8 +8,10 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSnackBarModule, MatSnackBar } from "@angular/material/snack-bar";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 
 import { ContactService, CustomerContact, ContactLogEntry } from "../contact.service";
+import { SmsDialogComponent } from "../contacts-index/sms-dialog.component";
 
 @Component({
   selector: "app-contact-detail",
@@ -26,6 +28,7 @@ export class ContactDetailComponent {
   readonly contactService = inject(ContactService);
   readonly snackBar = inject(MatSnackBar);
   readonly route = inject(ActivatedRoute);
+  private readonly dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly isLoading = signal(true);
@@ -167,6 +170,17 @@ export class ContactDetailComponent {
       suppressed: "#6b7280",
     };
     return colors[stage] || "#6b7280";
+  }
+
+  openSendSms(): void {
+    const c = this.customer(); if (!c || !c.phone) { this.snackBar.open('No phone number.', 'OK', { duration: 3000 }); return; }
+    const ref = this.dialog.open(SmsDialogComponent, { width: '500px', maxWidth: '95vw', data: { customerId: c._id, customerName: c.displayName, phone: c.phone } });
+    ref.afterClosed().subscribe(() => this.loadCustomer(c._id));
+  }
+
+  openSendEmail(): void {
+    const c = this.customer(); if (!c?.email) { this.snackBar.open('No email.', 'OK', { duration: 3000 }); return; }
+    window.location.href = `mailto:${encodeURIComponent(c.email)}?subject=Message from MarketSpase`;
   }
 
   copyToClipboard(text: string | undefined): void {

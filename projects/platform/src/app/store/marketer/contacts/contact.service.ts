@@ -1,5 +1,6 @@
 import { Injectable, inject } from "@angular/core";
 import { Observable } from "rxjs";
+import { HttpParams } from "@angular/common/http";
 import { ApiService } from "../../../../../../shared-services/src/public-api";
 
 export interface CustomerContact {
@@ -219,6 +220,20 @@ export class ContactService {
   }
 
   removeGroupMembers(groupId: string, customerIds: string[]): Observable<{ success: boolean; data: any }> {
-    return this.api.delete<{ success: boolean; data: any }>(`api/v1/customer-groups/${groupId}/members`, undefined, undefined, true);
+    return this.api.delete<{ success: boolean; data: any }>(`api/v1/customer-groups/${groupId}/members`, new HttpParams().set('customerIds', customerIds.join(',')));
+  }
+
+  /* ────── SMS & Email ────── */
+
+  sendCustomerSms(customerId: string, message: string): Observable<{ success: boolean; message: string; data?: any }> {
+    return this.api.post<{ success: boolean; message: string; data?: any }>(`api/v1/customers/${customerId}/send-sms`, { message });
+  }
+
+  sendBulkCustomerSms(customerIds: string[], message: string): Observable<{ success: boolean; message: string; data?: any }> {
+    return this.api.post<{ success: boolean; message: string; data?: any }>('api/v1/customers/send-bulk-sms', { customerIds, message });
+  }
+
+  sendCustomerEmail(customerId: string, subject: string, body: string): Observable<{ success: boolean; message: string; data?: any }> {
+    return this.api.post<{ success: boolean; message: string; data?: any }>(`api/v1/customers/${customerId}/send-email`, { subject, body });
   }
 }

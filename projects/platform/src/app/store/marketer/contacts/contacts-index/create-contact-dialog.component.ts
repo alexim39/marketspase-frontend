@@ -11,6 +11,9 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatSnackBarModule, MatSnackBar } from "@angular/material/snack-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { MatSelectModule } from "@angular/material/select";
 
 import { ContactService, CustomerContact, CustomerGroup } from "../contact.service";
 
@@ -30,6 +33,9 @@ export interface CreateContactData {
     MatButtonModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
   ],
   templateUrl: "./create-contact-dialog.component.html",
   styleUrls: ["./create-contact-dialog.component.scss"],

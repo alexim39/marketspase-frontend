@@ -68,7 +68,7 @@
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: $spacing-4;
+  gap: $spacing-3;
 }
 
 .form-field {
@@ -90,23 +90,6 @@
 .required-star {
   color: $error-color-hex;
   margin-left: 2px;
-}
-
-.form-input,
-.form-select,
-.form-textarea {
-  @include mixins.form-input;
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 72px;
-}
-
-.form-error {
-  font-size: $font-size-xs;
-  color: $error-color-hex;
-  margin-top: 2px;
 }
 
 /* ────── Tags ────── */

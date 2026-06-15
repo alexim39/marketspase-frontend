@@ -10,69 +10,38 @@
   <!-- Body -->
   <form class="dialog-body" [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="form-grid">
-      <!-- Display Name -->
-      <div class="form-field full-width">
-        <label class="form-label">Full Name <span class="required-star">*</span></label>
-        <input
-          type="text"
-          class="form-input"
-          formControlName="displayName"
-          placeholder="e.g. Jane Doe"
-          autocomplete="name"
-        />
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Full Name *</mat-label>
+        <input matInput formControlName="displayName" placeholder="e.g. Jane Doe" autocomplete="name" />
         @if (form.controls.displayName.touched && form.controls.displayName.invalid) {
-          <span class="form-error">Name is required (min 2 chars)</span>
+          <mat-error>Name is required (min 2 chars)</mat-error>
         }
-      </div>
+      </mat-form-field>
 
-      <!-- Email -->
-      <div class="form-field">
-        <label class="form-label">Email</label>
-        <input
-          type="email"
-          class="form-input"
-          formControlName="email"
-          placeholder="jane@example.com"
-          autocomplete="email"
-        />
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" placeholder="jane@example.com" autocomplete="email" />
         @if (form.controls.email.touched && form.controls.email.invalid) {
-          <span class="form-error">Enter a valid email</span>
+          <mat-error>Enter a valid email</mat-error>
         }
-      </div>
+      </mat-form-field>
 
-      <!-- Phone -->
-      <div class="form-field">
-        <label class="form-label">Phone</label>
-        <div style="display:flex;gap:4px;">
-          <input
-            type="text"
-            class="form-input"
-            formControlName="phoneCountryCode"
-            style="width:70px;flex-shrink:0;"
-            placeholder="+234"
-          />
-          <input
-            type="tel"
-            class="form-input"
-            formControlName="phone"
-            placeholder="8012345678"
-            autocomplete="tel"
-          />
-        </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Phone</mat-label>
+        <input matInput type="tel" formControlName="phone" placeholder="8012345678" autocomplete="tel" />
         @if (form.controls.phone.touched && form.controls.phone.invalid) {
-          <span class="form-error">Invalid phone format</span>
+          <mat-error>Invalid phone format</mat-error>
         }
-      </div>
+      </mat-form-field>
 
-      <!-- Lifecycle Stage -->
-      <div class="form-field">
-        <label class="form-label">Lifecycle Stage</label>
-        <select class="form-select" formControlName="lifecycleStage">
+      <mat-form-field appearance="outline">
+        <mat-label>Lifecycle Stage</mat-label>
+        <mat-select formControlName="lifecycleStage">
           @for (opt of lifecycleOptions; track opt.value) {
-            <option [value]="opt.value">{{ opt.label }}</option>
+            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
           }
-        </select>
-      </div>
+        </mat-select>
+      </mat-form-field>
 
       <!-- Tags -->
       <div class="form-field full-width">
@@ -130,15 +99,10 @@
       }
 
       <!-- Notes -->
-      <div class="form-field full-width">
-        <label class="form-label">Notes</label>
-        <textarea
-          class="form-textarea"
-          formControlName="notes"
-          placeholder="Any initial notes about this contact..."
-          rows="3"
-        ></textarea>
-      </div>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Notes</mat-label>
+        <textarea matInput formControlName="notes" placeholder="Any initial notes about this contact..." rows="3"></textarea>
+      </mat-form-field>
     </div>
   </form>
 
