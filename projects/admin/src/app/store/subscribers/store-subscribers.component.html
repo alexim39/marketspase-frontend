@@ -1,159 +1,140 @@
-<section class="subscribers-page">
-  <header class="hero">
-    <div>
-      <p class="eyebrow">Storefront</p>
-      <h1>Email Subscribers</h1>
-      <p class="subtitle">
-        Review newsletter signups captured from storefront pages. Filter by store, search email addresses, and export the current view for outreach or compliance work.
-      </p>
-    </div>
-
-    <div class="hero-actions">
-      <button type="button" mat-stroked-button (click)="resetFilters()">
-        <mat-icon>filter_alt_off</mat-icon>
-        Reset
-      </button>
-      <button type="button" mat-stroked-button (click)="exportCsv()" [disabled]="loading() || subscribers().length === 0">
-        <mat-icon>download</mat-icon>
-        Export CSV
-      </button>
-      <button type="button" mat-flat-button color="primary" (click)="loadSubscribers(true)">
-        <mat-icon>refresh</mat-icon>
-        Refresh
-      </button>
-    </div>
-  </header>
-
-  <section class="filters-card">
-    <div class="filters-grid">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Search</mat-label>
-        <input
-          matInput
-          [ngModel]="search()"
-          (ngModelChange)="search.set($event); loadSubscribers(true)"
-          placeholder="Email or referrer">
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Store</mat-label>
-        <mat-select [ngModel]="storeFilter()" (ngModelChange)="storeFilter.set($event); loadSubscribers(true)">
-          <mat-option value="all">All stores</mat-option>
-          @for (store of storeOptions(); track store._id) {
-            <mat-option [value]="store._id">{{ store.name }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Status</mat-label>
-        <mat-select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); loadSubscribers(true)">
-          <mat-option value="all">All</mat-option>
-          <mat-option value="subscribed">Subscribed</mat-option>
-          <mat-option value="unsubscribed">Unsubscribed</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Source</mat-label>
-        <mat-select [ngModel]="sourceFilter()" (ngModelChange)="sourceFilter.set($event); loadSubscribers(true)">
-          <mat-option value="all">All</mat-option>
-          <mat-option value="storefront">storefront</mat-option>
-          <mat-option value="storefront_footer">storefront_footer</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>From</mat-label>
-        <input matInput [matDatepicker]="fromPicker" [ngModel]="startDate()" (ngModelChange)="startDate.set($event); loadSubscribers(true)">
-        <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
-        <mat-datepicker #fromPicker></mat-datepicker>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>To</mat-label>
-        <input matInput [matDatepicker]="toPicker" [ngModel]="endDate()" (ngModelChange)="endDate.set($event); loadSubscribers(true)">
-        <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
-        <mat-datepicker #toPicker></mat-datepicker>
-      </mat-form-field>
+<div class="page-shell">
+  <section class="hero-section">
+    <div class="page-header">
+      <div>
+        <p class="eyebrow">Storefront</p>
+        <h2>Email Subscribers</h2>
+        <p>Review newsletter signups captured from storefront pages. Filter by store, search email addresses, and export the current view.</p>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="ghost-btn" (click)="resetFilters()">
+          <mat-icon>filter_alt_off</mat-icon> Reset
+        </button>
+        <button type="button" class="surface-btn" (click)="exportCsv()" [disabled]="loading() || subscribers().length === 0">
+          <mat-icon>download</mat-icon> Export CSV
+        </button>
+        <button type="button" class="primary-btn" (click)="loadSubscribers(true)">
+          <mat-icon>refresh</mat-icon> Refresh
+        </button>
+      </div>
     </div>
   </section>
 
-  <section class="table-card">
+  <section class="filters-card">
+    <div class="filters-container">
+      <div class="filter-field search-field">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input type="text" class="search-input" placeholder="Search email or referrer..." [ngModel]="search()" (ngModelChange)="search.set($event); loadSubscribers(true)" />
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">Store</label>
+        <select class="filter-select" [ngModel]="storeFilter()" (ngModelChange)="storeFilter.set($event); loadSubscribers(true)">
+          <option value="all">All stores</option>
+          @for (store of storeOptions(); track store._id) { <option [value]="store._id">{{ store.name }}</option> }
+        </select>
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">Status</label>
+        <select class="filter-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); loadSubscribers(true)">
+          <option value="all">All</option>
+          <option value="subscribed">Subscribed</option>
+          <option value="unsubscribed">Unsubscribed</option>
+        </select>
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">Source</label>
+        <select class="filter-select" [ngModel]="sourceFilter()" (ngModelChange)="sourceFilter.set($event); loadSubscribers(true)">
+          <option value="all">All</option>
+          <option value="storefront">Storefront</option>
+          <option value="storefront_footer">Footer</option>
+        </select>
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">From</label>
+        <input type="date" class="filter-select date-input" [ngModel]="startDate()" (ngModelChange)="startDate.set($event); loadSubscribers(true)" />
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">To</label>
+        <input type="date" class="filter-select date-input" [ngModel]="endDate()" (ngModelChange)="endDate.set($event); loadSubscribers(true)" />
+      </div>
+    </div>
+  </section>
+
+  <section class="management-section">
+    <div class="section-header">
+      <span class="table-count">{{ pagination().total }} subscribers</span>
+      @if (!loading() && subscribers().length > 0) {
+        <span class="table-count">Page {{ pagination().page }} of {{ pagination().totalPages }}</span>
+      }
+    </div>
+
     @if (loading()) {
-      <div class="loading">
-        <mat-spinner diameter="36"></mat-spinner>
+      <div class="loading-card">
+        <mat-progress-bar mode="indeterminate" />
         <span>Loading subscribers...</span>
       </div>
     } @else if (subscribers().length === 0) {
-      <div class="empty">
+      <div class="empty-state">
         <mat-icon>mark_email_read</mat-icon>
-        <h3>No subscribers found</h3>
-        <p>Try adjusting filters or date range.</p>
+        <strong>No subscribers found</strong>
+        <span>Try adjusting filters or date range.</span>
       </div>
     } @else {
       <div class="table-wrap">
         <table class="subscribers-table">
           <thead>
             <tr>
-              <th>Email</th>
-              <th>Status</th>
-              <th>Store</th>
-              <th>Owner</th>
-              <th>Subscribed</th>
-              <th>Source</th>
-              <th>Device</th>
+              <th class="col-email">Email</th>
+              <th class="col-status">Status</th>
+              <th class="col-store">Store</th>
+              <th class="col-owner">Owner</th>
+              <th class="col-date">Subscribed</th>
+              <th class="col-source">Source</th>
+              <th class="col-device">Device</th>
               <th class="col-actions">Actions</th>
             </tr>
           </thead>
           <tbody>
             @for (row of subscribers(); track row._id) {
               <tr>
-                <td class="email-cell">
-                  <span class="email">{{ row.email }}</span>
-                  @if (row.referrer) {
-                    <span class="muted referrer" title="{{ row.referrer }}">{{ row.referrer }}</span>
-                  }
-                </td>
                 <td>
-                  <mat-chip-set>
-                    <mat-chip [class.chip-good]="statusTone(row.status) === 'good'" [class.chip-warn]="statusTone(row.status) === 'warn'">
-                      {{ statusLabel(row.status) }}
-                    </mat-chip>
-                  </mat-chip-set>
-                </td>
-                <td>
-                  <div class="store-cell">
-                    <strong>{{ row.store?.name || 'Store' }}</strong>
-                    <span class="muted">{{ row.store?.storeLink || '' }}</span>
+                  <div class="email-info">
+                    <span class="email">{{ row.email }}</span>
+                    @if (row.referrer) { <span class="subcopy referrer">{{ row.referrer }}</span> }
                   </div>
                 </td>
                 <td>
-                  <div class="owner-cell">
-                    <strong>{{ row.storeOwner?.displayName || row.storeOwner?.username || 'Marketer' }}</strong>
-                    <span class="muted">{{ row.storeOwner?.email || '' }}</span>
+                  <span class="status-pill" [class.good]="statusTone(row.status) === 'good'" [class.warn]="statusTone(row.status) === 'warn'">
+                    <span class="pill-dot"></span>
+                    {{ statusLabel(row.status) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="store-info">
+                    <span class="name">{{ row.store?.name || 'Store' }}</span>
+                    <span class="subcopy">{{ row.store?.storeLink || '' }}</span>
                   </div>
                 </td>
-                <td class="muted">{{ row.subscribedAt ? (row.subscribedAt | date:'medium') : '-' }}</td>
-                <td class="muted">{{ row.source || '-' }}</td>
-                <td class="muted">{{ row.deviceType || '-' }}</td>
-                <td class="actions">
-                  <button type="button" mat-icon-button (click)="copyEmail(row.email)" aria-label="Copy email">
-                    <mat-icon>content_copy</mat-icon>
-                  </button>
-                  <button type="button" mat-icon-button (click)="openEmail(row.email)" aria-label="Send email">
-                    <mat-icon>mail</mat-icon>
-                  </button>
-                  <button
-                    type="button"
-                    mat-icon-button
-                    color="warn"
-                    (click)="deleteSubscriber(row)"
-                    [disabled]="deletingIds().has(row._id)"
-                    aria-label="Delete subscriber">
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                <td>
+                  <div class="store-info">
+                    <span class="name">{{ row.storeOwner?.displayName || row.storeOwner?.username || 'Marketer' }}</span>
+                    <span class="subcopy">{{ row.storeOwner?.email || '' }}</span>
+                  </div>
+                </td>
+                <td><span class="date-text">{{ row.subscribedAt ? (row.subscribedAt | date:'medium') : '—' }}</span></td>
+                <td><span class="date-text">{{ row.source || '—' }}</span></td>
+                <td><span class="date-text">{{ row.deviceType || '—' }}</span></td>
+                <td>
+                  <div class="action-buttons">
+                    <button type="button" class="icon-btn" title="Copy email" (click)="copyEmail(row.email)"><mat-icon>content_copy</mat-icon></button>
+                    <button type="button" class="icon-btn" title="Send email" (click)="openEmail(row.email)"><mat-icon>mail</mat-icon></button>
+                    <button type="button" class="icon-btn" title="Delete" (click)="deleteSubscriber(row)" [disabled]="deletingIds().has(row._id)"><mat-icon>delete</mat-icon></button>
+                  </div>
                 </td>
               </tr>
             }
@@ -161,21 +142,19 @@
         </table>
       </div>
 
-      <div class="pager">
-        <div class="pager-meta muted">
-          Page {{ pagination().page }} of {{ pagination().totalPages }} - {{ pagination().total }} records
+      @if (pagination().totalPages > 1) {
+        <div class="pagination-bar">
+          <span class="pagination-info">Page {{ pagination().page }} of {{ pagination().totalPages }} · {{ pagination().total }} records</span>
+          <div class="pagination-actions">
+            <button type="button" class="surface-btn" (click)="prevPage()" [disabled]="pagination().page <= 1">
+              <mat-icon>chevron_left</mat-icon> Prev
+            </button>
+            <button type="button" class="surface-btn" (click)="nextPage()" [disabled]="pagination().page >= pagination().totalPages">
+              Next <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
         </div>
-        <div class="pager-actions">
-          <button type="button" mat-stroked-button (click)="prevPage()" [disabled]="pagination().page <= 1">
-            <mat-icon>chevron_left</mat-icon>
-            Prev
-          </button>
-          <button type="button" mat-stroked-button (click)="nextPage()" [disabled]="pagination().page >= pagination().totalPages">
-            Next
-            <mat-icon>chevron_right</mat-icon>
-          </button>
-        </div>
-      </div>
+      }
     }
   </section>
-</section>
+</div>

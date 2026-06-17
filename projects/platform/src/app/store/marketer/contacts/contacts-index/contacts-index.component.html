@@ -1,0 +1,197 @@
+<div class="page-shell">
+  <!-- Header -->
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Customer Relationship Manager</p>
+      <h2>Contacts</h2>
+      <p class="subcopy">Build and manage your customer contact list, prepare SMS and email outreach, and keep your marketing audience organised.</p>
+    </div>
+    <div class="header-actions">
+      <label class="ghost-btn file-upload-btn" [class.loading]="isImporting()">
+        <mat-icon>file_upload</mat-icon> Import CSV
+        <input type="file" accept=".csv" (change)="handleFileImport($event)" />
+      </label>
+      <button type="button" class="primary-btn" (click)="openCreateDialog()">
+        <mat-icon>person_add</mat-icon> Add Contact
+      </button>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  @if (analytics(); as a) {
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon info"><mat-icon>people</mat-icon></div>
+        <div class="stat-details"><span class="stat-value">{{ a.totals.total }}</span><span class="stat-label">Total Contacts</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon warning"><mat-icon>mark_email_read</mat-icon></div>
+        <div class="stat-details"><span class="stat-value">{{ a.totals.withEmailConsent }}</span><span class="stat-label">Email Consent</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon info"><mat-icon>sms</mat-icon></div>
+        <div class="stat-details"><span class="stat-value">{{ a.totals.withSmsConsent }}</span><span class="stat-label">SMS Consent</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon critical"><mat-icon>star</mat-icon></div>
+        <div class="stat-details"><span class="stat-value">{{ a.recentAdditions?.length || 0 }}</span><span class="stat-label">Recent Additions</span></div>
+      </div>
+    </section>
+  }
+
+  <!-- Filters -->
+  <section class="filters-card">
+    <div class="filters-grid">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search buyers</mat-label>
+        <input matInput [formControl]="filtersForm.controls.search" placeholder="Search by name, email, phone, or tag">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Lifecycle stage</mat-label>
+        <mat-select [formControl]="filtersForm.controls.lifecycleStage">
+          <mat-option value="">All stages</mat-option>
+          <mat-option value="new">New</mat-option>
+          <mat-option value="active">Active</mat-option>
+          <mat-option value="repeat">Repeat</mat-option>
+          <mat-option value="vip">VIP</mat-option>
+          <mat-option value="at_risk">At risk</mat-option>
+          <mat-option value="suppressed">Suppressed</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tag</mat-label>
+        <mat-select [formControl]="filtersForm.controls.tag">
+          <mat-option value="">All tags</mat-option>
+          @for (t of availableTags(); track t) { <mat-option [value]="t">{{ t }}</mat-option> }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Group</mat-label>
+        <mat-select [formControl]="filtersForm.controls.group">
+          <mat-option value="">All groups</mat-option>
+          @for (g of groups(); track g._id) { <mat-option [value]="g._id">{{ g.name }}</mat-option> }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Start date</mat-label>
+        <input matInput [matDatepicker]="startPicker" [formControl]="filtersForm.controls.startDate">
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>End date</mat-label>
+        <input matInput [matDatepicker]="endPicker" [formControl]="filtersForm.controls.endDate">
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <div class="filters-actions">
+      <button type="button" class="ghost-btn" (click)="clearFilters()"><mat-icon>close</mat-icon> Clear</button>
+    </div>
+  </section>
+
+  <!-- Selection toolbar -->
+  @if (selectedIds().size > 0) {
+    <section class="selection-toolbar">
+      <div><strong>{{ selectedIds().size }}</strong> <span>contacts selected</span></div>
+      <div class="selection-actions">
+        <button type="button" class="primary-btn" (click)="openBulkSms()"><mat-icon>sms</mat-icon> Send SMS</button>
+        <button type="button" class="ghost-btn" (click)="bulkDelete()"><mat-icon>delete</mat-icon> Delete</button>
+      </div>
+    </section>
+  }
+
+  <!-- Customer list -->
+  <section class="list-panel">
+    <div class="panel-topbar">
+      <span>{{ totalItems() }} contacts</span>
+    </div>
+
+    @if (isLoading()) {
+      <div class="state-panel"><mat-spinner diameter="40"></mat-spinner><span>Loading contacts...</span></div>
+    } @else if (error()) {
+      <div class="state-panel"><mat-icon>error_outline</mat-icon><strong>{{ error() }}</strong><button type="button" class="ghost-btn" (click)="loadCustomers()"><mat-icon>refresh</mat-icon> Retry</button></div>
+    } @else if (customers().length === 0) {
+      <div class="state-panel">
+        <mat-icon>contact_mail</mat-icon><strong>No contacts yet</strong><span>Add a contact manually or import a CSV to get started.</span>
+        <div class="state-actions">
+          <button type="button" class="primary-btn" (click)="openCreateDialog()"><mat-icon>person_add</mat-icon> Add First Contact</button>
+          <label class="ghost-btn file-upload-btn"><mat-icon>file_upload</mat-icon> Import CSV<input type="file" accept=".csv" (change)="handleFileImport($event)" /></label>
+        </div>
+      </div>
+    } @else {
+      <div class="customer-list">
+        @for (c of customers(); track c._id) {
+          <article class="customer-card" [routerLink]="[c._id]">
+            <div class="customer-card-top">
+              <div class="customer-avatar">{{ c.displayName.charAt(0).toUpperCase() }}</div>
+              <div class="customer-copy">
+                <div class="customer-title-row">
+                  <h2>{{ c.displayName }}</h2>
+                  <span class="badge stage-pill" [class]="getStageColor(c.lifecycleStage)">
+                    {{ c.lifecycleStage || 'new' | titlecase }}
+                  </span>
+                  <span class="badge stage-pill muted">{{ getSourceLabel(c.source) }}</span>
+                </div>
+                @if (c.email) { <p class="contact-email"><mat-icon>email</mat-icon>{{ c.email }}</p> }
+                @if (c.phone) { <p class="contact-phone"><mat-icon>phone</mat-icon>{{ c.phoneCountryCode }}{{ c.phone }}</p> }
+              </div>
+              <div class="customer-actions" (click)="$event.stopPropagation()">
+                <button type="button" class="ghost-btn icon-only" title="Send SMS" (click)="openSendSms(c)" [disabled]="!c.phone">
+                  <mat-icon>sms</mat-icon>
+                </button>
+                <button type="button" class="ghost-btn icon-only" title="Send Email" (click)="openSendEmail(c)" [disabled]="!c.email">
+                  <mat-icon>email</mat-icon>
+                </button>
+                <button type="button" class="ghost-btn icon-only" title="Delete" (click)="deleteContact(c._id, c.displayName)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+            <div class="customer-footer">
+              <div class="tags-list">
+                @for (tag of c.tags.slice(0, 3); track tag) { <span class="tag-badge">{{ tag }}</span> }
+                @if (c.tags.length > 3) { <span class="tag-badge more">+{{ c.tags.length - 3 }}</span> }
+                @if (!c.tags.length) { <span class="tag-badge" style="opacity:0.5">No tags</span> }
+              </div>
+              <div class="consent-indicators">
+                <span class="consent-dot" [class.good]="c.consent.email" [class.muted]="!c.consent.email">E</span>
+                <span class="consent-dot" [class.good]="c.consent.sms" [class.muted]="!c.consent.sms">S</span>
+              </div>
+              <div class="customer-meta">
+                <span>Last contact {{ c.lastContactedAt ? (c.lastContactedAt | date:'shortDate') : 'never' }}</span>
+                <span>Added {{ c.createdAt | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination-bar">
+        <span>Page {{ currentPage() }} of {{ totalPages() }}</span>
+        <div class="pagination-inner">
+          <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(1)"><mat-icon>first_page</mat-icon></button>
+          <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)"><mat-icon>chevron_left</mat-icon></button>
+          <div class="page-numbers">
+            @if (currentPage() > 3) { <button class="page-btn" (click)="goToPage(1)">1</button> @if (currentPage() > 4) {<span class="page-ellipsis">...</span>} }
+            @for (p of pageNumbers(); track p) { <button class="page-btn" [class.active]="p === currentPage()" (click)="goToPage(p)">{{ p }}</button> }
+            @if (currentPage() < totalPages() - 2) { @if (currentPage() < totalPages() - 3) {<span class="page-ellipsis">...</span>} <button class="page-btn" (click)="goToPage(totalPages())">{{ totalPages() }}</button> }
+          </div>
+          <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(currentPage() + 1)"><mat-icon>chevron_right</mat-icon></button>
+          <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(totalPages())"><mat-icon>last_page</mat-icon></button>
+          <div class="page-jump"><span class="page-jump-label">Go</span><input class="page-jump-input" min="1" [max]="totalPages()" placeholder="#" (keydown.enter)="onPageInput($event)" (blur)="onPageInput($event)"/></div>
+        </div>
+      </div>
+    }
+  </section>
+</div>

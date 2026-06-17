@@ -171,6 +171,8 @@ export interface CollaborationMessage {
   };
   content: string;
   messageType: 'text' | 'system';
+  deliveryStatus?: 'pending' | 'sent' | 'failed';
+  isOptimistic?: boolean;
   attachments?: Array<{
     kind: 'link' | 'file' | 'image';
     label?: string;

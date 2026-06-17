@@ -1,4 +1,4 @@
-// for-promoters.component.ts
+﻿// for-promoters.component.ts
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -73,7 +73,7 @@ export class ForPromotersComponent {
     {
       icon: 'account_balance_wallet',
       title: 'Easy Earnings',
-      description: 'Get paid for content you already share. No special skills required - just share posts on your WhatsApp status.'
+      description: 'Earn from valid performance on tracked campaign and product links you share with real audiences.'
     },
     {
       icon: 'schedule',
@@ -83,12 +83,12 @@ export class ForPromotersComponent {
     {
       icon: 'security',
       title: 'Guaranteed Payments',
-      description: 'Receive automatic payments within 24 hours after your post gets 25+ views and stays up for 24 hours.'
+      description: 'Valid earnings move through your wallet once campaign activity passes quality checks and budget rules.'
     },
     {
       icon: 'groups',
       title: 'Build Your Audience',
-      description: 'Grow your WhatsApp network while earning. Share interesting content that your contacts will appreciate.'
+      description: 'Grow your social audience while sharing useful offers, products, and campaigns that fit their interests.'
     },
     {
       icon: 'trending_up',
@@ -105,19 +105,19 @@ export class ForPromotersComponent {
   earningTiers = signal<EarningTier[]>([
    /*  {
       views: '25-50',
-      earnings: '₦500 - ₦1,000',
+      earnings: 'â‚¦500 - â‚¦1,000',
       description: 'Perfect for beginners with smaller networks',
       popular: false
     }, */
     {
-      views: '25+',
-      earnings: '₦200',
-      description: 'Great for all active users with engaged WhatsApp contacts',
+      views: 'Valid clicks',
+      earnings: 'Campaign CPC',
+      description: 'Earn from valid tracked activity on accepted campaigns, subject to quality checks and campaign budget rules.',
       popular: true
     },
    /*  {
       views: '100+',
-      earnings: '₦2,000 - ₦5,000',
+      earnings: 'â‚¦2,000 - â‚¦5,000',
       description: 'Premium campaigns for large, active audiences',
       popular: false
     } */
@@ -127,9 +127,9 @@ export class ForPromotersComponent {
     {
       id: '1',
       title: 'Tech Gadgets Promotion',
-      description: 'Share exciting new tech products with your network and earn commission for every view.',
-      earnings: '₦1,500',
-      duration: '24 hours',
+      description: 'Share a tracked campaign link for new tech products and earn from valid campaign activity.',
+      earnings: 'PPC-based',
+      duration: 'Budget active',
       viewsRequired: 25,
       category: 'Technology',
       marketer: 'TechStore NG',
@@ -139,9 +139,9 @@ export class ForPromotersComponent {
     {
       id: '2',
       title: 'Fashion Brand Launch',
-      description: 'Help launch a new African fashion brand by sharing their collection on your status.',
-      earnings: '₦2,000',
-      duration: '24 hours',
+      description: 'Promote a new African fashion collection with your unique tracked campaign link.',
+      earnings: 'PPC-based',
+      duration: 'Budget active',
       viewsRequired: 25,
       category: 'Fashion',
       marketer: 'AfroStyle',
@@ -151,9 +151,9 @@ export class ForPromotersComponent {
     {
       id: '3',
       title: 'Food Delivery Service',
-      description: 'Promote food delivery discounts to your contacts and earn for every successful view.',
-      earnings: '₦1,200',
-      duration: '24 hours',
+      description: 'Share food delivery offers through a MarketSpase link and track valid click activity.',
+      earnings: 'Campaign CPC',
+      duration: 'Budget active',
       viewsRequired: 25,
       category: 'Food & Drink',
       marketer: 'QuickBite NG',
@@ -166,37 +166,37 @@ export class ForPromotersComponent {
     {
       name: 'Aisha Mohammed',
       role: 'Student & Promoter',
-      earnings: '₦85,000',
-      content: 'I started promoting to pay for my school fees. Now I earn enough to cover my expenses and even save some money. The best part is I can do it between classes!',
+      earnings: 'Verified payouts',
+      content: 'I started promoting campaigns between classes. The tracked links make it easier to see what is working and keep my account quality clean.',
       avatar: '/img/resources/avatar/aisha.png',
       stats: [
         { metric: 'Campaigns', value: '42' },
         { metric: 'Success Rate', value: '98%' },
-        { metric: 'Avg. Earnings', value: '₦2,024' }
+        { metric: 'Quality Score', value: 'Verified' }
       ]
     },
     {
       name: 'Chinedu Okoro',
       role: 'Entrepreneur',
-      earnings: '₦120,000',
-      content: 'I use MarketSpase to supplement my business income. The flexibility allows me to promote during my free time, and the earnings help with my business expenses.',
+      earnings: 'Verified payouts',
+      content: 'I use MarketSpase to promote useful products to my audience. The PPC model helps me focus on real clicks and better campaign performance.',
       avatar: '/img/resources/avatar/chinedu.png',
       stats: [
         { metric: 'Campaigns', value: '67' },
         { metric: 'Success Rate', value: '95%' },
-        { metric: 'Avg. Earnings', value: '₦1,791' }
+        { metric: 'Quality Score', value: 'Verified' }
       ]
     },
     {
       name: 'Aliu Ibrahim',
       role: 'Freelancer',
-      earnings: '₦72,000',
-      content: 'As a freelancer, MarketSpase gives me stable extra income. I run 2-3 campaigns weekly and earn consistently. The payment system is reliable and fast.',
+      earnings: 'Verified payouts',
+      content: 'As a freelancer, MarketSpase gives me structured campaigns to share. I can track clicks, keep my activity compliant, and grow my promoter rating.',
       avatar: '/img/resources/avatar/aliu.png',
       stats: [
         { metric: 'Campaigns', value: '84' },
         { metric: 'Success Rate', value: '78%' },
-        { metric: 'Avg. Earnings', value: '₦850' }
+        { metric: 'Quality Score', value: 'Verified' }
       ]
     }
   ]);
@@ -208,14 +208,23 @@ export class ForPromotersComponent {
     }
   }
 
-   // public Facebook reel/video URL (must be public)
-  readonly fbUrl = 'https://web.facebook.com/reel/1122807266576576';
   posterUrl = 'img/placeholders/how-to-video.jpg'; // replace with proper poster image
   videoUrl!: SafeResourceUrl;
 
   ngOnInit(): void {
-    // Preload video URL but do not show player until clicked
-    const plugin = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(this.fbUrl)}&show_text=0&autoplay=1`;
-    this.videoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(plugin);
+    this.videoUrl = this.buildYoutubeEmbedUrl('jp3LnrZusxA', 23);
+  }
+
+  private buildYoutubeEmbedUrl(videoId: string, startSeconds: number): SafeResourceUrl {
+    const params = new URLSearchParams({
+      start: String(startSeconds),
+      rel: '0',
+      modestbranding: '1',
+      playsinline: '1'
+    });
+
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}?${params}`);
   }
 }
+
+

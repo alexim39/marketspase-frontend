@@ -1,296 +1,251 @@
-<div class="admin-promotions-container">
-  <div class="header-section">
-    <h1 class="page-title">Promotion Ledger</h1>
-    <p class="page-subtitle">Monitor live promotion links, tracked traffic, earnings, and flagged activity across campaigns.</p>
-
-    <div class="stats-overview">
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-content">
-            <mat-icon class="stat-icon">link</mat-icon>
-            <div class="stat-details">
-              <span class="stat-value">{{ totalPromotions() }}</span>
-              <span class="stat-label">Total Links</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-content">
-            <mat-icon class="stat-icon accepted">check_circle</mat-icon>
-            <div class="stat-details">
-              <span class="stat-value">{{ activePromotions() }}</span>
-              <span class="stat-label">Active Links</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-content">
-            <mat-icon class="stat-icon inactive">pause_circle</mat-icon>
-            <div class="stat-details">
-              <span class="stat-value">{{ inactivePromotions() }}</span>
-              <span class="stat-label">Inactive Links</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-content">
-            <mat-icon class="stat-icon flagged">gpp_maybe</mat-icon>
-            <div class="stat-details">
-              <span class="stat-value">{{ flaggedPromotions() }}</span>
-              <span class="stat-label">Flagged Links</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-content">
-            <mat-icon class="stat-icon clicks">ads_click</mat-icon>
-            <div class="stat-details">
-              <span class="stat-value">{{ totalBillableClicks() }}</span>
-              <span class="stat-label">Billable Clicks</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-content">
-            <mat-icon class="stat-icon rejected">warning</mat-icon>
-            <div class="stat-details">
-              <span class="stat-value">{{ rejectedPromotions() }}</span>
-              <span class="stat-label">Rejected</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  </div>
-
-  <mat-card class="filters-card">
-    <mat-card-content>
-      <div class="filters-container">
-        <mat-form-field appearance="outline" class="filter-field search-field">
-          <mat-label>Search promotions</mat-label>
-          <input matInput (keyup)="applyFilter($event)" placeholder="Search by promoter, campaign, or UPI" #input>
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Status</mat-label>
-          <mat-select [formControl]="filtersForm.controls.status" multiple>
-            <mat-option value="accepted">Active link</mat-option>
-            <mat-option value="inactive">Inactive link</mat-option>
-            <mat-option value="flagged">Under review</mat-option>
-            <mat-option value="paid">Legacy paid</mat-option>
-            <mat-option value="rejected">Rejected</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Campaign</mat-label>
-          <mat-select [formControl]="filtersForm.controls.campaign" multiple>
-            @for (campaign of campaigns(); track campaign._id) {
-              <mat-option [value]="campaign._id">{{ campaign.title }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Acceptance window</mat-label>
-          <mat-date-range-input [rangePicker]="picker">
-            <input matStartDate placeholder="Start date" [formControl]="filtersForm.controls.startDate">
-            <input matEndDate placeholder="End date" [formControl]="filtersForm.controls.endDate">
-          </mat-date-range-input>
-          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-date-range-picker #picker></mat-date-range-picker>
-        </mat-form-field>
-
-        <button mat-button (click)="clearFilters()" class="clear-filters-btn">
-          <mat-icon>clear</mat-icon>
-          Clear Filters
-        </button>
+<div class="page-shell">
+  <!-- Header -->
+  <section class="hero-section">
+    <div class="page-header">
+      <div>
+        <p class="eyebrow">Promotion Ledger</p>
+        <h2>Promotion Ledger</h2>
+        <p>Monitor live promotion links, tracked traffic, earnings, and flagged activity across campaigns.</p>
       </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
 
-  <mat-card class="table-card">
-    <mat-card-content>
-      <div class="table-container">
-        @if (isLoading()) {
-          <div class="loading-spinner">
-            <mat-spinner diameter="40"></mat-spinner>
-            <p>Loading promotion ledger...</p>
-          </div>
-        } @else {
-          <table mat-table [dataSource]="dataSource" matSort class="promotions-table">
-            <ng-container matColumnDef="upi">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header> Link </th>
-              <td mat-cell *matCellDef="let promotion">
-                <div class="upi-info">
-                  <span class="upi-code">{{ promotion.upi }}</span>
-                  <span class="created-date">Accepted {{ (promotion.acceptedAt || promotion.createdAt) | date:'short' }}</span>
-                </div>
-              </td>
-            </ng-container>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-content"><mat-icon class="stat-icon">link</mat-icon><div class="stat-details"><span class="stat-value">{{ statsData().total }}</span><span class="stat-label">Total Links</span></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content"><span class="stat-dot active"></span><div class="stat-details"><span class="stat-value active-val">{{ statsData().active }}</span><span class="stat-label">Active</span></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content"><span class="stat-dot paused"></span><div class="stat-details"><span class="stat-value">{{ statsData().inactive }}</span><span class="stat-label">Inactive</span></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content"><span class="stat-dot danger"></span><div class="stat-details"><span class="stat-value">{{ statsData().flagged }}</span><span class="stat-label">Flagged</span></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content"><mat-icon class="stat-icon click-icon">ads_click</mat-icon><div class="stat-details"><span class="stat-value">{{ statsData().billableClicks }}</span><span class="stat-label">Billable Clicks</span></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content"><span class="stat-dot rejected"></span><div class="stat-details"><span class="stat-value">{{ statsData().rejected }}</span><span class="stat-label">Rejected</span></div></div>
+      </div>
+    </div>
+  </section>
 
-            <ng-container matColumnDef="campaign">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header> Campaign </th>
-              <td mat-cell *matCellDef="let promotion">
-                <div class="campaign-info">
-                  <span class="campaign-title">{{ getCampaignTitle(promotion.campaign) }}</span>
-                  <span class="campaign-category">{{ getCampaignCategory(promotion.campaign) }}</span>
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="promoter">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header> Promoter </th>
-              <td mat-cell *matCellDef="let promotion">
-                <div class="promoter-info">
-                  <span class="promoter-name">{{ getPromoterName(promotion.promoter) }}</span>
-                  <span class="promoter-email">{{ getPromoterEmail(promotion.promoter) }}</span>
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="traffic">
-              <th mat-header-cell *matHeaderCellDef> Traffic </th>
-              <td mat-cell *matCellDef="let promotion">
-                <div class="proof-info">
-                  <span class="proof-views">Tracked: {{ getTrackedClicks(promotion) }}</span>
-                  <span class="proof-views">Billable: {{ getBillableClicks(promotion) }}</span>
-                  <span class="proof-views">Invalid: {{ getInvalidClicks(promotion) }}</span>
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="earnings">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header> Earnings </th>
-              <td mat-cell *matCellDef="let promotion">
-                <div class="payout-info">
-                  <span class="payout-amount">{{ getEarnedAmount(promotion) | currency:'NGN':'symbol-narrow' }}</span>
-                  <span class="created-date">CPC: {{ getCostPerClick(promotion) | currency:'NGN':'symbol-narrow' }}</span>
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="lifecycle">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header> Last Activity </th>
-              <td mat-cell *matCellDef="let promotion">
-                <div class="timeline-info">
-                  <span class="submitted-date">{{ getLifecycleDate(promotion) ? (getLifecycleDate(promotion) | date:'short') : 'No activity yet' }}</span>
-                  @if (promotion.fraudStatus?.reasonSummary) {
-                    <span class="validated-date">{{ promotion.fraudStatus?.reasonSummary }}</span>
-                  }
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-              <td mat-cell *matCellDef="let promotion">
-                <mat-chip [class]="getStatusChipClass(promotion)" class="status-chip">
-                  {{ getStatusLabel(promotion) }}
-                </mat-chip>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef> Actions </th>
-              <td mat-cell *matCellDef="let promotion">
-                <div class="action-buttons">
-                  <button mat-icon-button matTooltip="View promotion" (click)="viewPromotionDetails(promotion)">
-                    <mat-icon>visibility</mat-icon>
-                  </button>
-
-                  <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="More actions">
-                    <mat-icon>more_vert</mat-icon>
-                  </button>
-
-                  <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="copyPromotionLink(promotion)">
-                      <mat-icon>content_copy</mat-icon>
-                      <span>Copy link</span>
-                    </button>
-                    <button mat-menu-item (click)="openPromotionLink(promotion)">
-                      <mat-icon>open_in_new</mat-icon>
-                      <span>Open public link</span>
-                    </button>
-                    <button mat-menu-item (click)="viewCampaignDetails(promotion)">
-                      <mat-icon>campaign</mat-icon>
-                      <span>View campaign</span>
-                    </button>
-                    <button mat-menu-item (click)="viewCampaignPromotions(promotion)">
-                      <mat-icon>groups</mat-icon>
-                      <span>View campaign ledger</span>
-                    </button>
-                    <button mat-menu-item (click)="viewActivityLog(promotion)">
-                      <mat-icon>history</mat-icon>
-                      <span>Activity log</span>
-                    </button>
-                  </mat-menu>
-                </div>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
-            <tr class="mat-row" *matNoDataRow>
-              <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
-                No promotions found matching your filters.
-              </td>
-            </tr>
-          </table>
+  <!-- Filters -->
+  <section class="filters-card">
+    <div class="filters-container">
+      <div class="filter-field search-field">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input type="text" class="search-input" placeholder="Search by UPI, promoter, campaign..." [formControl]="filtersForm.controls.search" />
+        @if (filtersForm.controls.search.value) {
+          <button type="button" class="search-clear-btn" (click)="filtersForm.controls.search.setValue('')"><mat-icon>close</mat-icon></button>
         }
       </div>
 
-      <mat-paginator [pageSizeOptions]="[100, 200, 300, 400]" showFirstLastButtons aria-label="Select page of promotions"></mat-paginator>
-    </mat-card-content>
-  </mat-card>
+      <div class="filter-select-group">
+        <label class="filter-label">Status</label>
+        <div class="filter-chips">
+          <button type="button" class="filter-chip" [class.selected]="filtersForm.controls.status.value === 'all'" (click)="filtersForm.controls.status.setValue('all')">All</button>
+          <button type="button" class="filter-chip" [class.selected]="filtersForm.controls.status.value === 'accepted'" (click)="filtersForm.controls.status.setValue('accepted')"><span class="chip-dot active"></span> Active</button>
+          <button type="button" class="filter-chip" [class.selected]="filtersForm.controls.status.value === 'inactive'" (click)="filtersForm.controls.status.setValue('inactive')"><span class="chip-dot paused"></span> Inactive</button>
+          <button type="button" class="filter-chip" [class.selected]="filtersForm.controls.status.value === 'flagged'" (click)="filtersForm.controls.status.setValue('flagged')"><span class="chip-dot danger"></span> Flagged</button>
+          <button type="button" class="filter-chip" [class.selected]="filtersForm.controls.status.value === 'paid'" (click)="filtersForm.controls.status.setValue('paid')"><span class="chip-dot completed"></span> Paid</button>
+          <button type="button" class="filter-chip" [class.selected]="filtersForm.controls.status.value === 'rejected'" (click)="filtersForm.controls.status.setValue('rejected')"><span class="chip-dot rejected"></span> Rejected</button>
+        </div>
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">Campaign</label>
+        <select class="filter-select" [formControl]="filtersForm.controls.campaign">
+          <option value="">All campaigns</option>
+          @for (c of campaigns(); track c._id) {
+            <option [value]="c._id">{{ c.title }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">Date Range</label>
+        <div class="date-range-group">
+          <input type="date" class="filter-select date-input" [formControl]="filtersForm.controls.startDate" placeholder="Start date" />
+          <span class="date-separator">—</span>
+          <input type="date" class="filter-select date-input" [formControl]="filtersForm.controls.endDate" placeholder="End date" />
+          @if (filtersForm.controls.startDate.value || filtersForm.controls.endDate.value) {
+            <button type="button" class="date-clear-btn" (click)="filtersForm.controls.startDate.setValue(''); filtersForm.controls.endDate.setValue('')">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </div>
+      </div>
+
+      <button type="button" class="ghost-btn" (click)="clearFilters()"><mat-icon>close</mat-icon> Clear</button>
+    </div>
+  </section>
+
+  <!-- Table -->
+  <section class="management-section">
+    <div class="section-header">
+      <span class="table-count">Showing {{ displayedPromotions().length }} of {{ totalItems() }} promotions</span>
+      @if (isFiltering()) {
+        <span class="filtering-badge">Filtering...</span>
+      }
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-card">
+        <mat-progress-bar mode="indeterminate" />
+        <span>Loading promotion ledger...</span>
+      </div>
+    } @else if (error()) {
+      <div class="error-state">
+        <mat-icon>error_outline</mat-icon>
+        <strong>{{ error() }}</strong>
+        <button type="button" class="ghost-btn" (click)="loadPromotionsPage()"><mat-icon>refresh</mat-icon> Retry</button>
+      </div>
+    } @else if (displayedPromotions().length === 0) {
+      <div class="empty-state">
+        <mat-icon>groups</mat-icon>
+        <strong>No promotions found</strong>
+        <span>Try adjusting your filters.</span>
+      </div>
+    } @else {
+      <table class="promotions-table">
+        <thead>
+          <tr>
+            <th>Link</th>
+            <th>Campaign</th>
+            <th>Promoter</th>
+            <th>Traffic</th>
+            <th>Earnings</th>
+            <th>Last Activity</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (promotion of displayedPromotions(); track promotion._id) {
+            <tr class="item-row">
+              <td>
+                <div class="upi-info">
+                  <span class="upi-code">{{ promotion.upi }}</span>
+                  <span class="subcopy">Created {{ (promotion.acceptedAt || promotion.createdAt) | date:'short' }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="campaign-info">
+                  <span class="campaign-title">{{ getCampaignTitle(promotion.campaign) }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="promoter-info">
+                  <span class="promoter-name">{{ getPromoterName(promotion.promoter) }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="traffic-stats">
+                  <span class="traffic-row"><span class="traffic-dot tracked"></span> {{ getTrackedClicks(promotion) }} tracked</span>
+                  <span class="traffic-row"><span class="traffic-dot billable"></span> {{ getBillableClicks(promotion) }} billable</span>
+                  <span class="traffic-row"><span class="traffic-dot invalid"></span> {{ getInvalidClicks(promotion) }} invalid</span>
+                </div>
+              </td>
+              <td>
+                <div class="earnings-info">
+                  <span class="earn-amount">{{ getEarnedAmount(promotion) | currency:'NGN':'₦' }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="activity-time">{{ getLifecycleDate(promotion) ? (getLifecycleDate(promotion) | date:'short') : '—' }}</span>
+              </td>
+              <td>
+                <span class="status-pill {{ getFilterStatus(promotion) }}">
+                  <span class="pill-dot"></span>
+                  {{ statusLabel[getFilterStatus(promotion)] || getFilterStatus(promotion) }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button type="button" class="icon-btn" title="View promotion" (click)="viewPromotionDetails(promotion)"><mat-icon>visibility</mat-icon></button>
+                  <div class="action-menu-wrapper">
+                    <button type="button" class="icon-btn" title="More" (click)="toggleMenu($event, promotion)"><mat-icon>more_vert</mat-icon></button>
+                    @if (activeMenuPromotion?._id === promotion._id) {
+                      <div class="action-dropdown" (click)="closeMenu()">
+                        <button type="button" class="dropdown-item" (click)="copyPromotionLink(promotion)"><mat-icon>content_copy</mat-icon> Copy link</button>
+                        <button type="button" class="dropdown-item" (click)="openPromotionLink(promotion)"><mat-icon>open_in_new</mat-icon> Open public link</button>
+                        <button type="button" class="dropdown-item" (click)="viewCampaignDetails(promotion)"><mat-icon>campaign</mat-icon> View campaign</button>
+                        <button type="button" class="dropdown-item" (click)="viewCampaignPromotions(promotion)"><mat-icon>groups</mat-icon> View campaign ledger</button>
+                        <button type="button" class="dropdown-item" (click)="viewActivityLog(promotion)"><mat-icon>history</mat-icon> Activity log</button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (totalPages() > 1) {
+        <div class="pagination-bar">
+          <div class="pagination-inner">
+            <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(1)"><mat-icon>first_page</mat-icon></button>
+            <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)"><mat-icon>chevron_left</mat-icon></button>
+            <div class="page-numbers">
+              @if (currentPage() > 3) {
+                <button type="button" class="page-btn number" (click)="goToPage(1)">1</button>
+                @if (currentPage() > 4) { <span class="page-ellipsis">...</span> }
+              }
+              @for (p of pageNumbers(); track p) {
+                <button type="button" class="page-btn number" [class.active]="p === currentPage()" (click)="goToPage(p)">{{ p }}</button>
+              }
+              @if (currentPage() < totalPages() - 2) {
+                @if (currentPage() < totalPages() - 3) { <span class="page-ellipsis">...</span> }
+                <button type="button" class="page-btn number" (click)="goToPage(totalPages())">{{ totalPages() }}</button>
+              }
+            </div>
+            <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(currentPage() + 1)"><mat-icon>chevron_right</mat-icon></button>
+            <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(totalPages())"><mat-icon>last_page</mat-icon></button>
+            <div class="page-jump">
+              <span class="page-jump-label">Go to</span>
+              <input type="number" class="page-jump-input" min="1" [max]="totalPages()" placeholder="#" (keydown.enter)="onPageInput($event)" (blur)="onPageInput($event)" />
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </section>
 </div>
 
 <ng-template #promotionDetailsDialog>
-  <div class="proof-media-dialog">
+  <div class="dialog-shell">
     <h2 mat-dialog-title>Promotion Snapshot</h2>
     <mat-dialog-content>
-      @if (selectedPromotion()) {
+      @let p = selectedPromotion();
+      @if (p) {
         <div class="promotion-info">
-          <h4>{{ getCampaignTitle(selectedPromotion()!.campaign) }}</h4>
-          <p><strong>UPI:</strong> {{ selectedPromotion()!.upi }}</p>
-          <p><strong>Status:</strong> {{ getStatusLabel(selectedPromotion()!) }}</p>
-          <p><strong>Promoter:</strong> {{ getPromoterName(selectedPromotion()!.promoter) }} ({{ getPromoterEmail(selectedPromotion()!.promoter) }})</p>
-          <p><strong>Tracking link:</strong> {{ selectedPromotion()!.promotionUrl || 'Not generated' }}</p>
-          <p><strong>Tracked clicks:</strong> {{ getTrackedClicks(selectedPromotion()!) }}</p>
-          <p><strong>Billable clicks:</strong> {{ getBillableClicks(selectedPromotion()!) }}</p>
-          <p><strong>Invalid clicks:</strong> {{ getInvalidClicks(selectedPromotion()!) }}</p>
-          <p><strong>Earned amount:</strong> {{ getEarnedAmount(selectedPromotion()!) | currency:'NGN':'symbol-narrow' }}</p>
-          <p><strong>Last click:</strong> {{ selectedPromotion()!.clickStats?.lastClickAt ? (selectedPromotion()!.clickStats?.lastClickAt | date:'medium') : 'No click activity yet' }}</p>
-          @if (selectedPromotion()!.fraudStatus?.reasonSummary) {
-            <p><strong>Fraud review:</strong> {{ selectedPromotion()!.fraudStatus?.reasonSummary }}</p>
+          <h4>{{ getCampaignTitle(p.campaign) }}</h4>
+          <div class="info-row"><span class="info-label">UPI</span><span class="info-value upi-code">{{ p.upi }}</span></div>
+          <div class="info-row"><span class="info-label">Status</span><span class="status-pill {{ getFilterStatus(p) }}"><span class="pill-dot"></span>{{ statusLabel[getFilterStatus(p)] || getFilterStatus(p) }}</span></div>
+          <div class="info-row"><span class="info-label">Promoter</span><span class="info-value">{{ getPromoterName(p.promoter) }}</span></div>
+          <div class="info-row"><span class="info-label">Tracking link</span><span class="info-value link-text">{{ p.promotionUrl || 'Not generated' }}</span></div>
+          <hr>
+          <div class="info-row"><span class="info-label">Tracked clicks</span><span class="info-value">{{ getTrackedClicks(p) }}</span></div>
+          <div class="info-row"><span class="info-label">Billable clicks</span><span class="info-value">{{ getBillableClicks(p) }}</span></div>
+          <div class="info-row"><span class="info-label">Invalid clicks</span><span class="info-value">{{ getInvalidClicks(p) }}</span></div>
+          <div class="info-row"><span class="info-label">Earned amount</span><span class="info-value earn-amount">{{ getEarnedAmount(p) | currency:'NGN':'₦' }}</span></div>
+          <div class="info-row"><span class="info-label">Last click</span><span class="info-value">{{ p.clickStats?.lastClickAt ? (p.clickStats?.lastClickAt | date:'medium') : 'No click activity yet' }}</span></div>
+          @if (p.fraudStatus?.reasonSummary) {
+            <div class="info-row flag-row"><span class="info-label">Fraud review</span><span class="info-value">{{ p.fraudStatus?.reasonSummary }}</span></div>
           }
-          @if (selectedPromotion()!.proofMedia?.length) {
+          @if (p.proofMedia?.length) {
             <hr>
-            <p><strong>Legacy proof files:</strong> {{ selectedPromotion()!.proofMedia?.length }}</p>
-            <p><strong>Legacy proof views:</strong> {{ selectedPromotion()!.proofViews || 0 }}</p>
+            <div class="info-row"><span class="info-label">Proof files</span><span class="info-value">{{ p.proofMedia?.length }}</span></div>
+            <div class="info-row"><span class="info-label">Proof views</span><span class="info-value">{{ p.proofViews || 0 }}</span></div>
           }
         </div>
       }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Close</button>
+      <button type="button" class="ghost-btn" mat-dialog-close>Close</button>
     </mat-dialog-actions>
   </div>
 </ng-template>

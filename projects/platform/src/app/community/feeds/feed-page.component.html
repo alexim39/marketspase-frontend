@@ -1,5 +1,147 @@
-<div class="feed-container">
+<app-feed-live-activity-toast
+  [activities]="liveActivities()"
+  (activitySelected)="onLiveActivityClick($event)"
+/>
+
+<div class="feed-container" [class.comments-open]="commentRailOpen()">
   <div class="desktop-layout">
+    <aside class="left-sidebar" aria-label="Community discovery">
+      <div class="discovery-panel">
+        <div class="search-box">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input
+            type="text"
+            placeholder="Search posts, products, tags"
+            class="search-input"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearch($event)">
+          @if (searchQuery()) {
+            <button class="clear-search" (click)="onSearch('')">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </div>
+
+        @if (trendingHashtags().length > 0) {
+          <div class="trending-box">
+            <h3 class="trending-title">
+              <mat-icon>trending_up</mat-icon>
+              Trending Topics
+            </h3>
+            <div class="trending-list">
+              @for (hashtag of trendingHashtags().slice(0, 6); track hashtag.tag) {
+                <button class="trending-item" (click)="onHashtagClick(hashtag.tag)">
+                  <span class="trending-tag">#{{ hashtag.tag }}</span>
+                  <span class="trending-count">{{ hashtag.count }} posts</span>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        @if (hotTopics().length > 0) {
+          <div class="trending-box">
+            <h3 class="trending-title">
+              <mat-icon>forum</mat-icon>
+              Hot Topics
+            </h3>
+            <div class="trending-list">
+              @for (topic of hotTopics(); track topic.topic) {
+                <button class="trending-item" (click)="openForumTopic(topic.topic)">
+                  <span class="trending-tag">#{{ topic.label }}</span>
+                  <span class="trending-count">{{ topic.threadCount }} threads · {{ topic.followerCount }} followers</span>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        @if (trendingChallenges().length > 0) {
+          <div class="trending-box challenge-box">
+            <h3 class="trending-title">
+              <mat-icon>bolt</mat-icon>
+              Live Challenges
+            </h3>
+            <div class="trending-list">
+              @for (challenge of trendingChallenges(); track challenge.tag) {
+                <button class="trending-item challenge-item" (click)="onOpenChallenge(challenge.tag)">
+                  <span class="trending-tag">#{{ challenge.tag }}</span>
+                  <span class="challenge-title">{{ challenge.title }}</span>
+                  <span class="trending-count">{{ challenge.postCount }} posts · {{ challenge.totalEngagement }} engagements</span>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        @if (creatorSpotlight().length > 0) {
+          <div class="follow-card creator-card">
+            <h3 class="card-title">Creator Spotlight</h3>
+            <div class="follow-items">
+              @for (creator of creatorSpotlight(); track creator._id) {
+                <div class="follow-item">
+                  <img [src]="creator.avatar || 'img/avatar.png'" alt="User" class="follow-avatar" (click)="viewProfile(creator)">
+                  <div class="follow-info" (click)="viewProfile(creator)">
+                    <span class="follow-name">{{ creator.displayName }}</span>
+                    <span class="follow-handle">&#64;{{ creator.username }}</span>
+                    <span class="creator-meta">{{ creator.postCount }} posts · {{ creator.engagementPoints }} pts</span>
+                  </div>
+                  @if (creator._id !== user()?._id) {
+                    <button class="follow-btn" [class.following]="isFollowing(creator._id)" (click)="$event.stopPropagation(); toggleFollow(creator._id)">
+                      {{ isFollowing(creator._id) ? 'Following' : 'Follow' }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (forumSpotlight().length > 0) {
+          <div class="follow-card creator-card">
+            <h3 class="card-title">Forum Spotlight</h3>
+            <div class="follow-items">
+              @for (creator of forumSpotlight(); track creator._id) {
+                <div class="follow-item">
+                  <img [src]="creator.avatar || 'img/avatar.png'" alt="User" class="follow-avatar" (click)="viewForumSpotlightProfile(creator)">
+                  <div class="follow-info" (click)="viewForumSpotlightProfile(creator)">
+                    <span class="follow-name">{{ creator.displayName }}</span>
+                    <span class="follow-handle">&#64;{{ creator.username }}</span>
+                    <span class="creator-meta">{{ creator.threadCount }} threads · {{ creator.commentCount }} comments</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+       <!--  <div class="follow-card">
+          <h3 class="card-title">Who to follow</h3>
+          <div class="follow-items">
+            @for (person of suggestedUsers(); track person._id) {
+              <div class="follow-item">
+                <img [src]="person.avatar || 'img/avatar.png'" alt="User" class="follow-avatar" (click)="viewProfile(person)">
+                <div class="follow-info" (click)="viewProfile(person)">
+                  <span class="follow-name">{{ person.displayName }}</span>
+                  <span class="follow-handle">&#64;{{ person.username }}</span>
+                </div>
+                <button class="follow-btn" [class.following]="isFollowing(person._id)" (click)="$event.stopPropagation(); toggleFollow(person._id)">
+                  {{ isFollowing(person._id) ? 'Following' : 'Follow' }}
+                </button>
+              </div>
+            }
+          </div>
+        </div> -->
+
+        <!-- <div class="sidebar-footer">
+          <a routerLink="/legal/privacy" target="_blank">Terms of Service</a>
+          <a routerLink="/legal/privacy" target="_blank">Privacy Policy</a>
+          <a routerLink="/legal/cookies" target="_blank">Cookie Policy</a>
+          <span class="copyright">© {{ currentYear }} MarketSpase</span>
+        </div> -->
+      </div>
+    </aside>
+
     <main class="main-content">
       <div class="feed-header">
         <div class="feed-tabs">
@@ -123,7 +265,7 @@
 
       <div class="feed-posts">
         @if (featuredPost(); as post) {
-          <div class="featured-post-container">
+          <div class="featured-post-container reel-post-shell" [class.active]="commentRailOpen() && activeCommentPostId() === post._id">
             <div class="featured-badge">
               <mat-icon>stars</mat-icon>
               <span>Spotlight</span>
@@ -139,35 +281,62 @@
               (share)="onShare(post)"
               (chat)="onChat($event)"
               (sharePlatform)="onShare(post, $event)"
-              (hashtagClick)="onHashtagClick($event)">
-            </app-feed-post-card>
+              (hashtagClick)="onHashtagClick($event)"
+            />
           </div>
         }
 
         @if (loading() && posts().length === 0) {
-          <app-skeleton-loader
-            [count]="3"
-            [isMobile]="false"
-            [showCreatePost]="user()?.role === 'marketer' || user()?.role === 'admin'"
-            [showFeatured]="true">
-          </app-skeleton-loader>
+          <div class="desktop-feed-skeleton" aria-hidden="true">
+            @for (placeholder of [1, 2]; track placeholder) {
+              <article class="desktop-reel-skeleton">
+                <header class="skeleton-post-header">
+                  <div class="skeleton-avatar"></div>
+                  <div class="skeleton-author">
+                    <span class="skeleton-line name"></span>
+                    <span class="skeleton-line meta"></span>
+                  </div>
+                  <div class="skeleton-menu"></div>
+                </header>
+
+                <div class="skeleton-media-frame">
+                  <span class="skeleton-media-glow"></span>
+                </div>
+
+                <div class="skeleton-copy">
+                  <span class="skeleton-line long"></span>
+                  <span class="skeleton-line medium"></span>
+                  <span class="skeleton-line short"></span>
+                </div>
+
+                <footer class="skeleton-actions">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </footer>
+              </article>
+            }
+          </div>
         }
 
         <div class="posts-grid">
           @for (post of regularPosts(); track post._id) {
-            <app-feed-post-card
-              [post]="post"
-              [user]="user()"
-              [isLiked]="likedPosts().has(post._id)"
-              [isSaved]="savedPosts().has(post._id)"
-              (like)="onLike($event)"
-              (save)="onSave($event)"
-              (comment)="onComment($event)"
-              (share)="onShare(post)"
-              (chat)="onChat($event)"
-              (sharePlatform)="onShare(post, $event)"
-              (hashtagClick)="onHashtagClick($event)">
-            </app-feed-post-card>
+            <div class="reel-post-shell" [class.active]="commentRailOpen() && activeCommentPostId() === post._id">
+              <app-feed-post-card
+                [post]="post"
+                [user]="user()"
+                [isLiked]="likedPosts().has(post._id)"
+                [isSaved]="savedPosts().has(post._id)"
+                (like)="onLike($event)"
+                (save)="onSave($event)"
+                (comment)="onComment($event)"
+                (share)="onShare(post)"
+                (chat)="onChat($event)"
+                (sharePlatform)="onShare(post, $event)"
+                (hashtagClick)="onHashtagClick($event)">
+              </app-feed-post-card>
+            </div>
           }
         </div>
 
@@ -203,139 +372,143 @@
       </div>
     </main>
 
-    <aside class="right-sidebar">
-      <div class="search-box">
-        <mat-icon class="search-icon">search</mat-icon>
-        <input
-          type="text"
-          placeholder="Search posts, products, tags"
-          class="search-input"
-          [ngModel]="searchQuery()"
-          (ngModelChange)="onSearch($event)">
-        @if (searchQuery()) {
-          <button class="clear-search" (click)="onSearch('')">
-            <mat-icon>close</mat-icon>
-          </button>
-        }
-      </div>
-
-      @if (trendingHashtags().length > 0) {
-        <div class="trending-box">
-          <h3 class="trending-title">
-            <mat-icon>trending_up</mat-icon>
-            Trending Topics
-          </h3>
-          <div class="trending-list">
-            @for (hashtag of trendingHashtags().slice(0, 6); track hashtag.tag) {
-              <button class="trending-item" (click)="onHashtagClick(hashtag.tag)">
-                <span class="trending-tag">#{{ hashtag.tag }}</span>
-                <span class="trending-count">{{ hashtag.count }} posts</span>
-              </button>
-            }
-          </div>
-        </div>
-      }
-
-      @if (hotTopics().length > 0) {
-        <div class="trending-box">
-          <h3 class="trending-title">
-            <mat-icon>forum</mat-icon>
-            Hot Topics
-          </h3>
-          <div class="trending-list">
-            @for (topic of hotTopics(); track topic.topic) {
-              <button class="trending-item" (click)="openForumTopic(topic.topic)">
-                <span class="trending-tag">#{{ topic.label }}</span>
-                <span class="trending-count">{{ topic.threadCount }} threads · {{ topic.followerCount }} followers</span>
-              </button>
-            }
-          </div>
-        </div>
-      }
-
-      @if (trendingChallenges().length > 0) {
-        <div class="trending-box challenge-box">
-          <h3 class="trending-title">
-            <mat-icon>bolt</mat-icon>
-            Live Challenges
-          </h3>
-          <div class="trending-list">
-            @for (challenge of trendingChallenges(); track challenge.tag) {
-              <button class="trending-item challenge-item" (click)="onOpenChallenge(challenge.tag)">
-                <span class="trending-tag">#{{ challenge.tag }}</span>
-                <span class="challenge-title">{{ challenge.title }}</span>
-                <span class="trending-count">{{ challenge.postCount }} posts · {{ challenge.totalEngagement }} engagements</span>
-              </button>
-            }
-          </div>
-        </div>
-      }
-
-      @if (creatorSpotlight().length > 0) {
-        <div class="follow-card creator-card">
-          <h3 class="card-title">Creator Spotlight</h3>
-          <div class="follow-items">
-            @for (creator of creatorSpotlight(); track creator._id) {
-              <div class="follow-item">
-                <img [src]="creator.avatar || 'img/avatar.png'" alt="User" class="follow-avatar" (click)="viewProfile(creator)">
-                <div class="follow-info" (click)="viewProfile(creator)">
-                  <span class="follow-name">{{ creator.displayName }}</span>
-                  <span class="follow-handle">&#64;{{ creator.username }}</span>
-                  <span class="creator-meta">{{ creator.postCount }} posts · {{ creator.engagementPoints }} pts</span>
-                </div>
-                @if (creator._id !== user()?._id) {
-                  <button class="follow-btn" [class.following]="isFollowing(creator._id)" (click)="$event.stopPropagation(); toggleFollow(creator._id)">
-                    {{ isFollowing(creator._id) ? 'Following' : 'Follow' }}
-                  </button>
-                }
+    <aside class="right-sidebar comments-open" aria-label="Community post comments">
+      <section class="comment-panel">
+        @if (activeCommentPost(); as activePost) {
+          <div class="comment-panel__header">
+            <div class="comment-panel__post">
+              <img [src]="activePost.author?.avatar || 'img/avatar.png'" [alt]="activePost.author?.displayName || 'Creator'" class="comment-panel__avatar">
+              <div class="comment-panel__identity">
+                <span class="comment-kicker">Now viewing</span>
+                <strong>{{ activePost.author?.displayName || 'Anonymous' }}</strong>
+                <small>{{ activePost.createdAt | date:'short' }}</small>
               </div>
-            }
-          </div>
-        </div>
-      }
-
-      @if (forumSpotlight().length > 0) {
-        <div class="follow-card creator-card">
-          <h3 class="card-title">Forum Spotlight</h3>
-          <div class="follow-items">
-            @for (creator of forumSpotlight(); track creator._id) {
-              <div class="follow-item">
-                <img [src]="creator.avatar || 'img/avatar.png'" alt="User" class="follow-avatar" (click)="viewForumSpotlightProfile(creator)">
-                <div class="follow-info" (click)="viewForumSpotlightProfile(creator)">
-                  <span class="follow-name">{{ creator.displayName }}</span>
-                  <span class="follow-handle">&#64;{{ creator.username }}</span>
-                  <span class="creator-meta">{{ creator.threadCount }} threads · {{ creator.commentCount }} comments</span>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      }
-
-      <div class="follow-card">
-        <h3 class="card-title">Who to follow</h3>
-        <div class="follow-items">
-          @for (person of suggestedUsers(); track person._id) {
-            <div class="follow-item">
-              <img [src]="person.avatar || 'img/avatar.png'" alt="User" class="follow-avatar" (click)="viewProfile(person)">
-              <div class="follow-info" (click)="viewProfile(person)">
-                <span class="follow-name">{{ person.displayName }}</span>
-                <span class="follow-handle">&#64;{{ person.username }}</span>
-              </div>
-              <button class="follow-btn" [class.following]="isFollowing(person._id)" (click)="$event.stopPropagation(); toggleFollow(person._id)">
-                {{ isFollowing(person._id) ? 'Following' : 'Follow' }}
+            </div>
+            <div class="comment-panel__actions">
+              <button type="button" class="icon-ghost" (click)="loadComments(1, true)" matTooltip="Refresh comments" aria-label="Refresh comments">
+                <mat-icon>refresh</mat-icon>
+              </button>
+              <button type="button" class="icon-ghost" (click)="closeCommentRail()" matTooltip="Clear selected post" aria-label="Clear selected post">
+                <mat-icon>close</mat-icon>
               </button>
             </div>
-          }
-        </div>
-      </div>
+          </div>
 
-      <div class="sidebar-footer">
-        <a routerLink="/legal/privacy" target="_blank">Terms of Service</a>
-        <a routerLink="/legal/privacy" target="_blank">Privacy Policy</a>
-        <a routerLink="/legal/cookies" target="_blank">Cookie Policy</a>
-        <span class="copyright">© {{ currentYear }} MarketSpase</span>
-      </div>
+          <p class="comment-panel__excerpt">{{ activePost.content }}</p>
+
+          <div class="comment-panel__stats">
+            <span><mat-icon>favorite</mat-icon>{{ activePost.likeCount || 0 }}</span>
+            <span><mat-icon>chat_bubble</mat-icon>{{ activePost.commentCount || 0 }}</span>
+            <span><mat-icon>share</mat-icon>{{ activePost.shareCount || 0 }}</span>
+          </div>
+
+          <div class="comment-panel__body">
+            @if (commentsLoading()) {
+              <div class="comment-loading">
+                <mat-spinner diameter="28"></mat-spinner>
+                <span>Loading comments</span>
+              </div>
+            } @else if (comments().length > 0) {
+              <div class="comment-list">
+                @for (comment of comments(); track trackByCommentId($index, comment)) {
+                  <article class="comment-item">
+                    <img [src]="comment.user?.avatar || 'img/avatar.png'" [alt]="comment.user?.displayName || 'Comment author'" class="comment-avatar">
+                    <div class="comment-copy">
+                      <header>
+                        <strong>{{ comment.user?.displayName || comment.user?.username || 'Member' }}</strong>
+                        <span>{{ formatCommentTime(comment.createdAt) }}</span>
+                      </header>
+                      <p>{{ comment.content }}</p>
+                      <div class="comment-actions-row">
+                        <button type="button" [class.active]="comment.isLiked" (click)="toggleCommentLike(comment)">
+                          <mat-icon>{{ comment.isLiked ? 'favorite' : 'favorite_border' }}</mat-icon>
+                          {{ comment.likeCount || 0 }}
+                        </button>
+                        <button type="button" (click)="setReplyTo(comment)">Reply</button>
+                      </div>
+
+                      @if (comment.replies?.length) {
+                        <div class="reply-list">
+                          @for (reply of comment.replies || []; track reply._id) {
+                            <article class="reply-item">
+                              <img [src]="reply.user?.avatar || 'img/avatar.png'" [alt]="reply.user?.displayName || 'Reply author'" class="comment-avatar small">
+                              <div class="comment-copy">
+                                <header>
+                                  <strong>{{ reply.user?.displayName || reply.user?.username || 'Member' }}</strong>
+                                  <span>{{ formatCommentTime(reply.createdAt) }}</span>
+                                </header>
+                                <p>{{ reply.content }}</p>
+                                <div class="comment-actions-row">
+                                  <button type="button" [class.active]="reply.isLiked" (click)="toggleCommentLike(reply, true, comment)">
+                                    <mat-icon>{{ reply.isLiked ? 'favorite' : 'favorite_border' }}</mat-icon>
+                                    {{ reply.likeCount || 0 }}
+                                  </button>
+                                </div>
+                              </div>
+                            </article>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </article>
+                }
+              </div>
+
+              @if (commentsHasMore()) {
+                <button type="button" class="load-more-comments" [disabled]="commentsLoadingMore()" (click)="loadMoreComments()">
+                  @if (commentsLoadingMore()) {
+                    Loading more...
+                  } @else {
+                    Load more comments
+                  }
+                </button>
+              }
+            } @else {
+              <div class="comment-empty">
+                <mat-icon>forum</mat-icon>
+                <strong>No comments yet</strong>
+                <span>Start the conversation for this post.</span>
+              </div>
+            }
+          </div>
+
+          <div class="comment-composer">
+            @if (replyingTo(); as replyTarget) {
+              <div class="reply-context">
+                <span>Replying to {{ replyTarget.user?.displayName || replyTarget.user?.username || 'Member' }}</span>
+                <button type="button" (click)="cancelReply()" aria-label="Cancel reply">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+              <textarea
+                rows="3"
+                placeholder="Write a thoughtful reply"
+                [ngModel]="replyDraft()"
+                (ngModelChange)="replyDraft.set($event)"
+                aria-label="Reply comment"></textarea>
+              <button type="button" class="send-comment" [disabled]="commentsSubmitting() || !replyDraft().trim()" (click)="submitReply(replyTarget)">
+                @if (commentsSubmitting()) { Sending... } @else { Reply }
+              </button>
+            } @else {
+              <textarea
+                rows="3"
+                placeholder="Add a public comment"
+                [ngModel]="commentDraft()"
+                (ngModelChange)="commentDraft.set($event)"
+                aria-label="Add comment"></textarea>
+              <button type="button" class="send-comment" [disabled]="commentsSubmitting() || !commentDraft().trim()" (click)="submitComment()">
+                @if (commentsSubmitting()) { Posting... } @else { Comment }
+              </button>
+            }
+          </div>
+        } @else {
+           <div class="comment-empty panel-empty">
+            <mat-icon>dynamic_feed</mat-icon>
+            <strong>Select a post comment</strong>
+            <span>Comments will appear here when post comment is selected.</span>
+          </div>
+        }
+      </section>
     </aside>
   </div>
 </div>

@@ -78,7 +78,13 @@ export class DashboardMainComponent {
     ];
   });
 
-  readonly quickActions = [
+    readonly quickActions = [
+      {
+        title: 'Manage feed posts',
+        description: 'Browse, search, feature in spotlight, and moderate all social feed posts.',
+        route: '/dashboard/posts',
+        icon: 'post_add',
+      },
       {
         title: 'Review fraud cases',
         description: 'Inspect suspicious promotion traffic, pause links, and suspend repeat offenders.',

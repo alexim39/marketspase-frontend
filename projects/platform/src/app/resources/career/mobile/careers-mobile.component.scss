@@ -625,11 +625,11 @@
   color: var(--on-primary-color);
 
   .eyebrow {
-    color: rgba(var(--surface-color), 0.76);
+    color: rgba($white, 0.76);
   }
 
   p {
-    color: rgba(var(--surface-color), 0.76);
+    color: rgba($white, 0.76);
   }
 
   button {
@@ -642,7 +642,7 @@
     margin-top: 14px;
     border: none;
     border-radius: 8px;
-    background: var(--surface-color);
+    background: $white;
     color: $gray-900;
     font-weight: 900;
   }
@@ -821,3 +821,5 @@
     margin-bottom: 16px;
   }
 }
+
+

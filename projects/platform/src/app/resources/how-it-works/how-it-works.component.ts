@@ -60,7 +60,7 @@ export class HowItWorksComponent {
     {
       id: 'marketer',
       name: 'Marketers',
-      description: 'Businesses and individuals looking to market their products or services through authentic WhatsApp marketing.',
+      description: 'Businesses and individuals looking to market products or services through tracked promoter links and measurable PPC campaigns.',
       icon: 'campaign',
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       benefits: [
@@ -81,7 +81,7 @@ export class HowItWorksComponent {
     {
       id: 'promoter',
       name: 'Promoters',
-      description: 'Individuals who want to earn money by sharing campaigns on their WhatsApp Status.',
+      description: 'Individuals who want to earn money by sharing approved campaign and product links with real audiences.',
       icon: 'groups',
       gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)',
       benefits: [
@@ -95,7 +95,7 @@ export class HowItWorksComponent {
         'Stay-at-home Parents',
         'Freelancers',
         'Content Creators',
-        'Anyone with WhatsApp'
+        'Anyone with a real audience'
       ]
     }
   ]);
@@ -121,18 +121,18 @@ export class HowItWorksComponent {
     {
       number: '03',
       title: 'Share & Promote',
-      description: 'Promoters share the watermarked campaign content on their WhatsApp Status for 24 hours. Marketers can track performance in real-time as proofs are submitted.',
+      description: 'Promoters share approved media, captions, and unique MarketSpase tracking links across social channels. Marketers monitor clicks, spend, conversions, and promoter performance in real time.',
       icon: 'share',
       //image: '/img/process/share-status.jpg',
-      features: ['Easy Sharing', 'Real-time Tracking', 'Watermark Protection', '24-hour Duration']
+      features: ['Easy Sharing', 'Real-time Tracking', 'Unique Links', 'PPC Attribution']
     },
     {
       number: '04',
-      title: 'Submit Proof, Verify & Earn',
-      description: 'After 23 hours, you are free to submit screenshot/screen record of promotion. Our AI system verifies campaign completion, view counts, promotion ID, date and time. Payments are automatically released to promoters wallet, and marketers get detailed performance reports.',
+      title: 'Validate Activity & Earn',
+      description: 'The platform validates click quality, campaign budget, promoter activity, and conversion records before eligible earnings move to the promoter wallet and marketers receive performance reports.',
       icon: 'verified',
       //image: '/img/process/verification.jpg',
-      features: ['AI Verification', 'Auto Payments', 'Performance Reports', 'Earnings Tracking']
+      features: ['Click Quality Checks', 'Auto Payments', 'Performance Reports', 'Earnings Tracking']
     }
   ]);
 
@@ -144,15 +144,15 @@ export class HowItWorksComponent {
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     },
     {
-      icon: 'security',
-      title: 'Secure Watermarking',
-      description: 'Automatic unique watermarking for each campaign to prevent fraud and ensure authenticity.',
+      icon: 'link',
+      title: 'Secure Tracked Links',
+      description: 'Unique campaign and product links connect every click, conversion, and spend record to the right promoter.',
       gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)'
     },
     {
       icon: 'auto_awesome',
-      title: 'Automated Verification',
-      description: 'Advanced computer vision and AI verify campaign posts with 99.8% accuracy in real-time.',
+      title: 'Automated Quality Checks',
+      description: 'Automated checks help detect suspicious click patterns, invalid activity, and policy risks in real time.',
       gradient: 'linear-gradient(135deg, #4facfe 0%, #10888eff 100%)'
     },
     {
@@ -175,16 +175,23 @@ export class HowItWorksComponent {
     }
   ]);
 
-  // public Facebook reel/video URL (must be public)
-  readonly fbUrl = 'https://www.facebook.com/reel/1488187402461164';
   posterUrl = 'img/placeholders/how-to-video.jpg'; // replace with proper poster image
   videoUrl!: SafeResourceUrl;
 
   constructor(private sanitizer: DomSanitizer) {}
 
    ngOnInit(): void {
-    // Preload video URL but do not show player until clicked
-    const plugin = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(this.fbUrl)}&show_text=0&autoplay=1`;
-    this.videoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(plugin);
+    this.videoUrl = this.buildYoutubeEmbedUrl('3dxS8th0WJo', 725);
+  }
+
+  private buildYoutubeEmbedUrl(videoId: string, startSeconds: number): SafeResourceUrl {
+    const params = new URLSearchParams({
+      start: String(startSeconds),
+      rel: '0',
+      modestbranding: '1',
+      playsinline: '1'
+    });
+
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}?${params}`);
   }
 }

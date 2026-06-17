@@ -1,274 +1,386 @@
-<div class="admin-users-container">
-    <!-- Header Section -->
-    <div class="header-section">
-        <h1 class="page-title">User Management</h1>
-        <p class="page-subtitle">Manage all users of the platform</p>
-        
-        <!-- Statistics Toggle -->
-        <div class="statistics-toggle">
-            <a mat-stroked-button routerLink="/dashboard/users/analytics" color="primary">
-                <mat-icon>insights</mat-icon>
-                User Analytics
-            </a>
-
-            <button mat-stroked-button (click)="toggleStatistics()" color="primary">
-                <mat-icon>{{ showStatistics() ? 'visibility_off' : 'insights' }}</mat-icon>
-                {{ showStatistics() ? 'Hide Statistics' : 'Show Statistics' }}
-            </button>
-            
-            <button mat-button (click)="refreshUsers()" [disabled]="isRefreshing()">
-                <mat-icon>refresh</mat-icon>
-                {{ isRefreshing() ? 'Refreshing...' : 'Refresh' }}
-            </button>
-            
-            <button mat-button (click)="exportUsers()" [disabled]="isExporting()">
-                <mat-icon>download</mat-icon>
-                {{ isExporting() ? 'Exporting...' : 'Export' }}
-            </button>
-        </div>
+<div class="page-shell">
+  <!-- Header -->
+  <section class="hero-section">
+    <div class="page-header">
+      <div>
+        <p class="eyebrow">User Management</p>
+        <h2>Manage all users on the platform</h2>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="surface-btn" routerLink="/dashboard/users/analytics" matTooltip="User Analytics">
+          <mat-icon>insights</mat-icon>
+          Analytics
+        </button>
+        <button type="button" class="surface-btn" (click)="toggleStatistics()" matTooltip="Toggle statistics panel">
+          <mat-icon>{{ showStatistics() ? 'visibility_off' : 'insights' }}</mat-icon>
+          {{ showStatistics() ? 'Hide Stats' : 'Show Stats' }}
+        </button>
+        <button type="button" class="surface-btn" (click)="refreshUsers()" [disabled]="isRefreshing()">
+          <mat-icon>refresh</mat-icon>
+          {{ isRefreshing() ? 'Refreshing...' : 'Refresh' }}
+        </button>
+        <button type="button" class="surface-btn" (click)="exportUsers()" [disabled]="isExporting()">
+          <mat-icon>download</mat-icon>
+          {{ isExporting() ? 'Exporting...' : 'Export' }}
+        </button>
+      </div>
     </div>
 
-    <!-- Statistics Component (Conditional) -->
-    <app-role-statistics *ngIf="showStatistics()"></app-role-statistics>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-content">
+          <mat-icon class="stat-icon">people</mat-icon>
+          <div class="stat-details">
+            <span class="stat-value">{{ totalUsers() }}</span>
+            <span class="stat-label">Total Users</span>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <span class="stat-dot active"></span>
+          <div class="stat-details">
+            <span class="stat-value active-val">{{ totalActiveCount() }}</span>
+            <span class="stat-label">Active</span>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <span class="stat-dot inactive"></span>
+          <div class="stat-details">
+            <span class="stat-value inactive-val">{{ totalInactiveCount() }}</span>
+            <span class="stat-label">Inactive</span>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <span class="stat-dot verified"></span>
+          <div class="stat-details">
+            <span class="stat-value verified-val">{{ totalVerified() }}</span>
+            <span class="stat-label">Verified</span>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <span class="stat-dot deleted"></span>
+          <div class="stat-details">
+            <span class="stat-value deleted-val">{{ totalDeleted() }}</span>
+            <span class="stat-label">Deleted</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <!-- Filters Card -->
-    <mat-card class="filters-card">
-        <mat-card-content>
-            <div class="filters-container">
-                <!-- Search -->
-                <mat-form-field appearance="outline" class="filter-field search-field">
-                    <mat-label>Search Users</mat-label>
-                    <input matInput 
-                           [ngModel]="searchTerm()"
-                           (ngModelChange)="onSearchInput($event)"
-                           placeholder="Search by name, email, username">
-                    <mat-icon matSuffix>search</mat-icon>
-                </mat-form-field>
+  <!-- Statistics Panel (Conditional) -->
+  @if (showStatistics()) {
+    <app-role-statistics></app-role-statistics>
+  }
 
-                <!-- Role Filter -->
-                <mat-form-field appearance="outline" class="filter-field">
-                    <mat-label>Role</mat-label>
-                    <mat-select [ngModel]="selectedRole()" (ngModelChange)="onRoleChange($event)">
-                        <mat-option value="">All Roles</mat-option>
-                        <mat-option value="marketer">Marketer</mat-option>
-                        <mat-option value="promoter">Promoter</mat-option>
-                        <mat-option value="admin">Admin</mat-option>
-                    </mat-select>
-                </mat-form-field>
+  <!-- Filters -->
+  <section class="filters-card">
+    <div class="filters-container">
+      <div class="filter-field search-field">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search by name, email, username..."
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchInput($event)"
+        />
+        @if (searchTerm()) {
+          <button type="button" class="search-clear-btn" (click)="onSearchInput('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
 
-                <!-- Status Filters -->
-                <div class="filter-buttons">
-                    <button mat-stroked-button 
-                            [color]="showActiveOnly() === true ? 'primary' : ''"
-                            (click)="onActiveFilterChange(showActiveOnly() === true ? null : true)">
-                        <mat-icon>check_circle</mat-icon>
-                        Active
-                    </button>
-                    
-                    <button mat-stroked-button 
-                            [color]="showActiveOnly() === false ? 'warn' : ''"
-                            (click)="onActiveFilterChange(showActiveOnly() === false ? null : false)">
-                        <mat-icon>cancel</mat-icon>
-                        Inactive
-                    </button>
-                    
-                    <button mat-stroked-button 
-                            [color]="showVerifiedOnly() === true ? 'accent' : ''"
-                            (click)="onVerifiedFilterChange(showVerifiedOnly() === true ? null : true)">
-                        <mat-icon>verified</mat-icon>
-                        Verified
-                    </button>
+      <div class="filter-select-group">
+        <label class="filter-label">Role</label>
+        <div class="filter-chips">
+          @for (role of roles; track role) {
+            <button
+              type="button"
+              class="filter-chip"
+              [class.selected]="selectedRole() === role"
+              (click)="toggleRoleFilter(role)"
+            >
+              {{ role | titlecase }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">Status</label>
+        <div class="filter-chips">
+          <button
+            type="button"
+            class="filter-chip"
+            [class.selected]="showActiveOnly() === true"
+            (click)="onActiveFilterChange(showActiveOnly() === true ? null : true)"
+          >
+            <span class="chip-dot active"></span>
+            Active
+          </button>
+          <button
+            type="button"
+            class="filter-chip"
+            [class.selected]="showActiveOnly() === false"
+            (click)="onActiveFilterChange(showActiveOnly() === false ? null : false)"
+          >
+            <span class="chip-dot inactive"></span>
+            Inactive
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">Verification</label>
+        <div class="filter-chips">
+          <button
+            type="button"
+            class="filter-chip"
+            [class.selected]="showVerifiedOnly() === true"
+            (click)="onVerifiedFilterChange(showVerifiedOnly() === true ? null : true)"
+          >
+            <mat-icon class="chip-icon">verified</mat-icon>
+            Verified
+          </button>
+        </div>
+      </div>
+
+      <button type="button" class="ghost-btn" (click)="clearFilters()">
+        <mat-icon>close</mat-icon>
+        Clear
+      </button>
+    </div>
+  </section>
+
+  <!-- Table -->
+  <section class="management-section">
+    <div class="section-header">
+      <span class="table-count">
+        Showing {{ users().length }} of {{ totalUsers() }} users
+      </span>
+      @if (isExporting()) {
+        <span class="export-badge">
+          <mat-progress-bar mode="indeterminate" />
+          Exporting...
+        </span>
+      }
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-card">
+        <mat-progress-bar mode="indeterminate" />
+        <span>Loading users...</span>
+      </div>
+    } @else if (users().length === 0) {
+      <div class="empty-state">
+        <mat-icon>people</mat-icon>
+        <strong>No users found</strong>
+        <span>Try adjusting your filters.</span>
+      </div>
+    } @else {
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th class="col-avatar"></th>
+            <th class="col-name sortable" (click)="toggleSort('displayName')">
+              Name
+              @if (getSortIndicator('displayName')) {
+                <mat-icon class="sort-icon">{{ getSortIndicator('displayName') }}</mat-icon>
+              }
+            </th>
+            <th class="col-email sortable" (click)="toggleSort('email')">
+              Email
+              @if (getSortIndicator('email')) {
+                <mat-icon class="sort-icon">{{ getSortIndicator('email') }}</mat-icon>
+              }
+            </th>
+            <th class="col-role sortable" (click)="toggleSort('role')">
+              Role
+              @if (getSortIndicator('role')) {
+                <mat-icon class="sort-icon">{{ getSortIndicator('role') }}</mat-icon>
+              }
+            </th>
+            <th class="col-balance">Balance</th>
+            <th class="col-status sortable" (click)="toggleSort('isActive')">
+              Status
+              @if (getSortIndicator('isActive')) {
+                <mat-icon class="sort-icon">{{ getSortIndicator('isActive') }}</mat-icon>
+              }
+            </th>
+            <th class="col-joined sortable" (click)="toggleSort('createdAt')">
+              Joined
+              @if (getSortIndicator('createdAt')) {
+                <mat-icon class="sort-icon">{{ getSortIndicator('createdAt') }}</mat-icon>
+              }
+            </th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user._id) {
+            <tr class="user-row" (click)="viewUserDetails(user)">
+              <td>
+                <img
+                  [src]="user.avatar"
+                  alt=""
+                  class="user-avatar"
+                  (error)="onAvatarError($event)"
+                />
+              </td>
+              <td>
+                <div class="user-info">
+                  <span class="user-name">{{ user.displayName }}</span>
+                  <span class="user-sub">@{{ user.username }}</span>
                 </div>
+              </td>
+              <td>
+                <div class="user-info">
+                  <span class="user-name">{{ user.email || 'No email' }}</span>
+                  <span class="user-sub">{{ $any(user).personalInfo?.phoneDetails?.iso2 || '' }} {{ $any(user).personalInfo?.phone || '' }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="status-pill role-{{ user.role }}">
+                  <span class="pill-dot"></span>
+                  {{ user.role | titlecase }}
+                </span>
+              </td>
+              <td>
+                <span class="balance-amount">
+                  {{ user.role === 'marketer'
+                    ? (user.wallets?.marketer?.balance || 0 | currency:'NGN':'₦')
+                    : (user.wallets?.promoter?.balance || 0 | currency:'NGN':'₦')
+                  }}
+                </span>
+              </td>
+              <td>
+                <div class="status-group">
+                  @if (user.isDeleted) {
+                    <span class="status-pill deleted">
+                      <span class="pill-dot"></span>
+                      Deleted
+                    </span>
+                  } @else if (user.isActive) {
+                    <span class="status-pill active">
+                      <span class="pill-dot"></span>
+                      Active
+                    </span>
+                  } @else {
+                    <span class="status-pill inactive">
+                      <span class="pill-dot"></span>
+                      Inactive
+                    </span>
+                  }
+                  @if (user.verified) {
+                    <span class="verified-badge">
+                      <mat-icon>verified</mat-icon>
+                    </span>
+                  }
+                </div>
+              </td>
+              <td>
+                <div class="date-info">
+                  <span>{{ user.createdAt | date:'shortDate' }}</span>
+                  <span class="subcopy">{{ user.createdAt | date:'shortTime' }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button type="button" class="icon-btn" title="View details" (click)="$event.stopPropagation(); viewUserDetails(user)">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button type="button" class="icon-btn" title="Edit name" (click)="$event.stopPropagation(); editUser(user)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  @if (!user.isDeleted) {
+                    @if (user.isActive) {
+                      <button type="button" class="icon-btn" title="Deactivate" (click)="$event.stopPropagation(); deactivateUser(user)">
+                        <mat-icon>toggle_off</mat-icon>
+                      </button>
+                    } @else {
+                      <button type="button" class="icon-btn" title="Activate" (click)="$event.stopPropagation(); activateUser(user)">
+                        <mat-icon>toggle_on</mat-icon>
+                      </button>
+                    }
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
 
-                <!-- Clear Filters -->
-                <button mat-button (click)="clearFilters()">
-                    <mat-icon>clear_all</mat-icon>
-                    Clear Filters
-                </button>
+      @if (totalPages() > 1) {
+        <div class="pagination-bar">
+          <div class="pagination-inner">
+            <div class="page-size-select">
+              <span class="page-size-label">Rows:</span>
+              <select class="page-size-dropdown" [value]="pageSize()" (change)="onPageSizeChange($any($event.target).value)">
+                @for (opt of pageSizeOptions; track opt) {
+                  <option [value]="opt">{{ opt }}</option>
+                }
+              </select>
             </div>
-            
-            <!-- Loading indicator -->
-            <mat-progress-bar *ngIf="isRefreshing()" mode="indeterminate"></mat-progress-bar>
-        </mat-card-content>
-    </mat-card>
 
-    <!-- Users Table -->
-    <mat-card class="table-card">
-        <mat-card-content>
-            <div class="table-container">
-                <div *ngIf="isLoading()" class="loading-spinner">
-                    <mat-spinner diameter="40"></mat-spinner>
-                    <p>Loading users...</p>
-                </div>
+            <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(1)">
+              <mat-icon>first_page</mat-icon>
+            </button>
+            <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
 
-                <div *ngIf="!isLoading() && dataSource.data.length === 0" class="no-data">
-                    <mat-icon>people</mat-icon>
-                    <h3>No users found</h3>
-                    <p>Try adjusting your filters or search terms</p>
-                </div>
-
-                <div *ngIf="!isLoading() && dataSource.data.length > 0">
-                    <table mat-table [dataSource]="dataSource" matSort class="users-table">
-                        <!-- Avatar Column -->
-                        <ng-container matColumnDef="avatar">
-                            <th mat-header-cell *matHeaderCellDef> </th>
-                            <td mat-cell *matCellDef="let user">
-                                <img [src]="user.avatar" alt="User avatar" class="user-avatar" onerror="this.src='/img/avatar.png'">
-                            </td>
-                        </ng-container>
-
-                        <!-- Name Column -->
-                        <ng-container matColumnDef="displayName">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
-                            <td mat-cell *matCellDef="let user">
-                                <div class="user-info" (click)="viewUserDetails(user)">
-                                    <span class="user-name">{{ user.displayName }}</span>
-                                    <span class="user-username">@{{ user.username }}</span>
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <!-- Email Column -->
-                        <ng-container matColumnDef="email">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
-                            <td mat-cell *matCellDef="let user">
-                                <div class="user-info">
-                                    <span class="user-name">{{ user.email || 'No email' }}</span>
-                                    <span class="user-username">{{ user?.personalInfo?.phoneDetails?.iso2 || 'No country' }}: {{ user?.personalInfo?.phone || 'No phone yet'}}</span>
-                                </div>
-                            <!-- <td mat-cell *matCellDef="let user" class="email-cell"> -->
-                                <!-- {{ user.email || 'No email' }} -->
-                            </td>
-                        </ng-container>
-
-                        <!-- Role Column -->
-                        <ng-container matColumnDef="role">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Role </th>
-                            <td mat-cell *matCellDef="let user">
-                                <mat-chip [class]="user.role" class="role-chip">
-                                    {{ user.role }}
-                                </mat-chip>
-                            </td>
-                        </ng-container>
-
-                        <!-- Balance Column -->
-                        <ng-container matColumnDef="balance">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Balance </th>
-                            <td mat-cell *matCellDef="let user">
-                                <div class="balance-info">
-                                    <span class="balance-amount">
-                                        {{ user.role === 'marketer' ? 
-                                            (user.wallets?.marketer?.balance || 0 | currency:'NGN':'₦') : 
-                                            (user.wallets?.promoter?.balance || 0 | currency:'NGN':'₦') 
-                                        }}
-                                    </span>
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <!-- Status Column -->
-                        <ng-container matColumnDef="status">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-                            <td mat-cell *matCellDef="let user">
-                                <div class="status-container">
-                                    @if (user.isActive && !user.isDeleted) {
-                                        <mat-chip class="status-chip active">Active</mat-chip>
-                                    }
-                                    @if (!user.isActive && !user.isDeleted) {
-                                        <mat-chip class="status-chip inactive">Inactive</mat-chip>
-                                    }
-                                    @if (user.isDeleted) {
-                                        <mat-chip class="status-chip deleted">Deleted</mat-chip>
-                                    }
-                                    @else if (user.isVerified && !user.isDeleted) {
-                                        <mat-chip class="verification-chip">Verified</mat-chip>
-                                    }
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <!-- Joined Column -->
-                        <ng-container matColumnDef="createdAt">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Joined </th>
-                            <td mat-cell *matCellDef="let user">
-                                <div class="date-info">
-                                    <span class="date-main">
-                                        {{ user.createdAt | date:'mediumDate' }}
-                                    </span>
-                                    <span class="date-time">
-                                        {{ user.createdAt | date:'shortTime' }}
-                                    </span>
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <!-- lastlogin Column -->
-                        <ng-container matColumnDef="updatedAt">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Last login </th>
-                            <td mat-cell *matCellDef="let user">
-                                <div class="date-info">
-                                    <span class="date-main">
-                                        {{ user.updatedAt | date:'mediumDate' }}
-                                    </span>
-                                    <span class="date-time">
-                                        {{ user.updatedAt | date:'shortTime' }}
-                                    </span>
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <!-- Actions Column -->
-                        <ng-container matColumnDef="actions">
-                            <th mat-header-cell *matHeaderCellDef> Actions </th>
-                            <td mat-cell *matCellDef="let user">
-                                <div class="action-buttons">
-                                    <button mat-icon-button 
-                                            matTooltip="View Details"
-                                            (click)="viewUserDetails(user)">
-                                        <mat-icon>visibility</mat-icon>
-                                    </button>
-                                    
-                                    <button mat-icon-button 
-                                            matTooltip="Edit User"
-                                            (click)="editUser(user)">
-                                        <mat-icon>edit</mat-icon>
-                                    </button>
-                                    
-                                    <button mat-icon-button *ngIf="user.isActive && !user.isDeleted"
-                                            matTooltip="Deactivate"
-                                            (click)="deactivateUser(user)">
-                                        <mat-icon>toggle_off</mat-icon>
-                                    </button>
-                                    <button mat-icon-button *ngIf="!user.isActive && !user.isDeleted"
-                                            matTooltip="Activate"
-                                            (click)="activateUser(user)">
-                                        <mat-icon>toggle_on</mat-icon>
-                                    </button>
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                    </table>
-                </div>
+            <div class="page-numbers">
+              @if (currentPage() > 3) {
+                <button type="button" class="page-btn number" (click)="goToPage(1)">1</button>
+                @if (currentPage() > 4) { <span class="page-ellipsis">...</span> }
+              }
+              @for (p of pageNumbers(); track p) {
+                <button
+                  type="button"
+                  class="page-btn number"
+                  [class.active]="p === currentPage()"
+                  (click)="goToPage(p)"
+                >{{ p }}</button>
+              }
+              @if (currentPage() < totalPages() - 2) {
+                @if (currentPage() < totalPages() - 3) { <span class="page-ellipsis">...</span> }
+                <button type="button" class="page-btn number" (click)="goToPage(totalPages())">{{ totalPages() }}</button>
+              }
             </div>
 
-            <mat-paginator *ngIf="!isLoading() && dataSource.data.length > 0"
-                           [length]="totalUsers"
-                           [pageSize]="pageSize"
-                           [pageSizeOptions]="pageSizeOptions"
-                           [pageIndex]="pageIndex"
-                           (page)="onPageChange($event)"
-                           showFirstLastButtons
-                           aria-label="Select page of users">
-            </mat-paginator>
-                        
-            <!-- Export Progress -->
-            <div *ngIf="isExporting()" class="export-progress">
-                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-                <p>Preparing export...</p>
+            <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(currentPage() + 1)">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+            <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(totalPages())">
+              <mat-icon>last_page</mat-icon>
+            </button>
+
+            <div class="page-jump">
+              <span class="page-jump-label">Go to</span>
+              <input
+                type="number"
+                class="page-jump-input"
+                min="1"
+                [max]="totalPages()"
+                placeholder="#"
+                (keydown.enter)="onPageInput($event)"
+                (blur)="onPageInput($event)"
+              />
             </div>
-        </mat-card-content>
-    </mat-card>
+
+            <span class="page-total">Page {{ currentPage() }} of {{ totalPages() }}</span>
+          </div>
+        </div>
+      }
+    }
+  </section>
 </div>

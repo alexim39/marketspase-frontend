@@ -1,21 +1,17 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild, signal, DestroyRef } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
-import { Subject, Subscription, takeUntil } from 'rxjs';
+import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { takeUntil } from 'rxjs';
 
-// Angular Material imports
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatSortModule, MatSort } from '@angular/material/sort';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -23,48 +19,25 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-// Services
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+
 import { CampaignService } from './campaign.service';
 import { Router } from '@angular/router';
 import { AdminService } from '../common/services/user.service';
 import { CampaignInterface } from '../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-export interface ActivityLog {
-  action: string;
-  timestamp: string;
-  details: string;
-}
-
 @Component({
   selector: 'admin-campaign-mgt',
   standalone: true,
   providers: [CampaignService, DatePipe, CurrencyPipe],
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    // Material Modules
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatButtonModule,
-    MatCardModule,
-    MatTooltipModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatExpansionModule,
-    MatMenuModule,
-    MatBadgeModule,
-    MatProgressBarModule
+    CommonModule, ReactiveFormsModule,
+    MatTableModule, MatPaginatorModule, MatIconModule, MatButtonModule,
+    MatCardModule, MatTooltipModule, MatChipsModule, MatProgressSpinnerModule,
+    MatDialogModule, MatSnackBarModule, MatSelectModule,
+    MatDatepickerModule, MatNativeDateModule, MatExpansionModule,
+    MatMenuModule, MatBadgeModule, MatProgressBarModule
   ],
   templateUrl: './campaign.component.html',
   styleUrls: ['./campaign.component.scss'],
@@ -77,126 +50,88 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
   readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
 
-  // Signals for state management
-  isLoading = signal(true);
-  totalCampaigns = signal(0);
-  activeCampaigns = signal(0);
-  pendingCampaigns = signal(0);
-  completedCampaigns = signal(0);
-  rejectedCampaigns = signal(0);
-  categories = signal<string[]>([]);
+  readonly isLoading = signal(true);
+  readonly totalCampaigns = signal(0);
+  readonly activeCampaigns = signal(0);
+  readonly pendingCampaigns = signal(0);
+  readonly completedCampaigns = signal(0);
+  readonly rejectedCampaigns = signal(0);
+  readonly categories = signal<string[]>([]);
 
-  // Table properties
-  displayedColumns: string[] = ['title', 'owner', 'budget', 'promoters', 'status', 'dates', 'actions'];
-  dataSource: MatTableDataSource<CampaignInterface> = new MatTableDataSource<CampaignInterface>([]);
+  readonly dataSource = new MatTableDataSource<CampaignInterface>([]);
 
-  // Filters form
-  filtersForm = this.fb.group({
-    status: [[]],
-    category: [[]],
+  readonly filtersForm = this.fb.group({
+    status: [[] as string[]],
+    category: [''],
     search: ['']
   });
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  readonly currentPage = signal(1);
+  readonly pageSize = signal(50);
+  readonly totalItems = signal(0);
+  readonly totalPages = signal(0);
 
-   // Add pagination properties
-  currentPage = signal(1);
-  pageSize = signal(50);
-  totalItems = signal(0);
-  totalPages = signal(0);
+  activeMenuCampaign: CampaignInterface | null = null;
 
-  constructor() {
-    // Initialize the data source with the correct filter predicate
-    this.dataSource.filterPredicate = this.createFilter();
-  }
+  readonly statusOptions = [
+    { value: 'active', label: 'Active' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'paused', label: 'Paused' },
+    { value: 'rejected', label: 'Rejected' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'exhausted', label: 'Exhausted' },
+    { value: 'expired', label: 'Expired' }
+  ];
 
-   ngOnInit(): void {
+  readonly selectedStatuses = computed(() => {
+    return this.filtersForm.controls.status.value as string[] || [];
+  });
+
+  readonly pageNumbers = computed(() => {
+    const total = Math.max(1, this.totalPages());
+    const current = this.currentPage();
+    const pages: number[] = [];
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, current + 2);
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  });
+
+  ngOnInit(): void {
     this.adminService.fetchAdmin();
     this.loadCampaigns();
 
-    // Subscribe to filter changes with debounce
     this.filtersForm.valueChanges
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        // Optional: Add debounce to avoid too many API calls
-        // debounceTime(300)
-      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        // Reset to first page when filters change
         this.currentPage.set(1);
         this.loadCampaigns();
       });
   }
-
-    ngAfterViewInit() {
-    // Connect paginator to the component
-    if (this.paginator) {
-      this.paginator.page.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-        this.currentPage.set(this.paginator.pageIndex + 1);
-        this.pageSize.set(this.paginator.pageSize);
-        this.loadCampaigns();
-      });
-    }
-    
-    // Connect sort if needed
-    if (this.sort) {
-      this.sort.sortChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-        this.currentPage.set(1);
-        this.loadCampaigns();
-      });
-    }
-  }
-
 
   loadCampaigns(): void {
     this.isLoading.set(true);
-    
     const filters = this.filtersForm.value;
-    const page = this.currentPage();
-    const limit = this.pageSize();
-    
-    this.campaignService.getAppCampaigns(page, limit, filters)
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe({
-      next: (response) => {
-        if (response.success) {
-          // Check if response has pagination data structure
-          if (response.pagination) {
-            // New structure with pagination
+    this.campaignService.getAppCampaigns(this.currentPage(), this.pageSize(), filters)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
             this.dataSource.data = response.data;
-            this.totalItems.set(response.pagination.total);
-            this.totalPages.set(response.pagination.pages);
-            
-            // Update paginator if needed
-            if (this.paginator) {
-              this.paginator.length = response.pagination.total;
-              this.paginator.pageIndex = response.pagination.page - 1;
-              this.paginator.pageSize = response.pagination.limit;
-            }
+            this.totalItems.set(response.pagination?.total ?? response.data.length);
+            this.totalPages.set(response.pagination?.pages ?? 1);
+            this.calculateStats(response.data);
+            this.extractCategories(response.data);
           } else {
-            // Fallback to old structure (no pagination)
-            this.dataSource.data = response.data;
-            this.totalItems.set(response.data.length);
-            if (this.paginator) {
-              this.paginator.length = response.data.length;
-            }
+            this.snackBar.open('Failed to load campaigns', 'Close', { duration: 3000 });
           }
-          
-          this.calculateStats(response.data);
-          this.extractCategories(response.data);
           this.isLoading.set(false);
-        } else {
-          this.snackBar.open('Failed to load campaigns', 'Close', { duration: 3000 });
+        },
+        error: () => {
+          this.snackBar.open('Error loading campaigns', 'Close', { duration: 3000 });
           this.isLoading.set(false);
         }
-      },
-      error: (error) => {
-        console.error('Error fetching campaigns:', error);
-        this.snackBar.open('Error loading campaigns', 'Close', { duration: 3000 });
-        this.isLoading.set(false);
-      }
-    });
+      });
   }
 
   calculateStats(campaigns: CampaignInterface[]): void {
@@ -210,146 +145,87 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
   }
 
   extractCategories(campaigns: CampaignInterface[]): void {
-    const categories = new Set(campaigns.map(c => c.category).filter(Boolean));
-    this.categories.set(Array.from(categories) as string[]);
+    const set = new Set(campaigns.map(c => c.category).filter(Boolean));
+    this.categories.set(Array.from(set) as string[]);
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.filtersForm.patchValue({ search: filterValue });
-  }
-
-  applyFormFilters() {
+  applyFormFilters(): void {
     this.currentPage.set(1);
     this.loadCampaigns();
   }
 
-  createFilter(): (data: CampaignInterface, filter: string) => boolean {
-    return (data: CampaignInterface, filter: string): boolean => {
-      // If the filter is empty, return true for all items
-      if (!filter) return true;
-      
-      const filters = JSON.parse(filter);
-      const searchTerm = filters.search?.toLowerCase() || '';
-      
-      // Check search term
-      const matchesSearch = searchTerm === '' || 
-        data.title.toLowerCase().includes(searchTerm) ||
-        data.owner.displayName.toLowerCase().includes(searchTerm) ||
-        data.owner.email.toLowerCase().includes(searchTerm) ||
-        data.category?.toLowerCase().includes(searchTerm);
-      
-      // Check status filter
-      const matchesStatus = filters.status.length === 0 || filters.status.includes(data.status);
-      
-      // Check category filter
-      const matchesCategory = filters.category.length === 0 || 
-        (data.category && filters.category.includes(data.category));
-      
-      return matchesSearch && matchesStatus && matchesCategory;
-    };
+  toggleStatusFilter(value: string): void {
+    const current = this.filtersForm.controls.status.value as string[] || [];
+    const next = current.includes(value)
+      ? current.filter(v => v !== value)
+      : [...current, value];
+    this.filtersForm.controls.status.setValue(next);
+    this.applyFormFilters();
   }
 
   clearFilters(): void {
-    this.filtersForm.get('status')?.reset([]);
-    this.filtersForm.get('category')?.reset([]);
-    this.filtersForm.get('search')?.reset('');
+    this.filtersForm.controls.status.setValue([]);
+    this.filtersForm.controls.category.setValue('');
+    this.filtersForm.controls.search.setValue('');
     this.currentPage.set(1);
     this.loadCampaigns();
   }
 
-  viewCampaignDetails(campaign: CampaignInterface): void {
-    this.router.navigate(['dashboard/campaigns', campaign._id]);
-  }
+  viewCampaignDetails(c: CampaignInterface): void { this.router.navigate(['dashboard/campaigns', c._id]); }
+  viewPromotions(c: CampaignInterface): void { this.router.navigate(['dashboard/campaigns', c._id, 'promotions']); }
+  viewActivityLog(c: CampaignInterface): void { this.router.navigate(['dashboard/campaigns', c._id, 'activity']); }
 
-  viewPromotions(campaign: CampaignInterface): void {
-    this.router.navigate(['dashboard/campaigns', campaign._id, 'promotions']);
-  }
-
-  viewActivityLog(campaign: CampaignInterface): void {
-    this.router.navigate(['dashboard/campaigns', campaign._id, 'activity']);
-  }
-
-  approveCampaign(campaign: CampaignInterface): void {
-      this.campaignService.updateCampaignStatus(campaign._id, 'active', this.adminService.adminData()?._id || '')
+  approveCampaign(c: CampaignInterface): void {
+    this.campaignService.updateCampaignStatus(c._id, 'active', this.adminService.adminData()?._id || '')
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Campaign approved successfully', 'Close', { duration: 3000 });
-            this.loadCampaigns();
-          } else {
-            this.snackBar.open('Failed to approve campaign', 'Close', { duration: 3000 });
-          }
-        },
-        error: (error) => {
-          console.error('Error approving campaign:', error);
-          this.snackBar.open('Error approving campaign', 'Close', { duration: 3000 });
-        }
-      })
+      .subscribe({ next: () => { this.snackBar.open('Campaign approved', 'Close', { duration: 3000 }); this.loadCampaigns(); } });
   }
 
-  rejectCampaign(campaign: CampaignInterface): void {
-      this.campaignService.updateCampaignStatus(campaign._id, 'rejected', this.adminService.adminData()?._id || '')
+  rejectCampaign(c: CampaignInterface): void {
+    this.campaignService.updateCampaignStatus(c._id, 'rejected', this.adminService.adminData()?._id || '')
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Campaign rejected successfully', 'Close', { duration: 3000 });
-            this.loadCampaigns();
-          } else {
-            this.snackBar.open('Failed to reject campaign', 'Close', { duration: 3000 });
-          }
-        },
-        error: (error) => {
-          console.error('Error rejecting campaign:', error);
-          this.snackBar.open('Error rejecting campaign', 'Close', { duration: 3000 });
-        }
-      })
+      .subscribe({ next: () => { this.snackBar.open('Campaign rejected', 'Close', { duration: 3000 }); this.loadCampaigns(); } });
   }
 
-  pauseCampaign(campaign: CampaignInterface): void {
-      this.campaignService.updateCampaignStatus(campaign._id, 'paused', this.adminService.adminData()?._id || '')
+  pauseCampaign(c: CampaignInterface): void {
+    this.campaignService.updateCampaignStatus(c._id, 'paused', this.adminService.adminData()?._id || '')
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Campaign paused successfully', 'Close', { duration: 3000 });
-            this.loadCampaigns();
-          } else {
-            this.snackBar.open('Failed to pause campaign', 'Close', { duration: 3000 });
-          }
-        },
-        error: (error) => {
-          console.error('Error pausing campaign:', error);
-          this.snackBar.open('Error pausing campaign', 'Close', { duration: 3000 });
-        }
-      })
+      .subscribe({ next: () => { this.snackBar.open('Campaign paused', 'Close', { duration: 3000 }); this.loadCampaigns(); } });
   }
 
-  resumeCampaign(campaign: CampaignInterface): void {
-      this.campaignService.updateCampaignStatus(campaign._id, 'active', this.adminService.adminData()?._id || '')
+  resumeCampaign(c: CampaignInterface): void {
+    this.campaignService.updateCampaignStatus(c._id, 'active', this.adminService.adminData()?._id || '')
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Campaign resumed successfully', 'Close', { duration: 3000 });
-            this.loadCampaigns();
-          } else {
-            this.snackBar.open('Failed to resume campaign', 'Close', { duration: 3000 });
-          }
-        },
-        error: (error) => {
-          console.error('Error resuming campaign:', error);
-          this.snackBar.open('Error resuming campaign', 'Close', { duration: 3000 });
-        }
-      })
+      .subscribe({ next: () => { this.snackBar.open('Campaign resumed', 'Close', { duration: 3000 }); this.loadCampaigns(); } });
   }
 
- 
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
+  toggleMenu(event: MouseEvent, campaign: CampaignInterface): void {
+    event.stopPropagation();
+    this.activeMenuCampaign = this.activeMenuCampaign?._id === campaign._id ? null : campaign;
   }
 
+  closeMenu(): void { this.activeMenuCampaign = null; }
+
+  goToPage(page: number): void {
+    const target = Math.max(1, Math.min(page, Math.max(1, this.totalPages())));
+    if (target === this.currentPage()) return;
+    this.currentPage.set(target);
+    this.loadCampaigns();
+  }
+
+  onPageInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const page = parseInt(input.value, 10);
+    if (!isNaN(page) && page >= 1 && page <= this.totalPages()) {
+      this.goToPage(page);
+    }
+    input.value = '';
+  }
+
+  budgetPercent(spent: number, budget: number): number {
+    if (!budget) return 0;
+    return Math.min(100, (spent / budget) * 100);
+  }
+
+  ngOnDestroy(): void {}
 }

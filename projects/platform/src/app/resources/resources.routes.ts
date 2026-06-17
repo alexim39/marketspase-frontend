@@ -31,6 +31,11 @@ export const RosourcesRoutes: Routes = [
                 title: "Success Stories - Our customer stories",
             },
             {
+                path: 'testimonials',
+                loadComponent: () => import('./testimonials').then(m => m.TestimonialsIndexComponent),
+                title: "Testimonials - Trusted MarketSpase stories",
+            },
+            {
                 path: 'community',
                 loadComponent: () => import('./community').then(m => m.CommunityIndexComponent),
                 title: "Community - Join our community",

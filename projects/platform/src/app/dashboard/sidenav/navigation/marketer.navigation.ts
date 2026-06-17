@@ -5,7 +5,16 @@ export function getMarketerNavigation(
   activeCampaigns: number
 ): NavigationItem[] {
   return [
+     {
+      // Discovery, engagement, content
+      icon: 'home',
+      label: 'Home',
+      route: '/dashboard/home',
+      expanded: false
+    },
+
     {
+      // Analytics, business management
       icon: 'dashboard',
       label: 'Dashboard',
       route: '/dashboard',
@@ -42,15 +51,18 @@ export function getMarketerNavigation(
         { icon: 'add_business', label: 'Add Store', route: '/dashboard/stores/create' },
         { icon: 'receipt_long', label: 'Orders & Delivery', route: '/dashboard/stores/orders' },
         { icon: 'insights', label: 'Products Analytics', route: '/dashboard/stores/promoted-products-analytics' },
-        {
+
+       /*  {
           icon: 'support_agent',
           label: 'Customer Support',
           expanded: false,
           children: [
             { icon: 'supervisor_account', label: 'Customers', route: '/dashboard/stores/support' },
+            { icon: 'contacts', label: 'Contacts', route: '/dashboard/stores/contacts' },
             { icon: 'mark_email_read', label: 'Email Subscribers', route: '/dashboard/stores/subscribers' }
           ]
-        }
+        } */
+       
         // { icon: 'analytics', label: 'Store Analytics', route: '/dashboard/stores/analytics' },
         // {
         //   icon: 'inventory',
@@ -65,19 +77,23 @@ export function getMarketerNavigation(
       ]
     },
 
-    // {
-    //   icon: 'android',
-    //   label: 'Assistant',
-    //   route: '/dashboard/assistant',
-    //   expanded: false
-    // },
+    {
+      icon: 'support_agent',
+      label: 'Customer Support',
+      expanded: false,
+      children: [
+        { icon: 'supervisor_account', label: 'Customers', route: '/dashboard/stores/support' },
+        { icon: 'contacts', label: 'Contacts', route: '/dashboard/stores/contacts' },
+        { icon: 'mark_email_read', label: 'Email Subscribers', route: '/dashboard/stores/subscribers' }
+      ]
+    },
 
     {
       icon: 'android',
       label: 'AI Assistant',
       expanded: false,
       children: [
-        { icon: 'support_agent', label: 'Customer Support', route: '/dashboard/assistant/customer/overview' },
+        { icon: 'support_agent', label: 'Support Assistant', route: '/dashboard/assistant/customer/overview' },
         // { icon: 'dynamic_feed', label: 'Social Media Management', route: '/dashboard/assistant/social/overview' },
         // { icon: 'analytics', label: 'Business Insights', route: '/dashboard/assistant/insights' },
         // { icon: 'settings', label: 'Settings', route: '/dashboard/assistant/settings' }
@@ -90,15 +106,7 @@ export function getMarketerNavigation(
       expanded: false,
       children: [
         { icon: 'chat', label: 'Discussions', route: '/dashboard/community/discussion' },
-        {
-          icon: 'dynamic_feed',
-          label: 'Feed',
-          expanded: false,
-          children: [
-           { icon: 'notifications', label: 'Create', route: '/dashboard/community/feeds/create' },
-           { icon: 'quickreply', label: 'Social Feeds', route: '/dashboard/community/feeds'  }
-          ]
-        },
+        { icon: 'dynamic_feed', label: 'Create Post', route: '/dashboard/community/feeds/create'  },
         { icon: 'military_tech', label: 'Gamification', route: '/dashboard/gamification' },
       ]
     },
@@ -109,13 +117,6 @@ export function getMarketerNavigation(
       route: '/dashboard/leaderboard',
       expanded: false
     },
-
-    // {
-    //   icon: 'military_tech',
-    //   label: 'Gamification',
-    //   route: '/dashboard/gamification',
-    //   expanded: false
-    // },
     
     {
       icon: 'currency_exchange',

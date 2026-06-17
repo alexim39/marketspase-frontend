@@ -299,12 +299,9 @@ export class WalletFundingComponent implements OnInit {
           purpose: 'wallet_funding',
           fundingAmount: this.selectedAmount(),
           processingFee: this.processingFee(),
-          currency: this.selectedCurrency(),
-          quote: this.currencyQuote(),
           userId: this.data.userId || this.user()?._id,
           userEmail: this.user()?.email,
           username: this.user()?.username,
-          // Store in metadata for webhook to use
           webhookIdentifier: `wallet_${this.user()?._id}_${Date.now()}`
         },
         reference: reference
@@ -465,7 +462,8 @@ export class WalletFundingComponent implements OnInit {
 
     const payload: RecordPaymentPayload = {
       userId: this.data.userId || this.user()?._id || 'unknown',
-      amount: this.selectedAmount(),
+      amount: this.totalAmount(),
+      fundingAmount: this.selectedAmount(),
       currency: this.selectedCurrency(),
       quote: this.currencyQuote(),
       paystackResult: paystackResult

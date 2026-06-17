@@ -29,6 +29,15 @@ import { MatIconModule } from '@angular/material/icon';
       </a>
 
       <a
+        routerLink="/dashboard/financial/deposits"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="finance-link">
+        <mat-icon>account_balance_wallet</mat-icon>
+        <span>Deposits</span>
+      </a>
+
+      <a
         routerLink="/dashboard/financial/transfers"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
@@ -45,8 +54,18 @@ import { MatIconModule } from '@angular/material/icon';
         <mat-icon>currency_exchange</mat-icon>
         <span>Refunds</span>
       </a>
+
+      <a
+        routerLink="/dashboard/financial/recovery"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="finance-link">
+        <mat-icon>playlist_remove</mat-icon>
+        <span>Recovery</span>
+      </a>
     </nav>
   `,
   styleUrl: './finance-section-nav.component.scss',
 })
 export class FinanceSectionNavComponent {}
+

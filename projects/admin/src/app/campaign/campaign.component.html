@@ -1,270 +1,263 @@
-<div class="admin-campaigns-container">
-    <!-- Header Section -->
-    <div class="header-section">
-    <h1 class="page-title">Campaign Management</h1>
-    <p class="page-subtitle">Manage all campaigns on the platform</p>
-    
-    <!-- Stats Overview -->
-    <div class="stats-overview">
-        <mat-card class="stat-card">
-        <mat-card-content>
-            <div class="stat-content">
-            <mat-icon class="stat-icon">campaign</mat-icon>
-            <div class="stat-details">
-                <span class="stat-value">{{ totalCampaigns() }}</span>
-                <span class="stat-label">Total Campaigns</span>
-            </div>
-            </div>
-        </mat-card-content>
-        </mat-card>
-        
-        <mat-card class="stat-card">
-        <mat-card-content>
-            <div class="stat-content">
-            <mat-icon class="stat-icon active">play_arrow</mat-icon>
-            <div class="stat-details">
-                <span class="stat-value">{{ activeCampaigns() }}</span>
-                <span class="stat-label">Active</span>
-            </div>
-            </div>
-        </mat-card-content>
-        </mat-card>
-        
-        <mat-card class="stat-card">
-        <mat-card-content>
-            <div class="stat-content">
-            <mat-icon class="stat-icon pending">schedule</mat-icon>
-            <div class="stat-details">
-                <span class="stat-value">{{ pendingCampaigns() }}</span>
-                <span class="stat-label">Pending</span>
-            </div>
-            </div>
-        </mat-card-content>
-        </mat-card>
-        
-        <mat-card class="stat-card">
-        <mat-card-content>
-            <div class="stat-content">
-            <mat-icon class="stat-icon completed">check_circle</mat-icon>
-            <div class="stat-details">
-                <span class="stat-value">{{ completedCampaigns() }}</span>
-                <span class="stat-label">Completed</span>
-            </div>
-            </div>
-        </mat-card-content>
-        </mat-card>
-    </div>
+<div class="page-shell">
+  <!-- Header -->
+  <section class="hero-section">
+    <div class="page-header">
+      <div>
+        <p class="eyebrow">Campaign Management</p>
+        <h2>Manage all campaigns on the platform</h2>
+      </div>
     </div>
 
-    <!-- Filters Card -->
-    <mat-card class="filters-card">
-    <mat-card-content>
-        <div class="filters-container">
-        <mat-form-field appearance="outline" class="filter-field search-field">
-        <mat-label>Search Campaigns</mat-label>
-        <input 
-            matInput 
-            (keyup.enter)="applyFormFilters()" 
-            [formControl]="filtersForm.controls.search"
-            placeholder="Search by title, owner, category">
-        <mat-icon matSuffix>search</mat-icon>
-        <button mat-button matSuffix *ngIf="filtersForm.controls.search.value" (click)="filtersForm.controls.search.setValue(''); applyFormFilters()">
-            <mat-icon>clear</mat-icon>
-        </button>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>Status</mat-label>
-        <mat-select 
-            [formControl]="filtersForm.controls.status" 
-            multiple
-            (selectionChange)="applyFormFilters()">
-            <div>
-            <mat-option value="active">Active</mat-option>
-            <mat-option value="paused">Paused</mat-option>
-            <mat-option value="rejected">Rejected</mat-option>
-            <mat-option value="completed">Completed</mat-option>
-            <mat-option value="exhausted">Exhausted</mat-option>
-            <mat-option value="expired">Expired</mat-option>
-            <mat-option value="pending">Pending</mat-option>
-            </div>
-        </mat-select>
-        </mat-form-field>
-        
-       <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>Category</mat-label>
-        <mat-select 
-            [formControl]="filtersForm.controls.category" 
-            multiple
-            (selectionChange)="applyFormFilters()">
-            <div>
-            @for (category of categories(); track category) {
-                <mat-option [value]="category">{{ category }}</mat-option>
-            }
-            </div>
-        </mat-select>
-        </mat-form-field>
-        
-        <button mat-button (click)="clearFilters()" class="clear-filters-btn">
-            <mat-icon>clear</mat-icon>
-            Clear Filters
-        </button>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-content">
+          <mat-icon class="stat-icon">campaign</mat-icon>
+          <div class="stat-details">
+            <span class="stat-value">{{ totalCampaigns() }}</span>
+            <span class="stat-label">Total</span>
+          </div>
         </div>
-    </mat-card-content>
-    </mat-card>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <span class="stat-dot active"></span>
+          <div class="stat-details">
+            <span class="stat-value active-val">{{ activeCampaigns() }}</span>
+            <span class="stat-label">Active</span>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <span class="stat-dot pending"></span>
+          <div class="stat-details">
+            <span class="stat-value">{{ pendingCampaigns() }}</span>
+            <span class="stat-label">Pending</span>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <span class="stat-dot completed"></span>
+          <div class="stat-details">
+            <span class="stat-value">{{ completedCampaigns() }}</span>
+            <span class="stat-label">Completed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <!-- Campaigns Table -->
-    <mat-card class="table-card">
-    <mat-card-content>
-        <div class="table-container">
-        @if (isLoading()) {
-            <div class="loading-spinner">
-            <mat-spinner diameter="40"></mat-spinner>
-            <p>Loading campaigns...</p>
-            </div>
-        } @else {
-            <table mat-table [dataSource]="dataSource" matSort class="campaigns-table">
-            <!-- Title Column -->
-            <ng-container matColumnDef="title">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Campaign </th>
-                <td mat-cell *matCellDef="let campaign">
-                <div class="campaign-info">
-                    <span class="campaign-title">{{ campaign.title }}</span>
-                    <span class="campaign-category">{{ campaign.category }}</span>
-                </div>
-                </td>
-            </ng-container>
-
-            <!-- Owner Column -->
-            <ng-container matColumnDef="owner">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Marketer </th>
-                <td mat-cell *matCellDef="let campaign">
-                <div class="owner-info">
-                    <span class="owner-name">{{ campaign.owner.displayName }}</span>
-                    <span class="owner-email">{{ campaign.owner.email }}</span>
-                </div>
-                </td>
-            </ng-container>
-
-            <!-- Budget Column -->
-            <ng-container matColumnDef="budget">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Budget </th>
-                <td mat-cell *matCellDef="let campaign">
-                <div class="budget-info">
-                    <span class="budget-amount">{{ campaign.budget | currency:'NGN':'₦' }}</span>
-                    <span class="payout-amount">Spent: {{ (campaign.spentBudget || 0) | currency:'NGN':'symbol-narrow' }}</span>
-                </div>
-                </td>
-            </ng-container>
-
-            <!-- Promoters Column -->
-            <ng-container matColumnDef="promoters">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Reach </th>
-                <td mat-cell *matCellDef="let campaign">
-                <div class="promoters-info">
-                    <span class="promoters-count">{{ campaign.promotionSummary?.uniquePromoters || campaign.totalPromotions || 0 }} engaged promoters</span>
-                    <span class="payout-amount">{{ campaign.promotionSummary?.activePromotions || 0 }} active links</span>
-                </div>
-                </td>
-            </ng-container>
-
-            <!-- Status Column -->
-            <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-                <td mat-cell *matCellDef="let campaign">
-                <mat-chip 
-                    [class]="campaign.status"
-                    class="status-chip">
-                    {{ campaign.status | titlecase }}
-                </mat-chip>
-                </td>
-            </ng-container>
-
-            <!-- Dates Column -->
-            <ng-container matColumnDef="dates">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Timeline </th>
-                <td mat-cell *matCellDef="let campaign">
-                <div class="dates-info">
-                    <span class="date-start">Start: {{ campaign.startDate | date:'shortDate' }}</span>
-                    @if (campaign.endDate) {
-                    <span class="date-end">End: {{ campaign.endDate | date:'shortDate' }}</span>
-                    }
-                </div>
-                </td>
-            </ng-container>
-
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef> Actions </th>
-                <td mat-cell *matCellDef="let campaign">
-                <div class="action-buttons">
-                    <button mat-icon-button matTooltip="View Details" (click)="viewCampaignDetails(campaign)">
-                        <mat-icon>visibility</mat-icon>
-                    </button>
-
-                    <button mat-icon-button matTooltip="View Promotions" (click)="viewPromotions(campaign)">
-                        <mat-icon>groups</mat-icon>
-                    </button>
-
-                    <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="More Actions">
-                        <mat-icon>more_vert</mat-icon>
-                    </button>
-                    
-                    <mat-menu #menu="matMenu" >
-                    <div>
-                    @if (campaign.status === 'pending') {
-                        <button mat-menu-item (click)="approveCampaign(campaign)">
-                        <mat-icon>check_circle</mat-icon>
-                        <span>Approve</span>
-                        </button>
-                        <button mat-menu-item (click)="rejectCampaign(campaign)">
-                        <mat-icon>cancel</mat-icon>
-                        <span>Reject</span>
-                        </button>
-                    }
-                    @if (campaign.status === 'active') {
-                        <button mat-menu-item (click)="pauseCampaign(campaign)">
-                            <mat-icon>pause_circle</mat-icon>
-                            <span>Pause</span>
-                        </button>
-                    }
-                    @if (campaign.status === 'paused') {
-                        <button mat-menu-item (click)="resumeCampaign(campaign)">
-                        <mat-icon>play_circle</mat-icon>
-                        <span>Resume</span>
-                        </button>
-                    }
-                    <button mat-menu-item (click)="viewActivityLog(campaign)">
-                        <mat-icon>history</mat-icon>
-                        <span>Activity Log</span>
-                    </button>
-                    </div>
-                    </mat-menu>
-                    
-                </div>
-                </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
-            <!-- Row shown when there's no matching data -->
-            <tr class="mat-row" *matNoDataRow>
-                <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
-                No campaigns found matching your criteria
-                </td>
-            </tr>
-            </table>
+  <!-- Filters -->
+  <section class="filters-card">
+    <div class="filters-container">
+      <div class="filter-field search-field">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search by title, owner, category..."
+          [formControl]="filtersForm.controls.search"
+          (keyup.enter)="applyFormFilters()"
+        />
+        @if (filtersForm.controls.search.value) {
+          <button type="button" class="search-clear-btn" (click)="filtersForm.controls.search.setValue(''); applyFormFilters()">
+            <mat-icon>close</mat-icon>
+          </button>
         }
-        </div>
+      </div>
 
-        <mat-paginator 
-        [pageSizeOptions]="[50, 100, 150, 200]" 
-        [pageSize]="pageSize()"
-        [length]="totalItems()"
-        showFirstLastButtons 
-        aria-label="Select page of campaigns">
-        </mat-paginator>
-    </mat-card-content>
-    </mat-card>
+      <div class="filter-select-group">
+        <label class="filter-label">Status</label>
+        <div class="filter-chips">
+          @for (opt of statusOptions; track opt.value) {
+            <button
+              type="button"
+              class="filter-chip"
+              [class.selected]="selectedStatuses().includes(opt.value)"
+              (click)="toggleStatusFilter(opt.value)"
+            >
+              <span class="chip-dot {{ opt.value }}"></span>
+              {{ opt.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">Category</label>
+        <select
+          class="filter-select"
+          [formControl]="filtersForm.controls.category"
+          (change)="applyFormFilters()"
+        >
+          <option value="">All categories</option>
+          @for (cat of categories(); track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+      </div>
+
+      <button type="button" class="ghost-btn" (click)="clearFilters()">
+        <mat-icon>close</mat-icon>
+        Clear
+      </button>
+    </div>
+  </section>
+
+  <!-- Table -->
+  <section class="management-section">
+    <div class="section-header">
+      <span class="table-count">
+        Showing {{ dataSource.data.length }} of {{ totalItems() }} campaigns
+      </span>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-card">
+        <mat-progress-bar mode="indeterminate" />
+        <span>Loading campaigns...</span>
+      </div>
+    } @else if (dataSource.data.length === 0) {
+      <div class="empty-state">
+        <mat-icon>campaign</mat-icon>
+        <strong>No campaigns found</strong>
+        <span>Try adjusting your filters.</span>
+      </div>
+    } @else {
+      <table class="campaigns-table">
+        <thead>
+          <tr>
+            <th>Campaign</th>
+            <th>Marketer</th>
+            <th>Budget</th>
+            <th>Reach</th>
+            <th>Status</th>
+            <th>Timeline</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (campaign of dataSource.data; track campaign._id) {
+            <tr class="campaign-row">
+              <td>
+                <div class="campaign-info">
+                  <span class="campaign-title">{{ campaign.title }}</span>
+                  <span class="campaign-category">{{ campaign.category }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="owner-info">
+                  <span class="owner-name">{{ campaign.owner.displayName }}</span>
+                  <span class="owner-email">{{ campaign.owner.email }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="budget-info">
+                  <span class="budget-amount">{{ campaign.budget | currency:'NGN':'₦' }}</span>
+                  <span class="subcopy">Spent: {{ (campaign.spentBudget || 0) | currency:'NGN':'₦' }}</span>
+                </div>
+                <div class="budget-bar-track">
+                  <div
+                    class="budget-bar-fill"
+                    [style.width.%]="budgetPercent((campaign.spentBudget || 0), (campaign.budget || 1))"
+                    [class.warning]="budgetPercent((campaign.spentBudget || 0), (campaign.budget || 1)) > 80"
+                    [class.danger]="budgetPercent((campaign.spentBudget || 0), (campaign.budget || 1)) > 95"
+                  ></div>
+                </div>
+              </td>
+              <td>
+                <div class="promoters-info">
+                  <span>{{ campaign.promotionSummary?.uniquePromoters || campaign.totalPromotions || 0 }} engaged</span>
+                  <span class="subcopy">{{ campaign.promotionSummary?.activePromotions || 0 }} active links</span>
+                </div>
+              </td>
+              <td>
+                <span class="status-pill {{ campaign.status }}">
+                  <span class="pill-dot"></span>
+                  {{ campaign.status | titlecase }}
+                </span>
+              </td>
+              <td>
+                <div class="dates-info">
+                  <span>Start: {{ campaign.startDate | date:'shortDate' }}</span>
+                  @if (campaign.endDate) {
+                    <span class="subcopy">End: {{ campaign.endDate | date:'shortDate' }}</span>
+                  }
+                </div>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button type="button" class="icon-btn" title="View details" (click)="viewCampaignDetails(campaign)">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button type="button" class="icon-btn" title="View promotions" (click)="viewPromotions(campaign)">
+                    <mat-icon>groups</mat-icon>
+                  </button>
+                  <div class="action-menu-wrapper">
+                    <button type="button" class="icon-btn" title="More" (click)="toggleMenu($event, campaign)">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                    @if (activeMenuCampaign?._id === campaign._id) {
+                      <div class="action-dropdown" (click)="closeMenu()">
+                        @if (campaign.status === 'pending') {
+                          <button type="button" class="dropdown-item" (click)="approveCampaign(campaign)">
+                            <mat-icon>check_circle</mat-icon> Approve
+                          </button>
+                          <button type="button" class="dropdown-item danger" (click)="rejectCampaign(campaign)">
+                            <mat-icon>cancel</mat-icon> Reject
+                          </button>
+                        }
+                        @if (campaign.status === 'active') {
+                          <button type="button" class="dropdown-item" (click)="pauseCampaign(campaign)">
+                            <mat-icon>pause_circle</mat-icon> Pause
+                          </button>
+                        }
+                        @if (campaign.status === 'paused') {
+                          <button type="button" class="dropdown-item" (click)="resumeCampaign(campaign)">
+                            <mat-icon>play_circle</mat-icon> Resume
+                          </button>
+                        }
+                        <button type="button" class="dropdown-item" (click)="viewActivityLog(campaign)">
+                          <mat-icon>history</mat-icon> Activity Log
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (totalPages() > 1) {
+        <div class="pagination-bar">
+          <div class="pagination-inner">
+            <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(1)"><mat-icon>first_page</mat-icon></button>
+            <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)"><mat-icon>chevron_left</mat-icon></button>
+            <div class="page-numbers">
+              @if (currentPage() > 3) {
+                <button type="button" class="page-btn number" (click)="goToPage(1)">1</button>
+                @if (currentPage() > 4) { <span class="page-ellipsis">...</span> }
+              }
+              @for (p of pageNumbers(); track p) {
+                <button type="button" class="page-btn number" [class.active]="p === currentPage()" (click)="goToPage(p)">{{ p }}</button>
+              }
+              @if (currentPage() < totalPages() - 2) {
+                @if (currentPage() < totalPages() - 3) { <span class="page-ellipsis">...</span> }
+                <button type="button" class="page-btn number" (click)="goToPage(totalPages())">{{ totalPages() }}</button>
+              }
+            </div>
+            <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(currentPage() + 1)"><mat-icon>chevron_right</mat-icon></button>
+            <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(totalPages())"><mat-icon>last_page</mat-icon></button>
+            <div class="page-jump">
+              <span class="page-jump-label">Go to</span>
+              <input type="number" class="page-jump-input" min="1" [max]="totalPages()" placeholder="#" (keydown.enter)="onPageInput($event)" (blur)="onPageInput($event)" />
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </section>
 </div>

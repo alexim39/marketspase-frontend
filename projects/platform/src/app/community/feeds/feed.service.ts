@@ -231,6 +231,22 @@ interface CommunityFeedPayload {
   hotTopics?: FeedHotTopic[];
   forumSpotlight?: ForumSpotlightEntry[];
   sortMode?: string;
+  feedModel?: {
+    mode?: string;
+    ranker?: string;
+    candidateWindow?: number;
+    signals?: string[];
+  };
+  spotlight?: {
+    config: {
+      postIds: string[];
+      intervalMinutes: number;
+      currentIndex: number;
+      lastRotatedAt: string;
+      totalPosts: number;
+    } | null;
+    activePost: any | null;
+  };
 }
 
 export interface LiveActivity {
@@ -244,6 +260,13 @@ export interface LiveActivity {
   postId?: string;
   postContent?: string;
   actionUrl?: string;
+}
+
+interface DashboardLiveActivityResponse {
+  success?: boolean;
+  data?: {
+    activities?: Array<Record<string, any>>;
+  };
 }
 
 const FEED_CONFIG = {
@@ -268,7 +291,7 @@ export class FeedService {
   private forumHighlightsSignal = signal<ForumHighlight[]>([]);
   private hotTopicsSignal = signal<FeedHotTopic[]>([]);
   private forumSpotlightSignal = signal<ForumSpotlightEntry[]>([]);
-  private liveActivitiesSignal = signal<LiveActivity[]>([]);
+    private liveActivitiesSignal = signal<LiveActivity[]>([]);
   private activityStatsSignal = signal<FeedStats>({
     postsToday: 0,
     activeUsers: 0,
@@ -276,6 +299,9 @@ export class FeedService {
     topHashtag: ''
   });
   private sortModeSignal = signal<'for_you' | 'following' | 'trending' | 'latest'>('for_you');
+
+  // Spotlight rotation
+  private spotlightPostSignal = signal<FeedPost | null>(null);
 
   public posts = this.postsSignal.asReadonly();
   public likedPosts = this.likedPostsSignal.asReadonly();
@@ -293,11 +319,22 @@ export class FeedService {
   public activityStats = this.activityStatsSignal.asReadonly();
   public sortMode = this.sortModeSignal.asReadonly();
 
+  /**
+   * The featured/spotlight post is the admin-configured spotlight rotation post
+   * returned from the API. If no spotlight is configured, falls back to finding
+   * a post with isFeatured=true, then the highest-engagement post.
+   */
   public featuredPost = computed(() => {
+    // 1. Prefer the dedicated spotlight post from the API (rotation-based)
+    const spotlight = this.spotlightPostSignal();
+    if (spotlight) return spotlight;
+
+    // 2. Fallback: look for a post with isFeatured flag
     const posts = this.postsSignal();
     const featured = posts.find((post) => post.isFeatured);
     if (featured) return featured;
 
+    // 3. Last resort: top-engagement post
     return [...posts].sort((a, b) => {
       const scoreA = (a.recommendationScore || 0) + a.likeCount + a.commentCount + a.shareCount + (a.chatCount || 0);
       const scoreB = (b.recommendationScore || 0) + b.likeCount + b.commentCount + b.shareCount + (b.chatCount || 0);
@@ -305,7 +342,18 @@ export class FeedService {
     })[0];
   });
 
-  public regularPosts = computed(() => this.postsSignal().filter((post) => !post.isFeatured));
+  /**
+   * Regular posts exclude the featured/spotlight post to avoid duplication.
+   */
+  public regularPosts = computed(() => {
+    const spotlightId = this.spotlightPostSignal()?._id;
+    const posts = this.postsSignal();
+    return posts.filter((post) => {
+      if (post._id === spotlightId) return false;
+      if (post.isFeatured && !spotlightId) return false;
+      return true;
+    });
+  });
 
   setLiveActivities(activities: LiveActivity[]): void {
     this.liveActivitiesSignal.set(activities.slice(0, 6));
@@ -313,6 +361,25 @@ export class FeedService {
 
   prependLiveActivity(activity: LiveActivity): void {
     this.liveActivitiesSignal.update((activities) => [activity, ...activities.filter((entry) => entry.id !== activity.id)].slice(0, 6));
+  }
+
+  loadLiveActivityFeed(limit: number = 6): Observable<LiveActivity[]> {
+    const safeLimit = Math.max(1, Math.min(12, Math.trunc(Number(limit) || 6)));
+    const params = new HttpParams().set('limit', String(safeLimit));
+
+    return this.apiService
+      .get<DashboardLiveActivityResponse>('api/v1/dashboard/stats/live-activity', params, undefined, true)
+      .pipe(
+        map((response) => {
+          const activities = response?.data?.activities;
+          return Array.isArray(activities) ? activities.map((activity) => this.normalizeLiveActivity(activity)) : [];
+        }),
+        tap((activities) => this.setLiveActivities(activities)),
+        catchError((error) => {
+          console.error('Failed to load feed live activity:', error);
+          return of([]);
+        })
+      );
   }
 
   resetFeed(): void {
@@ -438,6 +505,16 @@ export class FeedService {
     );
   }
 
+  incrementCommentCount(postId: string, increment: number = 1): void {
+    this.postsSignal.update((posts) =>
+      posts.map((post) =>
+        post._id === postId
+          ? { ...post, commentCount: Math.max(0, Number(post.commentCount || 0) + increment) }
+          : post
+      )
+    );
+  }
+
   getComments(postId: string, page: number = 1, limit: number = 20): Observable<CommentsResponse> {
     const params = new HttpParams({ fromObject: { page: page.toString(), limit: limit.toString() } });
     return this.apiService.get(`${this.apiUrl}/${postId}/comments`, params, undefined, true).pipe(
@@ -496,7 +573,7 @@ export class FeedService {
     return this.apiService.get(`api/v1/campaign/user/${userId}`, params, undefined, true);
   }
 
-  private extractCommunityResponse(response: any): CommunityFeedPayload {
+    private extractCommunityResponse(response: any): CommunityFeedPayload {
     const data = response?.data || response || {};
 
     return {
@@ -509,17 +586,38 @@ export class FeedService {
       forumHighlights: Array.isArray(data.forumHighlights) ? data.forumHighlights : [],
       hotTopics: Array.isArray(data.hotTopics) ? data.hotTopics : [],
       forumSpotlight: Array.isArray(data.forumSpotlight) ? data.forumSpotlight : [],
-      sortMode: data.sortMode || 'for_you'
+      sortMode: data.sortMode || 'for_you',
+      feedModel: data.feedModel,
+      spotlight: data.spotlight || null
     };
   }
 
-  private handleCommunityFeed(payload: CommunityFeedPayload, reset: boolean): void {
+    private handleCommunityFeed(payload: CommunityFeedPayload, reset: boolean): void {
     const newPosts = payload.posts.map((post) => this.processPost(post));
+
+    // Process spotlight post from rotation (if available)
+    if (payload.spotlight?.activePost) {
+      const spotlightPost = this.processPost({
+        ...payload.spotlight.activePost,
+        isFeatured: true
+      });
+      this.spotlightPostSignal.set(spotlightPost);
+    } else {
+      this.spotlightPostSignal.set(null);
+    }
 
     if (reset) {
       this.postsSignal.set(newPosts);
     } else {
-      this.postsSignal.update((posts) => [...posts, ...newPosts]);
+      this.postsSignal.update((posts) => {
+        const seen = new Set(posts.map((post) => post._id));
+        const uniqueNewPosts = newPosts.filter((post) => {
+          if (!post?._id || seen.has(post._id)) return false;
+          seen.add(post._id);
+          return true;
+        });
+        return [...posts, ...uniqueNewPosts];
+      });
     }
 
     this.hasMoreSignal.set(payload.pagination.page < payload.pagination.pages);
@@ -673,6 +771,37 @@ export class FeedService {
   private handleFeedError(error: any): Observable<null> {
     this.errorSignal.set(error?.error?.message || 'Failed to load feed');
     return of(null);
+  }
+
+  private normalizeLiveActivity(activity: Record<string, any>): LiveActivity {
+    const actionUrl = String(activity?.['actionUrl'] || '');
+    const createdAt = activity?.['createdAt'] || activity?.['time'] || new Date().toISOString();
+    const postId = String(activity?.['postId'] || this.extractFeedPostId(actionUrl) || '');
+    const type = this.normalizeLiveActivityType(activity?.['type']);
+
+    return {
+      id: String(activity?.['id'] || activity?.['_id'] || `${type}:${createdAt}:${activity?.['authorId'] || ''}`),
+      type,
+      author: String(activity?.['author'] || 'MarketSpase update'),
+      authorId: String(activity?.['authorId'] || ''),
+      avatar: activity?.['avatar'] || 'img/avatar.png',
+      message: String(activity?.['message'] || activity?.['title'] || 'shared a new update'),
+      time: this.formatTime(createdAt),
+      postId: postId || undefined,
+      postContent: activity?.['title'] || activity?.['postContent'] || undefined,
+      actionUrl: actionUrl || undefined,
+    };
+  }
+
+  private normalizeLiveActivityType(type: unknown): LiveActivity['type'] {
+    const value = String(type || '').toLowerCase();
+    const supported: LiveActivity['type'][] = ['like', 'comment', 'post', 'earnings', 'forum', 'campaign', 'product'];
+    return supported.includes(value as LiveActivity['type']) ? value as LiveActivity['type'] : 'post';
+  }
+
+  private extractFeedPostId(actionUrl: string): string | null {
+    const match = String(actionUrl || '').match(/^\/feed\/([^/?#]+)/);
+    return match?.[1] || null;
   }
 
   formatTime(dateString: string): string {

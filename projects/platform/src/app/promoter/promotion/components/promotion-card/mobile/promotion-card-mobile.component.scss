@@ -299,3 +299,10 @@
     font-size: 18px;
   }
 }
+
+.goal-hint {
+  font-size: 0.72rem;
+  font-style: italic;
+  opacity: 0.6;
+  &.leads { color: $primary-color; opacity: 0.7; }
+}

@@ -1,0 +1,146 @@
+<section class="page-shell">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Ads & Promotion Settings</p>
+      <h1>PPC pricing</h1>
+      <p class="subcopy">
+        Set the global amount promoters earn per verified campaign click. New campaigns will use this value unless marketer override is explicitly enabled.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      @if (updatedAt()) {
+        <span class="updated-pill">Updated {{ updatedAt() | date:'medium' }}</span>
+      }
+      <button type="button" class="secondary-btn" [disabled]="loading() || saving()" (click)="resetToRecommended()">
+        Reset recommended
+      </button>
+      <button type="button" class="save-btn" [disabled]="loading() || saving()" (click)="save()">
+        @if (saving()) {
+          Saving...
+        } @else {
+          Save pricing
+        }
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <section class="loading-state" aria-label="Loading PPC pricing settings">
+      <div class="loading-card"></div>
+      <div class="loading-card"></div>
+      <div class="loading-card wide"></div>
+    </section>
+  } @else {
+    <section class="summary-grid" aria-label="PPC pricing summary">
+      <article class="summary-card">
+        <span class="summary-label">Pricing state</span>
+        <strong>{{ pricingSummary().state }}</strong>
+        <small>{{ pricingSummary().overrideLabel }}</small>
+      </article>
+
+      <article class="summary-card">
+        <span class="summary-label">Promoter earning per click</span>
+        <strong>{{ pricingSummary().defaultCost | currency:formValue().currency:'symbol-narrow':'1.0-2' }}</strong>
+        <small>This is the amount credited for each verified billable click.</small>
+      </article>
+
+      <article class="summary-card">
+        <span class="summary-label">Allowed CPC range</span>
+        <strong>{{ pricingSummary().range }}</strong>
+        <small>Only used when marketer override is allowed.</small>
+      </article>
+
+      <article class="summary-card">
+        <span class="summary-label">NGN 10,000 estimate</span>
+        <strong>{{ pricingSummary().estimatedClicks | number:'1.0-0' }} clicks</strong>
+        <small>Expected verified clicks at the current default CPC.</small>
+      </article>
+    </section>
+
+    <form class="settings-grid" [formGroup]="form" (ngSubmit)="save()">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Global PPC rule</h2>
+            <p>This rule controls new campaign pricing. Existing campaign snapshots are not changed retroactively.</p>
+          </div>
+        </div>
+
+        <label class="toggle-row">
+          <div>
+            <span>Enable admin PPC pricing</span>
+            <small>When disabled, the backend falls back to the legacy environment/code default.</small>
+          </div>
+          <input type="checkbox" formControlName="enabled">
+        </label>
+
+        <div class="field-grid">
+          <label class="field">
+            <span>Currency</span>
+            <input type="text" formControlName="currency" maxlength="3" autocomplete="off">
+            <small>Currently expected to remain NGN for campaign payouts.</small>
+          </label>
+
+          <label class="field">
+            <span>Default cost per click</span>
+            <input type="number" formControlName="defaultCostPerClick" min="1" step="1">
+            <small>The global promoter earning for one verified click.</small>
+          </label>
+
+          <label class="field">
+            <span>Minimum CPC</span>
+            <input type="number" formControlName="minCostPerClick" min="1" step="1">
+            <small>Lowest marketer-entered CPC allowed if overrides are enabled.</small>
+          </label>
+
+          <label class="field">
+            <span>Maximum CPC</span>
+            <input type="number" formControlName="maxCostPerClick" min="1" step="1">
+            <small>Highest marketer-entered CPC allowed if overrides are enabled.</small>
+          </label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Override policy</h2>
+            <p>Use this carefully. Fixed admin pricing protects the marketplace from accidental overpayment and budgeting mistakes.</p>
+          </div>
+        </div>
+
+        <label class="toggle-row caution">
+          <div>
+            <span>Allow marketers to override CPC</span>
+            <small>If enabled, campaign creation can accept marketer-provided CPC values within the configured range.</small>
+          </div>
+          <input type="checkbox" formControlName="allowMarketerOverride">
+        </label>
+
+        <label class="field">
+          <span>Change reason</span>
+          <textarea rows="4" formControlName="changeReason" maxlength="500" placeholder="Example: Increased PPC rate for June acquisition campaign."></textarea>
+          <small>Optional audit note for reviewers and future administrators.</small>
+        </label>
+      </section>
+
+      <section class="panel guardrail-panel">
+        <div class="guardrail-icon">
+          <mat-icon aria-hidden="true">verified_user</mat-icon>
+        </div>
+        <div>
+          <h2>Live payout guardrails</h2>
+          <p>
+            Campaign click tracking pays promoters using the campaign or promotion CPC snapshot. This page changes the default for new campaigns without rewriting previous campaign economics.
+          </p>
+          <ul>
+            <li>Verified billable clicks debit the marketer wallet and credit the promoter wallet with this CPC.</li>
+            <li>Duplicate, bot, preview, invalid, or fraud-blocked clicks remain non-billable.</li>
+            <li>Existing campaign records keep their stored CPC to avoid surprise budget changes.</li>
+          </ul>
+        </div>
+      </section>
+    </form>
+  }
+</section>

@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs/operators';
 import { AboutSkeletonComponent } from './loading-skeleton/loading-skeleton.component';
 import { LoadingService } from '@shared/services';
@@ -12,7 +13,7 @@ import { LoadingService } from '@shared/services';
     imports: [RouterModule, CommonModule, AboutSkeletonComponent],
     template: `
     @if (loadingService.isLoading$ | async) {
-      <app-about-skeleton/>
+      <app-about-skeleton [targetUrl]="loadingTargetUrl()"/>
     } @else {
       <router-outlet/>
     }
@@ -21,6 +22,9 @@ import { LoadingService } from '@shared/services';
    
 })
 export class ResourcesIndexComponent {
+    private readonly destroyRef = inject(DestroyRef);
+    readonly loadingTargetUrl = signal('');
+
     constructor(
     private router: Router,
     public loadingService: LoadingService // Made public for use in the template
@@ -33,13 +37,16 @@ export class ResourcesIndexComponent {
         filter(event => event instanceof NavigationStart || 
                        event instanceof NavigationEnd || 
                        event instanceof NavigationCancel || 
-                       event instanceof NavigationError)
+                       event instanceof NavigationError),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(event => {
         if (event instanceof NavigationStart) {
+          this.loadingTargetUrl.set(event.url);
           this.loadingService.show();
         } else if (event instanceof NavigationEnd) { // Only successful navigation
           this.loadingService.hide();
+          this.loadingTargetUrl.set(event.urlAfterRedirects || event.url);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (event instanceof NavigationCancel || 
                   event instanceof NavigationError) {

@@ -145,7 +145,7 @@ export class CommunityComponent {
     },
     {
       id: '2',
-      title: 'WhatsApp Status vs Instagram Stories: Which gives better ROI for small businesses?',
+      title: 'Campaign links vs product links: Which gives better ROI for small businesses?',
       author: {
         name: 'Chinedu Okoro',
         avatar: 'img/avatar.png',
@@ -159,7 +159,7 @@ export class CommunityComponent {
     },
     {
       id: '3',
-      title: 'Complete guide: How to verify campaign proofs and avoid disputes',
+      title: 'Complete guide: How to keep promotion links compliant and avoid disputes',
       author: {
         name: 'Bisi Adekunle',
         avatar: 'img/avatar.png',
@@ -173,7 +173,7 @@ export class CommunityComponent {
     },
     {
       id: '4',
-      title: 'What time of day gives the highest view count for WhatsApp Status?',
+      title: 'What time of day drives the strongest valid click performance?',
       author: {
         name: 'Tunde Williams',
         avatar: 'img/avatar.png',
@@ -189,8 +189,8 @@ export class CommunityComponent {
   successTips = signal<SuccessTip[]>([
     {
       id: '1',
-      title: '5 Types of Content That Get 100+ Views Every Time',
-      excerpt: 'After analyzing 1000+ successful campaigns, here are the content formats that consistently perform best on WhatsApp Status.',
+      title: '5 Types of Content That Drive Valid Clicks',
+      excerpt: 'After analyzing successful campaigns, here are the content formats that consistently drive stronger tracked-link performance.',
       author: {
         name: 'Grace Emmanuel',
         avatar: 'img/avatar.png',
@@ -202,8 +202,8 @@ export class CommunityComponent {
     },
     {
       id: '2',
-      title: 'How to Build Trust With Your WhatsApp Audience',
-      excerpt: 'Trust is the currency of WhatsApp marketing. Learn the proven techniques to build authentic connections with your viewers.',
+      title: 'How to Build Trust With Your Social Audience',
+      excerpt: 'Trust is the currency of promoter marketing. Learn proven techniques to build authentic connections with your audience.',
       author: {
         name: 'Michael Okafor',
         avatar: 'img/avatar.png',
@@ -215,8 +215,8 @@ export class CommunityComponent {
     },
     {
       id: '3',
-      title: 'The Science of Campaign Timing: When to Post for Maximum Views',
-      excerpt: 'Data-driven insights on the best times to post campaigns for different audience demographics.',
+      title: 'The Science of Campaign Timing: When to Share for Better Click Quality',
+      excerpt: 'Data-driven insights on the best times to share tracked campaigns for different audience demographics.',
       author: {
         name: 'Sarah Nnamdi',
         avatar: 'img/avatar.png',
@@ -228,8 +228,8 @@ export class CommunityComponent {
     },
     {
       id: '4',
-      title: 'From 0 to 10,000 Views: A Beginner\'s Guide to Growing Your WhatsApp Status Audience',
-      excerpt: 'Step-by-step strategies for new promoters to build a substantial viewer base quickly.',
+      title: 'From First Link to Stronger Results: A Beginner\'s Guide to Audience Growth',
+      excerpt: 'Step-by-step strategies for new promoters to build a relevant audience and protect activity quality.',
       author: {
         name: 'James Akpan',
         avatar: 'img/avatar.png',
@@ -244,8 +244,8 @@ export class CommunityComponent {
   upcomingEvents = signal<CommunityEvent[]>([
     {
       id: '1',
-      title: 'WhatsApp Marketing Masterclass',
-      description: 'Learn advanced strategies for maximizing campaign ROI from industry experts',
+      title: 'Tracked Promotion Masterclass',
+      description: 'Learn advanced strategies for maximizing campaign ROI from tracked links and promoter attribution',
       date: 'March 25, 2024',
       time: '3:00 PM WAT',
       type: 'workshop',

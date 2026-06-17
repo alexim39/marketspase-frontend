@@ -331,9 +331,11 @@
 .chat-panel {
   display: grid;
   grid-template-rows: auto minmax(240px, 1fr) auto;
-  min-height: 70vh;
+  height: calc(100dvh - 92px - env(safe-area-inset-top, 0px));
+  min-height: 560px;
   background: vars.$surface-color;
   overflow: hidden;
+  border-radius: vars.$border-radius-xl;
 }
 
 .chat-head {
@@ -375,7 +377,12 @@
   align-content: start;
   padding: vars.$spacing-4;
   overflow-y: auto;
-  background: color-mix(in srgb, #{vars.$background-color}, #{vars.$surface-color} 30%);
+  min-height: 0;
+  background:
+    radial-gradient(circle at 10% 10%, rgb(var(--primary-rgb) / 0.06), transparent 16rem),
+    linear-gradient(135deg, rgb(var(--primary-rgb) / 0.035) 0 25%, transparent 25% 50%, rgb(var(--primary-rgb) / 0.025) 50% 75%, transparent 75%),
+    color-mix(in srgb, #{vars.$background-color}, #{vars.$surface-color} 30%);
+  background-size: auto, 32px 32px, auto;
 }
 
 .message-row {
@@ -392,11 +399,12 @@
 }
 
 .message-card {
-  max-width: 86%;
+  max-width: 82%;
   padding: vars.$spacing-3;
   background: vars.$surface-color;
   border-radius: vars.$border-radius-lg vars.$border-radius-lg vars.$border-radius-lg vars.$border-radius-sm;
   box-shadow: vars.$shadow;
+  word-break: break-word;
 
   p {
     margin: 0;
@@ -412,6 +420,17 @@
   border-radius: vars.$border-radius-lg vars.$border-radius-lg vars.$border-radius-sm vars.$border-radius-lg;
 }
 
+.message-card.pending {
+  opacity: 0.78;
+}
+
+.message-card.failed {
+  border-color: color-mix(in srgb, #{vars.$error-color} 58%, #{vars.$border-color});
+  background:
+    linear-gradient(180deg, rgb(239 68 68 / 0.08), rgb(239 68 68 / 0.025)),
+    vars.$surface-color;
+}
+
 .message-meta {
   @include mixins.flex-between;
   gap: vars.$spacing-2;
@@ -424,6 +443,35 @@
   }
 }
 
+.message-delivery {
+  display: inline-flex;
+  align-items: center;
+  gap: vars.$spacing-1;
+  margin-top: vars.$spacing-2;
+  color: vars.$text-secondary;
+  font-size: vars.$font-size-xs;
+  font-weight: vars.$font-weight-semibold;
+
+  mat-icon {
+    width: 1rem;
+    height: 1rem;
+    font-size: 1rem;
+  }
+
+  button {
+    border: 0;
+    padding: 0;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    text-decoration: underline;
+  }
+
+  &.failed {
+    color: vars.$error-color;
+  }
+}
+
 .composer {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 52px;
@@ -432,12 +480,55 @@
   padding: vars.$spacing-3;
   border-top: 1px solid vars.$border-color;
   background: vars.$surface-color;
+  position: sticky;
+  bottom: 0;
 
   button {
     min-width: 52px;
     height: 52px;
     border-radius: vars.$border-radius-full;
   }
+}
+
+/* chat modifier: icons above input, full-width field */
+.composer.composer--chat {
+  grid-template-columns: 1fr;
+  padding: vars.$spacing-3;
+}
+
+.composer-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  width: 100%;
+}
+
+.composer-field--chat ::ng-deep textarea.mat-mdc-text-field-input {
+  resize: vertical;
+  padding-right: 3rem; /* account for send suffix */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  height: auto;
+  max-height: 10rem;
+}
+
+.composer-actions--chat {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  padding: 0 0 0.2rem 0;
+}
+
+.composer-actions--chat .composer-action {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0.1rem;
+}
+
+.composer-actions--chat .mat-icon {
+  font-size: 16px;
+  padding: 0;
 }
 
 .empty-card,
@@ -524,4 +615,59 @@
   .collaborator-row {
     min-height: 48px;
   }
+}
+
+/* Lightweight emoji popover (no external deps) */
+.simple-emoji-popover {
+  background: var(--surface-color, #fff);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+  max-width: 280px;
+  min-width: 160px;
+  animation: emoji-popover-enter 120ms ease-out;
+}
+
+@keyframes emoji-popover-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.simple-emoji-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.simple-emoji-item {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: transparent;
+  font-size: 18px;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 120ms ease, transform 80ms ease;
+  line-height: 1;
+  min-width: 32px;
+  text-align: center;
+}
+
+.simple-emoji-item:hover,
+.simple-emoji-item:focus {
+  background: rgba(var(--primary-rgb, 0 0 0 / 0.08));
+  transform: scale(1.1);
+  outline: none;
+}
+
+.simple-emoji-item:active {
+  transform: scale(0.95);
 }

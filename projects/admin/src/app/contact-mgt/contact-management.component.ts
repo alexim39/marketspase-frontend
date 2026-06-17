@@ -1,33 +1,22 @@
-
-import { Component, OnInit, signal, computed, inject, ViewChild, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent, MatPaginator } from '@angular/material/paginator';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
+import { Component, OnInit, signal, computed, inject, DestroyRef, HostListener } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { debounceTime } from 'rxjs/operators';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ContactService, ContactMessage, ContactFilter, ContactStats } from './shared/contact.service';
 import { ConfirmationDialogComponent } from './shared/confirmation-dialog/confirmation-dialog.component';
 import { ContactDetailDialogComponent } from './contact-detail-dialog/contact-detail-dialog.component';
 import { BulkActionDialogComponent } from './bulk-action-dialog/bulk-action-dialog.component';
 import { ExportDialogComponent } from './export-dialog/export-dialog.component';
-import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'admin-contact-management',
@@ -35,36 +24,24 @@ import { DatePipe } from '@angular/common';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    FormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
     MatIconModule,
-    MatChipsModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatCheckboxModule,
-    MatMenuModule,
-    MatBadgeModule,
-    MatCardModule,
-    MatDividerModule,
+    MatProgressBarModule,
     DatePipe
   ],
   providers: [ContactService],
   templateUrl: './contact-management.component.html',
   styleUrl: './contact-management.component.scss',
 })
-export class ContactManagementComponent implements OnInit, AfterViewInit {
+export class ContactManagementComponent implements OnInit {
   private contactService = inject(ContactService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
 
-  // State with signals
   contacts = signal<ContactMessage[]>([]);
   selectedContacts = signal<string[]>([]);
   isLoading = signal(true);
@@ -72,139 +49,119 @@ export class ContactManagementComponent implements OnInit, AfterViewInit {
   stats = signal<ContactStats | null>(null);
   admins = signal<Array<{ _id: string; username: string; displayName: string }>>([]);
 
-  // Filters
-  searchQuery = signal('');
-  statusFilter = signal('all');
-  priorityFilter = signal('all');
-  categoryFilter = signal('all');
-  reasonFilter = signal('all');
-  assigneeFilter = signal('all');
-  dateFromFilter = signal<Date | null>(null);
-  dateToFilter = signal<Date | null>(null);
-  showArchived = signal(false);
-
-  // Table data source
   dataSource = new MatTableDataSource<ContactMessage>([]);
-  displayedColumns: string[] = [
-    'select',
-    'requestID',
-    'user',
-    'subject',
-    'reason',
-    'priority',
-    'status',
-    'assignedTo',
-    'createdAt',
-    'actions'
+
+  readonly filtersForm = this.fb.group({
+    search: [''],
+    status: [[] as string[]],
+    priority: [[] as string[]],
+    category: [''],
+    assignee: [''],
+    dateFrom: [''],
+    dateTo: [''],
+    showArchived: [false]
+  });
+
+  currentPage = signal(1);
+  pageSize = signal(20);
+  totalContacts = signal(0);
+  totalPages = signal(0);
+
+  activeMenuContact: ContactMessage | null = null;
+
+  readonly statusOptions = [
+    { value: 'open', label: 'Open' },
+    { value: 'in_progress', label: 'In Progress' },
+    { value: 'resolved', label: 'Resolved' },
+    { value: 'closed', label: 'Closed' },
+    { value: 'spam', label: 'Spam' }
   ];
 
-  // Pagination
-  pageSize = signal(20);
-  pageIndex = signal(0);
-  totalContacts = signal(0);
+  readonly priorityOptions = [
+    { value: 'low', label: 'Low' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'high', label: 'High' },
+    { value: 'urgent', label: 'Urgent' }
+  ];
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  readonly categoryOptions = [
+    { value: 'support', label: 'Support' },
+    { value: 'feature_request', label: 'Feature Request' },
+    { value: 'bug_report', label: 'Bug Report' },
+    { value: 'complaint', label: 'Complaint' },
+    { value: 'praise', label: 'Praise' },
+    { value: 'partnership', label: 'Partnership' }
+  ];
 
-  // Computed values
-  filteredContacts = computed(() => {
-    let filtered = this.contacts();
+  readonly statusActionOptions: ContactMessage['status'][] = [
+    'open', 'in_progress', 'resolved', 'closed', 'spam'
+  ];
 
-    // Apply search filter
-    if (this.searchQuery()) {
-      const query = this.searchQuery().toLowerCase();
-      filtered = filtered.filter(contact =>
-        contact.subject.toLowerCase().includes(query) ||
-        contact.message.toLowerCase().includes(query) ||
-        contact.user.displayName.toLowerCase().includes(query) ||
-        contact.user.username.toLowerCase().includes(query) ||
-        contact.requestID.toLowerCase().includes(query)
-      );
-    }
+  readonly priorityActionOptions: ContactMessage['priority'][] = [
+    'low', 'medium', 'high', 'urgent'
+  ];
 
-    // Apply status filter
-    if (this.statusFilter() !== 'all') {
-      filtered = filtered.filter(contact => contact.status === this.statusFilter());
-    }
+  readonly selectedStatuses = computed(() => this.filtersForm.controls.status.value ?? []);
+  readonly selectedPriorities = computed(() => this.filtersForm.controls.priority.value ?? []);
 
-    // Apply priority filter
-    if (this.priorityFilter() !== 'all') {
-      filtered = filtered.filter(contact => contact.priority === this.priorityFilter());
-    }
-
-    // Apply category filter
-    if (this.categoryFilter() !== 'all') {
-      filtered = filtered.filter(contact => contact.category === this.categoryFilter());
-    }
-
-    // Apply reason filter
-    if (this.reasonFilter() !== 'all') {
-      filtered = filtered.filter(contact => contact.reason === this.reasonFilter());
-    }
-
-    // Apply assignee filter
-    if (this.assigneeFilter() !== 'all') {
-      filtered = filtered.filter(contact => contact.assignedTo?._id === this.assigneeFilter());
-    }
-
-    // Apply date filters
-    if (this.dateFromFilter()) {
-      filtered = filtered.filter(contact => new Date(contact.createdAt) >= this.dateFromFilter()!);
-    }
-
-    if (this.dateToFilter()) {
-      const endOfDay = new Date(this.dateToFilter()!);
-      endOfDay.setHours(23, 59, 59, 999);
-      filtered = filtered.filter(contact => new Date(contact.createdAt) <= endOfDay);
-    }
-
-    // Apply archived filter
-    if (!this.showArchived()) {
-      filtered = filtered.filter(contact => !contact.isArchived);
-    }
-
-    return filtered;
+  readonly pageNumbers = computed(() => {
+    const total = Math.max(1, this.totalPages());
+    const current = this.currentPage();
+    const pages: number[] = [];
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, current + 2);
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
   });
 
-  isAllSelected = computed(() => {
-    return this.selectedContacts().length > 0 && 
-           this.selectedContacts().length === this.dataSource.data.length;
+  readonly inProgressCount = computed(() => {
+    const stats = this.stats();
+    if (!stats?.byStatus?.length) return 0;
+    return stats.byStatus.find((item) => item._id === 'in_progress')?.count ?? 0;
   });
+
+  readonly unreadOnPage = computed(() =>
+    this.dataSource.data.filter((contact) => !contact.isRead).length
+  );
+
+  isAllSelected = computed(() =>
+    this.selectedContacts().length > 0 &&
+    this.selectedContacts().length === this.dataSource.data.length
+  );
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.closeMenu();
+  }
 
   ngOnInit(): void {
-    this.loadContacts();
     this.loadAdmins();
     this.loadStats();
+    this.loadContacts();
+
+    this.filtersForm.valueChanges
+      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.currentPage.set(1);
+        this.loadContacts();
+      });
   }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-  }
+  loadContacts(): void {
+    this.isLoading.set(true);
+    const filter = this.buildFilter();
 
-  async loadContacts(): Promise<void> {
-    try {
-      this.isLoading.set(true);
-      
-      const filter: ContactFilter = {
-        status: this.statusFilter() !== 'all' ? this.statusFilter() : undefined,
-        priority: this.priorityFilter() !== 'all' ? this.priorityFilter() : undefined,
-        category: this.categoryFilter() !== 'all' ? this.categoryFilter() : undefined,
-        reason: this.reasonFilter() !== 'all' ? this.reasonFilter() : undefined,
-        assignedTo: this.assigneeFilter() !== 'all' ? this.assigneeFilter() : undefined,
-        search: this.searchQuery() || undefined,
-        dateFrom: this.dateFromFilter() || undefined,
-        dateTo: this.dateToFilter() || undefined,
-        isArchived: this.showArchived() || undefined
-      };
-
-      this.contactService.getContactMessages(
-        filter, 
-        this.pageIndex() + 1, 
-        this.pageSize()
-      ).subscribe({
+    this.contactService.getContactMessages(filter, this.currentPage(), this.pageSize())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
         next: (response) => {
           this.contacts.set(response.data || []);
           this.dataSource.data = response.data || [];
           this.totalContacts.set(response.total);
+          this.totalPages.set(Math.max(1, Math.ceil(response.total / this.pageSize())));
+          if (response.stats) {
+            this.stats.set(response.stats);
+          }
           this.isLoading.set(false);
         },
         error: (error) => {
@@ -213,97 +170,93 @@ export class ContactManagementComponent implements OnInit, AfterViewInit {
           this.showSnackbar('Failed to load contact messages', 'error');
         }
       });
-
-    } catch (error) {
-      console.error('Error loading contacts:', error);
-      this.isLoading.set(false);
-      this.showSnackbar('Failed to load contact messages', 'error');
-    }
   }
 
-  async loadAdmins(): Promise<void> {
-    this.contactService.getAdmins().subscribe({
-      next: (admins) => {
-        this.admins.set(admins);
-      },
-      error: (error) => {
-        console.error('Error loading admins:', error);
-      }
-    });
+  loadAdmins(): void {
+    this.contactService.getAdmins()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (admins) => this.admins.set(admins),
+        error: (error) => console.error('Error loading admins:', error)
+      });
   }
 
-  async loadStats(): Promise<void> {
-    this.contactService.getStats().subscribe({
-      next: (stats) => {
-        this.stats.set(stats);
-      },
-      error: (error) => {
-        console.error('Error loading stats:', error);
-      }
-    });
+  loadStats(): void {
+    this.contactService.getStats()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (stats) => this.stats.set(stats),
+        error: (error) => console.error('Error loading stats:', error)
+      });
+  }
+
+  buildFilter(): ContactFilter {
+    const values = this.filtersForm.value;
+    const statuses = values.status ?? [];
+    const priorities = values.priority ?? [];
+
+    return {
+      status: statuses.length === 1 ? statuses[0] : undefined,
+      priority: priorities.length === 1 ? priorities[0] : undefined,
+      category: values.category || undefined,
+      assignedTo: values.assignee || undefined,
+      search: values.search?.trim() || undefined,
+      dateFrom: values.dateFrom ? new Date(values.dateFrom) : undefined,
+      dateTo: values.dateTo ? new Date(values.dateTo) : undefined,
+      isArchived: values.showArchived || undefined
+    };
   }
 
   applyFilters(): void {
-    this.pageIndex.set(0);
+    this.currentPage.set(1);
     this.loadContacts();
   }
 
-  resetFilters(): void {
-    this.searchQuery.set('');
-    this.statusFilter.set('all');
-    this.priorityFilter.set('all');
-    this.categoryFilter.set('all');
-    this.reasonFilter.set('all');
-    this.assigneeFilter.set('all');
-    this.dateFromFilter.set(null);
-    this.dateToFilter.set(null);
+  clearFilters(): void {
+    this.filtersForm.reset({
+      search: '',
+      status: [],
+      priority: [],
+      category: '',
+      assignee: '',
+      dateFrom: '',
+      dateTo: '',
+      showArchived: false
+    });
     this.selectedContacts.set([]);
-    this.applyFilters();
-  }
-
-  onSearchChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.searchQuery.set(input.value);
-    this.applyFilters();
-  }
-
-  onFilterChange(): void {
-    this.applyFilters();
-  }
-
-  onDateFromChange(date: Date | null): void {
-    this.dateFromFilter.set(date);
-    this.onFilterChange();
-  }
-
-  onDateToChange(date: Date | null): void {
-    this.dateToFilter.set(date);
-    this.onFilterChange();
-  }
-
-  onShowArchivedChange(showArchived: boolean): void {
-    this.showArchived.set(showArchived);
-    this.onFilterChange();
-  }
-
-  onPageChange(event: PageEvent): void {
-    this.pageSize.set(event.pageSize);
-    this.pageIndex.set(event.pageIndex);
+    this.currentPage.set(1);
     this.loadContacts();
+  }
+
+  toggleStatusFilter(value: string): void {
+    const current = this.filtersForm.controls.status.value ?? [];
+    const next = current.includes(value) ? [] : [value];
+    this.filtersForm.controls.status.setValue(next);
+  }
+
+  togglePriorityFilter(value: string): void {
+    const current = this.filtersForm.controls.priority.value ?? [];
+    const next = current.includes(value) ? [] : [value];
+    this.filtersForm.controls.priority.setValue(next);
+  }
+
+  toggleShowArchived(): void {
+    const current = this.filtersForm.controls.showArchived.value ?? false;
+    this.filtersForm.controls.showArchived.setValue(!current);
   }
 
   toggleSelectAll(): void {
     if (this.isAllSelected()) {
       this.selectedContacts.set([]);
     } else {
-      this.selectedContacts.set(this.dataSource.data.map(contact => contact._id));
+      this.selectedContacts.set(this.dataSource.data.map((contact) => contact._id));
     }
   }
 
   toggleSelectContact(contactId: string): void {
     const selected = this.selectedContacts();
     if (selected.includes(contactId)) {
-      this.selectedContacts.set(selected.filter(id => id !== contactId));
+      this.selectedContacts.set(selected.filter((id) => id !== contactId));
     } else {
       this.selectedContacts.set([...selected, contactId]);
     }
@@ -317,78 +270,90 @@ export class ContactManagementComponent implements OnInit, AfterViewInit {
       data: { contact }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result?.refresh) {
-        this.loadContacts();
-      }
-    });
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.refresh) {
+          this.loadContacts();
+          this.loadStats();
+        }
+      });
   }
 
   updateStatus(contact: ContactMessage, status: ContactMessage['status']): void {
     this.isProcessing.set(true);
-    this.contactService.updateStatus(contact._id, status).subscribe({
-      next: (updatedContact) => {
-        this.updateContactInList(updatedContact);
-        this.showSnackbar(`Status updated to ${status}`, 'success');
-        this.isProcessing.set(false);
-      },
-      error: (error) => {
-        console.error('Error updating status:', error);
-        this.showSnackbar('Failed to update status', 'error');
-        this.isProcessing.set(false);
-      }
-    });
+    this.contactService.updateStatus(contact._id, status)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedContact) => {
+          this.updateContactInList(updatedContact);
+          this.showSnackbar(`Status updated to ${this.formatStatus(status)}`, 'success');
+          this.isProcessing.set(false);
+          this.loadStats();
+        },
+        error: (error) => {
+          console.error('Error updating status:', error);
+          this.showSnackbar('Failed to update status', 'error');
+          this.isProcessing.set(false);
+        }
+      });
   }
 
   updatePriority(contact: ContactMessage, priority: ContactMessage['priority']): void {
     this.isProcessing.set(true);
-    this.contactService.updatePriority(contact._id, priority).subscribe({
-      next: (updatedContact) => {
-        this.updateContactInList(updatedContact);
-        this.showSnackbar(`Priority updated to ${priority}`, 'success');
-        this.isProcessing.set(false);
-      },
-      error: (error) => {
-        console.error('Error updating priority:', error);
-        this.showSnackbar('Failed to update priority', 'error');
-        this.isProcessing.set(false);
-      }
-    });
+    this.contactService.updatePriority(contact._id, priority)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedContact) => {
+          this.updateContactInList(updatedContact);
+          this.showSnackbar(`Priority updated to ${priority}`, 'success');
+          this.isProcessing.set(false);
+        },
+        error: (error) => {
+          console.error('Error updating priority:', error);
+          this.showSnackbar('Failed to update priority', 'error');
+          this.isProcessing.set(false);
+        }
+      });
   }
 
   assignToAdmin(contact: ContactMessage, adminId: string): void {
     this.isProcessing.set(true);
-    this.contactService.assignToAdmin(contact._id, adminId).subscribe({
-      next: (updatedContact) => {
-        this.updateContactInList(updatedContact);
-        this.showSnackbar('Contact assigned successfully', 'success');
-        this.isProcessing.set(false);
-      },
-      error: (error) => {
-        console.error('Error assigning contact:', error);
-        this.showSnackbar('Failed to assign contact', 'error');
-        this.isProcessing.set(false);
-      }
-    });
+    this.contactService.assignToAdmin(contact._id, adminId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedContact) => {
+          this.updateContactInList(updatedContact);
+          this.showSnackbar('Contact assigned successfully', 'success');
+          this.isProcessing.set(false);
+        },
+        error: (error) => {
+          console.error('Error assigning contact:', error);
+          this.showSnackbar('Failed to assign contact', 'error');
+          this.isProcessing.set(false);
+        }
+      });
   }
 
   markAsArchived(contact: ContactMessage, archived: boolean): void {
     this.isProcessing.set(true);
-    this.contactService.markAsArchived(contact._id, archived).subscribe({
-      next: (updatedContact) => {
-        this.updateContactInList(updatedContact);
-        this.showSnackbar(
-          archived ? 'Contact archived' : 'Contact unarchived',
-          'success'
-        );
-        this.isProcessing.set(false);
-      },
-      error: (error) => {
-        console.error('Error updating archive status:', error);
-        this.showSnackbar('Failed to update archive status', 'error');
-        this.isProcessing.set(false);
-      }
-    });
+    this.contactService.markAsArchived(contact._id, archived)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedContact) => {
+          this.updateContactInList(updatedContact);
+          this.showSnackbar(archived ? 'Contact archived' : 'Contact unarchived', 'success');
+          this.isProcessing.set(false);
+          if (!this.filtersForm.controls.showArchived.value && archived) {
+            this.loadContacts();
+          }
+        },
+        error: (error) => {
+          console.error('Error updating archive status:', error);
+          this.showSnackbar('Failed to update archive status', 'error');
+          this.isProcessing.set(false);
+        }
+      });
   }
 
   deleteContact(contact: ContactMessage): void {
@@ -399,24 +364,29 @@ export class ContactManagementComponent implements OnInit, AfterViewInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.isProcessing.set(true);
-        this.contactService.deleteContactMessage(contact._id).subscribe({
-          next: () => {
-            this.contacts.set(this.contacts().filter(c => c._id !== contact._id));
-            this.applyFilters();
-            this.showSnackbar('Contact message deleted successfully', 'success');
-            this.isProcessing.set(false);
-          },
-          error: (error) => {
-            console.error('Error deleting contact:', error);
-            this.showSnackbar('Failed to delete contact message', 'error');
-            this.isProcessing.set(false);
-          }
-        });
-      }
-    });
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result) {
+          this.isProcessing.set(true);
+          this.contactService.deleteContactMessage(contact._id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: () => {
+                this.contacts.set(this.contacts().filter((item) => item._id !== contact._id));
+                this.loadContacts();
+                this.loadStats();
+                this.showSnackbar('Contact message deleted successfully', 'success');
+                this.isProcessing.set(false);
+              },
+              error: (error) => {
+                console.error('Error deleting contact:', error);
+                this.showSnackbar('Failed to delete contact message', 'error');
+                this.isProcessing.set(false);
+              }
+            });
+        }
+      });
   }
 
   openBulkActions(): void {
@@ -433,127 +403,166 @@ export class ContactManagementComponent implements OnInit, AfterViewInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.performBulkAction(result.action, result.data);
-      }
-    });
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result) {
+          this.performBulkAction(result.action, result.data);
+        }
+      });
   }
 
-  private performBulkAction(action: string, data: any): void {
+  private performBulkAction(action: string, data: Record<string, unknown>): void {
     this.isProcessing.set(true);
-    
+    const ids = this.selectedContacts();
+
+    const onComplete = (message: string) => {
+      this.showSnackbar(message, 'success');
+      this.loadContacts();
+      this.loadStats();
+      this.selectedContacts.set([]);
+      this.isProcessing.set(false);
+    };
+
+    const onError = (message: string, error: unknown) => {
+      console.error(message, error);
+      this.showSnackbar(message, 'error');
+      this.isProcessing.set(false);
+    };
+
     switch (action) {
       case 'updateStatus':
-        this.contactService.bulkUpdateStatus(this.selectedContacts(), data.status).subscribe({
-          next: (response) => {
-            this.showSnackbar(`Updated ${response.updatedCount} contacts`, 'success');
-            this.loadContacts();
-            this.selectedContacts.set([]);
-            this.isProcessing.set(false);
-          },
-          error: (error) => {
-            console.error('Error performing bulk update:', error);
-            this.showSnackbar('Failed to update contacts', 'error');
-            this.isProcessing.set(false);
-          }
-        });
+        this.contactService.bulkUpdateStatus(ids, data['status'] as ContactMessage['status'])
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (response) => onComplete(`Updated ${response.updatedCount} contacts`),
+            error: (error) => onError('Failed to update contacts', error)
+          });
         break;
-        
+
       case 'assign':
-        // Handle assign bulk action
+        this.contactService.bulkAssign(ids, data['adminId'] as string)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (response) => onComplete(`Assigned ${response.updatedCount} contacts`),
+            error: (error) => onError('Failed to assign contacts', error)
+          });
         break;
-        
+
       case 'archive':
-        // Handle archive bulk action
+        this.contactService.bulkArchive(ids, Boolean(data['archive']))
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (response) => onComplete(`Updated ${response.updatedCount} contacts`),
+            error: (error) => onError('Failed to archive contacts', error)
+          });
+        break;
+
+      default:
+        this.isProcessing.set(false);
         break;
     }
   }
 
   openExportDialog(): void {
+    const values = this.filtersForm.value;
     const dialogRef = this.dialog.open(ExportDialogComponent, {
       width: '600px',
       data: {
         filters: {
-          status: this.statusFilter() !== 'all' ? this.statusFilter() : undefined,
-          priority: this.priorityFilter() !== 'all' ? this.priorityFilter() : undefined,
-          category: this.categoryFilter() !== 'all' ? this.categoryFilter() : undefined,
-          dateFrom: this.dateFromFilter(),
-          dateTo: this.dateToFilter()
+          status: (values.status?.length === 1 ? values.status[0] : undefined),
+          priority: (values.priority?.length === 1 ? values.priority[0] : undefined),
+          category: values.category || undefined,
+          dateFrom: values.dateFrom ? new Date(values.dateFrom) : undefined,
+          dateTo: values.dateTo ? new Date(values.dateTo) : undefined
         }
       }
     });
 
-    dialogRef.afterClosed().subscribe(format => {
-      if (format) {
-        this.exportContacts(format);
-      }
-    });
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((format) => {
+        if (format) {
+          this.exportContacts(format);
+        }
+      });
   }
 
   private exportContacts(format: 'csv' | 'excel'): void {
     this.isProcessing.set(true);
-    
-    const filter: ContactFilter = {
-      status: this.statusFilter() !== 'all' ? this.statusFilter() : undefined,
-      priority: this.priorityFilter() !== 'all' ? this.priorityFilter() : undefined,
-      category: this.categoryFilter() !== 'all' ? this.categoryFilter() : undefined,
-      reason: this.reasonFilter() !== 'all' ? this.reasonFilter() : undefined,
-      dateFrom: this.dateFromFilter() ?? undefined,
-      dateTo: this.dateToFilter() ?? undefined,
-      isArchived: this.showArchived() || undefined
-    };
+    const filter = this.buildFilter();
 
-    this.contactService.exportContacts(filter).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `contacts_export_${new Date().toISOString().split('T')[0]}.${format}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        this.isProcessing.set(false);
-        this.showSnackbar('Export completed successfully', 'success');
-      },
-      error: (error) => {
-        console.error('Error exporting contacts:', error);
-        this.isProcessing.set(false);
-        this.showSnackbar('Failed to export contacts', 'error');
-      }
-    });
+    this.contactService.exportContacts(filter)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = `contacts_export_${new Date().toISOString().split('T')[0]}.${format}`;
+          document.body.appendChild(anchor);
+          anchor.click();
+          document.body.removeChild(anchor);
+          window.URL.revokeObjectURL(url);
+          this.isProcessing.set(false);
+          this.showSnackbar('Export completed successfully', 'success');
+        },
+        error: (error) => {
+          console.error('Error exporting contacts:', error);
+          this.isProcessing.set(false);
+          this.showSnackbar('Failed to export contacts', 'error');
+        }
+      });
+  }
+
+  toggleMenu(event: MouseEvent, contact: ContactMessage): void {
+    event.stopPropagation();
+    this.activeMenuContact = this.activeMenuContact?._id === contact._id ? null : contact;
+  }
+
+  closeMenu(): void {
+    this.activeMenuContact = null;
+  }
+
+  goToPage(page: number): void {
+    const target = Math.max(1, Math.min(page, Math.max(1, this.totalPages())));
+    if (target === this.currentPage()) return;
+    this.currentPage.set(target);
+    this.loadContacts();
+  }
+
+  onPageInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const page = parseInt(input.value, 10);
+    if (!isNaN(page) && page >= 1 && page <= this.totalPages()) {
+      this.goToPage(page);
+    }
+    input.value = '';
+  }
+
+  formatStatus(status: string): string {
+    return status.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  formatResponseTime(milliseconds: number): string {
+    if (!milliseconds || milliseconds <= 0) return 'N/A';
+
+    const totalMinutes = Math.round(milliseconds / 60000);
+    if (totalMinutes < 60) return `${totalMinutes}m`;
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
   }
 
   private updateContactInList(updatedContact: ContactMessage): void {
-    const index = this.contacts().findIndex(c => c._id === updatedContact._id);
+    const index = this.contacts().findIndex((item) => item._id === updatedContact._id);
     if (index !== -1) {
       const updatedContacts = [...this.contacts()];
       updatedContacts[index] = updatedContact;
       this.contacts.set(updatedContacts);
       this.dataSource.data = updatedContacts;
     }
-  }
-
-  getStatusColor(status: string): string {
-    const colors: { [key: string]: string } = {
-      open: 'warning',
-      in_progress: 'info',
-      resolved: 'success',
-      closed: 'default',
-      spam: 'error'
-    };
-    return colors[status] || 'default';
-  }
-
-  getPriorityColor(priority: string): string {
-    const colors: { [key: string]: string } = {
-      low: 'success',
-      medium: 'info',
-      high: 'warning',
-      urgent: 'error'
-    };
-    return colors[priority] || 'default';
   }
 
   private showSnackbar(message: string, type: 'success' | 'error' | 'info'): void {
@@ -563,10 +572,5 @@ export class ContactManagementComponent implements OnInit, AfterViewInit {
       horizontalPosition: 'right',
       verticalPosition: 'top'
     });
-  }
-
-  onAssigneeFilterChange(value: string): void {
-    this.assigneeFilter.set(value);
-    this.onFilterChange();
   }
 }

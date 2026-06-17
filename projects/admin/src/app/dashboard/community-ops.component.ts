@@ -22,6 +22,7 @@ export class CommunityOpsComponent {
   readonly activity = signal<AdminLiveActivityResponse | null>(null);
 
   readonly quickDestinations = [
+    { title: 'Post management', route: '/dashboard/posts', icon: 'post_add' },
     { title: 'Campaign moderation', route: '/dashboard/campaigns', icon: 'campaign' },
     { title: 'Promotion fraud monitor', route: '/dashboard/promotions/fraud', icon: 'shield' },
     { title: 'Store management', route: '/dashboard/stores', icon: 'storefront' },
@@ -53,3 +54,4 @@ export class CommunityOpsComponent {
       });
   }
 }
+

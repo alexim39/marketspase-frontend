@@ -24,12 +24,13 @@
             <h1 class="hero-title">
               Revolutionizing
               <span class="gradient-text">Digital Advertising</span>
-              Through WhatsApp
+              With Tracked Promotion
             </h1>
             <p class="hero-subtitle">
               MarketSpase bridges the gap between brands seeking authentic reach and 
               individuals looking to monetize their social influence. We're building 
-              the future of peer-to-peer marketing.
+              the future of measurable peer-to-peer marketing with PPC tracking,
+              storefront attribution, and promoter quality protection.
             </p>
             
             <div class="hero-actions">
@@ -165,6 +166,48 @@
         </div>
       </section>
 
+      <section class="testimonial-preview-section" aria-labelledby="about-testimonials-title">
+        <div class="container">
+          <div class="section-header testimonial-preview-header">
+            <div>
+              <h2 id="about-testimonials-title" class="section-title">Trusted by real MarketSpase users</h2>
+              <p class="section-subtitle">Short proof points from marketers, promoters, and store owners using tracked social commerce.</p>
+            </div>
+            <a mat-stroked-button routerLink="/resources/testimonials">
+              <mat-icon>format_quote</mat-icon>
+              View testimonials
+            </a>
+          </div>
+
+          <div class="testimonial-preview-grid">
+            @for (testimonial of testimonialHighlights(); track testimonial.name) {
+              <article class="testimonial-preview-card">
+                <div class="testimonial-person">
+                  <span class="testimonial-avatar">{{ testimonial.avatarInitials }}</span>
+                  <div>
+                    <strong>{{ testimonial.name }}</strong>
+                    <span>{{ testimonial.role }}, {{ testimonial.business }}</span>
+                  </div>
+                </div>
+
+                <div class="testimonial-rating" [attr.aria-label]="testimonial.rating + ' star rating'">
+                  @for (star of ratingStars(testimonial.rating); track star) {
+                    <mat-icon>star</mat-icon>
+                  }
+                </div>
+
+                <p>{{ testimonial.quote }}</p>
+
+                <div class="testimonial-metric">
+                  <mat-icon>trending_up</mat-icon>
+                  <span>{{ testimonial.metric }}</span>
+                </div>
+              </article>
+            }
+          </div>
+        </div>
+      </section>
+
       <!-- How It Works -->
       <section class="workflow-section">
         <div class="container">
@@ -181,11 +224,11 @@
               </div>
               <div class="step-content">
                 <h3>Create Campaign</h3>
-                <p>Marketers upload ads, set budget, and define target audience. System automatically generate unique ID and embed watermarks.</p>
+                <p>Marketers upload approved media, add the campaign or product link, set budget, and define the target audience.</p>
                 <div class="step-features">
                   <span class="step-feature">Budget Control</span>
                   <span class="step-feature">Audience Targeting</span>
-                  <span class="step-feature">Auto Watermarking</span>
+                  <span class="step-feature">Tracked Links</span>
                 </div>
               </div>
             </div>
@@ -196,8 +239,8 @@
                 <div class="step-connector"></div>
               </div>
               <div class="step-content">
-                <h3>Accept & Post</h3>
-                <p>Promoters browse campaigns, accept matching ones, download, and post watermarked ads and promotion ID on WhatsApp Status.</p>
+                <h3>Accept & Share</h3>
+                <p>Promoters browse matching campaigns or products, accept the rules, and share their unique MarketSpase link with real audiences.</p>
                 <div class="step-features">
                   <span class="step-feature">Campaign Matching</span>
                   <span class="step-feature">One-Click Accept</span>
@@ -212,11 +255,11 @@
                 <div class="step-connector"></div>
               </div>
               <div class="step-content">
-                <h3>Verify & Track</h3>
-                <p>AI system verifies submitted promotions and tracks 24-hour duration. Real-time analytics monitor view counts.</p>
+                <h3>Track & Protect</h3>
+                <p>The platform tracks clicks, billable activity, spend, conversions, and fraud signals in real time.</p>
                 <div class="step-features">
-                  <span class="step-feature">AI Verification</span>
-                  <span class="step-feature">24h Tracking</span>
+                  <span class="step-feature">Click Quality Checks</span>
+                  <span class="step-feature">PPC Tracking</span>
                   <span class="step-feature">Live Analytics</span>
                 </div>
               </div>
@@ -227,10 +270,10 @@
                 <div class="step-number">04</div>
               </div>
               <div class="step-content">
-                <h3>Get Paid</h3>
-                <p>Automated payments released after successful verification. Promoters earn, marketers get results.</p>
+                <h3>Pay Valid Activity</h3>
+                <p>Promoters earn from valid tracked activity while marketers see the promoter, campaign, spend, and conversion records behind results.</p>
                 <div class="step-features">
-                  <span class="step-feature">Auto Payments</span>
+                  <span class="step-feature">Valid Activity Payments</span>
                   <span class="step-feature">Escrow Security</span>
                   <span class="step-feature">Instant Withdrawal</span>
                 </div>
@@ -253,7 +296,7 @@
                   <span>MarketSpase</span>
                 </div>
                 <p class="brand-tagline">
-                  Where WhatsApp Status becomes a source of income by connecting 
+                  Where tracked promotion becomes a source of income by connecting 
                   marketers and promoters in a unified marketplace.
                 </p>
                 <div class="social-links">

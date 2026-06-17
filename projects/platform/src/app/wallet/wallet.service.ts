@@ -6,6 +6,7 @@ import { ApiService } from '@shared/services';
 export interface RecordPaymentPayload {
   userId: string;
   amount: number;
+  fundingAmount?: number;
   currency?: string;
   quote?: any;
   paystackResult: any;

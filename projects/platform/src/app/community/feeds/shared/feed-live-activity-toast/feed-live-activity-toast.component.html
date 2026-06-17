@@ -1,0 +1,46 @@
+@if (visibleActivity(); as activity) {
+  <aside
+    class="feed-live-toast"
+    [class.is-leaving]="isLeaving()"
+    aria-live="polite"
+    aria-label="Latest MarketSpase activity"
+    role="status"
+  >
+    <button class="activity-button" type="button" (click)="openActivity(activity)">
+      <span class="activity-icon">
+        <mat-icon>{{ iconFor(activity.type) }}</mat-icon>
+      </span>
+
+      <img
+        [src]="activity.avatar || 'img/avatar.png'"
+        [alt]="activity.author + ' avatar'"
+        class="activity-avatar"
+        loading="lazy"
+      />
+
+      <span class="activity-copy">
+        <span class="activity-label">
+          <span class="label-text">{{ labelFor(activity.type) }}</span>
+          @if (groupSuffix(activity); as suffix) {
+            <span class="group-badge">{{ suffix }}</span>
+          }
+          <span class="time-dot">·</span>
+          <span class="activity-time">{{ activity.time }}</span>
+        </span>
+        <strong>{{ activity.author }}</strong>
+        <span class="activity-message">{{ activity.message }}</span>
+      </span>
+
+      <mat-icon class="activity-arrow">chevron_right</mat-icon>
+    </button>
+
+    <button
+      class="dismiss-button"
+      type="button"
+      (click)="dismiss(activity, $event)"
+      aria-label="Dismiss live activity"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </aside>
+}

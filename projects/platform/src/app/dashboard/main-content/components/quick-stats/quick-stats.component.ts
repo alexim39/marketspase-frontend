@@ -27,13 +27,6 @@ export interface PromotionSummary {
   availableEarnings: number;
 }
 
-export interface CommunityStats {
-  connections: number;
-  likes: number;
-  posts: number;
-  comments: number;
-}
-
 @Component({
   selector: 'quick-stats',
   imports: [
@@ -52,7 +45,6 @@ export class QuickStatsComponent {
   user = input<UserInterface | null>();
   campaignSummary = input<CampaignSummary>();
   promotionSummary = input<PromotionSummary>();
-  communityStats = input<CommunityStats>();
 
   withdrawWallet = output<void>();
   viewWallet = output<void>();

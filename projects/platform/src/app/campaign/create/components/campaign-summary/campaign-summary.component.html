@@ -89,6 +89,10 @@
         <span class="detail-value">Pay-Per-Click</span>
       </div>
       <div class="detail-item">
+        <span class="detail-label">Verified click cost</span>
+        <span class="detail-value">{{ costPerClick() | currency: 'NGN':'symbol':'1.0-2' }}</span>
+      </div>
+      <div class="detail-item">
         <span class="detail-label">Location Target</span>
         <span class="detail-value">{{ budgetForm().get('enableTarget')?.value ? 'Local Reach' : 'Wider Reach' }}</span>
       </div>

@@ -105,9 +105,11 @@ export class AdminDashboardComponent implements OnInit {
       isExpanded: true,
       children: [
         { id: 'financial-analytics', title: 'Financial Analytics', icon: 'query_stats', route: '/dashboard/financial/analytics' },
-        { id: 'all-withdrawals', title: 'Overview & Withdrawals', icon: 'payment_arrow_down', route: '/dashboard/financial' },
+        { id: 'all-withdrawals', title: 'Withdrawals', icon: 'payment_arrow_down', route: '/dashboard/financial' },
+        { id: 'all-deposits', title: 'Deposits', icon: 'account_balance_wallet', route: '/dashboard/financial/deposits' },
         { id: 'all-transfers', title: 'Transfers', icon: 'swap_horiz', route: '/dashboard/financial/transfers' },
-        { id: 'refund-requests', title: 'Refund Requests', icon: 'currency_exchange', route: '/dashboard/financial/refunds' }
+        { id: 'refund-requests', title: 'Refund Requests', icon: 'currency_exchange', route: '/dashboard/financial/refunds' },
+        { id: 'fund-recovery', title: 'Fund Recovery', icon: 'playlist_remove', route: '/dashboard/financial/recovery' }
       ]
     },
     {
@@ -116,7 +118,8 @@ export class AdminDashboardComponent implements OnInit {
       icon: 'forum',
       isExpanded: false,
       children: [
-        { id: 'community-desk', title: 'Community Desk', icon: 'dynamic_feed', route: '/dashboard/community' },
+                { id: 'community-desk', title: 'Community Desk', icon: 'dynamic_feed', route: '/dashboard/community' },
+        { id: 'all-posts', title: 'Posts', icon: 'post_add', route: '/dashboard/posts' },
         { id: 'all-testimonials', title: 'Testimonials', icon: 'reviews', route: '/dashboard/testimonials' },
         { id: 'newsletters', title: 'Newsletters', icon: 'newspaper', route: '/dashboard/newsletters' }
       ]
@@ -138,7 +141,8 @@ export class AdminDashboardComponent implements OnInit {
       icon: 'settings_applications',
       isExpanded: false,
       children: [
-        { id: 'payment-settings', title: 'Payment Settings', icon: 'payments', route: '/dashboard/settings/payments' }
+        { id: 'payment-settings', title: 'Payment Settings', icon: 'payments', route: '/dashboard/settings/payments' },
+        { id: 'ppc-pricing-settings', title: 'PPC Pricing', icon: 'price_change', route: '/dashboard/settings/ppc-pricing' }
       ]
     }
   ]);
@@ -278,17 +282,19 @@ export class AdminDashboardComponent implements OnInit {
       this.activeNavItem.set(activeId);
     } else {
       // Fallback for your original routes
-      const routeMapping: Record<string, string> = {
+            const routeMapping: Record<string, string> = {
         '/dashboard/users': 'users',
         '/dashboard/campaigns': 'ads',
         '/dashboard/promotions': 'ads',
         '/dashboard/stores': 'storefront',
         '/dashboard/financial': 'payments',
         '/dashboard/community': 'community',
+        '/dashboard/posts': 'community',
         '/dashboard/newletters': 'community',
         '/dashboard/newsletters': 'community',
         '/dashboard/testimonials': 'community',
         '/dashboard/settings/payments': 'settings',
+        '/dashboard/settings/ppc-pricing': 'settings',
         '/dashboard/settings/login-streaks': 'rewards',
         '/dashboard/settings/badges': 'rewards',
         '/dashboard/settings/gamification': 'rewards'

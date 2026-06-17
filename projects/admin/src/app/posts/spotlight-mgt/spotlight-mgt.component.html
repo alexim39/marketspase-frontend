@@ -1,0 +1,187 @@
+    <main class="spotlight-mgt-page">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Post Management</p>
+          <h2>Spotlight Rotation</h2>
+          <p>Select posts to feature in the community feed spotlight. Posts will rotate automatically at the interval you set.</p>
+        </div>
+        <div class="hero-actions">
+          <a class="back-link" routerLink="/dashboard/posts">
+            <mat-icon>arrow_back</mat-icon>
+            Back to posts
+          </a>
+        </div>
+      </section>
+
+      @if (loadingConfig()) {
+        <section class="loading-card">
+          <mat-progress-bar mode="indeterminate" />
+          <span>Loading spotlight configuration...</span>
+        </section>
+      } @else {
+        <section class="status-card">
+          <div class="status-header">
+            <mat-icon>stars</mat-icon>
+            <h3>Current Spotlight</h3>
+          </div>
+          @if (postIds().length) {
+            <p class="status-info">
+              <strong>{{ postIds().length }} post{{ postIds().length > 1 ? 's' : '' }}</strong> in rotation
+              &middot; Rotates every <strong>{{ intervalMinutes() }} minutes</strong>
+              @if (postIds().length > 1) {
+                &middot; Currently showing post #{{ currentIndex() + 1 }}
+              }
+            </p>
+            <div class="current-posts-preview">
+              @for (id of postIds(); track id; let i = $index) {
+                <span class="post-chip">
+                  <span class="chip-index">{{ i + 1 }}</span>
+                  <span class="chip-text">Post {{ id.slice(-8) }}</span>
+                  <button type="button" class="chip-remove" (click)="removeFromRotation(i)" title="Remove from rotation">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </span>
+              }
+            </div>
+          } @else {
+            <p class="status-info empty">No posts in spotlight rotation. Select posts from the list below.</p>
+          }
+        </section>
+
+        <section class="interval-section">
+          <label for="interval-input">Rotation interval (minutes):</label>
+          <div class="interval-control">
+            <input
+              id="interval-input"
+              type="number"
+              class="interval-input"
+              [value]="intervalMinutes()"
+              (input)="onIntervalChange($any($event.target).value)"
+              min="15"
+              max="43200"
+            />
+            <span class="interval-hint">Min: 15 min &middot; Default: 120 min (2 hours)</span>
+          </div>
+        </section>
+
+        <section class="action-section">
+          <button
+            type="button"
+            class="save-btn"
+            [disabled]="!hasChanges() || saving()"
+            (click)="saveSpotlight()"
+          >
+            @if (saving()) { <mat-progress-bar mode="indeterminate" /> }
+            <mat-icon>save</mat-icon>
+            Save changes
+          </button>
+          <button
+            type="button"
+            class="clear-btn"
+            [disabled]="postIds().length === 0 || saving()"
+            (click)="clearSpotlight()"
+          >
+            <mat-icon>clear</mat-icon>
+            Clear spotlight
+          </button>
+        </section>
+
+        <section class="post-selector">
+          <div class="selector-header">
+            <h3>Select posts for spotlight</h3>
+            <div class="selector-actions">
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Search posts..."
+                [value]="searchQuery()"
+                (input)="onSearchInput($any($event.target).value)"
+              />
+              @if (searchQuery()) {
+                <button type="button" class="search-clear-btn" (click)="clearSearch()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+
+          @if (loadingPosts()) {
+            <mat-progress-bar mode="indeterminate" />
+          }
+
+          @if (error()) {
+            <section class="error-card">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ error() }}</span>
+              <button type="button" class="retry-btn" (click)="loadPosts(true)">Retry</button>
+            </section>
+          } @else if (availablePosts().length === 0 && !loadingPosts()) {
+            <section class="empty-card">
+              <mat-icon>dynamic_feed</mat-icon>
+              <strong>No published posts found</strong>
+              <span>Create community posts first, then add them to the spotlight rotation.</span>
+            </section>
+          } @else {
+            <div class="posts-grid">
+              @for (post of availablePosts(); track post._id) {
+                <div
+                  class="post-select-card"
+                  [class.selected]="isSelected(post._id)"
+                  (click)="togglePostSelection(post._id)"
+                >
+                  <div class="select-indicator">
+                    <mat-icon>{{ isSelected(post._id) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+                  </div>
+                  <div class="post-preview">
+                    <div class="post-content">
+                      <span class="post-text">{{ post.content || '(no text)' }}</span>
+                      @if (post.hashtags.length) {
+                        <span class="post-hashtags">
+                          @for (tag of post.hashtags.slice(0, 3); track tag.tag) { #{{ tag.tag }} }
+                        </span>
+                      }
+                    </div>
+                    <div class="post-meta">
+                      <span class="author-name">{{ post.author?.displayName || post.author?.username || 'Unknown' }}</span>
+                      <span class="post-type">{{ post.type }}</span>
+                      <span class="post-engagement">
+                        <mat-icon>favorite</mat-icon> {{ post.likeCount }}
+                        <mat-icon>comment</mat-icon> {{ post.commentCount }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            @if (totalPages() > 1) {
+              <div class="pagination-bar">
+                <div class="pagination-inner">
+                  <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(1)" title="First"><mat-icon>first_page</mat-icon></button>
+                  <button type="button" class="page-btn" [disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)"><mat-icon>chevron_left</mat-icon></button>
+                  <div class="page-numbers">
+                    @if (currentPage() > 3) {
+                      <button type="button" class="page-btn number" (click)="goToPage(1)">1</button>
+                      @if (currentPage() > 4) { <span class="page-ellipsis">...</span> }
+                    }
+                    @for (p of pageNumbers(); track p) {
+                      <button type="button" class="page-btn number" [class.active]="p === currentPage()" (click)="goToPage(p)">{{ p }}</button>
+                    }
+                    @if (currentPage() < totalPages() - 2) {
+                      @if (currentPage() < totalPages() - 3) { <span class="page-ellipsis">...</span> }
+                      <button type="button" class="page-btn number" (click)="goToPage(totalPages())">{{ totalPages() }}</button>
+                    }
+                  </div>
+                  <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(currentPage() + 1)"><mat-icon>chevron_right</mat-icon></button>
+                  <button type="button" class="page-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(totalPages())" title="Last"><mat-icon>last_page</mat-icon></button>
+                  <div class="page-jump">
+                    <span class="page-jump-label">Go to</span>
+                    <input type="number" class="page-jump-input" min="1" [max]="totalPages()" placeholder="#" (keydown.enter)="onPageInput($event)" (blur)="onPageInput($event)" />
+                  </div>
+                </div>
+              </div>
+            }
+          }
+        </section>
+      }
+    </main>

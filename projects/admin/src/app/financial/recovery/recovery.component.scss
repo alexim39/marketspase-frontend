@@ -1,0 +1,863 @@
+// === Main Container ===
+.admin-recovery-container {
+  padding: 12px 24px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// === Header ===
+.header-section {
+  margin-bottom: 24px;
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: #1a1a2e;
+  }
+
+  .page-subtitle {
+    margin: 0 0 20px;
+    color: #64748b;
+    font-size: 14px;
+  }
+}
+
+// === Stats Overview ===
+.stats-overview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+
+  .stat-card {
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+    .stat-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+
+      &.active { color: #3b82f6; }
+      &.pending { color: #f59e0b; }
+      &.completed { color: #22c55e; }
+    }
+
+    .stat-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #64748b;
+    }
+  }
+}
+
+// === Workflow Steps ===
+.workflow-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-radius: 10px;
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.4;
+    transition: all 0.3s ease;
+
+    &.active {
+      opacity: 1;
+
+      .step-number {
+        background: #3b82f6;
+        color: white;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+      }
+    }
+
+    &.completed {
+      opacity: 0.8;
+
+      .step-number {
+        background: #22c55e;
+        color: white;
+      }
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.3s ease;
+    }
+
+    .step-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #334155;
+      white-space: nowrap;
+    }
+  }
+
+  .step-connector {
+    width: 48px;
+    height: 2px;
+    background: #e2e8f0;
+    margin: 0 8px;
+    transition: all 0.3s ease;
+
+    &.completed {
+      background: #22c55e;
+    }
+  }
+}
+
+// === Card Styles ===
+.recovery-card {
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+  padding-bottom: 8px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+// === Search Section ===
+.search-section {
+  margin: 16px 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.user-result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 0;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .user-name { font-weight: 500; }
+  .user-email { font-size: 12px; color: #64748b; }
+  .user-role {
+    font-size: 11px;
+    color: #3b82f6;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding: 1px 6px;
+    background: #eff6ff;
+    border-radius: 4px;
+    display: inline-block;
+    width: fit-content;
+    margin-top: 2px;
+  }
+}
+
+.user-wallets-preview {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+
+  .wallet-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+
+    &.promoter {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    &.marketer {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+  }
+}
+
+// === Review Section ===
+.review-section {
+  margin-top: 16px;
+}
+
+.selected-user-section {
+  margin-bottom: 20px;
+
+  .user-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .user-details {
+    flex: 1;
+
+    h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    p {
+      margin: 2px 0;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    small {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+  }
+}
+
+// === Recovery History Banner ===
+.recovery-history-banner {
+  margin-bottom: 20px;
+  background: #fffbeb !important;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+
+  .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: #92400e;
+
+    .warning-text {
+      color: #dc2626;
+      font-weight: 500;
+    }
+  }
+}
+
+// === Wallet Selection ===
+.wallet-selection-section {
+  margin-bottom: 20px;
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  margin-bottom: 12px;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #3b82f6;
+  }
+}
+
+.wallet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+
+  .wallet-card {
+    cursor: pointer;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    position: relative;
+
+    &:hover {
+      border-color: #93c5fd;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+    }
+
+    &.selected {
+      border-color: #2563eb;
+      background: #eff6ff;
+      box-shadow: 0 0 0 1px #2563eb, 0 4px 12px rgba(37, 99, 235, 0.15);
+
+      .wallet-header .wallet-icon {
+        &.promoter { color: #d97706; }
+        &.marketer { color: #2563eb; }
+      }
+
+      .wallet-info .wallet-name {
+        color: #1e40af;
+      }
+
+      .wallet-details {
+        color: #1e40af;
+        font-weight: 600;
+      }
+
+      .selected-check {
+        display: flex;
+      }
+    }
+
+    .selected-check {
+      display: none;
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: white;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+
+      mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        line-height: 14px;
+      }
+    }
+
+    .wallet-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .wallet-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+
+      &.promoter { color: #f59e0b; }
+      &.marketer { color: #3b82f6; }
+    }
+
+    .wallet-info {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .wallet-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1a1a2e;
+    }
+
+    .wallet-balance {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .selected-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #2563eb;
+      background: #dbeafe;
+      padding: 2px 10px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+
+      &::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #2563eb;
+        display: inline-block;
+      }
+    }
+
+    .wallet-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: #475569;
+
+      .tag {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 8px;
+        font-weight: 500;
+
+        &.withdrawable {
+          background: #dcfce7;
+          color: #15803d;
+        }
+
+        &.locked {
+          background: #fef3c7;
+          color: #b45309;
+        }
+      }
+    }
+  }
+}
+
+// === Recovery Form ===
+.recovery-form-section {
+  margin-bottom: 16px;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-field {
+  width: 100%;
+}
+
+// === Validation Status ===
+.validation-section {
+  margin: 16px 0;
+}
+
+.validation-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+
+  &.valid {
+    background: #f0fdf4;
+    border-color: #86efac;
+    mat-icon { color: #22c55e; }
+  }
+
+  &.invalid {
+    background: #fef2f2;
+    border-color: #fecaca;
+    mat-icon { color: #ef4444; }
+  }
+
+  &.pending {
+    background: #fffbeb;
+    border-color: #fde68a;
+    mat-icon { color: #f59e0b; }
+  }
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .validation-details {
+    flex: 1;
+  }
+
+  .validation-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1a1a2e;
+  }
+
+  .validation-message {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  .validation-meta {
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+
+    span {
+      font-size: 11px;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+  }
+}
+
+// === Draft Section ===
+.draft-section {
+  margin-top: 16px;
+}
+
+.draft-card {
+  border: 2px solid #fde68a;
+  background: #fffbeb;
+  border-radius: 10px;
+  margin-bottom: 20px;
+
+  .draft-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+
+    .draft-icon {
+      color: #f59e0b;
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #92400e;
+    }
+  }
+
+  .draft-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #fde68a;
+
+      &:last-child { border-bottom: none; }
+
+      .summary-label {
+        font-size: 13px;
+        color: #92400e;
+        font-weight: 500;
+      }
+
+      .summary-value {
+        font-size: 13px;
+        color: #78350f;
+        font-weight: 500;
+
+        &.amount {
+          color: #dc2626;
+          font-weight: 700;
+          font-size: 15px;
+        }
+      }
+    }
+  }
+}
+
+.draft-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+// === Confirm Section ===
+.confirm-section {
+  margin-top: 16px;
+}
+
+.confirm-card {
+  border: 2px solid #86efac;
+  background: #f0fdf4;
+  border-radius: 10px;
+  margin-bottom: 20px;
+
+  .confirm-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+
+    .confirm-icon {
+      color: #22c55e;
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #166534;
+    }
+  }
+}
+
+.receipt-card {
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  background: white;
+
+  .receipt-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+
+    h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    small {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+  }
+
+  .receipt-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .receipt-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13px;
+    color: #475569;
+
+    .amount.red {
+      color: #dc2626;
+      font-weight: 600;
+    }
+  }
+}
+
+// === Form Actions ===
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+// === History Tab ===
+.filters-container {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-field {
+  flex: 1;
+  min-width: 180px;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+// === Table ===
+.table-card {
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.table-container {
+  position: relative;
+  min-height: 200px;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  color: #64748b;
+  gap: 12px;
+}
+
+.history-table {
+  width: 100%;
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .user-name { font-weight: 500; font-size: 13px; }
+    .user-email { font-size: 11px; color: #64748b; }
+  }
+
+  .wallet-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    background: #fef3c7;
+    color: #b45309;
+    font-weight: 500;
+
+    mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+    &.marketer {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+  }
+
+  .amount-value {
+    font-weight: 600;
+    font-size: 14px;
+    color: #dc2626;
+  }
+
+  .reason-text {
+    font-size: 12px;
+    color: #475569;
+    max-width: 200px;
+    display: block;
+  }
+
+  .status-chip {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+    &.status-pending { background: #fef3c7; color: #b45309; }
+    &.status-processing { background: #dbeafe; color: #1d4ed8; }
+    &.status-success { background: #dcfce7; color: #15803d; }
+    &.status-failed { background: #fef2f2; color: #dc2626; }
+  }
+}
+
+.no-data {
+  text-align: center;
+  padding: 32px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+// === Animations ===
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// === Responsive ===
+@media (max-width: 768px) {
+  .admin-recovery-container {
+    padding: 12px;
+  }
+
+  .stats-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-steps {
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .step-connector {
+      width: 24px;
+    }
+  }
+
+  .wallet-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters-container {
+    flex-direction: column;
+
+    .filter-field {
+      min-width: 100%;
+    }
+  }
+
+  .draft-actions {
+    flex-direction: column;
+  }
+}

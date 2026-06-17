@@ -2,7 +2,6 @@ import { Component, Input, Output, EventEmitter, signal, OnChanges, SimpleChange
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { LazyImageDirective } from '../../../../shared/directives/lazy-image.directive';
 
 export interface ProductImage {
   url: string;
@@ -12,7 +11,7 @@ export interface ProductImage {
 @Component({
   selector: 'app-product-gallery',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, LazyImageDirective],
+  imports: [CommonModule, MatIconModule, MatButtonModule],
   templateUrl: './product-gallery.component.html',
   styleUrls: ['./product-gallery.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -1,473 +1,428 @@
-<div class="user-details-container">
-  <div class="header-section">
-    <button mat-icon-button (click)="goBack()" class="back-button">
+<div class="detail-shell">
+  <!-- Header -->
+  <section class="detail-header">
+    <button type="button" class="back-btn" (click)="goBack()">
       <mat-icon>arrow_back</mat-icon>
+      Back to Users
     </button>
-    <h1 class="page-title">User Details</h1>
-    @if (user()) {
-      <div class="action-buttons">
-        <button mat-icon-button [matTooltip]="user()?.isActive ? 'Deactivate User' : 'Activate User'"
-                (click)="toggleUserStatus()" class="status-button" [disabled]="userIsDeleted()">
-          <mat-icon>{{ user()?.isActive ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+    <div class="header-right">
+      @if (user()) {
+        <button type="button" class="surface-btn" [title]="user()?.isActive ? 'Deactivate User' : 'Activate User'"
+                (click)="toggleUserStatus()" [disabled]="userIsDeleted()">
+          <mat-icon>{{ user()?.isActive ? 'toggle_off' : 'toggle_on' }}</mat-icon>
+          {{ user()?.isActive ? 'Deactivate' : 'Activate' }}
         </button>
-        <button mat-icon-button matTooltip="Edit User" (click)="user() && editUser(user()!)" class="edit-button">
+        <button type="button" class="surface-btn" title="Edit User" (click)="editUser(user()!)">
           <mat-icon>edit</mat-icon>
+          Edit
         </button>
-      </div>
-    }
-  </div>
+      }
+    </div>
+  </section>
 
   @if (isLoading()) {
-    <div class="loading-spinner">
-      <mat-spinner diameter="50"></mat-spinner>
-      <p>Loading user details...</p>
+    <div class="loading-card">
+      <mat-progress-bar mode="indeterminate" />
+      <span>Loading user details...</span>
+    </div>
+  } @else if (error()) {
+    <div class="empty-state">
+      <mat-icon>error_outline</mat-icon>
+      <strong>Error</strong>
+      <span>{{ error() }}</span>
+      <button type="button" class="surface-btn" (click)="goBack()">Back to Users</button>
     </div>
   } @else if (user()) {
-    <div class="user-content">
-      <mat-card class="profile-card">
-        <mat-card-content>
-          <div class="profile-header">
-            <img [src]="user()?.avatar" alt="User avatar" class="user-avatar-large">
-            <div class="profile-info">
-              <h2 class="user-name">{{ user()?.displayName }}</h2>
-              <p class="user-username">@{{ user()?.username }}</p>
-              <div class="status-badges">
-                <mat-chip class="role-chip" [class]="userRole()">
-                  {{ userRole() }}
-                </mat-chip>
-                <mat-chip
-                  class="status-chip"
-                  [class.active]="isUserActive()"
-                  [class.inactive]="!isUserActive() && !userIsDeleted()"
-                  [class.deleted]="userIsDeleted()">
-                  {{ userIsDeleted() ? 'Deleted' : (isUserActive() ? 'Active' : 'Inactive') }}
-                </mat-chip>
-                @if (user()?.verified && !userIsDeleted()) {
-                  <mat-chip class="verification-chip">
-                    Verified
-                  </mat-chip>
-                }
-               <div class="action-btn">
-                <mat-slide-toggle 
-                  [(ngModel)]="isChecked" 
-                  (change)="onMarketingRepChange(user()?._id || '')">
-                  Make Marketing Rep
-                </mat-slide-toggle>
-              </div>
-              </div>
+    <!-- Profile Card -->
+    <section class="profile-section">
+      <div class="profile-header">
+        <img [src]="user()?.avatar" alt="" class="profile-avatar" (error)="onAvatarError($event)" />
+        <div class="profile-meta">
+          <h2 class="profile-name">{{ user()?.displayName }}</h2>
+          <span class="profile-username">@{{ user()?.username }}</span>
+          <span class="profile-uid">UID: {{ user()?.uid }}</span>
+          <div class="profile-badges">
+            @if (user()?.role) {
+              <span class="status-pill role-{{ user()?.role }}">
+                <span class="pill-dot"></span>
+                {{ user()?.role | titlecase }}
+              </span>
+            }
+            @if (userIsDeleted()) {
+              <span class="status-pill deleted"><span class="pill-dot"></span>Deleted</span>
+            } @else if (user()?.isActive) {
+              <span class="status-pill active"><span class="pill-dot"></span>Active</span>
+            } @else {
+              <span class="status-pill inactive"><span class="pill-dot"></span>Inactive</span>
+            }
+            @if (user()?.verified) {
+              <span class="status-pill verified"><mat-icon class="pill-icon">verified</mat-icon>Verified</span>
+            }
+          </div>
+        </div>
+        <div class="profile-toggle">
+          <mat-slide-toggle [(ngModel)]="isChecked" (change)="onMarketingRepChange(user()?._id || '')" color="primary">
+            Marketing Rep
+          </mat-slide-toggle>
+        </div>
+      </div>
+
+      <div class="profile-details-grid">
+        <div class="detail-item">
+          <mat-icon class="detail-icon">email</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Email</span>
+            <span class="detail-value">{{ user()?.email || '—' }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">call</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Phone</span>
+            <span class="detail-value">{{ user()?.personalInfo?.phone || '—' }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">transgender</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Gender</span>
+            <span class="detail-value">{{ user()?.personalInfo?.gender || '—' }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">fingerprint</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Auth Method</span>
+            <span class="detail-value">{{ user()?.authenticationMethod || '—' }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">calendar_today</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Date of Birth</span>
+            <span class="detail-value">{{ user()?.personalInfo?.dob ? ((user()?.personalInfo?.dob | date:'longDate') + ' · ' + userAge() + ' years') : '—' }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">location_on</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Address</span>
+            <span class="detail-value">{{ formattedAddress }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">event</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Joined</span>
+            <span class="detail-value">{{ user()?.createdAt | date:'longDate' }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">update</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Last Updated</span>
+            <span class="detail-value">{{ user()?.updatedAt | date:'longDate' }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">star</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Rating</span>
+            <span class="detail-value">{{ user()?.rating || 0 }} ({{ user()?.ratingCount || 0 }} reviews)</span>
+          </div>
+        </div>
+        @if (user()?.collaborationRating) {
+          <div class="detail-item">
+            <mat-icon class="detail-icon">handshake</mat-icon>
+            <div class="detail-content">
+              <span class="detail-label">Collaboration</span>
+              <span class="detail-value">{{ user()?.collaborationRating }} / 5 · {{ user()?.collaborationReviewCount || 0 }} reviews</span>
             </div>
           </div>
+        }
+      </div>
+    </section>
 
-          <mat-divider class="divider"/>
-
-          <div class="profile-details">
-            <div class="detail-item">
-              <mat-icon class="detail-icon">email</mat-icon>
-              <div class="detail-content">
-                <span class="detail-label">Email</span>
-                <span class="detail-value">{{ user()?.email }}</span>
-              </div>
-            </div>
-            <div class="detail-item">
-              <mat-icon class="detail-icon">call</mat-icon>
-              <div class="detail-content">
-                <span class="detail-label">Phone Number</span>
-                <span class="detail-value">{{ user()?.personalInfo?.phone }}</span>
-              </div>
-            </div>
-            <div class="detail-item">
-              <mat-icon class="detail-icon">transgender</mat-icon>
-              <div class="detail-content">
-                <span class="detail-label">Gender</span>
-                <span class="detail-value">{{ user()?.personalInfo?.gender }}</span>
-              </div>
-            </div>
-            <div class="detail-item">
-              <mat-icon class="detail-icon">fingerprint</mat-icon>
-              <div class="detail-content">
-                <span class="detail-label">Authentication Method</span>
-                <span class="detail-value">{{ user()?.authenticationMethod || 'Not specified' }}</span>
-              </div>
-            </div>
-
-            <div class="detail-item">
-              <mat-icon class="detail-icon">calendar_today</mat-icon>
-              <div class="detail-content">
-                <span class="detail-label">Date of Birth</span>
-                <span class="detail-value">{{ user()?.personalInfo?.dob | date:'fullDate' }} - {{ userAge() }} years old</span>
-              </div>
-            </div>
-
-            <div class="detail-item">
-              <mat-icon class="detail-icon">apartment</mat-icon>
-              <div class="detail-content">
-                <span class="detail-label">Address</span>
-                <span class="detail-value">{{ formattedAddress }}</span>
-              </div>
-            </div>
-
-            <div class="detail-item">
-              <mat-icon class="detail-icon">calendar_today</mat-icon>
-              <div class="detail-content">
-                <span class="detail-label">Joined</span>
-                <span class="detail-value">{{ user()?.createdAt | date:'fullDate' }}</span>
-              </div>
-            </div>
-
-            <div class="detail-item">
-              <mat-icon class="detail-icon">update</mat-icon>
-              <div class="detail-content">
-                <span class="detail-label">Last Updated</span>
-                <span class="detail-value">{{ user()?.updatedAt | date:'fullDate' }}</span>
-              </div>
-            </div>
-
-            <div class="detail-item">
-              <mat-icon class="detail-icon">star</mat-icon>
-              <div class="detail-content">
-                <span class="detail-label">Reputation</span>
-                <span class="detail-value">{{ user()?.rating || 0 }} ({{ user()?.ratingCount || 0 }} signals)</span>
-              </div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-tab-group animationDuration="0ms" class="details-tabs">
+    <!-- Tabs -->
+    <section class="tabs-section">
+      <mat-tab-group animationDuration="0ms" class="content-tabs">
+        <!-- Wallet Tab -->
         <mat-tab label="Wallet">
           <div class="tab-content">
-            <mat-card>
-              <mat-card-header>
-                <mat-card-title>Wallet Information</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="wallet-section">
-                  <h3>Marketer Wallet</h3>
-                  <mat-list>
-                    <mat-list-item>
-                      <span matListItemTitle>Available Balance</span>
-                      <span matListItemLine>{{ user()?.wallets?.marketer?.balance | currency:'NGN':'₦' }}</span>
-                    </mat-list-item>
-                    <mat-list-item>
-                      <span matListItemTitle>Reserved Funds</span>
-                      <span matListItemLine>{{ user()?.wallets?.marketer?.reserved | currency:'NGN':'₦' }}</span>
-                    </mat-list-item>
-                    <mat-list-item>
-                      <span matListItemTitle>Transactions</span>
-                      <span matListItemLine>{{ user()?.wallets?.marketer?.transactions?.length || 0 }}</span>
-                    </mat-list-item>
-                  </mat-list>
+            <div class="wallet-grid">
+              <div class="wallet-card">
+                <h3>Marketer Wallet</h3>
+                <div class="wallet-stats">
+                  <div class="wallet-stat">
+                    <span class="wallet-stat-label">Balance</span>
+                    <span class="wallet-stat-value positive">{{ user()?.wallets?.marketer?.balance | currency:'NGN':'₦' }}</span>
+                  </div>
+                  <div class="wallet-stat">
+                    <span class="wallet-stat-label">Reserved</span>
+                    <span class="wallet-stat-value">{{ user()?.wallets?.marketer?.reserved | currency:'NGN':'₦' }}</span>
+                  </div>
+                  <div class="wallet-stat">
+                    <span class="wallet-stat-label">Transactions</span>
+                    <span class="wallet-stat-value">{{ user()?.wallets?.marketer?.transactions?.length || 0 }}</span>
+                  </div>
                 </div>
-
-                <mat-divider class="divider"></mat-divider>
-
-                <div class="wallet-section">
-                  <h3>Promoter Wallet</h3>
-                  <mat-list>
-                    <mat-list-item>
-                      <span matListItemTitle>Available Balance</span>
-                      <span matListItemLine>{{ user()?.wallets?.promoter?.balance | currency:'NGN':'₦' }}</span>
-                    </mat-list-item>
-                    <mat-list-item>
-                      <span matListItemTitle>Reserved Funds</span>
-                      <span matListItemLine>{{ user()?.wallets?.promoter?.reserved | currency:'NGN':'₦' }}</span>
-                    </mat-list-item>
-                    <mat-list-item>
-                      <span matListItemTitle>Transactions</span>
-                      <span matListItemLine>{{ user()?.wallets?.promoter?.transactions?.length || 0 }}</span>
-                    </mat-list-item>
-                  </mat-list>
+              </div>
+              <div class="wallet-card">
+                <h3>Promoter Wallet</h3>
+                <div class="wallet-stats">
+                  <div class="wallet-stat">
+                    <span class="wallet-stat-label">Balance</span>
+                    <span class="wallet-stat-value positive">{{ user()?.wallets?.promoter?.balance | currency:'NGN':'₦' }}</span>
+                  </div>
+                  <div class="wallet-stat">
+                    <span class="wallet-stat-label">Reserved</span>
+                    <span class="wallet-stat-value">{{ user()?.wallets?.promoter?.reserved | currency:'NGN':'₦' }}</span>
+                  </div>
+                  <div class="wallet-stat">
+                    <span class="wallet-stat-label">Transactions</span>
+                    <span class="wallet-stat-value">{{ user()?.wallets?.promoter?.transactions?.length || 0 }}</span>
+                  </div>
                 </div>
-              </mat-card-content>
-            </mat-card>
+              </div>
+            </div>
           </div>
         </mat-tab>
 
-
-        
-
+        <!-- Transactions Tab -->
         <mat-tab label="Transactions">
-  <div class="tab-content">
-    @if (dataSource().length > 0) {
-      <div class="mat-elevation-z2">
-        <mat-table [dataSource]="dataSource()">
-          <ng-container matColumnDef="date">
-            <mat-header-cell *matHeaderCellDef> Date </mat-header-cell>
-            <mat-cell *matCellDef="let transaction">
-              {{ transaction.createdAt | date:'short' }}
-            </mat-cell>
-          </ng-container>
+          <div class="tab-content">
+            @if (dataSource().length > 0) {
+              <table mat-table [dataSource]="dataSource()" class="tx-table">
+                <ng-container matColumnDef="date">
+                  <mat-header-cell *matHeaderCellDef>Date</mat-header-cell>
+                  <mat-cell *matCellDef="let tx">{{ tx.createdAt | date:'short' }}</mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="description">
+                  <mat-header-cell *matHeaderCellDef>Description</mat-header-cell>
+                  <mat-cell *matCellDef="let tx">{{ tx.description }}</mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="amount">
+                  <mat-header-cell *matHeaderCellDef>Amount</mat-header-cell>
+                  <mat-cell *matCellDef="let tx" [class.credit-amount]="tx.type === 'credit'" [class.debit-amount]="tx.type === 'debit'">
+                    {{ tx.amount | currency:'NGN':'₦' }}
+                  </mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="status">
+                  <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+                  <mat-cell *matCellDef="let tx">
+                    <span class="status-pill tx-{{ tx.status }}"><span class="pill-dot"></span>{{ tx.status }}</span>
+                  </mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="type">
+                  <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+                  <mat-cell *matCellDef="let tx">{{ tx.type }}</mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="wallet">
+                  <mat-header-cell *matHeaderCellDef>Wallet</mat-header-cell>
+                  <mat-cell *matCellDef="let tx">
+                    @if (user()?.wallets?.promoter?.transactions?.includes(tx)) { Promoter }
+                    @else if (user()?.wallets?.marketer?.transactions?.includes(tx)) { Marketer }
+                    @else { Unknown }
+                  </mat-cell>
+                </ng-container>
+                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+              </table>
+            } @else {
+              <div class="empty-state">
+                <mat-icon>receipt_long</mat-icon>
+                <strong>No Transactions</strong>
+                <span>This user has no transaction history yet.</span>
+              </div>
+            }
+          </div>
+        </mat-tab>
 
-          <ng-container matColumnDef="description">
-            <mat-header-cell *matHeaderCellDef> Description </mat-header-cell>
-            <mat-cell *matCellDef="let transaction">
-              {{ transaction.description }}
-            </mat-cell>
-          </ng-container>
-
-          <ng-container matColumnDef="amount">
-            <mat-header-cell *matHeaderCellDef> Amount </mat-header-cell>
-            <mat-cell *matCellDef="let transaction" 
-                     [class.credit-amount]="transaction.type === 'credit'" 
-                     [class.debit-amount]="transaction.type === 'debit'">
-              {{ transaction.amount | currency:'NGN':'₦' }}
-            </mat-cell>
-          </ng-container>
-
-          <ng-container matColumnDef="status">
-            <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
-            <mat-cell *matCellDef="let transaction">
-              <mat-chip-listbox>
-                <mat-chip
-                  [class.successful]="transaction.status === 'successful'"
-                  [class.pending]="transaction.status === 'pending' || transaction.status === 'processing'"
-                  [class.reversed]="transaction.status === 'reversed'"
-                  [class.approved]="transaction.status === 'approved'"
-                  [class.failed]="transaction.status === 'failed'">
-                  {{ transaction.status }}
-                </mat-chip>
-              </mat-chip-listbox>
-            </mat-cell>
-          </ng-container>
-
-          <ng-container matColumnDef="type">
-            <mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
-            <mat-cell *matCellDef="let transaction">
-              {{ transaction.type }}
-            </mat-cell>
-          </ng-container>
-
-          <ng-container matColumnDef="wallet">
-            <mat-header-cell *matHeaderCellDef> Wallet </mat-header-cell>
-            <mat-cell *matCellDef="let transaction">
-              <!-- Determine which wallet this transaction belongs to -->
-              @if (user()?.wallets?.promoter?.transactions?.includes(transaction)) {
-                Promoter
-              } @else if (user()?.wallets?.marketer?.transactions?.includes(transaction)) {
-                Marketer
+        <!-- Professional Tab -->
+        <mat-tab label="Professional">
+          <div class="tab-content">
+            <div class="info-section">
+              <h3>Skills</h3>
+              @if (professionalInfo().skills?.length) {
+                <div class="chips-row">
+                  @for (skill of professionalInfo().skills; track skill) {
+                    <span class="info-chip">{{ skill }}</span>
+                  }
+                </div>
               } @else {
-                Unknown
-              }
-            </mat-cell>
-          </ng-container>
-
-          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-        </mat-table>
-      </div>
-    } @else {
-      <div class="no-data-container">
-        <mat-icon>info_outline</mat-icon>
-        <p>No transactions found for this user.</p>
-      </div>
-    }
-  </div>
-</mat-tab>
-
-
-
-
-<mat-tab label="Professional">
-  <div class="tab-content">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Professional Information</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="skills-section">
-          <h3>Skills</h3>
-          @if (professionalInfo().skills?.length) {
-            <div class="chips-container">
-              @for (skill of professionalInfo().skills; track skill) {
-                <mat-chip class="skill-chip">
-                  {{ skill }}
-                </mat-chip>
+                <p class="no-data">No skills added</p>
               }
             </div>
-          } @else {
-            <p class="no-data">No skills added</p>
-          }
-        </div>
 
-        <mat-divider class="divider"></mat-divider>
-
-        @if (user()?.personalInfo?.biography) {
-          <div class="biography-section">
-            <h3>Biography</h3>
-            <p>{{ user()?.personalInfo?.biography }}</p>
-          </div>
-          <mat-divider class="divider"></mat-divider>
-        }
-
-        <div class="testimonials-section">
-          <h3>Testimonials ({{ user()?.testimonials?.length || 0 }})</h3>
-          @if (user()?.testimonials?.length) {
-            <div class="testimonials-container">
-              @for (testimonial of user()?.testimonials; track testimonial._id) {
-                <mat-card class="testimonial-card">
-                  <mat-card-content>
-                    <p>"{{ testimonial.message }}"</p>
-                    <div class="testimonial-author">
-                      <strong>Status: {{ testimonial.status }}</strong>
-                      <strong>Star Rating: {{ testimonial.rating }} </strong>
-                      <span class="date">{{ testimonial.createdAt | date:'mediumDate' }}</span>
-                    </div>
-                  </mat-card-content>
-                </mat-card>
-              }
-            </div>
-          } @else {
-            <p class="no-data">No testimonials yet</p>
-          }
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-</mat-tab>
-
-
-
-<mat-tab label="Interests">
-  <div class="tab-content">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Interests & Preferences</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="interests-section">
-          <h3>Hobbies</h3>
-          @if (interestsInfo().hobbies?.length) {
-            <div class="chips-container">
-              @for (hobby of interestsInfo().hobbies; track hobby) {
-                <mat-chip class="interest-chip">
-                  {{ hobby }}
-                </mat-chip>
-              }
-            </div>
-          } @else {
-            <p class="no-data">No hobbies listed</p>
-          }
-        </div>
-
-        <mat-divider class="divider"/>
-
-        <div class="topics-section">
-          <h3>Favorite Topics</h3>
-          @if (interestsInfo().favoriteTopics?.length) {
-            <div class="chips-container">
-              @for (topic of interestsInfo().favoriteTopics; track topic) {
-                <mat-chip class="topic-chip">
-                  {{ topic }}
-                </mat-chip>
-              }
-            </div>
-          } @else {
-            <p class="no-data">No favorite topics listed</p>
-          }
-        </div>
-
-        <mat-divider class="divider"/>
-
-        <div class="preferences-section">
-          <h3>Preferences</h3>
-          <mat-list>
-            <mat-list-item>
-              <mat-icon matListItemIcon>notifications</mat-icon>
-              <span matListItemTitle>Notifications</span>
-              <span matListItemLine>{{ user()?.preferences?.notification ? 'Enabled' : 'Disabled' }}</span>
-            </mat-list-item>
-            @if (user()?.preferences?.theme) {
-              <mat-list-item>
-                <mat-icon matListItemIcon>dark_mode</mat-icon>
-                <span matListItemTitle>Theme</span>
-                <span matListItemLine>
-                  {{ user()?.preferences?.theme?.darkMode ? 'Dark Mode' : 'Light Mode' }}
-                </span>
-              </mat-list-item>
+            @if (user()?.personalInfo?.biography) {
+              <div class="info-section">
+                <h3>Biography</h3>
+                <p class="bio-text">{{ user()?.personalInfo?.biography }}</p>
+              </div>
             }
-          </mat-list>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-</mat-tab>
 
-
-
-        <mat-tab label="Payouts">
-  <div class="tab-content">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Payout Accounts & Transactions</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        @if (payoutAccounts().length) {
-          <div class="payout-accounts-section">
-            <h3>Saved Bank Accounts ({{ payoutAccounts().length }})</h3>
-            @for (account of payoutAccounts(); track account._id) {
-              <mat-card class="account-card">
-                <mat-card-content>
-                  <div class="account-details">
-                    <div>
-                      <strong>{{ account.bank }}</strong>
-                      <p>Account: {{ account.accountNumber }}</p>
-                      <p>Name: {{ account.accountName }}</p>
-                      <!-- @if (account.isDefault) {
-                        <mat-chip color="primary">Default</mat-chip>
-                      } -->
-                    </div>
+            @if (user()?.loginStreak) {
+              <div class="info-section">
+                <h3>Login Activity</h3>
+                <div class="streak-grid">
+                  <div class="streak-stat">
+                    <span class="streak-value">{{ user()?.loginStreak?.currentStreak || 0 }}</span>
+                    <span class="streak-label">Current Streak</span>
                   </div>
-                </mat-card-content>
-              </mat-card>
+                  <div class="streak-stat">
+                    <span class="streak-value">{{ user()?.loginStreak?.longestStreak || 0 }}</span>
+                    <span class="streak-label">Longest Streak</span>
+                  </div>
+                  <div class="streak-stat">
+                    <span class="streak-value">{{ user()?.loginStreak?.totalPointsEarned || 0 }}</span>
+                    <span class="streak-label">Total Points</span>
+                  </div>
+                  <div class="streak-stat">
+                    <span class="streak-value">₦{{ user()?.loginStreak?.totalNairaWithdrawn || 0 }}</span>
+                    <span class="streak-label">Naira Earned</span>
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (user()?.gamificationProfile) {
+              <div class="info-section">
+                <h3>Gamification</h3>
+                <div class="gamification-stats">
+                  <span>Level {{ user()?.gamificationProfile?.currentLevel }} — {{ user()?.gamificationProfile?.currentLevelTitle }}</span>
+                  <div class="xp-bar-track">
+                    <div class="xp-bar-fill" [style.width.%]="user()?.gamificationProfile?.progressPercent || 0"></div>
+                  </div>
+                  <span class="xp-label">{{ user()?.gamificationProfile?.experiencePointsToNextLevel || 0 }} XP to next level</span>
+                </div>
+              </div>
             }
           </div>
-          
-          <mat-divider class="divider"></mat-divider>
-          
-          <div class="recent-withdrawals-section">
-            <h3>Recent Withdrawals</h3>
-            @if (withdrawalTransactions().length) {
-              <div class="withdrawal-list">
-                @for (transaction of withdrawalTransactions(); track transaction._id) {
-                  <div class="withdrawal-item">
-                    <div>
-                      <strong>{{ transaction.description }}</strong>
-                      <p>{{ transaction.createdAt | date:'medium' }}</p>
-                      @if ('bankDetails' in transaction && transaction.bankDetails) {
-                        <p>{{ transaction.bankDetails.bank }} ••••{{ transaction.bankDetails.accountNumber?.slice(-4) }}</p>
-                      }
+        </mat-tab>
+
+        <!-- Interests Tab -->
+        <mat-tab label="Interests">
+          <div class="tab-content">
+            <div class="info-section">
+              <h3>Hobbies</h3>
+              @if (interestsInfo().hobbies?.length) {
+                <div class="chips-row">
+                  @for (hobby of interestsInfo().hobbies; track hobby) {
+                    <span class="info-chip">{{ hobby }}</span>
+                  }
+                </div>
+              } @else { <p class="no-data">No hobbies listed</p> }
+            </div>
+
+            <div class="info-section">
+              <h3>Favorite Topics</h3>
+              @if (interestsInfo().favoriteTopics?.length) {
+                <div class="chips-row">
+                  @for (topic of interestsInfo().favoriteTopics; track topic) {
+                    <span class="info-chip">{{ topic }}</span>
+                  }
+                </div>
+              } @else { <p class="no-data">No favorite topics listed</p> }
+            </div>
+
+            @if (user()?.preferences) {
+              <div class="info-section">
+                <h3>Preferences</h3>
+                <div class="pref-list">
+                  <div class="pref-item">
+                    <mat-icon>notifications</mat-icon>
+                    <span>Notifications: {{ user()?.preferences?.notification ? 'Enabled' : 'Disabled' }}</span>
+                  </div>
+                  @if (user()?.preferences?.theme) {
+                    <div class="pref-item">
+                      <mat-icon>dark_mode</mat-icon>
+                      <span>Theme: {{ user()?.preferences?.theme?.darkMode ? 'Dark' : 'Light' }}</span>
                     </div>
-                    <div class="withdrawal-amount">
-                      <span [class]="transaction.status">{{ transaction.amount | currency:'NGN':'₦' }}</span>
-                      <mat-chip [class]="transaction.status">{{ transaction.status }}</mat-chip>
+                  }
+                  @if (user()?.preferences?.financial?.displayCurrency) {
+                    <div class="pref-item">
+                      <mat-icon>currency_exchange</mat-icon>
+                      <span>Currency: {{ user()?.preferences?.financial?.displayCurrency }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </mat-tab>
+
+        <!-- Payouts Tab -->
+        <mat-tab label="Payouts">
+          <div class="tab-content">
+            @if (payoutAccounts().length) {
+              <div class="info-section">
+                <h3>Bank Accounts ({{ payoutAccounts().length }})</h3>
+                <div class="payout-grid">
+                  @for (account of payoutAccounts(); track account._id) {
+                    <div class="payout-card">
+                      <div class="payout-bank">{{ account.bank }}</div>
+                      <div class="payout-number">{{ account.accountNumber }}</div>
+                      <div class="payout-name">{{ account.accountName }}</div>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="info-section">
+                <h3>Recent Withdrawals</h3>
+                @if (withdrawalTransactions().length) {
+                  <div class="withdrawal-list">
+                    @for (tx of withdrawalTransactions(); track tx._id) {
+                      <div class="withdrawal-row">
+                        <div>
+                          <span class="wdr-desc">{{ tx.description }}</span>
+                          <span class="wdr-date">{{ tx.createdAt | date:'medium' }}</span>
+                        </div>
+                        <div class="wdr-right">
+                          <span class="wdr-amount">{{ tx.amount | currency:'NGN':'₦' }}</span>
+                          <span class="status-pill tx-{{ tx.status }}"><span class="pill-dot"></span>{{ tx.status }}</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                } @else { <p class="no-data">No withdrawals yet</p> }
+              </div>
+            } @else {
+              <div class="empty-state">
+                <mat-icon>account_balance</mat-icon>
+                <strong>No Payout Accounts</strong>
+                <span>This user hasn't configured any payout accounts yet.</span>
+              </div>
+            }
+          </div>
+        </mat-tab>
+
+        <!-- Testimonials Tab -->
+        <mat-tab label="Testimonials">
+          <div class="tab-content">
+            @if (user()?.testimonials?.length) {
+              <div class="testimonials-grid">
+                @for (t of user()?.testimonials; track t._id) {
+                  <div class="testimonial-card">
+                    <p class="testimonial-msg">"{{ t.message }}"</p>
+                    <div class="testimonial-footer">
+                      <span class="status-pill tx-{{ t.status }}"><span class="pill-dot"></span>{{ t.status }}</span>
+                      <span>{{ t.rating }} star{{ t.rating > 1 ? 's' : '' }}</span>
+                      <span class="subcopy">{{ t.createdAt | date:'mediumDate' }}</span>
                     </div>
                   </div>
                 }
               </div>
             } @else {
-              <p class="no-data">No withdrawal transactions</p>
+              <div class="empty-state">
+                <mat-icon>rate_review</mat-icon>
+                <strong>No Testimonials</strong>
+                <span>This user has no testimonials yet.</span>
+              </div>
             }
           </div>
-        } @else {
-          <div class="no-data-container">
-            <mat-icon>account_balance</mat-icon>
-            <p>No payout accounts configured</p>
-          </div>
-        }
-      </mat-card-content>
-    </mat-card>
-  </div>
-</mat-tab>
-
-
+        </mat-tab>
       </mat-tab-group>
-    </div>
-  } @else {
-    <div class="error-state">
-      <mat-icon class="error-icon">error_outline</mat-icon>
-      <h3>User not found</h3>
-      <p>We couldn't find the user you're looking for.</p>
-      <button mat-raised-button color="primary" (click)="goBack()">Back to Users</button>
-    </div>
+    </section>
   }
 </div>

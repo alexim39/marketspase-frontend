@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const CommunityRoutes: Routes = [
   {
     path: '',
-    redirectTo: 'feeds', // Redirects /community to /community/forum
+    redirectTo: 'discussion',
     pathMatch: 'full',
   },
   {

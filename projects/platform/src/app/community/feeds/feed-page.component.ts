@@ -14,13 +14,12 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
+import { Subscription, debounceTime, distinctUntilChanged, filter, finalize, switchMap, timer } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -30,11 +29,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FeedPostCardComponent } from './feed-post-card/feed-post-card.component';
-import { CommentDialogComponent } from './comment-dialog/comment-dialog.component';
-import { CreatorSpotlightEntry, FeedPost, FeedService, ForumHighlight, ForumSpotlightEntry } from './feed.service';
+import { CreatorSpotlightEntry, FeedComment, FeedPost, FeedService, ForumHighlight, ForumSpotlightEntry, LiveActivity } from './feed.service';
 import { ProfileService, SuggestedUser } from '../../profile/services/profile.service';
-import { SkeletonLoaderComponent } from './shared/skeleton-loader/skeleton-loader.component';
 import { UserInterface } from '@shared/services';
+import { FeedLiveActivityToastComponent } from './shared/feed-live-activity-toast/feed-live-activity-toast.component';
 
 @Component({
   selector: 'app-feed-page-desktop',
@@ -51,13 +49,12 @@ import { UserInterface } from '@shared/services';
     MatTabsModule,
     MatChipsModule,
     MatProgressSpinnerModule,
-    MatDialogModule,
     MatTooltipModule,
     MatBadgeModule,
     MatDividerModule,
     MatInputModule,
-    SkeletonLoaderComponent,
-    FeedPostCardComponent
+    FeedPostCardComponent,
+    FeedLiveActivityToastComponent
   ],
   templateUrl: './feed-page.component.html',
   styleUrls: ['./feed-page.component.scss'],
@@ -69,7 +66,6 @@ export class DesktopFeedPageComponent implements AfterViewInit {
   private readonly feedService = inject(FeedService);
   private readonly profileService = inject(ProfileService);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
 
   @Input({ required: true }) user!: Signal<UserInterface | null>;
@@ -77,6 +73,7 @@ export class DesktopFeedPageComponent implements AfterViewInit {
 
   private intersectionObserver: IntersectionObserver | null = null;
   private searchSubscription: any;
+  private liveActivitySubscription?: Subscription;
   private isLoadingMore = signal(false);
 
   posts = this.feedService.posts;
@@ -90,6 +87,7 @@ export class DesktopFeedPageComponent implements AfterViewInit {
   forumHighlights = this.feedService.forumHighlights;
   hotTopics = this.feedService.hotTopics;
   forumSpotlight = this.feedService.forumSpotlight;
+  liveActivities = this.feedService.liveActivities;
   featuredPost = this.feedService.featuredPost;
   activityStats = this.feedService.activityStats;
 
@@ -100,6 +98,17 @@ export class DesktopFeedPageComponent implements AfterViewInit {
   selectedType = signal<string>('all');
   searchQuery = signal<string>('');
   showFilters = signal<boolean>(false);
+  activeCommentPostId = signal<string | null>(null);
+  commentRailOpen = signal(false);
+  comments = signal<FeedComment[]>([]);
+  commentsLoading = signal(false);
+  commentsLoadingMore = signal(false);
+  commentsSubmitting = signal(false);
+  commentsHasMore = signal(false);
+  commentsPage = signal(1);
+  commentDraft = signal('');
+  replyDraft = signal('');
+  replyingTo = signal<FeedComment | null>(null);
 
   filteredPosts = computed(() => this.posts() ?? []);
   regularPosts = computed(() => {
@@ -112,6 +121,14 @@ export class DesktopFeedPageComponent implements AfterViewInit {
     if (tab === 'trending') return 'trending';
     if (tab === 'latest') return 'latest';
     return 'for_you';
+  });
+  activeCommentPost = computed(() => {
+    const activeId = this.activeCommentPostId();
+    if (!activeId) return null;
+    const featured = this.featuredPost();
+    if (featured?._id === activeId) return featured;
+    const posts = this.filteredPosts();
+    return posts.find((post) => post._id === activeId) || null;
   });
 
   constructor() {
@@ -127,6 +144,7 @@ export class DesktopFeedPageComponent implements AfterViewInit {
       queueMicrotask(() => {
         this.loadFeed(true);
         this.loadFollowingList();
+        this.startLiveActivityPolling();
       });
     });
 
@@ -137,6 +155,18 @@ export class DesktopFeedPageComponent implements AfterViewInit {
         duration: 4000,
         panelClass: 'error-snackbar'
       });
+    });
+
+    effect(() => {
+      const posts = this.filteredPosts();
+      const featured = this.featuredPost();
+      const currentId = this.activeCommentPostId();
+      if (!currentId) return;
+
+      const currentStillExists = posts.some((post) => post._id === currentId) || featured?._id === currentId;
+      if (!posts.length || !currentStillExists) {
+        queueMicrotask(() => this.closeCommentRail());
+      }
     });
 
     this.searchSubscription = toObservable(this.searchQuery)
@@ -267,13 +297,191 @@ export class DesktopFeedPageComponent implements AfterViewInit {
   }
 
   onComment(postId: string): void {
-    this.dialog.open(CommentDialogComponent, {
-      width: '640px',
-      maxWidth: '96vw',
-      panelClass: 'comment-dialog-panel',
-      disableClose: true,
-      data: { postId }
+    this.openInlineComments(postId);
+  }
+
+  openInlineComments(postId: string): void {
+    if (!postId) return;
+    const samePost = this.activeCommentPostId() === postId;
+    this.activeCommentPostId.set(postId);
+    this.commentRailOpen.set(true);
+    this.replyingTo.set(null);
+    this.replyDraft.set('');
+
+    if (samePost && (this.commentsLoading() || this.commentsLoadingMore())) {
+      return;
+    }
+
+    if (samePost && this.comments().length > 0) {
+      return;
+    }
+
+    this.loadComments(1, true);
+  }
+
+  closeCommentRail(): void {
+    this.commentRailOpen.set(false);
+    this.activeCommentPostId.set(null);
+    this.comments.set([]);
+    this.commentsHasMore.set(false);
+    this.commentsPage.set(1);
+    this.commentDraft.set('');
+    this.replyDraft.set('');
+    this.replyingTo.set(null);
+  }
+
+  loadComments(page: number = 1, reset: boolean = false): void {
+    const postId = this.activeCommentPostId();
+    if (!postId) return;
+
+    const loadingSignal = reset ? this.commentsLoading : this.commentsLoadingMore;
+    if (reset) {
+      this.comments.set([]);
+      this.commentsHasMore.set(false);
+      this.commentsPage.set(1);
+    }
+    loadingSignal.set(true);
+
+    this.feedService.getComments(postId, page, 20)
+      .pipe(finalize(() => loadingSignal.set(false)))
+      .subscribe({
+        next: (response) => {
+          const data = response?.data || response;
+          const fetched = data?.comments || [];
+          if (reset) {
+            this.comments.set(fetched);
+          } else {
+            this.comments.update((comments) => [...comments, ...fetched]);
+          }
+          this.commentsHasMore.set(page < (data?.pages || 1));
+          this.commentsPage.set(page);
+        },
+        error: () => {
+          this.snackBar.open('Failed to load comments', 'Dismiss', { duration: 3000 });
+        }
+      });
+  }
+
+  loadMoreComments(): void {
+    if (!this.commentsHasMore() || this.commentsLoadingMore()) return;
+    this.loadComments(this.commentsPage() + 1, false);
+  }
+
+  submitComment(): void {
+    const content = this.commentDraft().trim();
+    const userId = this.user()?._id;
+    const postId = this.activeCommentPostId();
+    if (!content || !userId || !postId || this.commentsSubmitting()) return;
+
+    this.commentsSubmitting.set(true);
+    this.feedService.addComment(postId, content, userId)
+      .pipe(finalize(() => this.commentsSubmitting.set(false)))
+      .subscribe({
+        next: (response) => {
+          const comment = response?.data || response;
+          this.comments.update((comments) => [comment, ...comments]);
+          this.commentDraft.set('');
+          this.feedService.incrementCommentCount(postId, 1);
+          this.snackBar.open('Comment added', 'OK', { duration: 2000 });
+        },
+        error: () => {
+          this.snackBar.open('Failed to add comment', 'Dismiss', { duration: 3000 });
+        }
+      });
+  }
+
+  submitReply(parentComment: FeedComment): void {
+    const content = this.replyDraft().trim();
+    const userId = this.user()?._id;
+    const postId = this.activeCommentPostId();
+    if (!content || !userId || !postId || this.commentsSubmitting()) return;
+
+    this.commentsSubmitting.set(true);
+    this.feedService.addComment(postId, content, userId, parentComment._id)
+      .pipe(finalize(() => this.commentsSubmitting.set(false)))
+      .subscribe({
+        next: (response) => {
+          const reply = response?.data || response;
+          this.comments.update((comments) =>
+            comments.map((comment) =>
+              comment._id === parentComment._id
+                ? { ...comment, replies: [reply, ...(comment.replies || [])] }
+                : comment
+            )
+          );
+          this.replyDraft.set('');
+          this.replyingTo.set(null);
+          this.feedService.incrementCommentCount(postId, 1);
+          this.snackBar.open('Reply added', 'OK', { duration: 2000 });
+        },
+        error: () => {
+          this.snackBar.open('Failed to add reply', 'Dismiss', { duration: 3000 });
+        }
+      });
+  }
+
+  toggleCommentLike(comment: FeedComment, isReply: boolean = false, parent?: FeedComment): void {
+    const userId = this.user()?._id;
+    const postId = this.activeCommentPostId();
+    if (!userId || !postId) return;
+
+    const wasLiked = Boolean(comment.isLiked);
+    this.updateCommentLike(comment, !wasLiked, isReply, parent);
+
+    this.feedService.likeComment(postId, comment._id, userId).subscribe({
+      error: () => {
+        this.updateCommentLike(comment, wasLiked, isReply, parent);
+        this.snackBar.open('Failed to update like', 'Dismiss', { duration: 2000 });
+      }
     });
+  }
+
+  private updateCommentLike(comment: FeedComment, liked: boolean, isReply: boolean = false, parent?: FeedComment): void {
+    const nextCount = (count: number) => Math.max(0, Number(count || 0) + (liked ? 1 : -1));
+
+    if (isReply && parent) {
+      this.comments.update((comments) =>
+        comments.map((entry) =>
+          entry._id === parent._id
+            ? {
+              ...entry,
+              replies: (entry.replies || []).map((reply) =>
+                reply._id === comment._id
+                  ? { ...reply, isLiked: liked, likeCount: nextCount(reply.likeCount) }
+                  : reply
+              )
+            }
+            : entry
+        )
+      );
+      return;
+    }
+
+    this.comments.update((comments) =>
+      comments.map((entry) =>
+        entry._id === comment._id
+          ? { ...entry, isLiked: liked, likeCount: nextCount(entry.likeCount) }
+          : entry
+      )
+    );
+  }
+
+  setReplyTo(comment: FeedComment): void {
+    this.replyingTo.set(comment);
+    this.replyDraft.set('');
+  }
+
+  cancelReply(): void {
+    this.replyingTo.set(null);
+    this.replyDraft.set('');
+  }
+
+  trackByCommentId(_: number, comment: FeedComment): string {
+    return comment._id;
+  }
+
+  formatCommentTime(date: string): string {
+    return this.feedService.formatTime(date);
   }
 
   onCreatePost(): void {
@@ -293,6 +501,23 @@ export class DesktopFeedPageComponent implements AfterViewInit {
 
   onRefresh(): void {
     this.loadFeed(true);
+    this.feedService.loadLiveActivityFeed(6).subscribe();
+  }
+
+  onLiveActivityClick(activity: LiveActivity): void {
+    if (activity.actionUrl) {
+      this.router.navigateByUrl(activity.actionUrl);
+      return;
+    }
+
+    if (activity.postId) {
+      this.router.navigateByUrl(`/feed/${activity.postId}`);
+      return;
+    }
+
+    if (activity.authorId) {
+      this.router.navigate(['/dashboard/profile', activity.authorId]);
+    }
   }
 
   openForumHome(): void {
@@ -366,8 +591,19 @@ export class DesktopFeedPageComponent implements AfterViewInit {
     return this.feedService.formatTime(date);
   }
 
+  private startLiveActivityPolling(): void {
+    if (this.liveActivitySubscription) {
+      return;
+    }
+
+    this.liveActivitySubscription = timer(0, 60000)
+      .pipe(switchMap(() => this.feedService.loadLiveActivityFeed(6)))
+      .subscribe();
+  }
+
   ngOnDestroy(): void {
     this.searchSubscription?.unsubscribe?.();
+    this.liveActivitySubscription?.unsubscribe?.();
     this.intersectionObserver?.disconnect?.();
   }
 }

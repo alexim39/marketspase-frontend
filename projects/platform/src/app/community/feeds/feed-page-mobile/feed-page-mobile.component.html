@@ -1,3 +1,8 @@
+<app-feed-live-activity-toast
+  [activities]="liveActivities()"
+  (activitySelected)="onLiveActivityClick($event)"
+/>
+
 <div class="ms-reels-shell" [class.sheet-open]="isSheetOpen()">
   <header class="reels-topbar" aria-label="Community feed controls">
     <button class="top-icon" routerLink="/dashboard" aria-label="Back to dashboard">
@@ -61,6 +66,187 @@
       }
     }
 
+    <!-- Featured / Spotlight post (admin-enabled) -->
+    @if (featuredPost(); as spotlightPost) {
+      <section
+        class="reel-post spotlight-post"
+        [attr.data-post-id]="spotlightPost._id"
+        [attr.aria-label]="'Featured post by ' + (spotlightPost.author?.displayName || spotlightPost.author?.username || 'MarketSpase creator')"
+        (pointerdown)="onLongPressStart($event, spotlightPost)"
+        (pointerup)="onLongPressEnd()"
+        (pointercancel)="onLongPressEnd()"
+        (pointerleave)="onLongPressEnd()"
+      >
+        <div class="media-layer">
+          @if (activeMedia(spotlightPost); as media) {
+            @switch (media.type) {
+                            @case ('video') {
+                <video
+                  #videoPlayer
+                  class="reel-video"
+                  [attr.data-post-id]="spotlightPost._id"
+                  [src]="media.url"
+                  [poster]="media.thumbnail || spotlightPost.campaign?.thumbnailUrl || spotlightPost.product?.mainImage || ''"
+                  [muted]="isVideoMuted(spotlightPost._id)"
+                  [preload]="videoPreloadMode(0)"
+                  loop
+                  playsinline
+                  (click)="onMediaTap($event, spotlightPost, videoPlayer)"
+                  (waiting)="onVideoWaiting(spotlightPost._id)"
+                  (stalled)="onVideoWaiting(spotlightPost._id)"
+                  (loadeddata)="onVideoReady(spotlightPost._id)"
+                  (canplay)="onVideoReady(spotlightPost._id)"
+                  (playing)="onVideoReady(spotlightPost._id)"
+                  (error)="onVideoError(spotlightPost._id)"
+                ></video>
+                @if (isVideoBuffering(spotlightPost._id)) {
+                  <div class="video-buffering-indicator" role="status" aria-live="polite">
+                    <mat-spinner diameter="22"></mat-spinner><span>Loading video</span>
+                  </div>
+                }
+              }
+              @case ('image') {
+                <img class="reel-image" [src]="media.url" [alt]="mediaAlt(spotlightPost)" loading="eager" (click)="onMediaTap($event, spotlightPost)" />
+              }
+              @case ('link') {
+                <button class="link-preview" type="button" (click)="openLink(media.url, $event)">
+                  <mat-icon>link</mat-icon><span>{{ media.url }}</span><mat-icon>open_in_new</mat-icon>
+                </button>
+              }
+              @default {
+                <button class="document-preview" type="button" (click)="openLink(media.url, $event)">
+                  <mat-icon>description</mat-icon><span>Open attachment</span><mat-icon>open_in_new</mat-icon>
+                </button>
+              }
+            }
+          } @else if (spotlightPost.product?.mainImage) {
+            <img class="reel-image" [src]="spotlightPost.product?.mainImage" [alt]="spotlightPost.product?.name || mediaAlt(spotlightPost)" loading="eager" (click)="onMediaTap($event, spotlightPost)" />
+          } @else {
+            <div class="story-only"><mat-icon>stars</mat-icon><p>{{ spotlightPost.content || 'Featured post' }}</p></div>
+          }
+          @if (heartBursts().has(spotlightPost._id)) {
+            <div class="heart-burst" aria-hidden="true"><mat-icon>favorite</mat-icon></div>
+          }
+        </div>
+
+        <!-- Spotlight badge -->
+        <div class="spotlight-badge" aria-label="Featured">
+          <mat-icon>stars</mat-icon><span>Spotlight</span>
+        </div>
+
+        @if (isVideo(spotlightPost)) {
+          <button class="sound-chip" type="button" (click)="toggleMute(spotlightPost._id, $event)" [attr.aria-label]="isVideoMuted(spotlightPost._id) ? 'Unmute video' : 'Mute video'">
+            <mat-icon>{{ isVideoMuted(spotlightPost._id) ? 'volume_off' : 'volume_up' }}</mat-icon>
+          </button>
+        }
+
+        <aside class="action-rail" aria-label="Post actions">
+          <button class="rail-action like-action" type="button" [class.active]="likedPosts().has(spotlightPost._id)" (click)="onLike(spotlightPost)" aria-label="Like post">
+            <span class="rail-icon"><mat-icon>{{ likedPosts().has(spotlightPost._id) ? 'favorite' : 'favorite_border' }}</mat-icon></span><span>{{ formatCount(spotlightPost.likeCount) }}</span>
+          </button>
+          <button class="rail-action" type="button" (click)="onComment(spotlightPost._id, $event)" aria-label="Open comments">
+                        <span class="rail-icon"><mat-icon>mode_comment</mat-icon></span>
+            <span>{{ formatCount(spotlightPost.commentCount) }}</span>
+          </button>
+
+                    <button class="rail-action" type="button" (click)="openShareSheet(spotlightPost, $event)" aria-label="Share post">
+            <span class="rail-icon"><mat-icon>send</mat-icon></span>
+            <span>{{ formatCount(spotlightPost.shareCount) }}</span>
+          </button>
+
+          <button class="rail-action" type="button" [class.active]="savedPosts().has(spotlightPost._id)" (click)="onSave(spotlightPost._id)" aria-label="Save post">
+            <span class="rail-icon"><mat-icon>{{ savedPosts().has(spotlightPost._id) ? 'bookmark' : 'bookmark_border' }}</mat-icon></span>
+            <span>{{ formatCount(spotlightPost.saveCount || 0) }}</span>
+          </button>
+
+          @if (spotlightPost.phone) {
+            <button class="rail-action whatsapp-action" type="button" (click)="openWhatsApp(spotlightPost, $event)" aria-label="Contact on WhatsApp">
+              <span class="rail-icon"><mat-icon>chat</mat-icon></span>
+              <span>{{ formatCount(spotlightPost.chatCount) }}</span>
+            </button>
+          }
+
+          <button class="rail-action" type="button" (click)="openMoreSheet(spotlightPost, $event)" aria-label="More options">
+            <span class="rail-icon"><mat-icon>more_horiz</mat-icon></span>
+          </button>
+        </aside>
+
+        <div class="content-overlay">
+          <div class="creator-row">
+            <button class="avatar-button" type="button" (click)="viewProfile(spotlightPost.author?._id, $event)" aria-label="View creator profile">
+              <img [src]="spotlightPost.author?.avatar || 'img/avatar.png'" [alt]="spotlightPost.author?.displayName || spotlightPost.author?.username || 'Creator avatar'" />
+            </button>
+
+            <button class="creator-copy" type="button" (click)="viewProfile(spotlightPost.author?._id, $event)">
+              <span class="creator-name">
+                {{ spotlightPost.author?.displayName || spotlightPost.author?.username || 'MarketSpase creator' }}
+                @if (spotlightPost.author?.isVerified) {
+                  <mat-icon>verified</mat-icon>
+                }
+              </span>
+              <span class="creator-meta">&#64;{{ spotlightPost.author?.username || 'marketspase' }} · {{ formatTime(spotlightPost.createdAt) }}</span>
+            </button>
+
+            @if (spotlightPost.author?._id && spotlightPost.author?._id !== user()?._id) {
+              <button class="follow-pill" type="button" [class.following]="isFollowing(spotlightPost.author!._id)" (click)="toggleFollow(spotlightPost.author!._id, $event)">
+                {{ isFollowing(spotlightPost.author!._id) ? 'Following' : 'Follow' }}
+              </button>
+            }
+          </div>
+
+          <div class="caption-panel" [class.expanded]="isCaptionExpanded(spotlightPost._id)">
+            @if (spotlightPost.type || spotlightPost.source) {
+              <span class="post-badge">
+                <mat-icon>{{ spotlightPost.source === 'product' ? 'shopping_bag' : spotlightPost.source === 'campaign' ? 'ads_click' : 'auto_awesome' }}</mat-icon>
+                {{ spotlightPost.source === 'product' ? 'Product post' : spotlightPost.source === 'campaign' ? 'Campaign post' : spotlightPost.type }}
+              </span>
+            }
+
+            <p>{{ captionText(spotlightPost) }}</p>
+
+            @if (shouldShowReadMore(spotlightPost)) {
+              <button class="read-more" type="button" (click)="toggleCaption(spotlightPost._id, $event)">
+                {{ isCaptionExpanded(spotlightPost._id) ? 'Show less' : 'Read more' }}
+              </button>
+            }
+
+            @if (spotlightPost.hashtags?.length) {
+              <div class="hashtag-row">
+                @for (tag of spotlightPost.hashtags; track $index) {
+                  <button type="button" (click)="onHashtagClick(tagLabel(tag), $event)">#{{ tagLabel(tag) }}</button>
+                }
+              </div>
+            }
+          </div>
+
+          @if (spotlightPost.product?.productId || spotlightPost.product?.name) {
+            <div class="commerce-card">
+              @if (spotlightPost.product?.mainImage) {
+                <img [src]="spotlightPost.product?.mainImage" [alt]="spotlightPost.product?.name || 'Product image'" />
+              }
+              <div>
+                <span class="commerce-label">{{ spotlightPost.product?.storeName || 'MarketSpase Store' }}</span>
+                <strong>{{ spotlightPost.product?.name || 'Featured product' }}</strong>
+                @if (productPrice(spotlightPost)) {
+                  <span class="price">{{ productPrice(spotlightPost) }}</span>
+                }
+              </div>
+              <button type="button" class="shop-button" (click)="openProduct(spotlightPost, $event)">Shop</button>
+            </div>
+          } @else if (spotlightPost.campaign?.campaignId) {
+            <div class="commerce-card campaign-card">
+              <mat-icon>campaign</mat-icon>
+              <div>
+                <span class="commerce-label">Promotion campaign</span>
+                <strong>{{ spotlightPost.campaign?.name || 'MarketSpase campaign' }}</strong>
+              </div>
+              <button type="button" class="shop-button" (click)="promotePost(spotlightPost, $event)">View</button>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
     @for (post of regularPosts(); track trackPost($index, post); let index = $index) {
       <section
         #postPanel
@@ -85,11 +271,24 @@
                   [src]="media.url"
                   [poster]="media.thumbnail || post.campaign?.thumbnailUrl || post.product?.mainImage || ''"
                   [muted]="isVideoMuted(post._id)"
-                  [preload]="shouldPreloadMedia(index) ? 'auto' : 'metadata'"
+                  [preload]="videoPreloadMode(index)"
                   loop
                   playsinline
                   (click)="onMediaTap($event, post, videoPlayer)"
+                  (waiting)="onVideoWaiting(post._id)"
+                  (stalled)="onVideoWaiting(post._id)"
+                  (loadeddata)="onVideoReady(post._id)"
+                  (canplay)="onVideoReady(post._id)"
+                  (playing)="onVideoReady(post._id)"
+                  (error)="onVideoError(post._id)"
                 ></video>
+
+                @if (activePostId() === post._id && isVideoBuffering(post._id)) {
+                  <div class="video-buffering-indicator" role="status" aria-live="polite">
+                    <mat-spinner diameter="22"></mat-spinner>
+                    <span>Loading video</span>
+                  </div>
+                }
               }
 
               @case ('image') {

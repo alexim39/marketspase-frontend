@@ -1,0 +1,123 @@
+<app-header />
+
+<main class="mobile-testimonials-page">
+  <section class="hero-card" aria-labelledby="mobile-testimonials-title">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/">
+        <mat-icon>home</mat-icon>
+        Home
+      </a>
+      <span>/</span>
+      <span>Testimonials</span>
+    </nav>
+
+    <span class="eyebrow">Customer proof</span>
+    <h1 id="mobile-testimonials-title">Trusted stories from real MarketSpase users.</h1>
+    <p>See how marketers, promoters, and store owners use tracked promotion to grow with more confidence.</p>
+
+    <div class="hero-actions">
+      <a routerLink="/auth">
+        <mat-icon>rocket_launch</mat-icon>
+        Get started
+      </a>
+      <a routerLink="/resources/success-stories">
+        <mat-icon>stars</mat-icon>
+        Stories
+      </a>
+    </div>
+  </section>
+
+  <section class="stat-rail" aria-label="MarketSpase trust summary">
+    @for (stat of stats; track stat.label) {
+      <article>
+        <mat-icon>{{ stat.icon }}</mat-icon>
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section class="featured-story" aria-label="Featured testimonial">
+    <span class="eyebrow">Featured</span>
+    <div class="rating" aria-label="5 star rating">
+      @for (star of stars(featured().rating); track star) {
+        <mat-icon>star</mat-icon>
+      }
+    </div>
+    <blockquote>{{ featured().quote }}</blockquote>
+    <div class="person-row">
+      <span class="avatar">{{ featured().avatarInitials }}</span>
+      <div>
+        <strong>{{ featured().name }}</strong>
+        <span>{{ featured().role }}, {{ featured().business }}</span>
+      </div>
+    </div>
+    <div class="metric-pill">
+      <mat-icon>trending_up</mat-icon>
+      <span>{{ featured().metric }}</span>
+    </div>
+  </section>
+
+  <section aria-labelledby="mobile-testimonial-list-title">
+    <div class="section-heading">
+      <span class="eyebrow">Filter stories</span>
+      <h2 id="mobile-testimonial-list-title">Choose what matters to you.</h2>
+    </div>
+
+    <div class="filter-rail" aria-label="Filter testimonials by audience">
+      @for (category of categories; track category.value) {
+        <button
+          type="button"
+          [class.active]="selectedAudience() === category.value"
+          (click)="selectAudience(category.value)"
+        >
+          <mat-icon>{{ category.icon }}</mat-icon>
+          {{ category.label }}
+        </button>
+      }
+    </div>
+
+    <div class="story-list">
+      @for (testimonial of testimonials(); track testimonial.name) {
+        <article class="story-card">
+          <div class="card-top">
+            <span class="avatar">{{ testimonial.avatarInitials }}</span>
+            <div>
+              <strong>{{ testimonial.name }}</strong>
+              <span>{{ testimonial.business }}</span>
+              <small>{{ testimonial.location }}</small>
+            </div>
+          </div>
+
+          <p>{{ testimonial.quote }}</p>
+
+          <div class="outcome-row">
+            <mat-icon>verified</mat-icon>
+            <div>
+              <strong>{{ testimonial.metric }}</strong>
+              <span>{{ testimonial.outcome }}</span>
+            </div>
+          </div>
+
+          <div class="tag-list" aria-label="Testimonial tags">
+            @for (tag of testimonial.tags; track tag) {
+              <span>{{ tag }}</span>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="cta-card">
+    <span class="eyebrow">Your turn</span>
+    <h2>Build a growth story with promotion you can measure.</h2>
+    <p>Join MarketSpase and use tracked links, storefronts, and campaign analytics to grow with clarity.</p>
+    <a routerLink="/auth">
+      <mat-icon>person_add</mat-icon>
+      Join MarketSpase
+    </a>
+  </section>
+</main>
+
+<app-footer />

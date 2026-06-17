@@ -5,9 +5,9 @@
 <section class="dashboard-mobile">
   <header class="mobile-topbar">
     <div>
-      <span class="eyebrow">{{ roleLabel() }}</span>
+      <span class="eyebrow">{{ roleLabel() }} command center</span>
       <h1>Hi, {{ displayName() }}</h1>
-      <p>{{ getCommunityGreeting() }}</p>
+      <p>{{ getDashboardGreeting() }}</p>
     </div>
 
     <button type="button" class="icon-button" (click)="router.navigate(['dashboard/notifications'])" aria-label="Open notifications">
@@ -26,7 +26,7 @@
       <div>
         <span>{{ stat.label }}</span>
         <h2>{{ stat.value }}</h2>
-        <p>{{ stat.subtitle || 'Your latest MarketSpase momentum' }}</p>
+        <p>{{ stat.subtitle || 'Your latest MarketSpase business signal' }}</p>
       </div>
     </section>
   }
@@ -37,7 +37,7 @@
       <span>{{ primaryActionLabel() }}</span>
     </button>
     <button type="button" (click)="triggerSecondaryAction()">
-      <mat-icon>{{ user()?.role === 'marketer' ? 'campaign' : 'link' }}</mat-icon>
+      <mat-icon>{{ user()?.role === 'marketer' ? 'query_stats' : 'link' }}</mat-icon>
       <span>{{ secondaryActionLabel() }}</span>
     </button>
   </section>
@@ -55,47 +55,77 @@
     }
   </section>
 
-  <section class="journey-strip">
-    <article (click)="router.navigate(['dashboard/gamification'])" tabindex="0">
-      <mat-icon>military_tech</mat-icon>
+  <section class="mobile-section">
+    <header>
       <div>
-        <span>{{ levelLabel() }}</span>
-        <strong>{{ streakLabel() }} streak</strong>
+        <h2>{{ user()?.role === 'marketer' ? 'Revenue and spend' : 'Earnings and payouts' }}</h2>
+        <p>Fast summary of your financial position</p>
       </div>
-      <mat-icon>chevron_right</mat-icon>
-    </article>
-    <article (click)="router.navigate(['dashboard/leaderboard'])" tabindex="0">
-      <mat-icon>leaderboard</mat-icon>
-      <div>
-        <span>Leaderboard</span>
-        <strong>See top performers</strong>
-      </div>
-      <mat-icon>chevron_right</mat-icon>
-    </article>
+      <button type="button" (click)="viewWallet()">Wallet</button>
+    </header>
+
+    <div class="activity-list revenue-list">
+      @for (item of mobileRevenue(); track item.label) {
+        <article tabindex="0">
+          <div class="activity-icon credit">
+            <mat-icon>{{ item.icon }}</mat-icon>
+          </div>
+          <div>
+            <strong>{{ item.label }}</strong>
+            <small>{{ item.detail }}</small>
+          </div>
+          <span class="credit">{{ item.value }}</span>
+        </article>
+      }
+    </div>
   </section>
 
   <section class="mobile-section">
     <header>
       <div>
-        <h2>Community pulse</h2>
-        <p>{{ liveActivityUpdatedLabel() }}</p>
+        <h2>Control areas</h2>
+        <p>Analytics and operations modules</p>
       </div>
-      <button type="button" (click)="openCommunityFeed()">View</button>
     </header>
 
-    <div class="community-actions">
-      <button type="button" (click)="createCommunityPost()">
-        <mat-icon>edit</mat-icon>
-        <span>Post</span>
-      </button>
-      <button type="button" (click)="openCommunityForum()">
-        <mat-icon>forum</mat-icon>
-        <span>Discuss</span>
-      </button>
-      <button type="button" (click)="openCommunityFeed()">
-        <mat-icon>dynamic_feed</mat-icon>
-        <span>Feed</span>
-      </button>
+    <div class="module-list">
+      @for (module of mobileModules(); track module.title) {
+        <article (click)="openDashboardModule(module.route)" tabindex="0">
+          <div class="stat-icon">
+            <mat-icon>{{ module.icon }}</mat-icon>
+          </div>
+          <div>
+            <span>{{ module.metric }}</span>
+            <strong>{{ module.title }}</strong>
+            <small>{{ module.description }}</small>
+          </div>
+          <mat-icon>chevron_right</mat-icon>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="mobile-section">
+    <header>
+      <div>
+        <h2>Insights</h2>
+        <p>Alerts and recommendations</p>
+      </div>
+    </header>
+
+    <div class="insight-list">
+      @for (insight of mobileInsights(); track insight.title) {
+        <article [class.warn]="insight.tone === 'warn'" [class.good]="insight.tone === 'good'">
+          <mat-icon>{{ insight.icon }}</mat-icon>
+          <div>
+            <strong>{{ insight.title }}</strong>
+            <small>{{ insight.description }}</small>
+            <button type="button" (click)="openDashboardModule(insight.route)">
+              {{ insight.actionLabel }}
+            </button>
+          </div>
+        </article>
+      }
     </div>
   </section>
 
@@ -105,7 +135,7 @@
         <h2>Recent wallet activity</h2>
         <p>{{ mobileActivities().length }} latest entries</p>
       </div>
-      <button type="button" (click)="viewWallet()">Wallet</button>
+      <button type="button" (click)="viewWallet()">Transactions</button>
     </header>
 
     @if (mobileActivities().length) {
@@ -132,116 +162,4 @@
       </div>
     }
   </section>
-
-  <section class="mobile-section">
-    <header>
-      <div>
-        <h2>Trending now</h2>
-        <p>{{ trendingActiveUsers() | number:'1.0-0' }} active users</p>
-      </div>
-      <button type="button" (click)="viewTrending()">Explore</button>
-    </header>
-
-    @if (mobileTrends().length) {
-      <div class="trend-list">
-        @for (trend of mobileTrends(); track trend.id) {
-          <article (click)="onTrendClick(trend)" tabindex="0">
-            <span>#{{ trend.rank }}</span>
-            <div>
-              <strong>{{ trend.title }}</strong>
-              <small>{{ trend.description }}</small>
-            </div>
-            <mat-icon>{{ trend.trend === 'new' ? 'fiber_new' : 'trending_up' }}</mat-icon>
-          </article>
-        }
-      </div>
-    } @else {
-      <div class="compact-empty">
-        <mat-icon>trending_up</mat-icon>
-        <span>Community trends will show here.</span>
-      </div>
-    }
-  </section>
-
-  <section class="mobile-section">
-    <header>
-      <div>
-        <h2>People to know</h2>
-        <p>Suggested MarketSpase connections</p>
-      </div>
-      <button type="button" (click)="viewAllConnections()">More</button>
-    </header>
-
-    @if (mobileConnections().length) {
-      <div class="connection-rail">
-        @for (connection of mobileConnections(); track connection.id) {
-          <article>
-            <img [src]="connection.avatar" [alt]="connection.name">
-            <strong>{{ connection.name }}</strong>
-            <small>{{ connection.role }}</small>
-            <button type="button" (click)="connectUser(connection.id)">
-              {{ connectedConnections().has(connection.id) ? 'Following' : 'Follow' }}
-            </button>
-          </article>
-        }
-      </div>
-    } @else {
-      <div class="compact-empty">
-        <mat-icon>group_add</mat-icon>
-        <span>Connection suggestions will appear soon.</span>
-      </div>
-    }
-  </section>
-
-  <section class="mobile-section">
-    <header>
-      <div>
-        <h2>Keep learning</h2>
-        <p>Short lessons for better promotions</p>
-      </div>
-      <button type="button" (click)="openAdSchool()">Lessons</button>
-    </header>
-
-    @if (mobileCourses().length) {
-      <div class="course-list">
-        @for (course of mobileCourses(); track course.id) {
-          <article>
-            <img [src]="course.image" [alt]="course.title">
-            <div>
-              <strong>{{ course.title }}</strong>
-              <small>{{ course.difficulty }} | {{ course.duration }}</small>
-            </div>
-            <button type="button" (click)="continueCourse(course.id)">Start</button>
-          </article>
-        }
-      </div>
-    } @else {
-      <div class="compact-empty">
-        <mat-icon>school</mat-icon>
-        <span>Lessons tailored to your role will appear here.</span>
-      </div>
-    }
-  </section>
-
-  <nav class="mobile-bottom-nav" aria-label="Dashboard mobile navigation">
-    <button type="button" class="active" (click)="router.navigate(['dashboard'])">
-      <mat-icon>home</mat-icon>
-      <span>Home</span>
-    </button>
-    <button type="button" (click)="openCommunityFeed()">
-      <mat-icon>chat</mat-icon>
-      <span>Community</span>
-    </button>
-    <button type="button" class="create" (click)="createCommunityPost()" aria-label="Create community post">
-      <mat-icon>add</mat-icon>
-    </button>
-    <button type="button" (click)="openCommunityForum()">
-      <mat-icon>forum</mat-icon>
-      <span>Forum</span>
-    </button>
-    <button type="button" (click)="openCampaigns()">
-      <mat-icon>campaign</mat-icon>
-      <span>Campaigns</span>
-    </button>
-  </nav>
 </section>

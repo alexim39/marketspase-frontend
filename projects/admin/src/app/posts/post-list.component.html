@@ -1,0 +1,295 @@
+<main class="post-management-page">
+    <section class="hero">
+    <div>
+      <p class="eyebrow">Post management</p>
+      <h2>Manage platform feed posts</h2>
+      <p>View, search, feature, and moderate all social feed posts across MarketSpase.</p>
+    </div>
+    <div class="hero-actions">
+      <a class="spotlight-nav-btn" routerLink="/dashboard/posts/spotlight">
+        <mat-icon>stars</mat-icon>
+        Spotlight rotation
+      </a>
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <section class="filter-bar">
+    <div class="search-input-wrapper">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search by content, hashtag, campaign, or product..."
+        [value]="searchQuery()"
+                (input)="onSearchInput($any($event.target).value)"
+      />
+      @if (searchQuery()) {
+        <button type="button" class="search-clear-btn" (click)="onSearchInput('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+
+    <div class="filter-controls">
+      <select
+        class="filter-select"
+        [value]="typeFilter()"
+        (change)="onTypeFilter($any($event.target).value)"
+      >
+        @for (opt of postTypeOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+
+      <select
+        class="filter-select"
+        [value]="statusFilter()"
+        (change)="onStatusFilter($any($event.target).value)"
+      >
+        @for (opt of statusOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+
+      <select
+        class="filter-select"
+        [value]="featuredFilter()"
+        (change)="onFeaturedFilter($any($event.target).value)"
+      >
+        @for (opt of featuredOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+
+      <select
+        class="filter-select"
+        [value]="sortOrder()"
+        (change)="onSortChange($any($event.target).value)"
+      >
+        @for (opt of sortOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+
+      @if (activeFilterCount() > 0) {
+        <button type="button" class="clear-filters-btn" (click)="clearFilters()">
+          <mat-icon>close</mat-icon>
+          Clear filters
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- Loading state -->
+  @if (loadingInitial()) {
+    <section class="loading-card">
+      <mat-progress-bar mode="indeterminate" />
+      <span>Loading feed posts...</span>
+    </section>
+  } @else if (error()) {
+    <!-- Error state -->
+    <section class="error-card">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <button type="button" class="retry-btn" (click)="loadPosts(true)">Retry</button>
+    </section>
+  } @else if (posts().length === 0) {
+    <!-- Empty state -->
+    <section class="empty-card">
+      <mat-icon>dynamic_feed</mat-icon>
+      <strong>No posts found</strong>
+      <span>Try adjusting your filters or search query.</span>
+    </section>
+  } @else {
+    <!-- Posts table -->
+    <section class="table-wrapper">
+      <div class="table-header">
+        <span class="table-count">{{ showingRange() }}</span>
+      </div>
+
+      <table class="posts-table" role="grid">
+        <thead>
+          <tr>
+            <th class="col-content">Post</th>
+            <th class="col-author">Author</th>
+            <th class="col-type">Type</th>
+            <th class="col-engagement">Engagement</th>
+            <th class="col-status">Status</th>
+            <th class="col-spotlight">Spotlight</th>
+            <th class="col-date">Created</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (post of posts(); track post._id) {
+            <tr class="post-row" (click)="viewPost(post._id)">
+              <td class="col-content">
+                <div class="post-content-preview">
+                  <div class="media-indicator" [title]="post.primaryMediaType || 'media'">
+                    @if (post.mediaCount > 0) {
+                      <mat-icon>
+                        {{ getMediaIcon(post.primaryMediaType) }}
+                      </mat-icon>
+                      @if (post.mediaCount > 1) {
+                        <span class="media-count">+{{ post.mediaCount - 1 }}</span>
+                      }
+                    }
+                  </div>
+                  <span class="content-text">{{ post.content || '(no text content)' }}</span>
+                </div>
+                @if (post.hashtags.length) {
+                  <div class="hashtag-pills">
+                    @for (tag of post.hashtags.slice(0, 3); track tag.tag) {
+                      <span class="hashtag-pill">#{{ tag.tag }}</span>
+                    }
+                    @if (post.hashtags.length > 3) {
+                      <span class="hashtag-pill more">+{{ post.hashtags.length - 3 }}</span>
+                    }
+                  </div>
+                }
+              </td>
+              <td class="col-author">
+                @if (post.author) {
+                  <div class="author-cell">
+                    <img
+                      [src]="post.author.avatar || 'img/avatar.png'"
+                      [alt]="post.author.displayName"
+                      class="author-avatar"
+                      loading="lazy"
+                    />
+                    <div class="author-info">
+                      <span class="author-name">{{ post.author.displayName || post.author.username }}</span>
+                      <span class="author-role">{{ post.author.role }}</span>
+                    </div>
+                  </div>
+                } @else {
+                  <span class="text-muted">Deleted user</span>
+                }
+              </td>
+              <td class="col-type">
+                <span class="type-badge" [class]="post.type">
+                  <mat-icon>{{ getTypeIcon(post.type) }}</mat-icon>
+                  {{ post.type }}
+                </span>
+                @if (post.source && post.source !== 'manual') {
+                  <span class="source-label">{{ post.source }}</span>
+                }
+              </td>
+              <td class="col-engagement">
+                <div class="engagement-stats">
+                  <span class="stat" title="Likes">
+                    <mat-icon>favorite</mat-icon>
+                    {{ post.likeCount }}
+                  </span>
+                  <span class="stat" title="Comments">
+                    <mat-icon>comment</mat-icon>
+                    {{ post.commentCount }}
+                  </span>
+                  <span class="stat" title="Shares">
+                    <mat-icon>share</mat-icon>
+                    {{ post.shareCount }}
+                  </span>
+                </div>
+              </td>
+              <td class="col-status">
+                <span class="status-badge" [class]="post.status">
+                  {{ post.status }}
+                </span>
+              </td>
+                            <td class="col-spotlight">
+                @if (isInSpotlight(post._id)) {
+                  <span class="featured-badge-active">
+                    <mat-icon>stars</mat-icon>
+                    Spotlight
+                  </span>
+                } @else if (post.isFeatured) {
+                  <span class="featured-badge-legacy">
+                    <mat-icon>star</mat-icon>
+                    Featured
+                  </span>
+                }
+              </td>
+              <td class="col-date">
+                <span class="date-text">{{ timeAgo(post.createdAt) }}</span>
+              </td>
+              <td class="col-actions">
+                <div class="action-buttons">
+                  <button
+                    type="button"
+                    class="action-btn feature-btn"
+                    [class.active]="post.isFeatured"
+                    [attr.title]="post.isFeatured ? 'Remove from spotlight' : 'Add to spotlight'"
+                    (click)="onToggleFeature(post, $event)"
+                  >
+                    <mat-icon>{{ post.isFeatured ? 'star' : 'star_border' }}</mat-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="action-btn delete-btn"
+                    title="Archive post"
+                    (click)="onDeletePost(post, $event)"
+                  >
+                    <mat-icon>archive</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <section class="pagination-bar">
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="currentPage() <= 1"
+          (click)="goToPage(currentPage() - 1)"
+        >
+          <mat-icon>chevron_left</mat-icon>
+          Previous
+        </button>
+
+        <div class="page-numbers">
+          @if (currentPage() > 3) {
+            <button type="button" class="page-btn number" (click)="goToPage(1)">1</button>
+            @if (currentPage() > 4) {
+              <span class="page-ellipsis">...</span>
+            }
+          }
+          @for (page of pageNumbers(); track page) {
+            <button
+              type="button"
+              class="page-btn number"
+              [class.active]="page === currentPage()"
+              (click)="goToPage(page)"
+            >
+              {{ page }}
+            </button>
+          }
+          @if (currentPage() < totalPages() - 2) {
+            @if (currentPage() < totalPages() - 3) {
+              <span class="page-ellipsis">...</span>
+            }
+            <button type="button" class="page-btn number" (click)="goToPage(totalPages())">
+              {{ totalPages() }}
+            </button>
+          }
+        </div>
+
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="currentPage() >= totalPages()"
+          (click)="goToPage(currentPage() + 1)"
+        >
+          Next
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </section>
+    }
+  }
+</main>

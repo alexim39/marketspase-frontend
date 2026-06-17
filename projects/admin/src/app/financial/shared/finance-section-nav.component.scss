@@ -3,7 +3,7 @@
 .finance-section-nav {
   @include admin.surface-frame();
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.75rem;
   padding: 0.75rem;
   margin-bottom: 1.25rem;

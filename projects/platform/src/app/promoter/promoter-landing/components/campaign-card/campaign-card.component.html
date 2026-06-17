@@ -3,6 +3,11 @@
     <div class="status-badge" [ngClass]="getStatusBadgeClass(campaign)">
       {{getStatusBadgeText(campaign)}}
     </div>
+    @if (campaign.campaignGoal) {
+      <div class="goal-badge" [class.leads]="campaign.campaignGoal === 'leads'" [class.awareness]="campaign.campaignGoal === 'awareness'">
+        {{ campaign.campaignGoal === 'leads' ? 'Leads' : 'Awareness' }}
+      </div>
+    }
     @if (hasPendingPromotion()(campaign)) {
       <div class="user-badge">
           <i class="material-icons">check_circle</i> 

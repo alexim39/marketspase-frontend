@@ -1,0 +1,153 @@
+<app-header />
+
+<main class="testimonials-page">
+  <section class="hero-section" aria-labelledby="testimonials-title">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a routerLink="/">
+            <mat-icon>home</mat-icon>
+            Home
+          </a>
+          <span>/</span>
+          <span>Testimonials</span>
+        </nav>
+
+        <span class="eyebrow">Customer proof</span>
+        <h1 id="testimonials-title">Trusted by marketers, promoters, and store owners.</h1>
+        <p>
+          Real stories from people using MarketSpase to track promotions, grow storefronts, and earn from valid social commerce activity.
+        </p>
+
+        <div class="hero-actions">
+          <a mat-flat-button color="primary" routerLink="/auth">
+            <mat-icon>rocket_launch</mat-icon>
+            Get started
+          </a>
+          <a mat-stroked-button routerLink="/resources/success-stories">
+            <mat-icon>stars</mat-icon>
+            View success stories
+          </a>
+        </div>
+      </div>
+
+      <aside class="featured-card" aria-label="Featured testimonial">
+        <div class="quote-mark" aria-hidden="true">"</div>
+        <div class="rating" aria-label="5 star rating">
+          @for (star of stars(featured().rating); track star) {
+            <mat-icon>star</mat-icon>
+          }
+        </div>
+        <blockquote>{{ featured().quote }}</blockquote>
+        <div class="person-row">
+          <span class="avatar">{{ featured().avatarInitials }}</span>
+          <div>
+            <strong>{{ featured().name }}</strong>
+            <span>{{ featured().role }}, {{ featured().business }}</span>
+          </div>
+        </div>
+        <div class="featured-outcome">
+          <mat-icon>trending_up</mat-icon>
+          <div>
+            <strong>{{ featured().metric }}</strong>
+            <span>{{ featured().outcome }}</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="stats-section" aria-label="MarketSpase trust summary">
+    <div class="container stats-grid">
+      @for (stat of stats; track stat.label) {
+        <article class="stat-card">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+          <strong>{{ stat.value }}</strong>
+          <span>{{ stat.label }}</span>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="stories-section" aria-labelledby="stories-title">
+    <div class="container">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">What users are saying</span>
+          <h2 id="stories-title">Proof from across the marketplace.</h2>
+        </div>
+        <div class="filter-group" aria-label="Filter testimonials by audience">
+          @for (category of categories; track category.value) {
+            <button
+              type="button"
+              [class.active]="selectedAudience() === category.value"
+              (click)="selectAudience(category.value)"
+            >
+              <mat-icon>{{ category.icon }}</mat-icon>
+              {{ category.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="testimonial-grid">
+        @for (testimonial of testimonials(); track testimonial.name) {
+          <article class="testimonial-card">
+            <div class="card-top">
+              <span class="avatar">{{ testimonial.avatarInitials }}</span>
+              <div>
+                <strong>{{ testimonial.name }}</strong>
+                <span>{{ testimonial.role }} at {{ testimonial.business }}</span>
+                <small>{{ testimonial.location }}</small>
+              </div>
+            </div>
+
+            <div class="rating" [attr.aria-label]="testimonial.rating + ' star rating'">
+              @for (star of stars(testimonial.rating); track star) {
+                <mat-icon>star</mat-icon>
+              }
+            </div>
+
+            <p>{{ testimonial.quote }}</p>
+
+            <div class="metric-row">
+              <mat-icon>verified</mat-icon>
+              <div>
+                <strong>{{ testimonial.metric }}</strong>
+                <span>{{ testimonial.outcome }}</span>
+              </div>
+            </div>
+
+            <div class="tag-list" aria-label="Testimonial tags">
+              @for (tag of testimonial.tags; track tag) {
+                <span>{{ tag }}</span>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container cta-card">
+      <div>
+        <span class="eyebrow">Build your own story</span>
+        <h2>Start with promotion that can be tracked, trusted, and improved.</h2>
+        <p>Join as a marketer, promoter, or storefront owner and grow with tools built for measurable social commerce.</p>
+      </div>
+      <div class="cta-actions">
+        <a mat-flat-button color="primary" routerLink="/auth">
+          <mat-icon>person_add</mat-icon>
+          Join MarketSpase
+        </a>
+        <a mat-stroked-button routerLink="/resources/contact">
+          <mat-icon>support_agent</mat-icon>
+          Talk to us
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<app-footer />

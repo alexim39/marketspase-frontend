@@ -111,6 +111,11 @@
         <i class="material-icons">{{ getCategoryIcon(promotion.campaign.category) }}</i> 
         {{ promotion.campaign.category | titlecase }}
       </span>
+      @if (promotion.campaign?.campaignGoal) {
+        <span class="goal-label" [class.leads]="promotion.campaign.campaignGoal === 'leads'">
+          {{ promotion.campaign.campaignGoal === 'leads' ? 'Lead campaign' : 'Awareness campaign' }}
+        </span>
+      }
       <span>
         <i class="material-icons">payments</i> 
         {{ promotion.campaign.currency || 'NGN' }} {{ getCostPerClick() | number }} / click

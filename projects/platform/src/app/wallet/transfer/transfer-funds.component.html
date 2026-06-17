@@ -101,6 +101,17 @@
     }
 
     <!-- Transfer Form Card -->
+      <mat-card class="note-card transfer-rule-card">
+        <div class="note-content">
+          <mat-icon>info</mat-icon>
+          <div class="note-text">
+            <strong>Transfer Requirement:</strong>
+            <p>Both the sender and receiver must be in the <strong>Promoter role</strong> for transfers to succeed.</p>
+            <p class="hint">If the recipient is not a promoter, the user will not be visible in the search results.</p>
+          </div>
+        </div>
+      </mat-card>
+
     <mat-card class="transfer-card">
       <div class="card-header">
         <h2>New Transfer</h2>
@@ -216,6 +227,18 @@
                 </div>
               </div>
             </div>
+
+            @if (selectedDestinationUser()?.role !== 'promoter') {
+              <mat-card class="warning-card small">
+                <div class="warning-content">
+                  <mat-icon>warning</mat-icon>
+                  <div class="warning-text">
+                    <strong>Recipient Role Mismatch</strong>
+                    <p>The selected recipient (<strong>&#64;{{ selectedDestinationUser()?.username }}</strong>) is not a <strong>Promoter</strong>. Transfers to non-promoter users will fail.</p>
+                  </div>
+                </div>
+              </mat-card>
+            }
           }
         }
 
@@ -266,7 +289,7 @@
             mat-flat-button
             color="primary"
             type="submit"
-            [disabled]="transferForm.invalid || isSubmitting()">
+            [disabled]="transferForm.invalid || isSubmitting() || (selectedDestinationUser() && selectedDestinationUser()?.role !== 'promoter')">
             <mat-icon>sync_alt</mat-icon>
             {{ isSubmitting() ? 'Processing...' : 'Transfer Funds' }}
           </button>

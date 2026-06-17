@@ -48,6 +48,7 @@ export class CampaignSummaryComponent {
   budgetForm = input.required<FormGroup>();
   scheduleForm = input.required<FormGroup>();
   selectedMedia = input<MediaFile | null>(null);
+  costPerClick = input(80);
 
   private readonly ageGroups: AgeGroupInfo[] = [
     {
@@ -142,7 +143,7 @@ export class CampaignSummaryComponent {
 
   public estimatedOutcome = computed(() => {
     const budget = this.budgetValue() || 0;
-    const costPerClick = 80;
+    const costPerClick = Number(this.costPerClick() || 80);
     return Math.floor(budget / costPerClick);
   });
 

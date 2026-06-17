@@ -536,16 +536,16 @@
   color: var(--on-primary-color);
 
   .eyebrow {
-    color: rgba(var(--surface-color), 0.76);
+    color: rgba($white, 0.76);
   }
 
   p {
-    color: rgba(var(--surface-color), 0.76);
+    color: rgba($white, 0.76);
   }
 
   button,
   a {
-    background: var(--surface-color);
+    background: $white;
     color: $gray-900;
   }
 }
@@ -728,3 +728,5 @@
     margin-bottom: 16px;
   }
 }
+
+

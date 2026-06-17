@@ -105,7 +105,7 @@
     border: 0;
     outline: 0;
     background: transparent;
-    color: $gray-900;
+    color: $text-primary;
     font: inherit;
     font-size: 0.95rem;
   }
@@ -144,7 +144,7 @@
   padding: 0 13px;
   border: 1px solid rgba($primary-color-hex, 0.22);
   border-radius: 999px;
-  background: rgba(var(--surface-color), 0.88);
+  background: color-mix(in srgb, #{$surface-color}, transparent 12%);
   color: $text-primary;
   font-size: 0.82rem;
   font-weight: 800;
@@ -425,8 +425,8 @@
     max-width: 100%;
     padding: 5px 8px;
     border-radius: 999px;
-    background: $gray-100;
-    color: $gray-700;
+    background: color-mix(in srgb, #{$surface-color}, #{$border-color} 62%);
+    color: $text-secondary;
     font-size: 0.72rem;
     font-weight: 800;
     overflow-wrap: anywhere;
@@ -481,7 +481,7 @@
 
   .eyebrow,
   p {
-    color: rgba(var(--surface-color), 0.76);
+    color: rgba($white, 0.76);
   }
 }
 
@@ -497,9 +497,9 @@
     justify-content: center;
     gap: 8px;
     min-height: 52px;
-    border: 1px solid rgba(var(--border-color), 0.18);
+    border: 1px solid rgba($white, 0.18);
     border-radius: 8px;
-    background: rgba(var(--surface-color), 0.08);
+    background: rgba($white, 0.08);
     color: var(--on-primary-color);
     font-weight: 900;
     text-decoration: none;
@@ -578,7 +578,7 @@
   padding: 12px;
   border: 1px solid $border-color;
   border-radius: 8px;
-  background: $gray-50;
+  background: color-mix(in srgb, #{$surface-color}, #{$primary-color} 3%);
 
   > span {
     font-weight: 900;
@@ -694,3 +694,5 @@
     margin-bottom: 16px;
   }
 }
+
+

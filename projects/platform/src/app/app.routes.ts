@@ -11,6 +11,7 @@ export const routes: Routes = [
     { path: 'campaigns/unavailable', loadComponent: () => import('./campaign/public-campaign-unavailable').then(c => c.PublicCampaignUnavailableIndexComponent) },
     { path: 'feed/:postId', loadComponent: () => import('./community/feeds/public-feed-post').then(c => c.PublicFeedPostIndexComponent) },
     { path: 'ref/:username', loadComponent: () => import('./referral').then(c => c.ReferralCaptureIndexComponent) },
-    { path: 'promote/:productId', loadComponent: () => import('./storefront/product-details/main').then(m => m.ProductDetailsIndexComponent) }
+    { path: 'promote/:productId', loadComponent: () => import('./storefront/product-details/main').then(m => m.ProductDetailsIndexComponent) },
+    { path: 'c/:upi', loadComponent: () => import('./campaign/public-campaign').then(c => c.PublicCampaignIndexComponent) }
 
 ];

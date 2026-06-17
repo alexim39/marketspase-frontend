@@ -300,7 +300,6 @@
   border-collapse: collapse;
   
   th {
-    //background: #f8fafc;
     padding: 16px 12px;
     text-align: left;
     font-weight: 600;
@@ -312,10 +311,6 @@
   td {
     padding: 16px 12px;
     border-bottom: 1px solid #f3f4f6;
-  }
-  
-  tr:hover {
-    background: #f9fafb;
   }
 }
 

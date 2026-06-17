@@ -3,7 +3,7 @@
 
 :host {
   display: block;
-  min-height: 100svh;
+  min-height: calc(100svh - 118px);
   background: color-mix(in srgb, var(--background-color), black 88%);
   color: color-mix(in srgb, var(--text-primary), white 88%);
   font-family: vars.$font-family;
@@ -25,10 +25,15 @@
   );
   --reel-safe-top: env(safe-area-inset-top, 0px);
   --reel-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --dashboard-mobile-chrome: 118px;
+  --reel-top-chrome: calc(52px + var(--reel-safe-top));
+  --reel-bottom-chrome: calc(184px + var(--reel-safe-bottom));
+  --reel-action-rail-width: 64px;
 
   position: relative;
   width: 100%;
-  height: 100svh;
+  height: calc(100svh - var(--dashboard-mobile-chrome));
+  min-height: 440px;
   overflow: hidden;
   background:
     radial-gradient(circle at 12% 0%, rgba(var(--primary-rgb), 0.2), transparent 32%),
@@ -37,17 +42,17 @@
 }
 
 .reels-topbar {
-  position: fixed;
+  position: absolute;
   inset: 0 0 auto;
   z-index: 30;
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
   align-items: center;
-  gap: vars.$spacing-2;
-  min-height: calc(56px + var(--reel-safe-top));
-  padding: calc(vars.$spacing-2 + var(--reel-safe-top)) vars.$spacing-3 vars.$spacing-2;
+  gap: 6px;
+  min-height: calc(48px + var(--reel-safe-top));
+  padding: calc(4px + var(--reel-safe-top)) vars.$spacing-2 4px;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.56), rgba(0, 0, 0, 0));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.44), rgba(0, 0, 0, 0));
 
   > * {
     pointer-events: auto;
@@ -79,8 +84,8 @@
 
 .top-icon {
   @include mixins.flex-center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   color: var(--reel-text);
   background: rgba(0, 0, 0, 0.34);
@@ -89,7 +94,7 @@
   box-shadow: 0 12px 32px var(--reel-shadow);
 
   mat-icon {
-    font-size: 1.45rem;
+    font-size: 1.28rem;
   }
 }
 
@@ -97,18 +102,18 @@
   justify-self: center;
   display: inline-flex;
   align-items: center;
-  gap: vars.$spacing-1;
-  min-height: 48px;
-  padding: vars.$spacing-1;
+  gap: 4px;
+  min-height: 40px;
+  padding: 4px;
   border-radius: vars.$border-radius-full;
   background: rgba(0, 0, 0, 0.36);
   border: 1px solid rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(18px);
 
   button {
-    min-width: 94px;
-    min-height: 40px;
-    padding: 0 vars.$spacing-4;
+    min-width: 82px;
+    min-height: 32px;
+    padding: 0 vars.$spacing-3;
     border-radius: vars.$border-radius-full;
     background: transparent;
     color: rgba(255, 255, 255, 0.68);
@@ -125,8 +130,8 @@
 }
 
 .pull-indicator {
-  position: fixed;
-  top: calc(66px + var(--reel-safe-top));
+  position: absolute;
+  top: calc(52px + var(--reel-safe-top));
   left: 50%;
   z-index: 32;
   display: inline-flex;
@@ -156,7 +161,7 @@
 }
 
 .reels-scroll {
-  height: 100svh;
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   scroll-snap-type: y mandatory;
@@ -173,8 +178,8 @@
 .reel-post {
   position: relative;
   width: 100%;
-  height: 100svh;
-  min-height: 100svh;
+  height: 100%;
+  min-height: 100%;
   overflow: hidden;
   scroll-snap-align: start;
   scroll-snap-stop: always;
@@ -187,7 +192,13 @@
 .media-layer {
   position: absolute;
   inset: 0;
+  box-sizing: border-box;
   @include mixins.flex-center;
+  padding:
+    var(--reel-top-chrome)
+    calc(var(--reel-action-rail-width) + env(safe-area-inset-right, 0px))
+    var(--reel-bottom-chrome)
+    env(safe-area-inset-left, 0px);
   background:
     radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.06), transparent 32%),
     color-mix(in srgb, var(--background-color), black 96%);
@@ -204,20 +215,52 @@
 
 .reel-video,
 .reel-image {
+  display: block;
   width: 100%;
   height: 100%;
   max-width: 100%;
   max-height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   background: rgba(0, 0, 0, 0.8);
   transform: translateZ(0);
   will-change: transform;
 }
 
+.reel-video {
+  border-radius: clamp(0px, 1.5vw, 16px);
+}
+
+.video-buffering-indicator {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 8;
+  display: inline-flex;
+  align-items: center;
+  gap: vars.$spacing-2;
+  min-height: 42px;
+  padding: 0 vars.$spacing-3;
+  border-radius: vars.$border-radius-full;
+  color: var(--reel-text);
+  background: rgba(0, 0, 0, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 14px 36px var(--reel-shadow);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+
+  span {
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-bold;
+    white-space: nowrap;
+  }
+}
+
 .reel-image {
   user-select: none;
   touch-action: pinch-zoom;
+  border-radius: clamp(0px, 1.5vw, 16px);
 }
 
 .story-only {
@@ -278,12 +321,12 @@
 
 .sound-chip {
   position: absolute;
-  top: calc(76px + var(--reel-safe-top));
+  top: calc(58px + var(--reel-safe-top));
   right: vars.$spacing-3;
   z-index: 10;
   @include mixins.flex-center;
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   color: var(--reel-text);
   background: rgba(0, 0, 0, 0.44);
@@ -293,30 +336,30 @@
 
 .action-rail {
   position: absolute;
-  right: max(vars.$spacing-2, env(safe-area-inset-right, 0px));
-  bottom: calc(132px + var(--reel-safe-bottom));
+  right: max(6px, env(safe-area-inset-right, 0px));
+  bottom: calc(126px + var(--reel-safe-bottom));
   z-index: 12;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: vars.$spacing-3;
-  width: 62px;
+  gap: 8px;
+  width: 54px;
 }
 
 .rail-action {
   display: grid;
   justify-items: center;
-  gap: vars.$spacing-1;
-  min-width: 54px;
-  min-height: 56px;
+  gap: 3px;
+  min-width: 48px;
+  min-height: 48px;
   padding: 0;
   color: var(--reel-text);
   background: transparent;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.84);
 
   span:last-child {
-    max-width: 62px;
-    font-size: 0.68rem;
+    max-width: 54px;
+    font-size: 0.62rem;
     line-height: 1.1;
     font-weight: vars.$font-weight-bold;
     overflow-wrap: anywhere;
@@ -339,8 +382,8 @@
 
 .rail-icon {
   @include mixins.flex-center;
-  width: 50px;
-  height: 50px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.36);
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -348,16 +391,16 @@
   box-shadow: 0 12px 28px var(--reel-shadow);
 
   mat-icon {
-    width: 26px;
-    height: 26px;
-    font-size: 26px;
+    width: 22px;
+    height: 22px;
+    font-size: 22px;
   }
 }
 
 .content-overlay {
   position: absolute;
   left: vars.$spacing-3;
-  right: 76px;
+  right: 62px;
   bottom: calc(vars.$spacing-4 + var(--reel-safe-bottom));
   z-index: 11;
   display: grid;
@@ -663,7 +706,7 @@
 }
 
 .empty-feed {
-  height: 100svh;
+  height: 100%;
   scroll-snap-align: start;
   @include mixins.flex-column-center;
   gap: vars.$spacing-3;
@@ -880,8 +923,13 @@
 }
 
 @media (max-width: 380px) {
+  .ms-reels-shell {
+    --reel-action-rail-width: 58px;
+    --reel-bottom-chrome: calc(168px + var(--reel-safe-bottom));
+  }
+
   .content-overlay {
-    right: 70px;
+    right: 58px;
     left: vars.$spacing-2;
   }
 
@@ -894,8 +942,8 @@
   }
 
   .feed-tabs button {
-    min-width: 82px;
-    padding-inline: vars.$spacing-3;
+    min-width: 72px;
+    padding-inline: vars.$spacing-2;
   }
 }
 
@@ -956,5 +1004,35 @@
 
   to {
     background-position: -40% 0;
+  }
+}
+
+/* Spotlight / Featured post badge */
+.spotlight-badge {
+  position: absolute;
+  top: calc(58px + var(--reel-safe-top));
+  left: 50%;
+  z-index: 14;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 14px;
+  border-radius: var(--border-radius-full, 9999px);
+  color: #ffd700;
+  background: rgba(0, 0, 0, 0.58);
+  border: 1px solid rgba(255, 215, 0, 0.32);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.46);
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  font-weight: 700;
+  pointer-events: none;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    color: #ffd700;
   }
 }

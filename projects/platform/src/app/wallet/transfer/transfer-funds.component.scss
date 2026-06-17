@@ -673,3 +673,79 @@ mat-spinner {
     width: 100%;
   }
 }
+
+.note-card.transfer-rule-card {
+  margin: 16px 0;
+  padding: 12px;
+  background: #e8f6ff;
+  border-left: 4px solid #1e88e5;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  color: #0f172a;
+  display: block;
+  border-radius: 6px;
+
+  .note-content {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  mat-icon {
+    font-size: 22px;
+    color: #0b63b8;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    padding: 6px;
+    line-height: 1;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    flex: 0 0 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .note-text {
+    flex: 1;
+    strong {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #0b2540;
+    }
+
+    p {
+      margin: 0 0 6px;
+      color: #0b2540;
+      line-height: 1.3;
+    }
+
+    .hint {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #334155;
+      font-size: 0.95rem;
+
+      mat-icon {
+        font-size: 16px;
+        color: #6b7280;
+        background: transparent;
+        padding: 0;
+        box-shadow: none;
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    padding: 10px;
+
+    mat-icon {
+      flex: 0 0 32px;
+      padding: 4px;
+    }
+
+    .note-text {
+      strong { font-size: 0.98rem; }
+      p { font-size: 0.95rem; }
+    }
+  }
+}

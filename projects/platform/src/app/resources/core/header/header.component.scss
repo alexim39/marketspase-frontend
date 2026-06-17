@@ -1,21 +1,27 @@
 @import '../../../../styles/variables';
 @import '../../../../styles/mixins';
 
+:host {
+  --resources-header-height: 80px;
+  display: block;
+}
+
 .header {
+
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: $z-index-fixed;
-  background-color: color-mix(in srgb, $background-color, black 5%);
+  background: color-mix(in srgb, #{$surface-color}, transparent 8%);
   @include backdrop-blur;
-  border-bottom: $border-width solid rgba($border-color, 0.2);
-  transition: all $transition-slow;
+  border-bottom: $border-width solid color-mix(in srgb, #{$border-color}, transparent 25%);
+  transition: background $transition-slow, border-color $transition-slow, box-shadow $transition-slow;
 
   &.scrolled {
-    background: rgba($surface-color, 0.98);
+    background: color-mix(in srgb, #{$surface-color}, transparent 1%);
     backdrop-filter: blur(30px);
-    border-bottom-color: rgba($text-primary, 0.1);
+    border-bottom-color: color-mix(in srgb, #{$border-color}, #{$text-primary} 8%);
     box-shadow: $shadow-lg;
   }
 
@@ -32,11 +38,15 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 $spacing-6;
-  height: 80px;
+  height: var(--resources-header-height);
+  gap: $spacing-4;
+  min-width: 0;
 }
 
 /* Logo */
 .logo {
+  flex: 0 0 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: $spacing-3;
@@ -78,19 +88,20 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  white-space: nowrap;
 }
 
 /* Desktop Navigation */
 .desktop-nav {
   display: flex;
   align-items: center;
-  gap: $spacing-2;
+  justify-content: center;
+  gap: $spacing-1;
   margin: 0 auto;
+  min-width: 0;
 
-  @include desktop {
-    @media (max-width: 1024px) {
-      display: none;
-    }
+  @media (max-width: 1099px) {
+    display: none;
   }
 }
 
@@ -102,7 +113,8 @@
   display: flex;
   align-items: center;
   gap: $spacing-1;
-  padding: $spacing-3 $spacing-5;
+  min-height: 44px;
+  padding: $spacing-3 $spacing-4;
   color: $text-secondary;
   font-weight: $font-weight-medium;
   text-decoration: none;
@@ -175,11 +187,10 @@
   display: flex;
   align-items: center;
   gap: $spacing-3;
+  flex: 0 0 auto;
 
-  @include desktop {
-    @media (max-width: 1024px) {
-      display: none;
-    }
+  @media (max-width: 1099px) {
+    display: none;
   }
 }
 
@@ -194,10 +205,10 @@
   
   &.login {
     color: $text-secondary;
-    border-color: rgba($text-primary, 0.1);
+    border-color: color-mix(in srgb, #{$text-primary}, transparent 90%);
 
     &:hover {
-      background: rgba($text-primary, 0.02);
+      background: color-mix(in srgb, #{$text-primary}, transparent 98%);
       border-color: $primary-color;
       color: $primary-color;
     }
@@ -254,18 +265,22 @@
 /* Mobile Menu Button */
 .mobile-menu-btn {
   display: none;
+  flex: 0 0 auto;
   flex-direction: column;
-  gap: $spacing-1;
-  background: none;
-  border: none;
-  padding: $spacing-2;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 48px;
+  height: 48px;
+  background: color-mix(in srgb, #{$surface-color}, #{$primary-color} 4%);
+  border: $border-width solid color-mix(in srgb, #{$border-color}, transparent 15%);
+  border-radius: $border-radius-lg;
+  padding: 0;
   cursor: pointer;
   transition: all $transition-normal;
 
-  @include desktop {
-    @media (max-width: 1024px) {
-      display: flex;
-    }
+  @media (max-width: 1099px) {
+    display: flex;
   }
 
   span {
@@ -277,8 +292,11 @@
   }
 
   &.active {
+    background: color-mix(in srgb, #{$primary-color}, #{$surface-color} 88%);
+    border-color: color-mix(in srgb, #{$primary-color}, transparent 30%);
+
     span:nth-child(1) {
-      transform: rotate(45deg) translate(6px, 6px);
+      transform: rotate(45deg) translate(5px, 5px);
     }
 
     span:nth-child(2) {
@@ -286,7 +304,7 @@
     }
 
     span:nth-child(3) {
-      transform: rotate(-45deg) translate(6px, -6px);
+      transform: rotate(-45deg) translate(5px, -5px);
     }
   }
 }
@@ -294,54 +312,78 @@
 /* Mobile Navigation */
 .mobile-nav {
   position: fixed;
-  top: 80px;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: calc(var(--resources-header-height) + 10px);
+  left: 50%;
+  width: min(430px, calc(100vw - 24px));
+  max-height: calc(100dvh - var(--resources-header-height) - 24px - env(safe-area-inset-bottom));
   background: $surface-color;
-  transform: translateX(100%);
-  transition: transform $transition-slow;
+  border: $border-width solid color-mix(in srgb, #{$border-color}, transparent 12%);
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-2xl;
+  transform: translate(-50%, -12px) scale(0.98);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform $transition-slow, opacity $transition-normal, visibility $transition-normal;
   overflow-y: auto;
-  z-index: $z-index-fixed - 1;
+  overscroll-behavior: contain;
+  z-index: $z-index-fixed + 2;
 
-  @include desktop {
-    @media (min-width: 1025px) {
-      display: none;
-    }
+  @media (min-width: 1100px) {
+    display: none;
   }
 
   &.active {
-    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate(-50%, 0) scale(1);
   }
 }
 
 .mobile-nav-content {
-  padding: $spacing-8 $spacing-6;
+  padding: $spacing-4;
   display: flex;
   flex-direction: column;
   gap: $spacing-2;
 }
 
 .mobile-nav-item {
-  border-bottom: $border-width solid rgba($border-color, 0.5);
+  border-bottom: $border-width solid color-mix(in srgb, #{$border-color}, transparent 40%);
+
+  &:last-of-type {
+    border-bottom: none;
+  }
 }
 
 .mobile-nav-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: $spacing-4 0;
+  gap: $spacing-3;
+  min-height: 52px;
+  padding: $spacing-3 $spacing-4;
   color: $text-primary;
   text-decoration: none;
   font-weight: $font-weight-medium;
-  font-size: $font-size-lg;
+  font-size: $font-size-base;
   background: none;
   border: none;
+  border-radius: $border-radius-lg;
   width: 100%;
   text-align: left;
   cursor: pointer;
+  transition: background $transition-normal, color $transition-normal;
+
+  &:hover,
+  &:focus-visible {
+    color: $primary-color;
+    background: color-mix(in srgb, #{$primary-color}, transparent 91%);
+    outline: none;
+  }
 
   mat-icon {
+    flex: 0 0 auto;
     transition: transform $transition-normal;
 
     &.rotated {
@@ -351,6 +393,7 @@
 
   &.router-link-active {
     color: $primary-color;
+    background: color-mix(in srgb, #{$primary-color}, transparent 90%);
   }
 }
 
@@ -358,10 +401,12 @@
   max-height: 0;
   overflow: hidden;
   transition: max-height $transition-normal;
-  padding-left: $spacing-4;
+  padding-left: $spacing-2;
+  padding-right: $spacing-2;
 
   &.active {
     max-height: 500px;
+    padding-bottom: $spacing-2;
   }
 }
 
@@ -369,11 +414,12 @@
   display: flex;
   align-items: center;
   gap: $spacing-3;
-  padding: $spacing-3 0;
+  min-height: 48px;
+  padding: $spacing-3 $spacing-4;
   color: $text-secondary;
   text-decoration: none;
   font-weight: $font-weight-medium;
-  border-bottom: $border-width solid rgba($border-color, 0.5);
+  border-radius: $border-radius;
   transition: all $transition-normal;
 
   &:last-child {
@@ -389,15 +435,12 @@
 
   &:hover {
     color: $primary-color;
-    background: rgba($primary-color-hex, 0.05);
+    background: color-mix(in srgb, #{$primary-color}, transparent 93%);
   }
 
   &.active {
-    background: rgba($primary-color-hex, 0.08);
+    background: color-mix(in srgb, #{$primary-color}, transparent 90%);
     color: $primary-color;
-    border-radius: $border-radius;
-    padding: $spacing-3 $spacing-4;
-    margin: 0 (-$spacing-4);
   }
 }
 
@@ -406,9 +449,16 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-3;
-  margin-top: $spacing-8;
-  padding-top: $spacing-8;
-  border-top: $border-width solid rgba($border-color, 0.8);
+  margin-top: $spacing-4;
+  padding-top: $spacing-4;
+  border-top: $border-width solid color-mix(in srgb, #{$border-color}, transparent 15%);
+
+  .whatsapp-channel-button {
+    width: 100%;
+    justify-content: center;
+    white-space: normal;
+    line-height: 1.25;
+  }
 }
 
 .mobile-auth-btn {
@@ -424,7 +474,7 @@
 
   &.login {
     color: $text-secondary;
-    border-color: rgba($border-color, 0.5);
+    border-color: color-mix(in srgb, #{$border-color}, transparent 50%);
   }
 
   &.signup {
@@ -437,7 +487,7 @@
 /* Mobile Overlay */
 .mobile-overlay {
   position: fixed;
-  top: 80px;
+  top: var(--resources-header-height);
   left: 0;
   right: 0;
   bottom: 0;
@@ -445,12 +495,10 @@
   opacity: 0;
   visibility: hidden;
   transition: all $transition-normal;
-  z-index: $z-index-fixed - 2;
+  z-index: $z-index-fixed + 1;
 
-  @include desktop {
-    @media (min-width: 1025px) {
-      display: none;
-    }
+  @media (min-width: 1100px) {
+    display: none;
   }
 
   &.active {
@@ -460,21 +508,32 @@
 }
 
 /* Responsive adjustments for mobile */
+@media (max-width: 1099px) {
+  :host {
+    height: var(--resources-header-height);
+  }
+
+  .header-container {
+    max-width: none;
+    padding: 0 max($spacing-4, env(safe-area-inset-left)) 0 max($spacing-4, env(safe-area-inset-right));
+  }
+}
+
 @include tablet {
-  .mobile-nav {
-    top: 80px;
-  }
-
-  .mobile-overlay {
-    top: 80px;
-  }
-
   .header-container {
     padding: 0 $spacing-4;
   }
 }
 
 @include mobile {
+  :host {
+    --resources-header-height: 68px;
+  }
+
+  .header-container {
+    padding: 0 $spacing-3;
+  }
+
   .logo-text {
     font-size: $font-size-lg;
   }
@@ -484,13 +543,19 @@
     height: 36px;
   }
 
+  .mobile-nav {
+    top: calc(var(--resources-header-height) + 8px);
+    width: calc(100vw - 20px);
+    max-height: calc(100dvh - var(--resources-header-height) - 18px - env(safe-area-inset-bottom));
+    border-radius: $border-radius-lg;
+  }
+
   .mobile-nav-content {
-    padding: $spacing-6 $spacing-4;
+    padding: $spacing-3;
   }
 
   .mobile-nav-link {
-    font-size: $font-size-base;
-    padding: $spacing-3 0;
+    min-height: 50px;
   }
 
   .mobile-submenu-link {
@@ -500,7 +565,7 @@
   .whatsapp-channel-button {
     padding: $spacing-2 $spacing-4 !important;
     font-size: $font-size-sm !important;
-    min-height: 40px;
+    min-height: 48px;
     
     mat-icon {
       font-size: $font-size-base !important;

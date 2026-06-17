@@ -373,7 +373,7 @@
     padding: 11px 12px;
     border: 1px solid $border-color;
     border-radius: 8px;
-    background: $gray-50;
+    background: color-mix(in srgb, #{$surface-color}, #{$primary-color} 3%);
   }
 
   span {
@@ -510,7 +510,7 @@
     height: 48px;
     border-radius: 999px;
     object-fit: cover;
-    background: $gray-100;
+    background: color-mix(in srgb, #{$surface-color}, #{$border-color} 62%);
   }
 
   span {
@@ -541,11 +541,11 @@
   color: var(--on-primary-color);
 
   .eyebrow {
-    color: rgba(var(--surface-color), 0.75);
+    color: rgba($white, 0.75);
   }
 
   button {
-    background: var(--surface-color);
+    background: $white;
     color: $gray-900;
   }
 }
@@ -649,7 +649,7 @@
     height: 64px;
     border-radius: 999px;
     object-fit: cover;
-    background: $gray-100;
+    background: color-mix(in srgb, #{$surface-color}, #{$border-color} 62%);
   }
 
   h2,
@@ -721,3 +721,6 @@
     margin-bottom: 16px;
   }
 }
+
+
+

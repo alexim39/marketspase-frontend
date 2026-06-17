@@ -537,7 +537,7 @@ getRefundStatistics(timeframe: 'day' | 'week' | 'month' | 'year' = 'month'): Obs
     amount: number, 
     walletType: 'promoter' | 'marketer'
   ): Observable<ApiResponse<ValidationResponseData>> {
-    console.log('Service validating refund with wallet:', { promoterUserId, amount, walletType });
+    //console.log('Service validating refund with wallet:', { promoterUserId, amount, walletType });
     
     return this.apiService.post<ApiResponse<ValidationResponseData>>(
       `${this.apiBase}/validate`,
@@ -546,7 +546,7 @@ getRefundStatistics(timeframe: 'day' | 'week' | 'month' | 'year' = 'month'): Obs
       true
     ).pipe(
       map(response => {
-        console.log('Raw validation response:', response);
+        //console.log('Raw validation response:', response);
         
         if (!response.data) {
           return {
@@ -558,7 +558,7 @@ getRefundStatistics(timeframe: 'day' | 'week' | 'month' | 'year' = 'month'): Obs
         return response;
       }),
       catchError(error => {
-        console.error('Validation service error:', error);
+       // console.error('Validation service error:', error);
         
         return throwError(() => ({
           error: {
@@ -582,7 +582,7 @@ refundToWallet(refundRequest: {
   adminId: string;
   metadata?: any;
 }): Observable<ApiResponse<RefundResponseData>> {
-  console.log('Sending refund request:', refundRequest);
+  //console.log('Sending refund request:', refundRequest);
   
   // Ensure walletType is included in the request
   return this.apiService.post<ApiResponse<RefundResponseData>>(
@@ -599,11 +599,11 @@ refundToWallet(refundRequest: {
     true
   ).pipe(
     map(response => {
-      console.log('Refund response:', response);
+      //console.log('Refund response:', response);
       return response;
     }),
     catchError(error => {
-      console.error('Refund API error:', error);
+      //console.error('Refund API error:', error);
       return throwError(() => error);
     })
   );

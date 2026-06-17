@@ -298,7 +298,7 @@ export class RefundComponent implements OnInit {
   }
 
 selectPromoter(promoter: any): void {
-  console.log('Selected user with wallets:', promoter);
+  //console.log('Selected user with wallets:', promoter);
   
   // Store the full user object (now includes both wallets)
   this.selectedPromoter.set(promoter);
@@ -359,11 +359,11 @@ selectPromoter(promoter: any): void {
     const selectedPromoterData = this.selectedPromoter();
     const selectedWalletType = formValue.selectedWalletType as 'promoter' | 'marketer';
     
-    console.log('Validating refund with:', {
-      userId: selectedPromoterData?._id || formValue.promoterIdentifier,
-      walletType: selectedWalletType,
-      amount: formValue.amount
-    });
+    // console.log('Validating refund with:', {
+    //   userId: selectedPromoterData?._id || formValue.promoterIdentifier,
+    //   walletType: selectedWalletType,
+    //   amount: formValue.amount
+    // });
     
     // Check if we have a selected user
     const userId = selectedPromoterData?._id || selectedPromoterData?.id || formValue.promoterIdentifier;
@@ -408,7 +408,7 @@ selectPromoter(promoter: any): void {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          console.log('Validation response:', response);
+          //console.log('Validation response:', response);
           
           if (response.success) {
             const validationData = response.data;
@@ -434,7 +434,7 @@ selectPromoter(promoter: any): void {
           this.isLoading.set(false);
         },
         error: (error) => {
-          console.error('Validation API error:', error);
+          //console.error('Validation API error:', error);
           
           let errorMessage = 'Validation failed';
           if (error.error?.error) {
@@ -477,12 +477,12 @@ processSingleRefund(): void {
   const selectedWalletType = formValue.selectedWalletType;
   
   // Debug log to verify wallet selection
-  console.log('Processing refund with:', {
-    userId,
-    amount: formValue.amount,
-    walletType: selectedWalletType,
-    reason: formValue.reason
-  });
+  // console.log('Processing refund with:', {
+  //   userId,
+  //   amount: formValue.amount,
+  //   walletType: selectedWalletType,
+  //   reason: formValue.reason
+  // });
 
   this.isProcessing.set(true);
 

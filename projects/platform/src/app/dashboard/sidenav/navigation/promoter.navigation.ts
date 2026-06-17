@@ -5,6 +5,15 @@ export function getPromoterNavigation(
 ): NavigationItem[] {
   return [
     {
+      // Discovery, engagement, content
+      icon: 'home',
+      label: 'Home',
+      route: '/dashboard/home',
+      expanded: false
+    },
+
+    {
+      // Analytics, business management
       icon: 'dashboard',
       label: 'Dashboard',
       route: '/dashboard',
@@ -57,15 +66,6 @@ export function getPromoterNavigation(
       expanded: false,
       children: [
         { icon: 'chat', label: 'Discussions', route: '/dashboard/community/discussion' },
-        {
-          icon: 'dynamic_feed',
-          label: 'Feed',
-          expanded: false,
-          children: [
-           //{ icon: 'notifications', label: 'Create', route: '/dashboard/community/feeds/create' }, Promoters should not be able to create post at the time
-           { icon: 'quickreply', label: 'Social Feeds', route: '/dashboard/community/feeds'  }
-          ]
-        },
         { icon: 'military_tech', label: 'Gamification', route: '/dashboard/gamification' },
       ]
     },
@@ -76,14 +76,6 @@ export function getPromoterNavigation(
       route: '/dashboard/leaderboard',
       expanded: false
     },
-
-    // {
-    //   icon: 'military_tech',
-    //   label: 'Gamification',
-    //   route: '/dashboard/gamification',
-    //   expanded: false
-    // },
-
 
     {
       icon: 'currency_exchange',

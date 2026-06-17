@@ -166,15 +166,15 @@
               @for (product of (store.productPreview || []).slice(0, 4); track trackProduct($index, product)) {
                 <button type="button" class="product-preview" (click)="browseProducts(store)">
                   <span class="product-image">
-                    @if (product.images?.[0]?.url) {
-                      <img [src]="product.images?.[0]?.url" [alt]="product.name" loading="lazy" />
+                    @if (product?.images?.[0]?.url) {
+                      <img [src]="product?.images?.[0]?.url" [alt]="product.name" loading="lazy" />
                     } @else {
                       <mat-icon>image</mat-icon>
                     }
                   </span>
                   <strong>{{ product.name }}</strong>
                   <small>{{ product.price | currencyUtils:'NGN' }}</small>
-                  <em>{{ product.promotion?.commissionRate || 0 }}%</em>
+                  <em>{{ product.promotion.commissionRate || 0 }}%</em>
                 </button>
               }
             </div>

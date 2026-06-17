@@ -1,17 +1,15 @@
-// financial-management.component.ts
 import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, debounceTime, distinctUntilChanged, Subscription, interval } from 'rxjs';
 
@@ -26,19 +24,9 @@ import { WithdrawalDetailsDialogComponent } from './withdrawal-details-dialog/wi
   styleUrls: ['./financial-mgt.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
-    RouterModule,
-    MatIconModule,
-    MatButtonModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatCardModule,
-    MatTabsModule,
-    MatMenuModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
+    CommonModule, FormsModule, RouterModule,
+    MatIconModule, MatButtonModule, MatTabsModule, MatMenuModule,
+    MatDialogModule, MatSnackBarModule, MatProgressSpinnerModule, MatProgressBarModule, MatTooltipModule,
     FinanceSectionNavComponent,
   ],
   providers: [FinancialService]
@@ -48,472 +36,209 @@ export class FinancialMgtComponent implements OnInit, OnDestroy {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  // Signals for state management
   readonly transactions = signal<Transaction[]>([]);
   readonly withdrawalRequests = signal<WithdrawalRequest[]>([]);
   readonly financialStats = signal<FinancialStats>({
-    year: new Date().getFullYear(),
-    baseCurrency: 'NGN',
-    totalCashIn: 0,
-    totalCashOut: 0,
-    netCashFlow: 0,
-    walletFunding: 0,
-    storefrontVolume: 0,
-    platformRevenue: 0,
-    campaignSpend: 0,
-    promoterPayouts: 0,
-    walletRefunds: 0,
-    totalTransactions: 0,
-    successfulTransactions: 0,
-    totalWithdrawalCount: 0,
-    totalWithdrawalAmount: 0,
-    successfulWithdrawalCount: 0,
-    successfulWithdrawals: 0,
-    processingWithdrawalCount: 0,
-    processingWithdrawals: 0,
-    pendingApprovalCount: 0,
-    pendingApprovals: 0,
-    failedWithdrawalCount: 0,
-    failedWithdrawals: 0,
-    activeBalance: 0,
-    reservedBalance: 0,
-    marketerAvailable: 0,
-    marketerReserved: 0,
-    promoterAvailable: 0,
-    promoterReserved: 0,
-    paidOrders: 0,
-    totalOrders: 0,
-    averageOrderValue: 0,
+    year: new Date().getFullYear(), baseCurrency: 'NGN', totalCashIn: 0, totalCashOut: 0, netCashFlow: 0,
+    walletFunding: 0, storefrontVolume: 0, platformRevenue: 0, campaignSpend: 0, promoterPayouts: 0,
+    walletRefunds: 0, totalTransactions: 0, successfulTransactions: 0, totalWithdrawalCount: 0,
+    totalWithdrawalAmount: 0, successfulWithdrawalCount: 0, successfulWithdrawals: 0,
+    processingWithdrawalCount: 0, processingWithdrawals: 0, pendingApprovalCount: 0, pendingApprovals: 0,
+    failedWithdrawalCount: 0, failedWithdrawals: 0, activeBalance: 0, reservedBalance: 0,
+    marketerAvailable: 0, marketerReserved: 0, promoterAvailable: 0, promoterReserved: 0,
+    paidOrders: 0, totalOrders: 0, averageOrderValue: 0,
   });
 
   readonly isLoading = signal(true);
   readonly isWithdrawalsLoading = signal(true);
   readonly isTransactionsLoading = signal(true);
+  readonly isExporting = signal(false);
 
-  // Filter and pagination - ALL SERVER-SIDE NOW
   readonly searchTerm = signal('');
   readonly statusFilter = signal<'all' | 'processing' | 'successful' | 'failed' | 'reversed' | 'pending_approval'>('all');
   readonly dateRange = signal<{ start: Date | null; end: Date | null }>({ start: null, end: null });
-  readonly currentPage = signal(0);
+  readonly currentPage = signal(1);
   readonly pageSize = signal(50);
   readonly totalItems = signal(0);
+  readonly totalPages = signal(0);
+  readonly pageSizeOptions = [25, 50, 100, 200];
 
-  private searchSubject = new Subject<string>();
+  readonly sortField = signal('createdAt');
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
+  readonly transactionSortField = signal('createdAt');
+  readonly transactionSortDirection = signal<'asc' | 'desc'>('desc');
+
+  readonly activeTab = signal<'withdrawals' | 'transactions'>('withdrawals');
+
+  private readonly searchSubject = new Subject<string>();
+  private readonly transactionSearchSubject = new Subject<string>();
   private pollingSubscription?: Subscription;
-  readonly currencyLabel = computed(() => this.financialStats().baseCurrency || 'NGN');
-  readonly withdrawalSuccessRate = computed(() => {
-    const total = this.financialStats().totalWithdrawalCount || 0;
-    if (!total) {
-      return 0;
-    }
-    return ((this.financialStats().successfulWithdrawalCount || 0) / total) * 100;
-  });
 
-  // Status badge mapping
-  readonly statusConfig: Record<string, { class: string; icon: string; label: string }> = {
-    // Success States
-    'success': { class: 'status-success', icon: 'check_circle', label: 'Success' },
-    'successful': { class: 'status-success', icon: 'check_circle', label: 'Successful' },
-    'processed': { class: 'status-success', icon: 'verified', label: 'Processed' },
+  readonly currencyLabel = computed(() => this.financialStats().baseCurrency === 'NGN' ? '₦' : this.financialStats().baseCurrency + ' ');
+  readonly withdrawalSuccessRate = computed(() => this.financialStats().totalWithdrawalCount ? (this.financialStats().successfulWithdrawalCount / this.financialStats().totalWithdrawalCount) * 100 : 0);
 
-    // Pending States
-    'pending': { class: 'status-pending', icon: 'hourglass_empty', label: 'Pending' },
-    'processing': { class: 'status-processing', icon: 'sync', label: 'Processing' },
-    'queued': { class: 'status-queued', icon: 'low_priority', label: 'Queued' },
-    'ongoing': { class: 'status-ongoing', icon: 'pending', label: 'Ongoing' },
+  readonly withdrawalColumns = ['user', 'amount', 'netAmount', 'bankDetails', 'reference', 'status', 'date', 'actions'];
+  readonly transactionColumns = ['user', 'type', 'amount', 'category', 'description', 'status', 'date'];
 
-    // Action Required
-    'pending_approval': { class: 'status-pending_approval', icon: 'rule', label: 'Pending Approval' },
-    'otp': { class: 'status-otp', icon: 'vibration', label: 'Wait for OTP' },
+  readonly withdrawalPageNumbers = computed(() => this.buildPageNumbers(this.totalPages()));
+  readonly transactionTotalPages = signal(0);
+  readonly transactionTotalItems = signal(0);
+  readonly transactionPageNumbers = computed(() => this.buildPageNumbers(this.transactionTotalPages()));
+  readonly transactionSearchTerm = signal('');
+  readonly transactionPage = signal(1);
+  readonly transactionPageSize = signal(50);
 
-    // Error / Final States
-    'failed': { class: 'status-failed', icon: 'error', label: 'Failed' },
-    'rejected': { class: 'status-failed', icon: 'cancel', label: 'Rejected' },
-    'abandoned': { class: 'status-abandoned', icon: 'person_off', label: 'Abandoned' },
-    'reversed': { class: 'status-reversed', icon: 'settings_backup_restore', label: 'Reversed' },
-    'reversal_pending': { class: 'status-pending', icon: 'history', label: 'Reversal Pending' }
+  readonly statusMap: Record<string, { label: string; css: string; icon: string }> = {
+    processing: { label: 'Processing', css: 'status-info', icon: 'schedule' },
+    successful: { label: 'Completed', css: 'status-success', icon: 'check_circle' },
+    failed: { label: 'Failed', css: 'status-danger', icon: 'error' },
+    reversed: { label: 'Reversed', css: 'status-warning', icon: 'undo' },
+    pending_approval: { label: 'Pending', css: 'status-warning', icon: 'pending_actions' },
+    pending: { label: 'Pending', css: 'status-warning', icon: 'pending' },
+    completed: { label: 'Completed', css: 'status-success', icon: 'check_circle' },
+    cancelled: { label: 'Cancelled', css: 'status-muted', icon: 'cancel' },
+    refunded: { label: 'Refunded', css: 'status-muted', icon: 'undo' },
   };
 
-
-
-  // SIMPLIFIED: Just return the current page data (already paginated from server)
-  readonly paginatedWithdrawals = computed(() => {
-    return this.withdrawalRequests(); // Server already paginates
-  });
-
-  // Stats calculations (still client-side, works on current page data)
-  readonly totalProcessingAmount = computed(() => {
-    return this.withdrawalRequests()
-      .filter(r => r.status === 'processing')
-      .reduce((sum, r) => sum + r.amount, 0);
-  });
-
-  readonly totalSuccessfulAmount = computed(() => {
-    return this.withdrawalRequests()
-      .filter(r => r.status === 'successful')
-      .reduce((sum, r) => sum + r.amount, 0);
-  });
-
-  readonly totalFailedAmount = computed(() => {
-    return this.withdrawalRequests()
-      .filter(r => r.status === 'failed')
-      .reduce((sum, r) => sum + r.amount, 0);
-  });
-
-  // Table columns
-  readonly withdrawalColumns = [
-    'user',
-    'amount',
-    'amountPayable',
-    'bankDetails',
-    'reference',
-    'status',
-    'date',
-    'actions'
-  ];
-
-  readonly transactionColumns = [
-    'user',
-    'type',
-    'amount',
-    'category',
-    'description',
-    'status',
-    'date'
-  ];
-
-  readonly categoryLabels: Record<string, string> = {
-    deposit: 'Wallet funding',
-    withdrawal: 'Withdrawal',
-    campaign: 'Campaign spend',
-    promotion: 'Promotion payout',
-    fee: 'Platform fee',
-    refund: 'Refund',
-    transfer: 'Transfer',
-    commission: 'Commission',
-    store_sale: 'Store sale',
-    store_promotion: 'Store promotion',
-    ai_subscription: 'AI subscription',
-  };
-
-  ngOnInit() {
-    this.loadFinancialData();
+  constructor() {
     this.setupSearch();
-    this.loadWithdrawalRequests();
-    this.setupRealTimeUpdates();
+    this.setupTransactionSearch();
+    this.loadInitialData();
+    this.startPolling();
   }
 
-  ngOnDestroy() {
-    this.pollingSubscription?.unsubscribe();
-  }
+  ngOnInit(): void { }
 
-  private setupSearch() {
-    this.searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged()
-    ).subscribe(search => {
-      this.searchTerm.set(search);
-      this.currentPage.set(0); // Reset to first page
-      this.loadWithdrawalRequests(); // Reload with new search
+  private setupSearch(): void {
+    this.searchSubject.pipe(debounceTime(400), distinctUntilChanged()).subscribe(() => {
+      this.currentPage.set(1);
+      this.loadWithdrawals();
     });
   }
 
-  private setupRealTimeUpdates() {
-    // Poll for updates every 30 seconds
-    this.pollingSubscription = interval(30000).subscribe(() => {
-      this.loadWithdrawalRequests(true); // silent reload
+  private setupTransactionSearch(): void {
+    this.transactionSearchSubject.pipe(debounceTime(400), distinctUntilChanged()).subscribe(() => {
+      this.transactionPage.set(1);
+      this.loadTransactions();
     });
   }
 
-  onSearchChange(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchSubject.next(value);
-  }
-
-  onStatusFilterChange(status: 'all' | 'processing' | 'successful' | 'failed' | 'reversed' | 'pending_approval') {
-    this.statusFilter.set(status);
-    this.currentPage.set(0); // Reset to first page
-    this.loadWithdrawalRequests(); // Reload with new filter
-  }
-
-  onDateRangeChange(start: Date, end: Date) {
-    this.dateRange.set({ start, end });
-    this.currentPage.set(0);
-    this.loadWithdrawalRequests();
-  }
-
-  clearFilters() {
-    this.searchTerm.set('');
-    this.statusFilter.set('all');
-    this.dateRange.set({ start: null, end: null });
-    this.currentPage.set(0);
-    this.loadWithdrawalRequests(); // Reload with cleared filters
-  }
-
-  onPageChange(event: PageEvent) {
-    this.currentPage.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
-    this.loadWithdrawalRequests(); // Load new page from server
-  }
-
-  loadFinancialData() {
+  private loadInitialData(): void {
     this.isLoading.set(true);
-
-    this.financialService.getFinancialOverview().subscribe({
-      next: (data) => {
-        this.financialStats.set(data.stats);
-        this.transactions.set(data.recentTransactions || []);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        console.error('Error loading financial data:', error);
-        this.isLoading.set(false);
-        this.showError('Error loading financial data');
-      }
+    this.financialService.getFinancialStats().subscribe({
+      next: (stats) => { this.financialStats.set(stats); this.isLoading.set(false); },
+      error: () => this.isLoading.set(false),
     });
+    this.loadWithdrawals();
   }
 
-  loadWithdrawalRequests(silent: boolean = false) {
-    if (!silent) {
-      this.isWithdrawalsLoading.set(true);
-    }
-
-    // Convert status 'all' to undefined so server returns all statuses
-    const status = this.statusFilter() === 'all' ? undefined : this.statusFilter();
-    
-    const params: any = {
-      page: this.currentPage() + 1, // backend uses 1-indexed page
-      limit: this.pageSize(),
-    };
-    
-    // Only add params if they have values
-    if (status) params.status = status;
-    if (this.searchTerm()) params.search = this.searchTerm();
-    if (this.dateRange().start) params.fromDate = this.dateRange().start?.toISOString();
-    if (this.dateRange().end) params.toDate = this.dateRange().end?.toISOString();
-
-    //console.log('Loading withdrawals with params:', params); // Debug log
-
-    this.financialService.getWithdrawalRequests(params).subscribe({
-      next: (response) => {
-        //console.log('Withdrawals response:', response); // Debug log
-        
-        const requests = response?.requests ?? [];
-        const total = response?.total ?? 0;
-
-        this.withdrawalRequests.set(requests);
-        this.totalItems.set(total);
-        
-        if (!silent) {
-          this.isWithdrawalsLoading.set(false);
-        }
-      },
-      error: (error) => {
-        console.error('Error loading withdrawal requests:', error);
-        if (!silent) {
-          this.isWithdrawalsLoading.set(false);
-          this.showError('Error loading withdrawal requests');
-        }
-      }
-    });
-  }
-
-  viewWithdrawalDetails(request: WithdrawalRequest) {
-    const dialogRef = this.dialog.open(WithdrawalDetailsDialogComponent, {
-       //width: '100vw',        // Sets the width to 100% of the viewport width
-        maxWidth: '100vw', 
-      data: { withdrawalId: request.withdrawalId }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result?.updated) {
-        this.loadWithdrawalRequests(true);
-        this.loadFinancialData();
-      }
-    });
-  }
-
-  approveWithdrawal(request: WithdrawalRequest) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Approve Withdrawal',
-        message: `Are you sure you want to approve withdrawal of ₦${request.amount.toLocaleString()} for ${request.userName}?`,
-        confirmText: 'Approve',
-        cancelText: 'Cancel'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result?.confirmed) {
-        this.financialService.approveWithdrawal(request.withdrawalId).subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.showSuccess('Withdrawal approved successfully');
-              this.loadWithdrawalRequests(true);
-              this.loadFinancialData();
-            }
-          },
-          error: (error) => this.showError('Error approving withdrawal')
-        });
-      }
-    });
-  }
-
-  rejectWithdrawal(request: WithdrawalRequest) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Reject Withdrawal',
-        message: `Are you sure you want to reject withdrawal of ₦${request.amount.toLocaleString()} for ${request.userName}?`,
-        confirmText: 'Reject',
-        cancelText: 'Cancel',
-        input: {
-          label: 'Reason for rejection',
-          required: true,
-          type: 'textarea'
-        }
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result?.confirmed && result?.input) {
-        this.financialService.rejectWithdrawal(request.withdrawalId, result.input).subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.showSuccess('Withdrawal rejected successfully');
-              this.loadWithdrawalRequests(true);
-              this.loadFinancialData();
-            }
-          },
-          error: (error) => this.showError('Error rejecting withdrawal')
-        });
-      }
-    });
-  }
-
-  retryWithdrawal(request: WithdrawalRequest) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Retry Withdrawal',
-        message: `Are you sure you want to retry this failed withdrawal for ₦${request.amount.toLocaleString()}?`,
-        confirmText: 'Retry',
-        cancelText: 'Cancel'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result?.confirmed) {
-        this.financialService.retryWithdrawal(request.withdrawalId).subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.showSuccess('Withdrawal retry initiated');
-              this.loadWithdrawalRequests(true);
-            }
-          },
-          error: (error) => this.showError('Error retrying withdrawal')
-        });
-      }
-    });
-  }
-
-  getStatusClass(status: string): string {
-    //console.log('statuses ',status)
-    return this.statusConfig[status]?.class || 'status-default';
-  }
-
-  getStatusIcon(status: string): string {
-    return this.statusConfig[status]?.icon || 'help';
-  }
-
-  getStatusLabel(status: string): string {
-    return this.statusConfig[status]?.label || status;
-  }
-
-  exportWithdrawals() {
-    this.financialService.exportWithdrawals({
-      format: 'csv',
-      status: this.statusFilter() === 'all' ? undefined : this.statusFilter(),
-      startDate: this.dateRange().start?.toISOString(),
-      endDate: this.dateRange().end?.toISOString()
-    }).subscribe({
-      next: (response) => {
-        if (response.success) {
-          const link = document.createElement('a');
-          link.href = response.data.url;
-          link.download = `withdrawals_${new Date().toISOString().split('T')[0]}.csv`;
-          link.click();
-          this.showSuccess('Withdrawals exported successfully');
-        }
-      },
-      error: (error) => this.showError('Error exporting withdrawals')
-    });
-  }
-
-  exportTransactions() {
-    this.financialService.exportTransactions({
-      format: 'csv'
-    }).subscribe({
-      next: (response) => {
-        if (response.success) {
-          const link = document.createElement('a');
-          link.href = response.data.url;
-          link.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
-          link.click();
-          this.showSuccess('Transactions exported successfully');
-        }
-      },
-      error: () => this.showError('Error exporting transactions')
-    });
-  }
-
-  private showSuccess(message: string) {
-    this.snackBar.open(message, 'Close', {
-      duration: 3000,
-      panelClass: ['success-snackbar']
-    });
-  }
-
-  private showError(message: string) {
-    this.snackBar.open(message, 'Close', {
-      duration: 3000,
-      panelClass: ['error-snackbar']
+  private startPolling(): void {
+    this.pollingSubscription = interval(30000).subscribe(() => {
+      this.financialService.getFinancialStats().subscribe(stats => this.financialStats.set(stats));
+      if (this.activeTab() === 'withdrawals') this.loadWithdrawals();
     });
   }
 
   onTabChange(event: any): void {
-    if (event.index === 0) { // Withdrawals tab
-      this.loadWithdrawalRequests();
-    } else if (event.index === 1) { // Transactions tab
-      this.loadTransactions();
-    }
+    this.activeTab.set(event.index === 0 ? 'withdrawals' : 'transactions');
+    if (this.activeTab() === 'transactions' && this.transactions().length === 0) this.loadTransactions();
+  }
+
+  loadWithdrawals(): void {
+    this.isWithdrawalsLoading.set(true);
+    this.financialService.getWithdrawalRequests({
+      page: this.currentPage(), limit: this.pageSize(),
+      search: this.searchTerm(), status: this.statusFilter(),
+      fromDate: this.dateRange().start ? this.dateRange().start!.toISOString() : undefined,
+      toDate: this.dateRange().end ? this.dateRange().end!.toISOString() : undefined,
+    }).subscribe({
+      next: (r) => {
+        this.withdrawalRequests.set(r.requests || []);
+        this.totalItems.set(r.total || 0);
+        this.totalPages.set(Math.ceil(r.total / this.pageSize()) || 1);
+        this.isWithdrawalsLoading.set(false);
+      },
+      error: () => this.isWithdrawalsLoading.set(false),
+    });
   }
 
   loadTransactions(): void {
     this.isTransactionsLoading.set(true);
-    
     this.financialService.getTransactions({
-      page: 1,
-      limit: 50
+      page: this.transactionPage(), limit: this.transactionPageSize(),
     }).subscribe({
-      next: (response) => {
-        this.transactions.set(response.transactions);
+      next: (r) => {
+        this.transactions.set(r.transactions || []);
+        this.transactionTotalItems.set(r.total || 0);
+        this.transactionTotalPages.set(Math.ceil(r.total / this.transactionPageSize()) || 1);
         this.isTransactionsLoading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading transactions:', error);
-        this.isTransactionsLoading.set(false);
-        this.showError('Error loading transactions');
-      }
+      error: () => this.isTransactionsLoading.set(false),
     });
   }
 
-  getCategoryLabel(category: string): string {
-    return this.categoryLabels[category] || category.replace(/_/g, ' ');
+  onSearchChange(e: Event): void { this.searchTerm.set((e.target as HTMLInputElement).value); this.searchSubject.next((e.target as HTMLInputElement).value); }
+  onTransactionSearchChange(e: Event): void { this.transactionSearchTerm.set((e.target as HTMLInputElement).value); this.transactionSearchSubject.next((e.target as HTMLInputElement).value); }
+  clearSearch(): void { this.searchTerm.set(''); this.currentPage.set(1); this.loadWithdrawals(); }
+  clearTransactionSearch(): void { this.transactionSearchTerm.set(''); this.transactionPage.set(1); this.loadTransactions(); }
+
+  setStatusFilter(s: typeof this.statusFilter extends () => infer T ? T : never): void { this.statusFilter.set(s); this.currentPage.set(1); this.loadWithdrawals(); }
+
+  toggleSort(field: string): void {
+    if (this.sortField() === field) { this.sortDirection.update(d => d === 'asc' ? 'desc' : 'asc'); }
+    else { this.sortField.set(field); this.sortDirection.set('desc'); }
+    this.currentPage.set(1); this.loadWithdrawals();
   }
 
-  getTypeLabel(type: string): string {
-    return type.replace(/_/g, ' ');
+  getSortIcon(field: string): string { if (this.sortField() !== field) return ''; return this.sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward'; }
+
+  goToPage(page: number): void { const t = Math.max(1, Math.min(page, this.totalPages())); if (t === this.currentPage()) return; this.currentPage.set(t); this.loadWithdrawals(); }
+  onPageInput(e: Event): void { const i = e.target as HTMLInputElement; const p = parseInt(i.value, 10); if (!isNaN(p) && p >= 1 && p <= this.totalPages()) this.goToPage(p); i.value = ''; }
+  onPageSizeChange(s: string | number): void { const n = typeof s === 'string' ? parseInt(s, 10) : s; this.pageSize.set(n); this.currentPage.set(1); this.loadWithdrawals(); }
+
+  goToTransactionPage(page: number): void { const t = Math.max(1, Math.min(page, this.transactionTotalPages())); if (t === this.transactionPage()) return; this.transactionPage.set(t); this.loadTransactions(); }
+  onTransactionPageInput(e: Event): void { const i = e.target as HTMLInputElement; const p = parseInt(i.value, 10); if (!isNaN(p) && p >= 1 && p <= this.transactionTotalPages()) this.goToTransactionPage(p); i.value = ''; }
+  onTransactionPageSizeChange(s: string | number): void { const n = typeof s === 'string' ? parseInt(s, 10) : s; this.transactionPageSize.set(n); this.transactionPage.set(1); this.loadTransactions(); }
+
+  private buildPageNumbers(total: number): number[] {
+    const current = this.activeTab() === 'withdrawals' ? this.currentPage() : this.transactionPage();
+    const t = Math.max(1, total); const c = current;
+    const pages: number[] = []; const start = Math.max(1, c - 2); const end = Math.min(t, c + 2);
+    for (let i = start; i <= end; i++) pages.push(i); return pages;
   }
+
+  approveRequest(r: WithdrawalRequest): void {
+    this.dialog.open(ConfirmDialogComponent, { data: { title: 'Approve Withdrawal', message: `Approve withdrawal of ${this.currencyLabel()}${r.amount.toLocaleString()} for ${r.userName}?`, confirmText: 'Approve', confirmClass: 'primary' } })
+      .afterClosed().subscribe(v => { if (v?.confirmed) { this.financialService.approveWithdrawal(r.withdrawalId).subscribe({ next: () => { this.showSuccess('Withdrawal approved'); this.loadWithdrawals(); this.financialService.getFinancialStats().subscribe(s => this.financialStats.set(s)); }, error: () => this.showError('Failed to approve') }); } });
+  }
+  rejectRequest(r: WithdrawalRequest): void {
+    this.dialog.open(ConfirmDialogComponent, { data: { title: 'Reject Withdrawal', message: `Reject withdrawal of ${this.currencyLabel()}${r.amount.toLocaleString()} for ${r.userName}?`, confirmText: 'Reject', confirmClass: 'warn', showInput: true, inputLabel: 'Reason' } })
+      .afterClosed().subscribe(v => { if (v?.confirmed) { this.financialService.rejectWithdrawal(r.withdrawalId, v.input || '').subscribe({ next: () => { this.showSuccess('Withdrawal rejected'); this.loadWithdrawals(); this.financialService.getFinancialStats().subscribe(s => this.financialStats.set(s)); }, error: () => this.showError('Failed to reject') }); } });
+  }
+  retryRequest(r: WithdrawalRequest): void {
+    this.dialog.open(ConfirmDialogComponent, { data: { title: 'Retry Withdrawal', message: `Retry withdrawal of ${this.currencyLabel()}${r.amount.toLocaleString()}?`, confirmText: 'Retry', confirmClass: 'primary' } })
+      .afterClosed().subscribe(v => { if (v?.confirmed) { this.financialService.retryWithdrawal(r.withdrawalId).subscribe({ next: () => { this.showSuccess('Withdrawal retried'); this.loadWithdrawals(); }, error: () => this.showError('Failed to retry') }); } });
+  }
+  viewDetails(r: WithdrawalRequest): void { this.dialog.open(WithdrawalDetailsDialogComponent, { width: '700px', maxWidth: '94vw', data: { withdrawalId: r.withdrawalId } }); }
+
+  exportWithdrawals(): void { this.isExporting.set(true); this.financialService.exportWithdrawals({ format: 'csv', status: this.statusFilter() }).subscribe({
+    next: (r) => { if (r.success) window.open(r.data.url, '_blank'); this.isExporting.set(false); this.showSuccess('Exported'); },
+    error: () => { this.isExporting.set(false); this.showError('Export failed'); }
+  }); }
+  exportTransactions(): void { this.isExporting.set(true); this.financialService.exportTransactions({ format: 'csv' }).subscribe({
+    next: (r) => { if (r.success) window.open(r.data.url, '_blank'); this.isExporting.set(false); this.showSuccess('Exported'); },
+    error: () => { this.isExporting.set(false); this.showError('Export failed'); }
+  }); }
+
+  private downloadBlob(blob: Blob, filename: string): void { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url); }
+
+  getStatusConfig(status: string): { label: string; css: string; icon: string } { return this.statusMap[status] || { label: status, css: 'status-default', icon: 'help' }; }
+  getCategoryLabel(cat: string): string { const m: Record<string,string> = { deposit:'Deposit', withdrawal:'Withdrawal', campaign:'Campaign', promotion:'Promotion', fee:'Fee', refund:'Refund', transfer:'Transfer', commission:'Commission', store_sale:'Store Sale', store_promotion:'Store Promo', ai_subscription:'AI Sub', sms:'SMS Charge' }; return m[cat] || cat; }
+
+  clearFilters(): void { this.searchTerm.set(''); this.statusFilter.set('all'); this.currentPage.set(1); this.loadWithdrawals(); }
+
+  private showSuccess(m: string): void { this.snackBar.open(m, 'Close', { duration: 3000, panelClass: 'success-snackbar' }); }
+  private showError(m: string): void { this.snackBar.open(m, 'Close', { duration: 5000, panelClass: 'error-snackbar' }); }
+
+  ngOnDestroy(): void { this.pollingSubscription?.unsubscribe(); }
 }

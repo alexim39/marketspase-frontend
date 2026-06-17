@@ -1,0 +1,203 @@
+<div class="detail-shell">
+  @if (isLoading()) {
+    <div class="loading-card">
+      <mat-spinner diameter="36" />
+      <span>Loading contact...</span>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <mat-icon>error_outline</mat-icon>
+      <strong>{{ error() }}</strong>
+      <button type="button" class="back-btn" routerLink="..">
+        <mat-icon>arrow_back</mat-icon> Back to Contacts
+      </button>
+    </div>
+  } @else if (customer()) {
+    @let c = customer()!;
+    <!-- Header -->
+    <div class="detail-header">
+      <button type="button" class="back-btn" routerLink="..">
+        <mat-icon>arrow_back</mat-icon> Contacts
+      </button>
+      <div class="header-main">
+        <div class="avatar-lg">{{ c.displayName.charAt(0).toUpperCase() }}</div>
+        <div class="header-info">
+          <h2>{{ c.displayName }}</h2>
+          <div class="header-meta">
+            <span class="meta-badge">{{ c.source }}</span>
+            <span class="meta-date">Added {{ c.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <!-- Left column: Profile -->
+      <div class="profile-panel">
+        <div class="panel-card">
+          <div class="panel-heading">Contact Info</div>
+          <div class="info-rows">
+            @if (c.email) {
+              <div class="info-row">
+                <mat-icon>email</mat-icon>
+                <span>{{ c.email }}</span>
+                <button type="button" class="copy-btn" (click)="copyToClipboard(c.email)">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </div>
+            }
+            @if (c.phone) {
+              <div class="info-row">
+                <mat-icon>phone</mat-icon>
+                <span>{{ c.phoneCountryCode }}{{ c.phone }}</span>
+                <button type="button" class="copy-btn" (click)="copyToClipboard(c.phoneCountryCode + c.phone)">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-heading">Quick Actions</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="primary-btn-sm" (click)="openSendSms()" [disabled]="!c.phone">
+              <mat-icon>sms</mat-icon> Send SMS
+            </button>
+            <button type="button" class="primary-btn-sm" (click)="openSendEmail()" [disabled]="!c.email">
+              <mat-icon>email</mat-icon> Send Email
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-heading">Lifecycle Stage</div>
+          <div class="stage-selector">
+            @for (stage of ['new', 'active', 'repeat', 'vip', 'at_risk', 'suppressed']; track stage) {
+              <button type="button" class="stage-option"
+                [class.selected]="c.lifecycleStage === stage"
+                [style.--stage-color]="getStageColor(stage)"
+                (click)="updateStage(stage)">
+                {{ stage }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-heading">Tags</div>
+          <div class="tags-display">
+            @if (c.tags.length > 0) {
+              @for (tag of c.tags; track tag) {
+                <span class="tag-pill">{{ tag }}</span>
+              }
+            } @else {
+              <span class="muted-text">No tags</span>
+            }
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-heading">Compliance & Consent</div>
+          <div class="consent-toggles">
+            <div class="consent-row">
+              <span>Email Marketing</span>
+              <button type="button" class="toggle-btn" [class.active]="c.consent.email"
+                (click)="toggleConsent('email')">
+                {{ c.consent.email ? 'Opted In' : 'Opted Out' }}
+              </button>
+            </div>
+            <div class="consent-row">
+              <span>SMS Marketing</span>
+              <button type="button" class="toggle-btn" [class.active]="c.consent.sms"
+                (click)="toggleConsent('sms')">
+                {{ c.consent.sms ? 'Opted In' : 'Opted Out' }}
+              </button>
+            </div>
+            <div class="consent-source">
+              Consent source: {{ c.consent.consentSource }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column: Activity Log -->
+      <div class="activity-panel">
+        <div class="panel-card">
+          <div class="panel-heading">Activity Log</div>
+
+          <!-- Add note form -->
+          <div class="add-note-form">
+            <textarea
+              class="note-input"
+              placeholder="Add a note about this contact..."
+              [ngModel]="newNote()"
+              (ngModelChange)="newNote.set($event)"
+              rows="2"
+            ></textarea>
+            <button type="button" class="primary-btn-sm" [disabled]="!newNote().trim()" (click)="addNote()">
+              <mat-icon>add_comment</mat-icon> Add Note
+            </button>
+          </div>
+
+          <!-- Log entries -->
+          <div class="log-timeline">
+            @if (logs().length === 0) {
+              <div class="log-empty">No activity recorded yet.</div>
+            }
+
+            @for (log of logs(); track log._id) {
+              <div class="log-entry">
+                <div class="log-icon" [style.background]="getLogColor(log.type) + '18'">
+                  <mat-icon [style.color]="getLogColor(log.type)">{{ getLogIcon(log.type) }}</mat-icon>
+                </div>
+                <div class="log-body">
+                  <div class="log-header">
+                    <span class="log-type">{{ log.type | uppercase }}</span>
+                    <span class="log-direction" [class.incoming]="log.direction === 'incoming'">
+                      {{ log.direction === 'incoming' ? 'Received' : 'Sent' }}
+                    </span>
+                    <span class="log-time">{{ log.createdAt | date:'short' }}</span>
+                  </div>
+                  @if (log.subject) {
+                    <div class="log-subject">{{ log.subject }}</div>
+                  }
+                  <div class="log-content">{{ log.content }}</div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics row -->
+    <div class="metrics-row">
+      <div class="metric-card">
+        <mat-icon>shopping_cart</mat-icon>
+        <span class="metric-value">{{ c.orderCount }}</span>
+        <span class="metric-label">Orders</span>
+      </div>
+      <div class="metric-card">
+        <mat-icon>currency_pound</mat-icon>
+        <span class="metric-value">{{ c.totalSpent | currency:'NGN':'symbol':'1.2-2' }}</span>
+        <span class="metric-label">Total Spent</span>
+      </div>
+      <div class="metric-card">
+        <mat-icon>trending_up</mat-icon>
+        <span class="metric-value">{{ c.totalConversions }}</span>
+        <span class="metric-label">Conversions</span>
+      </div>
+      <div class="metric-card">
+        <mat-icon>payments</mat-icon>
+        <span class="metric-value">{{ c.totalRevenueGenerated | currency:'NGN':'symbol':'1.2-2' }}</span>
+        <span class="metric-label">Revenue</span>
+      </div>
+      <div class="metric-card">
+        <mat-icon>schedule</mat-icon>
+        <span class="metric-value">{{ c.lastContactedAt ? (c.lastContactedAt | date:'shortDate') : '—' }}</span>
+        <span class="metric-label">Last Contacted</span>
+      </div>
+    </div>
+  }
+</div>

@@ -88,6 +88,7 @@ export class AuthService {
   // Inject the Firebase Auth instance
   private firebaseAuth: Auth = inject(Auth);
   private userService = inject(UserService);
+  private readonly localTokenKeys = ['accessToken', 'token'];
 
   /**
    * Initiates the Google sign-in process using a popup.
@@ -268,6 +269,9 @@ export class AuthService {
       map(() => {
         console.log('User signed out.');
         // set user to null
+        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('isAuthenticated');
         this.userService.clearUser();
         return;
       }),
@@ -358,5 +362,13 @@ export class AuthService {
    */
   getAuthState(): Observable<User | null> {
     return user(this.firebaseAuth);
+  }
+
+  hasLocalSession(): boolean {
+    try {
+      return this.localTokenKeys.some((key) => Boolean(localStorage.getItem(key)));
+    } catch {
+      return false;
+    }
   }
 }

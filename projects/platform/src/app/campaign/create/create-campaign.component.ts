@@ -96,6 +96,7 @@ export class CreateCampaignComponent implements OnInit {
   public isSubmitting = signal(false);
   public submissionStage = signal<SubmissionStage>('idle');
   public uploadProgress = signal<number | null>(null);
+  public readonly costPerClick = signal(DEFAULT_CAMPAIGN_COST_PER_CLICK);
 
   contentForm!: FormGroup;
   goalForm!: FormGroup;
@@ -155,6 +156,7 @@ export class CreateCampaignComponent implements OnInit {
   ngOnInit(): void {
     this.initializeForms();
     this.setupFormListeners();
+    this.loadPricingConfig();
 
     this.budgetForm.get('budget')?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -486,7 +488,6 @@ export class CreateCampaignComponent implements OnInit {
       category: this.contentForm.get('category')?.value ?? 'other',
       campaignGoal: this.goalForm.get('campaignGoal')?.value ?? 'awareness',
       budget: this.budgetForm.get('budget')?.value ?? '',
-      costPerClick: DEFAULT_CAMPAIGN_COST_PER_CLICK,
       enableTarget: this.budgetForm.get('enableTarget')?.value ?? true,
       ageTarget: this.budgetForm.get('ageTarget')?.value ?? 'all',
       currency: 'NGN',
@@ -515,6 +516,22 @@ export class CreateCampaignComponent implements OnInit {
     }
 
     return `${media.file.name}:${media.file.size}:${media.file.lastModified}`;
+  }
+
+  private loadPricingConfig(): void {
+    this.campaignService.getPricingConfig()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const configuredCpc = Number(response?.data?.defaultCostPerClick || 0);
+          if (response?.success && Number.isFinite(configuredCpc) && configuredCpc > 0) {
+            this.costPerClick.set(configuredCpc);
+          }
+        },
+        error: () => {
+          this.costPerClick.set(DEFAULT_CAMPAIGN_COST_PER_CLICK);
+        },
+      });
   }
 
   private getSubmissionErrorMessage(error: unknown, fallbackMessage: string): string {

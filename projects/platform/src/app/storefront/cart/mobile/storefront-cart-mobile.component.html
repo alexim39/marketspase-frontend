@@ -43,7 +43,7 @@
     @if (groups().length > 1) {
       <nav class="store-chip-rail" aria-label="Cart stores">
         @for (group of groups(); track group.storeId) {
-          <button type="button" [class.active]="selectedGroup()?.storeId === group.storeId" (click)="selectGroup(group)">
+          <button type="button" [class.active]="selectedGroup().storeId === group.storeId" (click)="selectGroup(group)">
             <mat-icon>store</mat-icon>
             <span>{{ group.storeName || 'Store' }}</span>
             <b>{{ group.itemCount }}</b>
@@ -54,14 +54,14 @@
 
     <section class="store-groups">
       @for (group of groups(); track group.storeId) {
-        <article class="store-card" [class.active]="selectedGroup()?.storeId === group.storeId">
+        <article class="store-card" [class.active]="selectedGroup().storeId === group.storeId">
           <button type="button" class="store-card-header" (click)="selectGroup(group)">
             <div>
               <span>Store checkout</span>
               <h2>{{ group.storeName || 'Store' }}</h2>
               <p>{{ group.itemCount }} item{{ group.itemCount === 1 ? '' : 's' }} · {{ group.subtotal | currencyUtils:group.currency }}</p>
             </div>
-            <mat-icon>{{ selectedGroup()?.storeId === group.storeId ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+            <mat-icon>{{ selectedGroup().storeId === group.storeId ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
           </button>
 
           <div class="cart-items">

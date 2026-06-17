@@ -408,13 +408,13 @@ export class PpcAnalyticsComponent implements AfterViewInit {
       <div class="section">
         <div class="section-title">Top IPs</div>
         <div class="grid">
-          @for (ip of (data.patterns?.ips || []); track ip.ip) {
+          @for (ip of (data.patterns.ips || []); track ip.ip) {
             <div class="pill">
               <div class="mono">{{ ip.ip || 'Unknown' }}</div>
               <div class="muted">{{ (ip.country || 'N/A') }} - {{ ip.billableClicks || 0 }} billable</div>
             </div>
           }
-          @if (!(data.patterns?.ips || []).length) {
+          @if (!(data.patterns.ips || []).length) {
             <div class="muted">No IP data.</div>
           }
         </div>
@@ -423,10 +423,10 @@ export class PpcAnalyticsComponent implements AfterViewInit {
       <div class="section">
         <div class="section-title">Devices</div>
         <div class="chips">
-          @for (d of (data.patterns?.devices || []); track d.deviceType) {
+          @for (d of (data.patterns.devices || []); track d.deviceType) {
             <mat-chip selected>{{ d.deviceType || 'unknown' }} ({{ d.billableClicks || 0 }})</mat-chip>
           }
-          @if (!(data.patterns?.devices || []).length) {
+          @if (!(data.patterns.devices || []).length) {
             <div class="muted">No device data.</div>
           }
         </div>
@@ -435,10 +435,10 @@ export class PpcAnalyticsComponent implements AfterViewInit {
       <div class="section">
         <div class="section-title">Top Countries</div>
         <div class="chips">
-          @for (c of (data.patterns?.countries || []); track c.country) {
+          @for (c of (data.patterns.countries || []); track c.country) {
             <mat-chip selected>{{ c.country || 'N/A' }} ({{ c.billableClicks || 0 }})</mat-chip>
           }
-          @if (!(data.patterns?.countries || []).length) {
+          @if (!(data.patterns.countries || []).length) {
             <div class="muted">No geo data.</div>
           }
         </div>

@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
-import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
@@ -50,6 +51,7 @@ interface RecentCollaborator {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    TextFieldModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
   ],
@@ -85,6 +87,7 @@ export class CampaignCollaborationComponent {
   readonly error = signal<string | null>(null);
   readonly isMarketer = computed(() => this.currentUser()?.role === 'marketer');
   readonly isPromoter = computed(() => this.currentUser()?.role === 'promoter');
+  protected readonly messageStreamRef = viewChild<ElementRef<HTMLElement>>('messageStream');
 
   readonly visibleConversations = computed(() => {
     const kind = this.kindFilter();
@@ -226,6 +229,7 @@ export class CampaignCollaborationComponent {
   });
 
   private initializedForUserId: string | null = null;
+  private optimisticMessageCounter = 0;
   private pendingOpenContext: RouteOpenContext = {
     conversationId: null,
     campaignId: null,
@@ -321,6 +325,7 @@ export class CampaignCollaborationComponent {
           this.markConversationRead(conversation._id);
           this.upsertConversation(response.data.conversation, false);
           this.selectedConversation.set(response.data.conversation);
+          this.queueMessageScroll('auto');
         },
         error: (error) => {
           this.loadingMessages.set(false);
@@ -336,19 +341,23 @@ export class CampaignCollaborationComponent {
       return;
     }
 
+    const optimisticMessage = this.createOptimisticMessage(conversation._id, content);
+    this.draftMessage.set('');
+    this.appendOptimisticMessage(optimisticMessage);
+    this.updateConversationPreview(conversation._id, content, optimisticMessage.createdAt, this.currentUser()?._id || null);
     this.sendingMessage.set(true);
     this.collaborationService.sendMessage(conversation._id, content)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.draftMessage.set('');
           this.sendingMessage.set(false);
-          this.appendIncomingMessage(response.data);
+          this.reconcileOptimisticMessage(optimisticMessage._id, response.data);
           this.markConversationRead(conversation._id);
           this.loadConversations(false);
         },
         error: (error) => {
           this.sendingMessage.set(false);
+          this.markMessageFailed(optimisticMessage._id);
           this.snackBar.open(
             error?.error?.message || 'We could not send that message just now.',
             'Close',
@@ -422,6 +431,146 @@ export class CampaignCollaborationComponent {
 
   isSystemMessage(message: CollaborationMessage): boolean {
     return message.messageType === 'system';
+  }
+
+  isPendingMessage(message: CollaborationMessage): boolean {
+    return message.deliveryStatus === 'pending';
+  }
+
+  isFailedMessage(message: CollaborationMessage): boolean {
+    return message.deliveryStatus === 'failed';
+  }
+
+  retryFailedMessage(message: CollaborationMessage): void {
+    if (!this.isFailedMessage(message) || !message.content?.trim()) {
+      return;
+    }
+
+    this.messages.update((messages) => messages.filter((entry) => entry._id !== message._id));
+    this.draftMessage.set(message.content);
+    this.sendMessage();
+  }
+
+  onComposerKeydown(event: KeyboardEvent): void {
+    // Send message on Enter, but allow newline with Shift/Ctrl/Alt
+    if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.altKey) {
+      event.preventDefault();
+      this.sendMessage();
+    }
+  }
+
+  // Emoji picker support (lightweight fallback, zero external dependencies)
+  private simpleEmojiPopover: HTMLElement | null = null;
+  private simpleEmojiOutsideListener: (ev: Event) => void = () => {};
+  private simpleEscapeListener = (ev: KeyboardEvent) => {
+    if (ev.key === 'Escape') {
+      this.hideSimpleEmojiPopover();
+    }
+  };
+
+  /** Open emoji picker popover anchored to the clicked button. */
+  openEmojiPicker(ev: MouseEvent | PointerEvent) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const anchor = ev.currentTarget as HTMLElement | null;
+    this.hideSimpleEmojiPopover();
+    this.openSimpleEmojiPopover(anchor);
+  }
+
+  /** Insert emoji string at current caret into the composer textarea. */
+  insertEmojiAtCursor(emoji: string) {
+    const textarea = document.querySelector('.composer-field--chat textarea') as HTMLTextAreaElement | null;
+
+    if (!textarea) {
+      // fallback: append to signal
+      this.draftMessage.set((this.draftMessage() || '') + emoji);
+      return;
+    }
+
+    const start = typeof textarea.selectionStart === 'number' ? textarea.selectionStart : textarea.value.length;
+    const end = typeof textarea.selectionEnd === 'number' ? textarea.selectionEnd : textarea.value.length;
+    const before = textarea.value.slice(0, start);
+    const after = textarea.value.slice(end);
+    const next = before + emoji + after;
+
+    // Update model (Angular binding)
+    this.draftMessage.set(next);
+
+    // Update visible textarea and reposition caret after emoji
+    requestAnimationFrame(() => {
+      textarea.focus();
+      const pos = start + emoji.length;
+      textarea.setSelectionRange(pos, pos);
+    });
+
+    this.hideSimpleEmojiPopover();
+  }
+
+  /** Minimal emoji popover (built-in, no dependencies). */
+  private openSimpleEmojiPopover(anchor: HTMLElement | null) {
+    if (!anchor) return;
+    this.hideSimpleEmojiPopover();
+
+    const emojis = ['😀', '😂', '😊', '😍', '🥰', '👍', '🔥', '🎉', '🙌', '🤝', '🙏', '😅', '🤩', '💯', '🚀', '✨'];
+    const pop = document.createElement('div');
+    pop.className = 'simple-emoji-popover';
+    pop.setAttribute('role', 'dialog');
+    pop.setAttribute('aria-label', 'Emoji picker');
+
+    const inner = document.createElement('div');
+    inner.className = 'simple-emoji-list';
+    emojis.forEach((ch) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'simple-emoji-item';
+      btn.textContent = ch;
+      btn.title = ch;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.insertEmojiAtCursor(ch);
+      });
+      inner.appendChild(btn);
+    });
+    pop.appendChild(inner);
+    document.body.appendChild(pop);
+    this.simpleEmojiPopover = pop;
+
+    // Position near anchor (top-left of button, fallback below if near top)
+    const rect = anchor.getBoundingClientRect();
+    const gap = 8;
+    const left = Math.min(Math.max(8, rect.left), window.innerWidth - 280);
+    let top = rect.top - pop.offsetHeight - gap;
+    if (top < 8) {
+      top = rect.bottom + gap;
+    }
+    pop.style.position = 'fixed';
+    pop.style.left = `${left}px`;
+    pop.style.top = `${top}px`;
+    pop.style.zIndex = '5000';
+
+    // Close on outside click or Esc
+    this.simpleEmojiOutsideListener = (ev: Event) => {
+      if (!pop.contains(ev.target as Node) && ev.target !== anchor) {
+        this.hideSimpleEmojiPopover();
+      }
+    };
+    document.addEventListener('click', this.simpleEmojiOutsideListener, { capture: true });
+    document.addEventListener('keydown', this.simpleEscapeListener);
+  }
+
+  /** Remove emoji popover. */
+  private hideSimpleEmojiPopover() {
+    if (this.simpleEmojiPopover) {
+      try {
+        this.simpleEmojiPopover.remove();
+      } catch {}
+      this.simpleEmojiPopover = null;
+    }
+    if (this.simpleEmojiOutsideListener) {
+      document.removeEventListener('click', this.simpleEmojiOutsideListener as EventListener, { capture: true });
+      this.simpleEmojiOutsideListener = () => {};
+    }
+    document.removeEventListener('keydown', this.simpleEscapeListener);
   }
 
   getMessageSenderName(message: CollaborationMessage): string {
@@ -722,11 +871,165 @@ export class CampaignCollaborationComponent {
     }
 
     this.messages.update((messages) => {
-      if (messages.some((entry) => entry._id === message._id)) {
-        return messages;
+      const sentMessage: CollaborationMessage = {
+        ...message,
+        deliveryStatus: 'sent',
+        isOptimistic: false,
+      };
+      const existingIndex = messages.findIndex((entry) => entry._id === message._id);
+
+      if (existingIndex >= 0) {
+        const next = [...messages];
+        next[existingIndex] = { ...next[existingIndex], ...sentMessage };
+        return this.sortMessages(next);
       }
 
-      return [...messages, message];
+      const pendingIndex = this.findMatchingPendingMessage(messages, sentMessage);
+      if (pendingIndex >= 0) {
+        const next = [...messages];
+        next[pendingIndex] = sentMessage;
+        return this.sortMessages(next);
+      }
+
+      return this.sortMessages([...messages, sentMessage]);
+    });
+    this.queueMessageScroll();
+  }
+
+  private appendOptimisticMessage(message: CollaborationMessage): void {
+    this.messages.update((messages) => this.sortMessages([...messages, message]));
+    this.queueMessageScroll();
+  }
+
+  private reconcileOptimisticMessage(localMessageId: string, serverMessage: CollaborationMessage): void {
+    this.messages.update((messages) => {
+      const sentMessage: CollaborationMessage = {
+        ...serverMessage,
+        deliveryStatus: 'sent',
+        isOptimistic: false,
+      };
+      const serverIndex = messages.findIndex((entry) => entry._id === sentMessage._id);
+      const localIndex = messages.findIndex((entry) => entry._id === localMessageId);
+
+      if (serverIndex >= 0) {
+        const next = messages.filter((entry) => entry._id !== localMessageId);
+        const normalizedIndex = next.findIndex((entry) => entry._id === sentMessage._id);
+        if (normalizedIndex >= 0) {
+          next[normalizedIndex] = { ...next[normalizedIndex], ...sentMessage };
+        }
+        return this.sortMessages(next);
+      }
+
+      if (localIndex >= 0) {
+        const next = [...messages];
+        next[localIndex] = sentMessage;
+        return this.sortMessages(next);
+      }
+
+      return this.sortMessages([...messages, sentMessage]);
+    });
+    this.queueMessageScroll();
+  }
+
+  private markMessageFailed(localMessageId: string): void {
+    this.messages.update((messages) =>
+      messages.map((message) =>
+        message._id === localMessageId
+          ? { ...message, deliveryStatus: 'failed', isOptimistic: true }
+          : message
+      )
+    );
+  }
+
+  private createOptimisticMessage(conversationId: string, content: string): CollaborationMessage {
+    const user = this.currentUser();
+    const now = new Date().toISOString();
+    const displayName = user?.displayName || user?.username || 'You';
+
+    return {
+      _id: `local-${Date.now()}-${++this.optimisticMessageCounter}`,
+      conversation: conversationId,
+      sender: {
+        _id: user?._id || 'local-user',
+        displayName,
+        username: user?.username || displayName,
+        avatar: user?.avatar,
+        role: user?.role,
+        isVerified: Boolean(user?.verified),
+      },
+      content,
+      messageType: 'text',
+      attachments: [],
+      createdAt: now,
+      updatedAt: now,
+      deliveryStatus: 'pending',
+      isOptimistic: true,
+    };
+  }
+
+  private updateConversationPreview(
+    conversationId: string,
+    content: string,
+    createdAt: string | Date,
+    senderId: string | null
+  ): void {
+    const preview = content.slice(0, 280);
+    const applyPreview = (conversation: CollaborationConversation): CollaborationConversation =>
+      conversation._id === conversationId
+        ? {
+            ...conversation,
+            lastMessageAt: createdAt,
+            lastMessagePreview: preview,
+            lastMessageBy: senderId,
+            unreadCount: 0,
+          }
+        : conversation;
+
+    this.conversations.update((conversations) =>
+      conversations
+        .map(applyPreview)
+        .sort((left, right) =>
+          new Date(right.lastMessageAt || right.updatedAt || 0).getTime()
+          - new Date(left.lastMessageAt || left.updatedAt || 0).getTime()
+        )
+    );
+
+    const selected = this.selectedConversation();
+    if (selected?._id === conversationId) {
+      this.selectedConversation.set(applyPreview(selected));
+    }
+  }
+
+  private findMatchingPendingMessage(messages: CollaborationMessage[], message: CollaborationMessage): number {
+    const messageCreatedAt = new Date(message.createdAt || Date.now()).getTime();
+
+    return messages.findIndex((entry) => {
+      if (entry.deliveryStatus !== 'pending' || entry.sender?._id !== message.sender?._id) {
+        return false;
+      }
+
+      const entryCreatedAt = new Date(entry.createdAt || Date.now()).getTime();
+      return entry.content === message.content && Math.abs(messageCreatedAt - entryCreatedAt) < 120000;
+    });
+  }
+
+  private sortMessages(messages: CollaborationMessage[]): CollaborationMessage[] {
+    return [...messages].sort((left, right) =>
+      new Date(left.createdAt || 0).getTime() - new Date(right.createdAt || 0).getTime()
+    );
+  }
+
+  private queueMessageScroll(behavior: ScrollBehavior = 'smooth'): void {
+    setTimeout(() => {
+      const stream = this.messageStreamRef()?.nativeElement;
+      if (!stream) {
+        return;
+      }
+
+      stream.scrollTo({
+        top: stream.scrollHeight,
+        behavior,
+      });
     });
   }
 

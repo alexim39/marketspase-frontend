@@ -45,7 +45,7 @@ export interface ConfirmDialogData {
       </div>
 
       <mat-dialog-content>
-        <p class="dialog-message">{{ data.message }}</p>
+        <p class="dialog-message" [innerHTML]="data.message"></p>
 
         @if (data.input) {
           <mat-form-field appearance="outline" class="full-width">
@@ -145,12 +145,32 @@ export interface ConfirmDialogData {
       }
     }
 
-    .dialog-message {
+        .dialog-message {
       font-size: 16px;
       line-height: 1.6;
       //color: #4b5563;
       margin: 0 0 16px 0;
       white-space: pre-wrap;
+    }
+
+    .dialog-message ::ng-deep .audit-detail {
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 13px;
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        strong {
+          color: #374151;
+          flex-shrink: 0;
+          margin-right: 12px;
+        }
+      }
     }
 
     .full-width {
