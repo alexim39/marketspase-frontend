@@ -37,7 +37,12 @@
 
     <div class="title-row">
       <div>
-        <p>{{ promotion.campaign.category | titlecase }}</p>
+        <p>
+          {{ promotion.campaign.category | titlecase }}
+          @if (promotion.campaign?.campaignGoal) {
+            <span class="goal-hint" [class.leads]="promotion.campaign.campaignGoal === 'leads'"> · {{ promotion.campaign.campaignGoal === 'leads' ? 'Leads' : 'Awareness' }}</span>
+          }
+        </p>
         <h2>{{ promotion.campaign.title }}</h2>
       </div>
       <button type="button" aria-label="Sharing instructions" (click)="showWhatsAppSharingInstructions(promotion)" [disabled]="isPromotionRestricted()">

@@ -55,7 +55,13 @@ export class PromotionCardComponent {
       || 'This promotion link is paused while MarketSpase reviews suspicious traffic on it.';
   }
 
+  getPublicUrl(): string {
+    return `https://marketspase.com/c/${this.promotion.upi}`;
+  }
+
   getPromotionUrl(): string {
+    if (this.promotion.publicUrl) return this.promotion.publicUrl;
+    if (this.promotion.upi) return this.getPublicUrl();
     if (this.promotion.promotionUrl) return this.promotion.promotionUrl;
     return `${this.api.replace(/\/$/, '')}/api/v1/campaign/track/${this.promotion.upi}`;
   }

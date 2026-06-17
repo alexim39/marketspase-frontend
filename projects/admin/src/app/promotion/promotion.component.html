@@ -236,6 +236,10 @@
                         <button type="button" class="dropdown-item" (click)="viewPromotionDetails(promotion)">
                           <mat-icon>info</mat-icon> View ledger details
                         </button>
+                        <button type="button" class="dropdown-item danger" (click)="togglePromotionActive(promotion)">
+                          <mat-icon>{{ promotion.isActive === false ? 'link' : 'link_off' }}</mat-icon>
+                          {{ promotion.isActive === false ? 'Restore link' : 'Suspend link' }}
+                        </button>
                       </div>
                     }
                   </div>

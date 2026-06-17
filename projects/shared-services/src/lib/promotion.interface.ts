@@ -53,6 +53,7 @@ export interface PromotionInterface {
   notes?: string;
   upi: string | number;
   promotionUrl?: string;
+  publicUrl?: string;
   destinationUrl?: string;
   isActive?: boolean;
   clickStats?: PromotionClickStats;

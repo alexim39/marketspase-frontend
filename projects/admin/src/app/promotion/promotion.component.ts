@@ -21,6 +21,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { CampaignService } from '../campaign/campaign.service';
+import { PromotionService } from './promotion.service';
 import { AdminService } from '../common/services/user.service';
 import { CampaignInterface, PromotionInterface } from '../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -29,7 +30,7 @@ import { PromotionDetailsComponent } from './promotion-details/promotion-details
 @Component({
   selector: 'admin-campaign-promotions',
   standalone: true,
-  providers: [DatePipe, CurrencyPipe, CampaignService],
+  providers: [DatePipe, CurrencyPipe, CampaignService, PromotionService],
   imports: [
     CommonModule,
     MatTableModule, MatPaginatorModule, MatSortModule,
@@ -43,6 +44,7 @@ import { PromotionDetailsComponent } from './promotion-details/promotion-details
 })
 export class CampaignPromotionsComponent {
   readonly campaignService = inject(CampaignService);
+  readonly promotionService = inject(PromotionService);
   readonly adminService = inject(AdminService);
   readonly route = inject(ActivatedRoute);
   readonly router = inject(Router);
@@ -234,6 +236,25 @@ export class CampaignPromotionsComponent {
     if (promoterId) {
       this.router.navigate(['/dashboard/users', promoterId]);
     }
+  }
+
+  togglePromotionActive(promotion: PromotionInterface): void {
+    const api = this.promotionService.api || '';
+    fetch(`${api}/api/v1/campaign/admin/promotion/${promotion._id}/toggle-active`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          this.snackBar.open(data.message || 'Updated', 'Close', { duration: 2500 });
+          this.loadCampaignPromotions();
+        } else {
+          this.snackBar.open(data.message || 'Failed', 'Close', { duration: 3000 });
+        }
+      })
+      .catch(() => this.snackBar.open('Network error', 'Close', { duration: 3000 }));
   }
 
   toggleMenu(event: MouseEvent, promotion: PromotionInterface): void {
