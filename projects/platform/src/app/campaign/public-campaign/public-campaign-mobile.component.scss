@@ -43,7 +43,7 @@
 .tag { display: inline-flex; padding: 3px 10px; border-radius: vars.$border-radius-full; font-size: 0.7rem; font-weight: vars.$font-weight-semibold;
   &.leads { background: rgba(vars.$primary-color-hex, 0.1); color: vars.$primary-color; }
   &:not(.leads) { background: rgba(vars.$success-color-hex, 0.1); color: vars.$success-color; }
-  &.cat { background: #f3f4f6; color: vars.$text-secondary; }
+  &.cat { background-color: color-mix(in srgb, vars.$background-color, black 5%); color: vars.$text-secondary; }
 }
 
 h1 { font-size: 1.3rem; font-weight: vars.$font-weight-bold; line-height: 1.25; margin: 0 0 vars.$spacing-2; }
