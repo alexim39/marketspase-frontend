@@ -51,7 +51,8 @@ export function getMarketerNavigation(
         { icon: 'add_business', label: 'Add Store', route: '/dashboard/stores/create' },
         { icon: 'receipt_long', label: 'Orders & Delivery', route: '/dashboard/stores/orders' },
         { icon: 'insights', label: 'Products Analytics', route: '/dashboard/stores/promoted-products-analytics' },
-        {
+
+       /*  {
           icon: 'support_agent',
           label: 'Customer Support',
           expanded: false,
@@ -60,7 +61,8 @@ export function getMarketerNavigation(
             { icon: 'contacts', label: 'Contacts', route: '/dashboard/stores/contacts' },
             { icon: 'mark_email_read', label: 'Email Subscribers', route: '/dashboard/stores/subscribers' }
           ]
-        }
+        } */
+       
         // { icon: 'analytics', label: 'Store Analytics', route: '/dashboard/stores/analytics' },
         // {
         //   icon: 'inventory',
@@ -75,19 +77,23 @@ export function getMarketerNavigation(
       ]
     },
 
-    // {
-    //   icon: 'android',
-    //   label: 'Assistant',
-    //   route: '/dashboard/assistant',
-    //   expanded: false
-    // },
+    {
+      icon: 'support_agent',
+      label: 'Customer Support',
+      expanded: false,
+      children: [
+        { icon: 'supervisor_account', label: 'Customers', route: '/dashboard/stores/support' },
+        { icon: 'contacts', label: 'Contacts', route: '/dashboard/stores/contacts' },
+        { icon: 'mark_email_read', label: 'Email Subscribers', route: '/dashboard/stores/subscribers' }
+      ]
+    },
 
     {
       icon: 'android',
       label: 'AI Assistant',
       expanded: false,
       children: [
-        { icon: 'support_agent', label: 'Customer Support', route: '/dashboard/assistant/customer/overview' },
+        { icon: 'support_agent', label: 'Support Assistant', route: '/dashboard/assistant/customer/overview' },
         // { icon: 'dynamic_feed', label: 'Social Media Management', route: '/dashboard/assistant/social/overview' },
         // { icon: 'analytics', label: 'Business Insights', route: '/dashboard/assistant/insights' },
         // { icon: 'settings', label: 'Settings', route: '/dashboard/assistant/settings' }

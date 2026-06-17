@@ -93,9 +93,19 @@
 }
 
 .status-badge.status-active {
-  // UPDATED: Use success-color with light background
   background: rgba($success-color, 0.1);
   color: $success-color;
+}
+
+.goal-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  &.leads { background: rgba($primary-color, 0.1); color: $primary-color; }
+  &.awareness { background: rgba($info-color, 0.1); color: $info-color; }
 }
 
 .status-badge.status-paused {

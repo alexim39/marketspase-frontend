@@ -123,9 +123,11 @@ export class DesktopFeedPageComponent implements AfterViewInit {
     return 'for_you';
   });
   activeCommentPost = computed(() => {
-    const posts = this.filteredPosts();
     const activeId = this.activeCommentPostId();
     if (!activeId) return null;
+    const featured = this.featuredPost();
+    if (featured?._id === activeId) return featured;
+    const posts = this.filteredPosts();
     return posts.find((post) => post._id === activeId) || null;
   });
 
@@ -157,10 +159,11 @@ export class DesktopFeedPageComponent implements AfterViewInit {
 
     effect(() => {
       const posts = this.filteredPosts();
+      const featured = this.featuredPost();
       const currentId = this.activeCommentPostId();
       if (!currentId) return;
 
-      const currentStillExists = posts.some((post) => post._id === currentId);
+      const currentStillExists = posts.some((post) => post._id === currentId) || featured?._id === currentId;
       if (!posts.length || !currentStillExists) {
         queueMicrotask(() => this.closeCommentRail());
       }
