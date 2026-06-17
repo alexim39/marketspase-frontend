@@ -1,0 +1,147 @@
+@use '../../../styles/variables' as vars;
+@use '../../../styles/mixins' as mix;
+
+:host { display: block; min-height: 100vh; }
+
+.landing-desktop {
+  min-height: 100vh;
+  background: vars.$background-color;
+  color: vars.$text-primary;
+  font-family: vars.$font-family;
+  position: relative;
+}
+
+.hero-bg {
+  position: absolute; inset: 0; height: 320px;
+  background: linear-gradient(180deg, rgba(vars.$primary-color-hex, 0.06) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 60px vars.$spacing-4 vars.$spacing-12;
+}
+
+.state {
+  @include mix.flex-column-center;
+  gap: vars.$spacing-3; padding: vars.$spacing-12 vars.$spacing-4; text-align: center; color: vars.$text-secondary;
+  h3 { color: vars.$text-primary; margin: 0; }
+  mat-icon { font-size: 2rem; width: 2rem; height: 2rem; color: vars.$text-tertiary; }
+}
+
+.spinner { width: 40px; height: 40px; border: 3px solid rgba(vars.$primary-color-hex, 0.2); border-top-color: vars.$primary-color; border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.landing-card, .card {
+  background: vars.$surface-color;
+  border: vars.$border-width solid vars.$border-color;
+  border-radius: vars.$border-radius-xl;
+  overflow: hidden;
+  box-shadow: vars.$shadow-lg;
+  margin-bottom: vars.$spacing-5;
+}
+
+.media-frame {
+  position: relative;
+  width: 100%;
+  background: #000;
+}
+
+.media {
+  width: 100%; max-height: 50vh; object-fit: contain; display: block;
+}
+
+.media-fallback {
+  height: 220px;
+  display: flex; align-items: center; justify-content: center;
+  background: vars.$gradient-primary;
+  span { font-size: 3.5rem; opacity: 0.25; }
+}
+
+.media-gradient {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 40%);
+}
+
+.card-body {
+  padding: vars.$spacing-6 vars.$spacing-8;
+
+  h1 { margin: 0 0 vars.$spacing-2; font-size: 1.5rem; font-weight: vars.$font-weight-bold; line-height: vars.$line-height-tight; color: vars.$text-primary; }
+  h2 { margin: 0 0 vars.$spacing-2; font-size: 1.25rem; font-weight: vars.$font-weight-bold; color: vars.$text-primary; }
+}
+
+.tags { display: flex; gap: vars.$spacing-2; flex-wrap: wrap; margin-bottom: vars.$spacing-3; }
+
+.tag {
+  display: inline-flex; align-items: center; padding: 2px 10px;
+  border-radius: vars.$border-radius-full; font-size: 0.72rem; font-weight: vars.$font-weight-semibold;
+  &.leads { background: rgba(vars.$primary-color-hex, 0.1); color: vars.$primary-color; }
+  &:not(.leads) { background: rgba(vars.$success-color-hex, 0.1); color: vars.$success-color; }
+  &.category { background: #f3f4f6; color: vars.$text-secondary; }
+}
+
+.caption { color: vars.$text-secondary; font-size: 0.95rem; line-height: vars.$line-height-relaxed; margin-bottom: vars.$spacing-4; }
+
+.promoter {
+  display: flex; align-items: center; gap: vars.$spacing-2;
+  padding: vars.$spacing-2 0; margin-bottom: vars.$spacing-4;
+  border-top: vars.$border-width solid vars.$border-color;
+  border-bottom: vars.$border-width solid vars.$border-color;
+  font-size: 0.82rem; color: vars.$text-secondary;
+}
+
+.avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: vars.$gradient-primary; color: vars.$white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: vars.$font-weight-bold;
+}
+
+.btn-primary, .btn-success, .btn-secondary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 15px 28px; border: none; border-radius: vars.$border-radius; 
+  font-size: 1rem; font-weight: vars.$font-weight-semibold; cursor: pointer; transition: all vars.$transition-fast; margin-top: vars.$spacing-4;
+  &:disabled { opacity: 0.55; cursor: default; }
+}
+
+.btn-primary {
+  @include mix.button-primary;
+}
+
+.btn-success {
+  background: vars.$success-color; color: vars.$white;
+  &:hover { opacity: 0.92; }
+}
+
+.btn-secondary {
+  background: vars.$background-color; color: vars.$text-primary; border: vars.$border-width solid vars.$border-color;
+  &:hover { background: vars.$divider-color; }
+}
+
+.btn-row { display: flex; gap: vars.$spacing-3; margin-top: vars.$spacing-4; }
+
+.lead-text { color: vars.$text-secondary; font-size: 0.95rem; line-height: vars.$line-height-relaxed; margin-bottom: vars.$spacing-4; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: vars.$spacing-4; margin-bottom: vars.$spacing-3; }
+
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 0.82rem; font-weight: vars.$font-weight-semibold; color: vars.$text-primary; }
+.required { color: vars.$error-color; } .optional { color: vars.$text-tertiary; font-weight: vars.$font-weight-normal; }
+
+.input {
+  @include mix.form-input;
+  padding: 12px 14px; font-size: 0.95rem;
+}
+
+.error-msg { font-size: 0.8rem; color: vars.$error-color; margin-top: vars.$spacing-2; }
+
+.consent { font-size: 0.78rem; color: vars.$text-tertiary; margin-top: vars.$spacing-3; }
+
+.success-card .card-body { text-align: center; padding: vars.$spacing-10 vars.$spacing-6; }
+.check { font-size: 3rem; margin-bottom: vars.$spacing-3; }
+
+.trust-line { text-align: center; margin-top: vars.$spacing-4; font-size: 0.78rem; color: vars.$text-tertiary; }
+
+.spin { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }

@@ -1,0 +1,65 @@
+<section class="landing-mobile">
+  @if (loading()) {
+    <div class="state"><div class="spinner"></div><span>Loading...</span></div>
+  } @else if (error()) {
+    <div class="state"><span class="state-icon">😔</span><h3>Oops!</h3><p>{{ error() }}</p></div>
+  } @else if (suspended()) {
+    <div class="state"><span class="state-icon">🔗</span><h3>Link Unavailable</h3><p>This promotion has been paused or removed.</p></div>
+  } @else if (campaign()) {
+    @if (step() === 'landing') {
+      <div class="media-block">
+        @if (campaign()!.mediaUrl && campaign()!.mediaType !== 'video') {
+          <img [src]="campaign()!.mediaUrl" [alt]="campaign()!.title" class="media" />
+        } @else if (campaign()!.mediaUrl && campaign()!.mediaType === 'video') {
+          <video [src]="campaign()!.mediaUrl" controls preload="auto" playsinline class="media" [poster]="campaign()!.thumbnailUrl">
+            <source [src]="campaign()!.mediaUrl" type="video/mp4">
+          </video>
+        } @else {
+          <div class="media-fallback"><span>📣</span></div>
+        }
+      </div>
+      <div class="body">
+        <div class="tags"><span class="tag" [class.leads]="goal()==='leads'">{{ goal()==='leads'?'Lead':'Awareness' }}</span>@if(campaign()!.category){<span class="tag cat">{{campaign()!.category}}</span>}</div>
+        <h1>{{ campaign()!.title }}</h1>
+        @if (campaign()!.caption) { <p class="cap">{{ campaign()!.caption }}</p> }
+        @if (campaign()!.promoterName) {
+          <div class="promo"><span class="av">{{ (campaign()!.promoterName||'?').charAt(0) }}</span><span>Shared by {{ campaign()!.promoterName }}</span></div>
+        }
+        <button class="btn" (click)="handleContinue()">Continue →</button>
+        <p class="trust">Powered by MarketSpase</p>
+      </div>
+    }
+
+    @if (step() === 'choice') {
+      <div class="card">
+        <h2>Stay in the loop</h2>
+        <p>Would you like the business owner to contact you with more information?</p>
+        <button class="btn green" (click)="step.set('form')">Yes, Contact Me</button>
+        <button class="btn ghost" (click)="redirectToDestination()">No Thanks, Continue</button>
+      </div>
+    }
+
+    @if (step() === 'form') {
+      <div class="card">
+        <h2>Your Details</h2>
+        <p>Enter your phone number and the business owner will reach out.</p>
+        <label>Phone Number *</label><input type="tel" [(ngModel)]="phone" placeholder="+234 801 234 5678" class="inp" />
+        <label>Email (optional)</label><input type="email" [(ngModel)]="email" placeholder="you@example.com" class="inp" />
+        @if (formError()) { <p class="err">{{ formError() }}</p> }
+        <p class="cons">By continuing, we might send you a quick message.</p>
+        <button class="btn" (click)="submitLead()" [disabled]="submitting()">
+          @if (submitting()) { <span class="spin"></span> } @else { Submit & Continue }
+        </button>
+      </div>
+    }
+
+    @if (step() === 'success') {
+      <div class="card center">
+        <span class="big">✅</span>
+        <h2>All set!</h2>
+        <p>The business owner will reach out to you soon.</p>
+        <button class="btn" (click)="redirectToDestination()">Proceed to Offer →</button>
+      </div>
+    }
+  }
+</section>

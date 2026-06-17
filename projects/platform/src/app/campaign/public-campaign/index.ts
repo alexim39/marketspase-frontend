@@ -1,26 +1,26 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-
-@Component({
-  selector: 'app-public-campaign',
-  standalone: true,
-  template: `<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;color:#6b7280">Loading...</div>`,
-})
-export class PublicCampaignComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-
-  ngOnInit(): void {
-    const upi = this.route.snapshot.paramMap.get('upi');
-    if (upi) {
-      window.location.href = `/api/v1/campaign/track/${upi}?preview=1`;
-    }
-  }
-}
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { DeviceService } from '@shared/services';
+import { PublicCampaignDesktopComponent } from './public-campaign-desktop.component';
+import { PublicCampaignMobileComponent } from './public-campaign-mobile.component';
 
 @Component({
   selector: 'app-public-campaign-index',
   standalone: true,
-  imports: [PublicCampaignComponent],
-  template: `<app-public-campaign />`,
+  imports: [CommonModule, PublicCampaignDesktopComponent, PublicCampaignMobileComponent],
+  template: `
+    @if (isMobile()) {
+      <app-public-campaign-mobile />
+    } @else {
+      <app-public-campaign-desktop />
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PublicCampaignIndexComponent {}
+export class PublicCampaignIndexComponent {
+  private readonly deviceService = inject(DeviceService);
+  protected readonly isMobile = computed(() => {
+    const t = this.deviceService.type();
+    return t === 'mobile' || t === 'tablet';
+  });
+}
