@@ -1,5 +1,4 @@
 <div class="page-shell">
-  <!-- Header -->
   <section class="hero-section">
     <div class="page-header">
       <div>
@@ -8,76 +7,56 @@
         <p>Review suspicious traffic, pause unsafe links, and escalate repeat offenders before poor-quality traffic spreads.</p>
       </div>
       <div class="header-actions">
-        <button type="button" class="surface-btn" (click)="refresh()">
-          <mat-icon>refresh</mat-icon>
-          Refresh
-        </button>
+        <button type="button" class="surface-btn" (click)="refresh()"><mat-icon>refresh</mat-icon> Refresh</button>
       </div>
     </div>
   </section>
 
   <!-- Summary -->
   @if (isLoadingSummary()) {
-    <div class="loading-card">
-      <mat-progress-bar mode="indeterminate" />
-      <span>Loading fraud summary...</span>
-    </div>
+    <div class="loading-card"><mat-progress-bar mode="indeterminate"/><span>Loading summary...</span></div>
   } @else if (summaryCards().length > 0) {
     <div class="summary-grid">
       @for (card of summaryCards(); track card.label) {
         <div class="summary-card" [class]="card.tone">
-          <div class="summary-icon">
-            <mat-icon>{{ card.icon }}</mat-icon>
-          </div>
-          <div class="summary-copy">
-            <strong>{{ card.value }}</strong>
-            <span>{{ card.label }}</span>
-          </div>
+          <div class="summary-icon"><mat-icon>{{ card.icon }}</mat-icon></div>
+          <div class="summary-copy"><strong>{{ card.value }}</strong><span>{{ card.label }}</span></div>
         </div>
       }
     </div>
   }
 
+  <!-- Critical Alert Banner -->
+  @if (criticalCount() > 0 || highCount() > 0) {
+    <div class="alert-banner">
+      <mat-icon>warning</mat-icon>
+      <span><strong>{{ criticalCount() + highCount() }}</strong> cases need urgent attention — <strong>{{ criticalCount() }}</strong> critical, <strong>{{ highCount() }}</strong> high risk on this page.</span>
+    </div>
+  }
+
   <!-- Filters -->
   <section class="filters-card">
-    <div class="filters-container">
-      <div class="filter-select-group">
-        <label class="filter-label">Status</label>
-        <select class="filter-select" formControlName="status" [formGroup]="filtersForm">
-          <option value="all">All statuses</option>
-          <option value="open">Open</option>
-          <option value="warning_sent">Warning sent</option>
-          <option value="final_warning_sent">Final warning sent</option>
-          <option value="suspended">Suspended</option>
-          <option value="resolved">Resolved</option>
-          <option value="dismissed">Dismissed</option>
+    <form class="filters-container" [formGroup]="filtersForm">
+      <div class="filter-select-group"><label class="filter-label">Status</label>
+        <select class="filter-select" formControlName="status">
+          <option value="all">All statuses</option><option value="open">Open</option><option value="warning_sent">Warning sent</option><option value="final_warning_sent">Final warning</option><option value="suspended">Suspended</option><option value="resolved">Resolved</option><option value="dismissed">Dismissed</option>
         </select>
       </div>
-
-      <div class="filter-select-group">
-        <label class="filter-label">Risk Level</label>
-        <select class="filter-select" formControlName="riskLevel" [formGroup]="filtersForm">
-          <option value="all">All risk levels</option>
-          <option value="critical">Critical</option>
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
+      <div class="filter-select-group"><label class="filter-label">Risk Level</label>
+        <select class="filter-select" formControlName="riskLevel">
+          <option value="all">All levels</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
         </select>
       </div>
-
       <div class="filter-field search-field">
         <mat-icon class="search-icon">search</mat-icon>
-        <input type="text" class="search-input" placeholder="Search promoter, campaign, or UPI" [formControl]="filtersForm.controls.search" />
+        <input type="text" class="search-input" placeholder="Search promoter, campaign, or UPI" formControlName="search" />
       </div>
-    </div>
+    </form>
   </section>
 
   <!-- Cases -->
   @if (isLoadingCases()) {
-    <div class="loading-card">
-      <mat-progress-bar mode="indeterminate" />
-      <span>Loading fraud cases...</span>
-    </div>
+    <div class="loading-card"><mat-progress-bar mode="indeterminate"/><span>Loading fraud cases...</span></div>
   } @else if (cases().length > 0) {
     <div class="case-list">
       @for (caseItem of cases(); track caseItem._id) {
@@ -91,156 +70,113 @@
               </div>
               <p class="case-summary">{{ getReasonSummary(caseItem) }}</p>
             </div>
-
-            <div class="case-meta">
-              <span>Updated {{ caseItem.updatedAt | date:'medium' }}</span>
-              <span>Score {{ caseItem.riskScore }}</span>
-            </div>
+            <div class="case-meta"><span>Updated {{ caseItem.updatedAt | date:'medium' }}</span><span>Score {{ caseItem.riskScore }}</span></div>
           </div>
 
           <div class="case-grid">
             <div class="case-panel">
               <span class="panel-label">Promoter</span>
               <strong>{{ getPromoterName(caseItem) }}</strong>
-              <span class="subcopy">{{ caseItem.promoter?.email || 'No email on file' }}</span>
-              <span class="subcopy">Trust {{ $any(caseItem).promoter?.fraudProfile?.trustScore ?? 100 }} | Warnings {{ $any(caseItem).promoter?.fraudProfile?.warningCount ?? 0 }} | Strikes {{ $any(caseItem).promoter?.fraudProfile?.strikeCount ?? 0 }}</span>
-              <span class="subcopy">Active cases {{ $any(caseItem).promoter?.fraudProfile?.activeCaseCount ?? 0 }} | Suspensions {{ $any(caseItem).promoter?.fraudProfile?.suspensionHistory?.length ?? 0 }}</span>
-              @if ($any(caseItem).promoter?.fraudProfile?.lastWarningAt) {
-                <span class="subcopy">Last warning {{ $any(caseItem).promoter?.fraudProfile?.lastWarningAt | date:'medium' }}</span>
-              }
-              @if ($any(caseItem).promoter?.fraudProfile?.suspendedUntil) {
-                <span class="subcopy">Account suspended until {{ $any(caseItem).promoter?.fraudProfile?.suspendedUntil | date:'medium' }}</span>
-              }
+              <span class="subcopy">{{ caseItem.promoter?.email || 'No email' }}</span>
+              <span class="subcopy">Trust {{ $any(caseItem).promoter?.fraudProfile?.trustScore ?? 100 }} · Warnings {{ $any(caseItem).promoter?.fraudProfile?.warningCount ?? 0 }} · Strikes {{ $any(caseItem).promoter?.fraudProfile?.strikeCount ?? 0 }}</span>
+              <span class="subcopy">Active cases {{ $any(caseItem).promoter?.fraudProfile?.activeCaseCount ?? 0 }} · Suspensions {{ $any(caseItem).promoter?.fraudProfile?.suspensionHistory?.length ?? 0 }}</span>
+              @if ($any(caseItem).promoter?.fraudProfile?.lastWarningAt) { <span class="subcopy">Last warning {{ $any(caseItem).promoter?.fraudProfile?.lastWarningAt | date:'medium' }}</span> }
+              @if ($any(caseItem).promoter?.fraudProfile?.suspendedUntil) { <span class="subcopy">Suspended until {{ $any(caseItem).promoter?.fraudProfile?.suspendedUntil | date:'medium' }}</span> }
             </div>
-
             <div class="case-panel">
               <span class="panel-label">Promotion</span>
               <strong>{{ caseItem.promotion?.upi || 'No UPI' }}</strong>
               <span class="subcopy">{{ caseItem.promotion?.isActive === false ? 'Link disabled' : 'Link active' }}</span>
-              <span class="subcopy">{{ $any(caseItem).promotion?.clickStats?.billableClicks || 0 }} billable | {{ $any(caseItem).promotion?.clickStats?.invalidClicks || 0 }} invalid</span>
-              @if ($any(caseItem).promotion?.fraudStatus?.blockedUntil) {
-                <span class="subcopy">Link hold ends {{ $any(caseItem).promotion?.fraudStatus?.blockedUntil | date:'medium' }}</span>
-              }
-              @if ($any(caseItem).promotion?.fraudStatus?.manualHold) {
-                <span class="subcopy">Manual hold: admin restore required</span>
-              }
-              @if ($any(caseItem).promotion?.fraudStatus?.autoRestoredAt) {
-                <span class="subcopy">Auto-restored {{ $any(caseItem).promotion?.fraudStatus?.autoRestoredAt | date:'medium' }}</span>
-              }
+              <span class="subcopy">{{ $any(caseItem).promotion?.clickStats?.billableClicks || 0 }} billable · {{ $any(caseItem).promotion?.clickStats?.invalidClicks || 0 }} invalid</span>
+              @if ($any(caseItem).promotion?.fraudStatus?.blockedUntil) { <span class="subcopy">Hold ends {{ $any(caseItem).promotion?.fraudStatus?.blockedUntil | date:'medium' }}</span> }
+              @if ($any(caseItem).promotion?.fraudStatus?.manualHold) { <span class="subcopy">Manual hold: admin restore required</span> }
             </div>
-
             <div class="case-panel">
               <span class="panel-label">Evidence</span>
-              <strong>{{ $any(caseItem).evidence?.totalObservedClicks || 0 }} observed clicks</strong>
-              <span class="subcopy">{{ $any(caseItem).evidence?.duplicateObservedClicks || 0 }} duplicate | {{ $any(caseItem).evidence?.invalidObservedClicks || 0 }} invalid</span>
-              <span class="subcopy">
-                @if ($any(caseItem).evidence?.matchedPromoterFingerprint) { Fingerprint matched promoter session }
-                @else { No direct fingerprint match recorded }
-              </span>
-              @if ($any(caseItem).evidence?.notes) { <span class="subcopy">{{ caseItem.evidence?.notes }}</span> }
+              <strong>{{ $any(caseItem).evidence?.totalObservedClicks || 0 }} clicks</strong>
+              <span class="subcopy">{{ $any(caseItem).evidence?.duplicateObservedClicks || 0 }} dup · {{ $any(caseItem).evidence?.invalidObservedClicks || 0 }} invalid</span>
+              <span class="subcopy">@if ($any(caseItem).evidence?.matchedPromoterFingerprint) { Fingerprint matched } @else { No direct match }</span>
             </div>
           </div>
 
           @if (caseItem.reasons.length) {
-            <div class="reason-chips">
-              @for (reason of caseItem.reasons; track reason.code) {
-                <span class="reason-chip">{{ reason.label }}</span>
-              }
-            </div>
+            <div class="reason-chips">@for (reason of caseItem.reasons; track reason.code) { <span class="reason-chip">{{ reason.label }}</span> }</div>
           }
 
           @if (caseItem.actionLog?.length) {
             <div class="history-panel">
-              <span class="panel-label">Fraud action history</span>
+              <span class="panel-label">Action history</span>
               <div class="history-list">
                 @for (hi of (caseItem.actionLog ?? []).slice().reverse().slice(0, 6); track $index) {
                   <div class="history-item">
-                    <div class="history-copy">
-                      <strong>{{ hi.action.replaceAll('_', ' ') | titlecase }}</strong>
-                      @if (hi.details) { <span>{{ hi.details }}</span> }
-                    </div>
-                    @if (hi.timestamp) { <time>{{ hi.timestamp | date:'medium' }}</time> }
+                    <div class="history-copy"><strong>{{ hi.action.replaceAll('_', ' ') | titlecase }}</strong>@if(hi.details){<span>{{hi.details}}</span>}</div>
+                    @if(hi.timestamp){<time>{{hi.timestamp|date:'medium'}}</time>}
                   </div>
                 }
               </div>
             </div>
           }
 
-          @if (getFraudSuggestion(caseItem); as suggestion) {
-            <div class="suggestion-panel" [class]="suggestion.urgency">
+          @if (getFraudSuggestion(caseItem); as sug) {
+            <div class="suggestion-panel" [class]="sug.urgency">
               <div class="suggestion-header">
-                <mat-icon class="suggestion-icon">
-                  @if (suggestion.urgency === 'critical') { gpp_bad }
-                  @else if (suggestion.urgency === 'high') { warning }
-                  @else if (suggestion.urgency === 'low') { lightbulb }
-                  @else { tips_and_updates }
-                </mat-icon>
-                <div class="suggestion-copy">
-                  <strong>{{ suggestion.title }}</strong>
-                  <span>{{ suggestion.description }}</span>
-                </div>
+                <mat-icon class="suggestion-icon">{{ sug.urgency === 'critical' ? 'gpp_bad' : sug.urgency === 'high' ? 'warning' : sug.urgency === 'low' ? 'lightbulb' : 'tips_and_updates' }}</mat-icon>
+                <div class="suggestion-copy"><strong>{{ sug.title }}</strong><span>{{ sug.description }}</span></div>
               </div>
-              <button type="button" class="primary-btn suggestion-action" (click)="openAction(caseItem, suggestion.action)">
-                {{ getActionButtonLabel(suggestion.action) }}
-              </button>
+              <button type="button" class="primary-btn suggestion-action" (click)="openAction(caseItem, sug.action)">{{ getActionButtonLabel(sug.action) }}</button>
             </div>
           }
 
           <div class="case-actions">
-            <button type="button" class="danger-btn" (click)="openAction(caseItem, 'suspend_2_hours')">
-              <mat-icon>person_off</mat-icon> Suspend 2 hours
-            </button>
-            <button type="button" class="danger-btn" (click)="openAction(caseItem, 'suspend_promotion_indefinitely')">
-              <mat-icon>link_off</mat-icon> Suspend permanently
-            </button>
-            <button type="button" class="success-btn" (click)="openAction(caseItem, 'reactivate_promotion')">
-              <mat-icon>published_with_changes</mat-icon> Restore link
-            </button>
-            <button type="button" class="primary-btn" (click)="openAction(caseItem, 'mark_resolved')">
-              <mat-icon>task_alt</mat-icon> Resolve
-            </button>
-            <button type="button" class="ghost-btn" (click)="openAction(caseItem, 'dismiss')">
-              <mat-icon>close</mat-icon> Dismiss
-            </button>
+            <button type="button" class="danger-btn" (click)="openAction(caseItem, 'suspend_2_hours')"><mat-icon>person_off</mat-icon> Suspend 2 hours</button>
+            <button type="button" class="danger-btn" (click)="openAction(caseItem, 'suspend_promotion_indefinitely')"><mat-icon>link_off</mat-icon> Suspend permanently</button>
+            <button type="button" class="success-btn" (click)="openAction(caseItem, 'reactivate_promotion')"><mat-icon>published_with_changes</mat-icon> Restore link</button>
+            <button type="button" class="primary-btn" (click)="openAction(caseItem, 'mark_resolved')"><mat-icon>task_alt</mat-icon> Resolve</button>
+            <button type="button" class="ghost-btn" (click)="openAction(caseItem, 'dismiss')"><mat-icon>close</mat-icon> Dismiss</button>
           </div>
         </div>
       }
     </div>
 
-    <div class="pagination-bar">
-      <span class="pagination-info">
-        Page {{ pagination().page }} of {{ pagination().totalPages || 1 }} | {{ pagination().total }} total cases
-      </span>
-      <div class="pagination-actions">
-        <button type="button" class="surface-btn" (click)="previousPage()" [disabled]="pagination().page <= 1 || isLoadingCases()">Previous</button>
-        <button type="button" class="surface-btn" (click)="nextPage()" [disabled]="pagination().page >= pagination().totalPages || isLoadingCases()">Next</button>
+    @if (pagination().totalPages > 1) {
+      <div class="pagination-bar">
+        <div class="pagination-inner">
+          <div class="page-size-select">
+            <span class="page-size-label">Rows</span>
+            <select class="page-size-dropdown" [ngModel]="pagination().limit" (ngModelChange)="onPageSizeChange($any($event.target).value)">
+              @for(o of pageSizeOptions; track o) {<option [value]="o">{{o}}</option>}
+            </select>
+          </div>
+          <button type="button" class="page-btn" [disabled]="pagination().page<=1" (click)="goToPage(1)"><mat-icon>first_page</mat-icon></button>
+          <button type="button" class="page-btn" [disabled]="pagination().page<=1" (click)="goToPage(pagination().page-1)"><mat-icon>chevron_left</mat-icon></button>
+          <div class="page-numbers">
+            @if(pagination().page>3){<button type="button" class="page-btn number" (click)="goToPage(1)">1</button>@if(pagination().page>4){<span class="page-ellipsis">...</span>}}
+            @for(p of pageNumbers();track p){<button type="button" class="page-btn number" [class.active]="p===pagination().page" (click)="goToPage(p)">{{p}}</button>}
+            @if(pagination().page<pagination().totalPages-2){@if(pagination().page<pagination().totalPages-3){<span class="page-ellipsis">...</span>}<button type="button" class="page-btn number" (click)="goToPage(pagination().totalPages)">{{pagination().totalPages}}</button>}
+          </div>
+          <button type="button" class="page-btn" [disabled]="pagination().page>=pagination().totalPages" (click)="goToPage(pagination().page+1)"><mat-icon>chevron_right</mat-icon></button>
+          <button type="button" class="page-btn" [disabled]="pagination().page>=pagination().totalPages" (click)="goToPage(pagination().totalPages)"><mat-icon>last_page</mat-icon></button>
+          <div class="page-jump">
+            <span class="page-jump-label">Go</span>
+            <input type="number" class="page-jump-input" min="1" [max]="pagination().totalPages" placeholder="#" (keydown.enter)="onPageInput($event)" (blur)="onPageInput($event)"/>
+          </div>
+          <span class="page-total">Page {{pagination().page}} of {{pagination().totalPages}} · {{pagination().total|number}} total</span>
+        </div>
       </div>
-    </div>
+    }
   } @else {
-    <div class="empty-state">
-      <mat-icon>shield</mat-icon>
-      <strong>No fraud cases found</strong>
-      <span>Current filters did not return any active promotion fraud cases.</span>
-    </div>
+    <div class="empty-state"><mat-icon>shield</mat-icon><strong>No fraud cases found</strong><span>Current filters did not return any cases.</span></div>
   }
 </div>
 
 <ng-template #actionDialog>
   <div class="action-dialog">
     <h2>{{ getActionTitle(selectedAction()) }}</h2>
-    @if (selectedCase(); as activeCase) {
-      <p>{{ activeCase.campaign?.title || 'This promotion' }} for <strong>{{ getPromoterName(activeCase) }}</strong> will be updated.</p>
-    }
-    <mat-form-field appearance="outline" class="dialog-field">
-      <mat-label>Admin note</mat-label>
-      <textarea matInput rows="4" [ngModel]="actionReason()" (ngModelChange)="actionReason.set($event)" placeholder="Add context for this fraud action"></textarea>
-    </mat-form-field>
+    @if (selectedCase(); as ac) { <p>{{ ac.campaign?.title || 'This promotion' }} for <strong>{{ getPromoterName(ac) }}</strong> will be updated.</p> }
+    <mat-form-field appearance="outline" class="dialog-field"><mat-label>Admin note</mat-label><textarea matInput rows="4" [ngModel]="actionReason()" (ngModelChange)="actionReason.set($event)" placeholder="Add context for this fraud action"></textarea></mat-form-field>
     <div class="dialog-actions">
       <button type="button" class="surface-btn" (click)="closeActionDialog()" [disabled]="actionBusy()">Cancel</button>
-      <button type="button" class="primary-btn" (click)="confirmAction()" [disabled]="actionBusy()">
-        @if (actionBusy()) { <mat-spinner diameter="18"></mat-spinner> }
-        @else { {{ getActionButtonLabel(selectedAction()) }} }
-      </button>
+      <button type="button" class="primary-btn" (click)="confirmAction()" [disabled]="actionBusy()">@if(actionBusy()){<mat-spinner diameter="18"/>}@else{{{getActionButtonLabel(selectedAction())}}}</button>
     </div>
   </div>
 </ng-template>

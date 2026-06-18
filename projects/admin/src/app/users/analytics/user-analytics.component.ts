@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged, finalize, map } from 'rxjs';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   AnalyticsDistributionItem,
   GeographicDistributionItem,
@@ -13,6 +14,9 @@ import {
   UserAnalyticsData,
   UserAnalyticsService,
 } from './user-analytics.service';
+import { ApiService } from '../../../../../shared-services/src/public-api';
+
+interface GrowthPoint { label: string; count: number; cumulative: number; growth: number; }
 
 @Component({
   selector: 'app-user-analytics',
@@ -23,6 +27,7 @@ import {
     RouterModule,
     MatIconModule,
     MatProgressBarModule,
+    MatTooltipModule,
   ],
   providers: [UserAnalyticsService],
   templateUrl: './user-analytics.component.html',
@@ -32,6 +37,7 @@ export class UserAnalyticsComponent {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly analyticsService = inject(UserAnalyticsService);
+  private readonly apiService = inject(ApiService);
 
   readonly loading = signal(true);
   readonly refreshing = signal(false);
@@ -128,6 +134,7 @@ export class UserAnalyticsComponent {
   constructor() {
     this.setupFilters();
     this.loadAnalytics();
+    this.loadGrowth();
   }
 
   refresh(): void {
@@ -208,5 +215,90 @@ export class UserAnalyticsComponent {
       currency: 'NGN',
       maximumFractionDigits: 0,
     }).format(Number(value || 0));
+  }
+
+  // ── User Growth Sparkline ──
+  readonly growthGranularity = signal<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
+  readonly growthPoints = signal<GrowthPoint[]>([]);
+  readonly growthMax = signal(0);
+  readonly growthCumulativeValues = computed(() => this.growthPoints().map(p => p.cumulative));
+  readonly growthCountValues = computed(() => this.growthPoints().map(p => p.count));
+  readonly growthCountMax = computed(() => this.growthPoints().reduce((m, p) => Math.max(m, p.count), 0));
+  readonly growthFirstLabel = computed(() => this.growthPoints()[0]?.label || '');
+  readonly growthLastLabel = computed(() => this.growthPoints()[this.growthPoints().length - 1]?.label || '');
+  readonly growthLastCumulative = computed(() => this.growthPoints()[this.growthPoints().length - 1]?.cumulative || 0);
+  readonly growthDots = computed(() => {
+    const vals = this.growthCumulativeValues();
+    const max = Math.max(1, this.growthMax());
+    const len = vals.length;
+    const step = len > 1 ? 800 / (len - 1) : 800;
+    return vals.map((v, i) => ({ cx: i * step, cy: 120 - (v / max) * 120, v }));
+  });
+  readonly growthAreaPoints = computed(() => {
+    const path = this.growthSparklinePath(this.growthCumulativeValues(), this.growthMax());
+    const len = this.growthCumulativeValues().length;
+    const lastX = len > 1 ? ((len - 1) * (800 / (len - 1))) : 800;
+    return `0,120 ${path} ${lastX},120`;
+  });
+
+  yAxisTicks(): { y: number; label: string }[] {
+    const max = Math.max(1, this.growthMax());
+    return [0, 0.25, 0.5, 0.75, 1].map(pct => ({
+      y: 120 - (pct * 120),
+      label: Math.round(pct * max).toLocaleString(),
+    }));
+  }
+
+  xAxisLabels(): { x: number; label: string }[] {
+    const pts = this.growthPoints();
+    if (!pts.length) return [];
+    const step = pts.length > 1 ? 800 / (pts.length - 1) : 0;
+    const maxLabels = Math.min(8, pts.length);
+    const interval = Math.max(1, Math.floor(pts.length / maxLabels));
+    return pts.filter((_, i) => i % interval === 0 || i === pts.length - 1).map(p => {
+      const idx = pts.indexOf(p);
+      return { x: idx * step, label: p.label };
+    });
+  }
+
+  loadGrowth(): void {
+    this.apiService.get<any>(`api/v1/user/admin/users/growth?granularity=${this.growthGranularity()}`).subscribe({
+      next: (r) => {
+        if (r.success) {
+          const pts = r.data.points as GrowthPoint[];
+          this.growthPoints.set(pts);
+          this.growthMax.set(pts.reduce((m, p) => Math.max(m, p.cumulative), 0));
+        }
+      },
+    });
+  }
+
+  setGrowthGranularity(g: typeof this.growthGranularity extends () => infer T ? T : never): void {
+    this.growthGranularity.set(g);
+    this.loadGrowth();
+  }
+
+  growthSparklinePath(values: number[], max: number, w = 800, h = 120): string {
+    if (!values.length || !max) return '';
+    const safeMax = Math.max(1, max);
+    const step = values.length > 1 ? w / (values.length - 1) : w;
+    return values.map((v, i) => {
+      const x = i * step;
+      const y = h - (Math.min(Math.max(v, 0), safeMax) / safeMax) * h;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+  }
+
+  growthBars(): { x: number; w: number; h: number; count: number }[] {
+    const pts = this.growthPoints();
+    if (!pts.length) return [];
+    const max = Math.max(1, pts.reduce((m, p) => Math.max(m, p.count), 0));
+    const barW = pts.length > 1 ? (790 / pts.length) - 2 : 60;
+    return pts.map((p, i) => ({
+      x: i * (barW + 2) + 1,
+      w: Math.max(2, barW),
+      h: Math.max(2, (p.count / max) * 110),
+      count: p.count,
+    }));
   }
 }

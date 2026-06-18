@@ -61,6 +61,16 @@ export class PublicCampaignBase {
     window.location.href = url;
   }
 
+  /** For leads campaigns: skip the billable click, go straight to marketer destination */
+  skipToDestination(): void {
+    const dest = this.campaign()?.destinationUrl;
+    if (dest && /^https?:\/\//i.test(dest)) {
+      window.location.href = dest;
+    } else {
+      window.location.href = this.apiService.getBaseUrl();
+    }
+  }
+
   selectContactMe(): void {
     this.trackEvent('contact_me_select');
     this.step.set('form');

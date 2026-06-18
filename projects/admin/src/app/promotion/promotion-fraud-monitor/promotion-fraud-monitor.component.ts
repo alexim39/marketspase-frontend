@@ -12,11 +12,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import {
-  PromotionFraudCase,
-  PromotionFraudSummary,
-  PromotionService,
-} from '../promotion.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { PromotionFraudCase, PromotionFraudSummary, PromotionService } from '../promotion.service';
 
 type FraudAction = 'suspend_2_hours' | 'suspend_promotion_indefinitely' | 'reactivate_promotion' | 'mark_resolved' | 'dismiss';
 
@@ -24,19 +21,7 @@ type FraudAction = 'suspend_2_hours' | 'suspend_promotion_indefinitely' | 'react
   selector: 'admin-promotion-fraud-monitor',
   standalone: true,
   providers: [PromotionService, DatePipe],
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    MatIconModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatProgressSpinnerModule,
-    MatProgressBarModule,
-    MatDialogModule,
-    MatSnackBarModule,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatProgressSpinnerModule, MatProgressBarModule, MatDialogModule, MatSnackBarModule, MatTooltipModule],
   templateUrl: './promotion-fraud-monitor.component.html',
   styleUrls: ['./promotion-fraud-monitor.component.scss'],
 })
@@ -57,8 +42,8 @@ export class PromotionFraudMonitorComponent {
   readonly selectedCase = signal<PromotionFraudCase | null>(null);
   readonly selectedAction = signal<FraudAction | null>(null);
   readonly actionReason = signal('');
-  readonly pagination = signal({ page: 1, limit: 12, total: 0, totalPages: 0 });
-
+  readonly pagination = signal({ page: 1, limit: 20, total: 0, totalPages: 0 });
+  readonly pageSizeOptions = [12, 20, 50, 100];
   private actionDialogRef: MatDialogRef<unknown> | null = null;
 
   readonly filtersForm = this.fb.group({ status: ['all'], riskLevel: ['all'], search: [''] });
@@ -73,8 +58,16 @@ export class PromotionFraudMonitorComponent {
     ];
   });
 
-  readonly statusOptions = ['all', 'open', 'warning_sent', 'final_warning_sent', 'suspended', 'resolved', 'dismissed'];
-  readonly riskOptions = ['all', 'critical', 'high', 'medium', 'low'];
+  readonly criticalCount = computed(() => this.cases().filter(c => c.riskLevel === 'critical').length);
+  readonly highCount = computed(() => this.cases().filter(c => c.riskLevel === 'high').length);
+
+  readonly pageNumbers = computed(() => {
+    const t = Math.max(1, this.pagination().totalPages);
+    const c = this.pagination().page;
+    const pages: number[] = []; const s = Math.max(1, c - 2); const e = Math.min(t, c + 2);
+    for (let i = s; i <= e; i++) pages.push(i);
+    return pages;
+  });
 
   constructor() {
     this.loadSummary(); this.loadCases();
@@ -84,8 +77,13 @@ export class PromotionFraudMonitorComponent {
 
   refresh(): void { this.loadSummary(); this.loadCases(); }
 
-  previousPage(): void { if (this.pagination().page <= 1 || this.isLoadingCases()) return; this.pagination.update(c => ({ ...c, page: c.page - 1 })); this.loadCases(); }
-  nextPage(): void { if (this.pagination().page >= this.pagination().totalPages || this.isLoadingCases()) return; this.pagination.update(c => ({ ...c, page: c.page + 1 })); this.loadCases(); }
+  goToPage(page: number): void {
+    const t = Math.max(1, Math.min(page, this.pagination().totalPages));
+    if (t === this.pagination().page || this.isLoadingCases()) return;
+    this.pagination.update(c => ({ ...c, page: t })); this.loadCases();
+  }
+  onPageInput(e: Event): void { const i = e.target as HTMLInputElement; const p = parseInt(i.value, 10); if (!isNaN(p) && p >= 1 && p <= this.pagination().totalPages) this.goToPage(p); i.value = ''; }
+  onPageSizeChange(size: string | number): void { const n = typeof size === 'string' ? parseInt(size, 10) : size; this.pagination.set({ page: 1, limit: n, total: this.pagination().total, totalPages: Math.ceil(this.pagination().total / n) }); this.loadCases(); }
 
   openAction(caseItem: PromotionFraudCase, action: FraudAction): void {
     this.selectedCase.set(caseItem); this.selectedAction.set(action); this.actionReason.set('');
@@ -102,85 +100,37 @@ export class PromotionFraudMonitorComponent {
     });
   }
 
-  getFraudSuggestion(c: PromotionFraudCase): { action: FraudAction; title: string; description: string; urgency: 'critical' | 'high' | 'medium' | 'low' } {
-    const fp = c.promoter?.fraudProfile as any;
-    const risk = c.riskLevel;
-    const status = c.status;
-    const strikeCount = fp?.strikeCount ?? 0;
-    const warningCount = fp?.warningCount ?? 0;
-    const activeCases = fp?.activeCaseCount ?? 0;
-    const trustScore = fp?.trustScore ?? 100;
-    const clickRatio = c.evidence?.invalidObservedClicks && c.evidence?.totalObservedClicks
-      ? (c.evidence.invalidObservedClicks / c.evidence.totalObservedClicks) : 0;
-
-    if (status === 'suspended' || status === 'resolved' || status === 'dismissed') {
-      return { action: 'mark_resolved', title: 'Case already handled', description: 'This case has already been resolved. No further action is needed at this time.', urgency: 'low' };
-    }
-
-    if (risk === 'critical' || strikeCount >= 3) {
-      return { action: 'suspend_promotion_indefinitely', title: 'Permanently suspend link', description: `Critical risk detected. ${strikeCount} strikes and ${warningCount} warnings. Immediate permanent suspension advised to protect platform integrity.`, urgency: 'critical' };
-    }
-
-    if (risk === 'high' && activeCases >= 2) {
-      return { action: 'suspend_promotion_indefinitely', title: 'Suspend link + escalate', description: `High-risk repeat offender with ${activeCases} active cases. Recommend suspension and review of all associated links.`, urgency: 'high' };
-    }
-
-    if (risk === 'high' && trustScore < 50) {
-      return { action: 'suspend_2_hours', title: 'Suspend promoter 2 hours', description: `Trust score dangerously low (${trustScore}). Temporary suspension sends a strong signal while preserving the link for review.`, urgency: 'high' };
-    }
-
-    if (risk === 'high') {
-      return { action: 'suspend_2_hours', title: 'Suspend promoter temporarily', description: `High-risk detection with ${warningCount} prior warnings. A 2-hour suspension will pause the link and notify the promoter automatically.`, urgency: 'high' };
-    }
-
-    if (clickRatio > 0.5) {
-      return { action: 'suspend_2_hours', title: 'Suspicious click pattern', description: `Over ${Math.round(clickRatio * 100)}% of observed clicks are invalid. Short suspension recommended while investigating the traffic source.`, urgency: 'medium' };
-    }
-
-    if (risk === 'medium' && status === 'final_warning_sent') {
-      return { action: 'suspend_2_hours', title: 'Escalate after final warning', description: 'Final warning already sent. Escalate to a 2-hour suspension to demonstrate consequences for continued suspicious activity.', urgency: 'medium' };
-    }
-
-    if (risk === 'medium') {
-      return { action: 'suspend_2_hours', title: 'Send warning + monitor', description: `Medium risk with ${warningCount} prior warnings. Consider suspending the promoter for 2 hours to deter further suspicious behavior.`, urgency: 'medium' };
-    }
-
-    return { action: 'suspend_2_hours', title: 'Review and monitor', description: 'Low-risk case. Review the evidence and either dismiss if false-positive, or send a warning to document the concern.', urgency: 'low' };
-  }
-
   getPromoterName(c: PromotionFraudCase): string { return c.promoter?.displayName || c.promoter?.username || 'Promoter'; }
   getReasonSummary(c: PromotionFraudCase): string { return c.promotion?.fraudStatus?.reasonSummary || c.reasons?.map(r => r.label).slice(0, 3).join(', ') || 'Suspicious traffic pattern detected.'; }
   getStatusLabel(status: string): string { return status.replace(/_/g, ' '); }
-  getStatusBadgeClass(status: string): string {
-    if (['open'].includes(status)) return 'status-open';
-    if (['warning_sent'].includes(status)) return 'status-warning';
-    if (['final_warning_sent'].includes(status)) return 'status-final';
-    if (['suspended'].includes(status)) return 'status-suspended';
-    if (['resolved'].includes(status)) return 'status-resolved';
-    if (['dismissed'].includes(status)) return 'status-dismissed';
-    return 'status-default';
-  }
   getActionTitle(a: FraudAction | null): string {
-    switch (a) {
-      case 'suspend_2_hours': return 'Suspend promoter for 2 hours';
-      case 'suspend_promotion_indefinitely': return 'Suspend promotion link indefinitely';
-      case 'reactivate_promotion': return 'Restore promotion link';
-      case 'mark_resolved': return 'Mark case resolved';
-      case 'dismiss': return 'Dismiss fraud case';
-      default: return 'Update fraud case';
-    }
+    switch (a) { case 'suspend_2_hours': return 'Suspend promoter for 2 hours'; case 'suspend_promotion_indefinitely': return 'Suspend promotion link indefinitely'; case 'reactivate_promotion': return 'Restore promotion link'; case 'mark_resolved': return 'Mark case resolved'; case 'dismiss': return 'Dismiss fraud case'; default: return 'Update fraud case'; }
   }
   getActionButtonLabel(a: FraudAction | null): string {
-    switch (a) {
-      case 'suspend_2_hours': return 'Suspend promoter';
-      case 'suspend_promotion_indefinitely': return 'Suspend link';
-      case 'reactivate_promotion': return 'Restore link';
-      case 'mark_resolved': return 'Resolve case';
-      case 'dismiss': return 'Dismiss case';
-      default: return 'Confirm';
-    }
+    switch (a) { case 'suspend_2_hours': return 'Suspend promoter'; case 'suspend_promotion_indefinitely': return 'Suspend link'; case 'reactivate_promotion': return 'Restore link'; case 'mark_resolved': return 'Resolve case'; case 'dismiss': return 'Dismiss case'; default: return 'Confirm'; }
   }
   getCaseTone(c: PromotionFraudCase): string { if (c.riskLevel === 'critical') return 'critical'; if (c.riskLevel === 'high') return 'high'; if (c.riskLevel === 'medium') return 'medium'; return 'low'; }
+  getStatusBadgeClass(status: string): string {
+    if (status === 'open') return 'status-open'; if (status === 'warning_sent') return 'status-warning'; if (status === 'final_warning_sent') return 'status-final'; if (status === 'suspended') return 'status-suspended'; if (status === 'resolved') return 'status-resolved'; if (status === 'dismissed') return 'status-dismissed'; return 'status-default';
+  }
+
+  getFraudSuggestion(c: PromotionFraudCase): { action: FraudAction; title: string; description: string; urgency: 'critical' | 'high' | 'medium' | 'low' } {
+    const fp = (c as any).promoter?.fraudProfile as any;
+    const r = c.riskLevel; const s = c.status;
+    const strikes = fp?.strikeCount ?? 0; const warnings = fp?.warningCount ?? 0;
+    const activeCases = fp?.activeCaseCount ?? 0; const trust = fp?.trustScore ?? 100;
+    const ratio = c.evidence?.invalidObservedClicks && c.evidence?.totalObservedClicks ? (c.evidence.invalidObservedClicks / c.evidence.totalObservedClicks) : 0;
+
+    if (s === 'suspended' || s === 'resolved' || s === 'dismissed') return { action: 'mark_resolved', title: 'Already handled', description: 'No further action needed.', urgency: 'low' };
+    if (r === 'critical' || strikes >= 3) return { action: 'suspend_promotion_indefinitely', title: 'Permanently suspend link', description: `Critical risk. ${strikes} strikes, ${warnings} warnings. Immediate suspension advised.`, urgency: 'critical' };
+    if (r === 'high' && activeCases >= 2) return { action: 'suspend_promotion_indefinitely', title: 'Suspend link + escalate', description: `Repeat offender with ${activeCases} active cases.`, urgency: 'high' };
+    if (r === 'high' && trust < 50) return { action: 'suspend_2_hours', title: 'Suspend promoter 2 hours', description: `Trust score dangerously low (${trust}).`, urgency: 'high' };
+    if (r === 'high') return { action: 'suspend_2_hours', title: 'Suspend promoter temporarily', description: `High risk with ${warnings} prior warnings.`, urgency: 'high' };
+    if (ratio > 0.5) return { action: 'suspend_2_hours', title: 'Suspicious click pattern', description: `Over ${Math.round(ratio * 100)}% clicks are invalid.`, urgency: 'medium' };
+    if (r === 'medium' && s === 'final_warning_sent') return { action: 'suspend_2_hours', title: 'Escalate after final warning', description: 'Final warning sent. Escalate to suspension.', urgency: 'medium' };
+    if (r === 'medium') return { action: 'suspend_2_hours', title: 'Send warning + monitor', description: `${warnings} prior warnings. Consider suspending.`, urgency: 'medium' };
+    return { action: 'suspend_2_hours', title: 'Review and monitor', description: 'Low risk. Review evidence.', urgency: 'low' };
+  }
 
   private loadSummary(): void {
     this.isLoadingSummary.set(true);

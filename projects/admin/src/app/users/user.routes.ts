@@ -31,6 +31,11 @@ export const UserRoutes: Routes = [
         loadComponent: () => import('./reviews/user-review-moderation.component').then(c => c.UserReviewModerationComponent),
         title: 'Collaboration Reviews - Admin Dashboard'
     },
+    {
+        path: 'active',
+        loadComponent: () => import('./active/active-users.component').then(c => c.ActiveUsersComponent),
+        title: 'Active Users Online - Admin Dashboard'
+    },
     {   path: ':id', 
         loadComponent: () => import('./user-details/user-details.component').then(c => c.UserDetailsComponent),
         title: 'User Details - Admin Dashboard'

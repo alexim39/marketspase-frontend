@@ -26,7 +26,7 @@
           (click)="onProductClick(product)"
         >
           <div class="item-image">
-            @if (product.images && product.images[0]?.url) {
+            @if (product.images && product.images[0].url) {
               <img
                 [src]="product.images[0].url"
                 [alt]="product.name"

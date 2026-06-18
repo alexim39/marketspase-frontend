@@ -281,12 +281,12 @@
 /* ──────────────── Pagination ──────────────── */
 .pagination-bar {
   @include admin.surface-frame();
-  display: flex; justify-content: space-between; align-items: center;
-  gap: 1rem; padding: 1rem 1.1rem;
+  display: flex; justify-content: center; align-items: center;
+  gap: 1rem; padding: 0.85rem 1.25rem; margin-top: 1rem;
 }
 
+.pagination-inner { display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; justify-content: center; }
 .pagination-info { color: var(--admin-text-muted); font-size: 0.84rem; }
-.pagination-actions { display: flex; gap: 0.5rem; }
 
 /* ──────────────── Dialog ──────────────── */
 .action-dialog { display: grid; gap: 0.95rem; padding: 0.3rem; }
@@ -313,4 +313,31 @@
   .pagination-actions button { flex: 1; }
   .history-item { flex-direction: column; }
   .history-item time { white-space: normal; }
+  .pagination-inner { justify-content: center; }
 }
+
+/* ── Alert banner ── */
+.alert-banner {
+  display: flex; align-items: center; gap: 0.65rem;
+  padding: 0.75rem 1rem; margin-bottom: 1rem;
+  border-radius: 12px;
+  background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+  color: var(--admin-text-soft); font-size: 0.84rem;
+  mat-icon { color: #fca5a5; }
+  strong { color: var(--admin-text); }
+}
+
+/* ── Pagination ── */
+.page-size-select { display: flex; align-items: center; gap: 0.35rem; margin-right: 0.75rem; padding-right: 0.75rem; border-right: 1px solid rgba(148,163,184,0.12); }
+.page-size-label { font-size: 0.74rem; color: var(--admin-text-muted); }
+.page-size-dropdown { @include admin.input-control(); width: auto; padding: 0.3rem 0.5rem; font-size: 0.8rem; min-width: 50px; }
+.page-btn { @include admin.button(ghost); min-width: 32px; padding: 0.4rem 0.55rem; border-radius: 8px; font-size: 0.82rem; justify-content: center;
+  &[disabled] { opacity: 0.35; pointer-events: none; }
+  &.number { padding: 0.35rem 0.5rem; min-width: 30px; &.active { background: rgba(139,92,246,0.18); color: #c4b5fd; font-weight: 600; border-color: rgba(139,92,246,0.3); } }
+}
+.page-numbers { display: flex; align-items: center; gap: 0.1rem; }
+.page-ellipsis { padding: 0 0.2rem; color: var(--admin-text-muted); font-size: 0.8rem; }
+.page-jump { display: flex; align-items: center; gap: 0.3rem; margin-left: 0.5rem; padding-left: 0.5rem; border-left: 1px solid rgba(148,163,184,0.12); }
+.page-jump-label { font-size: 0.74rem; color: var(--admin-text-muted); }
+.page-jump-input { @include admin.input-control(); width: 44px; padding: 0.3rem 0.35rem; font-size: 0.8rem; text-align: center; }
+.page-total { font-size: 0.74rem; color: var(--admin-text-muted); margin-left: 0.5rem; padding-left: 0.5rem; border-left: 1px solid rgba(148,163,184,0.12); white-space: nowrap; }

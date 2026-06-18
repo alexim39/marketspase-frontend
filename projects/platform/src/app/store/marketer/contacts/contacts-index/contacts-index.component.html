@@ -57,6 +57,20 @@
         <div class="stat-icon critical"><mat-icon>support_agent</mat-icon></div>
         <div class="stat-details"><span class="stat-value">{{ la.summary.totalContactMe }}</span><span class="stat-label">Contact Me Clicks</span></div>
       </div>
+      <div class="stat-card">
+        <div class="stat-icon info"><mat-icon>groups</mat-icon></div>
+        <div class="stat-details">
+          <span class="stat-value">{{ la.byCampaign[0]?.count || 0 }}</span>
+          <span class="stat-label">Top Campaign · {{ la.byCampaign[0]?.title || '—' }}</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon warning"><mat-icon>person</mat-icon></div>
+        <div class="stat-details">
+          <span class="stat-value">{{ la.byPromoter[0]?.count || 0 }}</span>
+          <span class="stat-label">Top Promoter · {{ la.byPromoter[0]?.name || '—' }}</span>
+        </div>
+      </div>
     </section>
   }
 

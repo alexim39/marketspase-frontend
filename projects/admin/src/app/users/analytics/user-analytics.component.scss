@@ -313,6 +313,19 @@
   background: linear-gradient(135deg, #10b981, #059669);
 }
 
+/* ── Growth Bar Chart ── */
+.growth-toggles { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.growth-chip {
+  @include admin.button(ghost);
+  padding: 0.3rem 0.65rem; font-size: 0.74rem; border-radius: 8px;
+  &.active { background: rgba(139,92,246,0.16); border-color: rgba(139,92,246,0.35); color: #c4b5fd; }
+}
+.sparkline-container { padding: 0.5rem 0; }
+.growth-sparkline { width: 100%; height: 155px; overflow: visible; }
+.growth-line { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; opacity: 0.9; }
+.growth-labels { display: flex; justify-content: space-between; font-size: 0.74rem; color: var(--admin-text-muted); margin-top: 0.25rem; }
+.growth-total { font-weight: 700; color: var(--admin-text); }
+
 .role-pill {
   display: inline-flex;
   align-items: center;
