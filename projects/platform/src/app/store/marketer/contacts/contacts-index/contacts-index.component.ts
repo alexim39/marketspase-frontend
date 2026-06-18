@@ -21,6 +21,7 @@ import {
   MatDialog,
   MatDialogRef,
 } from "@angular/material/dialog";
+import { ApiService } from "@shared/services";
 
 import {
   ContactService,
@@ -58,6 +59,7 @@ import { BulkSmsDialogComponent } from "./bulk-sms-dialog.component";
 })
 export class ContactsIndexComponent {
   readonly contactService = inject(ContactService);
+  readonly apiService = inject(ApiService);
   readonly snackBar = inject(MatSnackBar);
   readonly dialog = inject(MatDialog);
   readonly fb = inject(FormBuilder);
@@ -80,6 +82,14 @@ export class ContactsIndexComponent {
     totals: { total: number; withSmsConsent: number; withEmailConsent: number };
     lifecycleBreakdown: Record<string, number>;
     recentAdditions: CustomerContact[];
+  } | null>(null);
+
+  // Campaign lead analytics
+  readonly leadAnalytics = signal<{
+    summary: { totalViews: number; totalLeads: number; conversionRate: number; totalContactMe: number; totalFormViews: number; totalFailures: number };
+    byCampaign: Array<{ campaignId: string; title: string; count: number }>;
+    byPromoter: Array<{ promoterId: string; name: string; count: number }>;
+    recentLeads: Array<{ campaignName: string; promoterName: string; phone: string | null; createdAt: string }>;
   } | null>(null);
 
   readonly filtersForm = this.fb.group({
@@ -133,6 +143,7 @@ export class ContactsIndexComponent {
     this.loadCustomers();
     this.loadAnalytics();
     this.loadGroups();
+    this.loadLeadAnalytics();
 
     // Debounced search
     this.filtersForm.controls.search.valueChanges
@@ -392,6 +403,13 @@ export class ContactsIndexComponent {
     };
 
     reader.readAsText(file);
+  }
+
+  loadLeadAnalytics(): void {
+    this.apiService.get<any>('api/v1/campaign/lead/stats').pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (r) => { if (r.success) this.leadAnalytics.set(r.data); },
+      error: () => {},
+    });
   }
 
   // ── Create / Edit Dialog ──

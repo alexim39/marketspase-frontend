@@ -39,6 +39,27 @@
     </section>
   }
 
+  @if (leadAnalytics(); as la) {
+    <section class="stats-grid" style="margin-bottom:16px">
+      <div class="stat-card">
+        <div class="stat-icon warning"><mat-icon>campaign</mat-icon></div>
+        <div class="stat-details"><span class="stat-value">{{ la.summary.totalLeads }}</span><span class="stat-label">Campaign Leads</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon info"><mat-icon>trending_up</mat-icon></div>
+        <div class="stat-details"><span class="stat-value">{{ la.summary.conversionRate }}%</span><span class="stat-label">Conversion Rate</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon info"><mat-icon>visibility</mat-icon></div>
+        <div class="stat-details"><span class="stat-value">{{ la.summary.totalViews }}</span><span class="stat-label">Landing Views</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon critical"><mat-icon>support_agent</mat-icon></div>
+        <div class="stat-details"><span class="stat-value">{{ la.summary.totalContactMe }}</span><span class="stat-label">Contact Me Clicks</span></div>
+      </div>
+    </section>
+  }
+
   <!-- Filters -->
   <section class="filters-card">
     <div class="filters-grid">
