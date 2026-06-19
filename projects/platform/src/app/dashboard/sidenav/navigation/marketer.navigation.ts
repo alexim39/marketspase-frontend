@@ -38,6 +38,7 @@ export function getMarketerNavigation(
         { icon: 'list_alt', label: 'My Campaigns', route: '/dashboard/campaigns' },
         { icon: 'add_circle', label: 'Create Campaign', route: '/dashboard/campaigns/create' },
         { icon: 'insights', label: 'Analytics', route: '/dashboard/campaigns/analytics' },
+        { icon: 'bar_chart', label: 'Metrics', route: '/dashboard/campaigns/metrics' },
         { icon: 'forum', label: 'Collaboration', route: '/dashboard/campaigns/collaboration' }
       ]
     },

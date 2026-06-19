@@ -29,7 +29,9 @@ export class PublicCampaignBase {
 
   private trackEvent(event: string, extra: any = {}): void {
     this.apiService.post('api/v1/campaign/landing/event', {
-      upi: this.upi(), event, sessionId: this.sessionId, ...extra,
+      upi: this.upi(), event, sessionId: this.sessionId,
+      phone: this.phone().trim() || undefined,
+      ...extra,
     }).subscribe({ error: () => {} }); // fire-and-forget
   }
 
@@ -86,7 +88,7 @@ export class PublicCampaignBase {
     this.submitting.set(true);
     this.apiService.post<any>(`api/v1/campaign/lead/${this.upi()}`, { phone: p, email: this.email().trim() || undefined }).subscribe({
       next: (r) => {
-        this.trackEvent('lead_success');
+        this.trackEvent('lead_success', { leadId: r.data?.leadId });
         if (r.duplicate) { this.leadDuplicate.set(true); }
         this.step.set('success'); this.submitting.set(false);
       },

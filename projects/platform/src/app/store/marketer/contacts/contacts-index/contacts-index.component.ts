@@ -29,6 +29,7 @@ import {
   CustomerGroup,
 } from "../contact.service";
 import { CreateContactDialogComponent } from "./create-contact-dialog.component";
+import { ConfirmDeleteDialogComponent } from "./confirm-delete-dialog.component";
 import { SmsDialogComponent } from "./sms-dialog.component";
 import { BulkSmsDialogComponent } from "./bulk-sms-dialog.component";
 
@@ -53,6 +54,7 @@ import { BulkSmsDialogComponent } from "./bulk-sms-dialog.component";
     MatNativeDateModule,
     MatDialogModule,
     CreateContactDialogComponent,
+    ConfirmDeleteDialogComponent,
   ],
   templateUrl: "./contacts-index.component.html",
   styleUrls: ["./contacts-index.component.scss"],
@@ -303,52 +305,73 @@ export class ContactsIndexComponent {
   bulkDelete(): void {
     const count = this.selectedIds().size;
     if (count === 0) return;
-    if (!confirm(`Delete ${count} contact${count > 1 ? "s" : ""}?`)) return;
 
-    const ids = [...this.selectedIds()];
-    let done = 0;
-    ids.forEach((id) => {
-      this.contactService
-        .deleteCustomer(id)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => {
-            done++;
-            if (done === ids.length) {
-              this.selectedIds.set(new Set());
-              this.snackBar.open(`${count} contact${count > 1 ? "s" : ""} deleted`, "Close", { duration: 2400 });
-              this.loadCustomers();
-              this.loadAnalytics();
-            }
-          },
-          error: () => {
-            done++;
-            if (done === ids.length) {
-              this.snackBar.open("Some deletions failed", "Close", { duration: 3000 });
-              this.loadCustomers();
-            }
-          },
-        });
+    const ref = this.dialog.open(ConfirmDeleteDialogComponent, {
+      width: '380px',
+      data: {
+        title: 'Delete Contacts',
+        message: `Delete ${count} contact${count > 1 ? 's' : ''}?`,
+        detail: 'This action cannot be undone. The contacts will be permanently removed.',
+      },
+    });
+
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      const ids = [...this.selectedIds()];
+      let done = 0;
+      ids.forEach((id) => {
+        this.contactService.deleteCustomer(id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              done++;
+              if (done === ids.length) {
+                this.selectedIds.set(new Set());
+                this.snackBar.open(`${count} contact${count > 1 ? 's' : ''} deleted`, 'Close', { duration: 2400 });
+                this.loadCustomers();
+                this.loadAnalytics();
+              }
+            },
+            error: () => {
+              done++;
+              if (done === ids.length) {
+                this.snackBar.open('Some deletions failed', 'Close', { duration: 3000 });
+                this.loadCustomers();
+              }
+            },
+          });
+      });
     });
   }
 
   // ── CRUD ──
   deleteContact(id: string, name: string): void {
-    if (!confirm(`Delete "${name}"?`)) return;
+    const ref = this.dialog.open(ConfirmDeleteDialogComponent, {
+      width: '380px',
+      data: {
+        title: 'Delete Contact',
+        message: `Delete "${name}"?`,
+        detail: 'This action cannot be undone. The contact will be permanently removed.',
+      },
+    });
 
-    this.contactService
-      .deleteCustomer(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.snackBar.open("Contact deleted", "Close", { duration: 2400 });
-          this.loadCustomers();
-          this.loadAnalytics();
-        },
-        error: (err) => {
-          this.snackBar.open(err.error?.message || "Failed to delete", "Close", { duration: 3000 });
-        },
-      });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      this.contactService.deleteCustomer(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Contact deleted', 'Close', { duration: 2400 });
+            this.loadCustomers();
+            this.loadAnalytics();
+          },
+          error: (err) => {
+            this.snackBar.open(err.error?.message || 'Failed to delete', 'Close', { duration: 3000 });
+          },
+        });
+    });
   }
 
   handleFileImport(event: Event): void {

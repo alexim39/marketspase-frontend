@@ -106,6 +106,41 @@ export interface AnalyticsResponse {
   generatedAt: string;
 }
 
+export interface LeadCampaignRow {
+  campaignId: string;
+  title: string;
+  status: string;
+  landingViews: number;
+  contactMe: number;
+  formViews: number;
+  leads: number;
+  failures: number;
+  conversionRate: number;
+}
+
+export interface TopCampaign {
+  campaignId: string;
+  title: string;
+  count: number;
+}
+
+export interface TopPromoter {
+  promoterId: string;
+  name: string;
+  avatar?: string;
+  count: number;
+}
+
+export interface LeadAnalyticsResponse {
+  success: boolean;
+  data: {
+    campaignBreakdown: LeadCampaignRow[];
+    topCampaign: TopCampaign | null;
+    topPromoter: TopPromoter | null;
+  };
+  generatedAt: string;
+}
+
 export interface CollaborationStarterCampaign extends CampaignInterface {}
 
 export interface CollaborationStarterPromotion extends PromotionInterface {}
@@ -271,6 +306,15 @@ export class CollaborationService {
   getMarketerAnalytics(userId: string, filters: AnalyticsFilters = {}): Observable<AnalyticsResponse> {
     return this.apiService.get<AnalyticsResponse>(
       `api/v1/campaign/analytics/marketer/${userId}`,
+      this.buildParams(filters),
+      undefined,
+      true
+    );
+  }
+
+  getMarketerLeadAnalytics(filters: AnalyticsFilters = {}): Observable<LeadAnalyticsResponse> {
+    return this.apiService.get<LeadAnalyticsResponse>(
+      'api/v1/campaign/analytics/marketer/leads',
       this.buildParams(filters),
       undefined,
       true

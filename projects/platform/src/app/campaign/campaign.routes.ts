@@ -47,6 +47,11 @@ export const CampaignRoutes: Routes = [
         title: "Campaign Analytics - Live campaign and promotion performance",
     },
     {
+        path: 'metrics',
+        loadComponent: () => import('./metrics').then(c => c.CampaignMetricsComponent),
+        title: "Campaign Metrics - Lead performance and conversion funnel",
+    },
+    {
         path: 'collaboration',
         loadComponent: () => import('./collaboration').then(c => c.CampaignCollaborationIndexComponent),
         title: "Collaboration - Real-time messaging for campaigns and promotions",
