@@ -219,15 +219,15 @@
         <div class="insight-grid">
           <div>
             <span>Views</span>
-            <strong>{{ product.viewCount || product.promotion?.viewCount || product.promotion?.views || 0 }}</strong>
+            <strong>{{ product.viewCount || product.promotion.viewCount || product.promotion.views || 0 }}</strong>
           </div>
           <div>
             <span>Sales</span>
-            <strong>{{ product.purchaseCount || product.promotion?.conversions || 0 }}</strong>
+            <strong>{{ product.purchaseCount || product.promotion.conversions || 0 }}</strong>
           </div>
           <div>
             <span>CTR clicks</span>
-            <strong>{{ product.promotion?.clickCount || 0 }}</strong>
+            <strong>{{ product.promotion.clickCount || 0 }}</strong>
           </div>
           <div>
             <span>Conv.</span>

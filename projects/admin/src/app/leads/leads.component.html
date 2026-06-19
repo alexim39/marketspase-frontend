@@ -196,9 +196,9 @@
                 </td>
                 <td data-label="Consent">
                   <span class="consent-badges">
-                    @if (lead.consent?.email) { <span class="cb email" matTooltip="Email consent">E</span> }
-                    @if (lead.consent?.sms) { <span class="cb sms" matTooltip="SMS consent">S</span> }
-                    @if (!lead.consent?.email && !lead.consent?.sms) { <span class="text-muted">—</span> }
+                    @if (lead.consent.email) { <span class="cb email" matTooltip="Email consent">E</span> }
+                    @if (lead.consent.sms) { <span class="cb sms" matTooltip="SMS consent">S</span> }
+                    @if (!lead.consent.email && !lead.consent.sms) { <span class="text-muted">—</span> }
                   </span>
                 </td>
                 <td data-label="Date">{{ formatDate(lead.createdAt) }}</td>
