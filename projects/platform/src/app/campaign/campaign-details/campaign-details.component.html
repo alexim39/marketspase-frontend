@@ -14,7 +14,7 @@
         </div>
         <div class="header-actions">
           @if (campaign(); as currentCampaign) {
-            @if (currentCampaign.status === 'active' || currentCampaign.status === 'paused' || currentCampaign.status === 'exhausted') {
+            @if (isOwner() && (currentCampaign.status === 'active' || currentCampaign.status === 'paused' || currentCampaign.status === 'exhausted')) {
             <button class="btn btn-primary" mat-flat-button (click)="openTopUpDialog(currentCampaign)">
               <mat-icon>add_circle</mat-icon>
               Top Up Budget
@@ -29,10 +29,12 @@
             <mat-icon>edit</mat-icon>
             Export Data
           </button> -->
-          <button class="btn btn-outline" mat-raised-button (click)="editCampaign()">
-            <mat-icon>edit</mat-icon>
-            Edit Campaign
-          </button>
+          @if (isOwner()) {
+            <button class="btn btn-outline" mat-raised-button (click)="editCampaign()">
+              <mat-icon>edit</mat-icon>
+              Edit Campaign
+            </button>
+          }
           <!-- <button class="btn btn-outline" mat-raised-button (click)="targetAudienceByLocation()">
             <mat-icon>edit_location</mat-icon>
             Set Location Target
@@ -66,33 +68,35 @@
               <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #campaignMenu="matMenu">
-              <button mat-menu-item (click)="targetAudienceByLocation()">
-                <mat-icon>edit_location</mat-icon>
-                Set Location Target
-              </button>
+              @if (isOwner()) {
+                <button mat-menu-item (click)="targetAudienceByLocation()">
+                  <mat-icon>edit_location</mat-icon>
+                  Set Location Target
+                </button>
+              }
               <button mat-menu-item (click)="openCollaborationRoom()" [disabled]="!canOpenCollaborationRoom()">
                 <mat-icon>forum</mat-icon>
                 {{ canOpenCollaborationRoom() ? 'Open Collaboration Room' : 'Waiting for promoter' }}
               </button>
-              @if (campaign.status === 'active') {
+              @if (isOwner() && campaign.status === 'active') {
                   <button mat-menu-item (click)="pauseCampaign(campaign)">
                   <mat-icon>pause_circle</mat-icon>
                     Pause Campaign
                   </button>
               }
-              @if (campaign.status === 'paused') {
+              @if (isOwner() && campaign.status === 'paused') {
                   <button mat-menu-item (click)="resumeCampaign(campaign)">
                   <mat-icon>play_circle</mat-icon>
                     Resume Campaign
                   </button>
               }
-              @if (campaign.status === 'active' || campaign.status === 'paused' || campaign.status === 'exhausted') {
+              @if (isOwner() && (campaign.status === 'active' || campaign.status === 'paused' || campaign.status === 'exhausted')) {
                 <button mat-menu-item (click)="openTopUpDialog(campaign)">
                   <mat-icon>add_circle</mat-icon>
                   Top Up Budget
                 </button>
               }
-              @if (campaign.status === 'draft') {
+              @if (isOwner() && campaign.status === 'draft') {
                   <button mat-menu-item (click)="activateCampaign(campaign)">
                   <mat-icon>start</mat-icon>
                     Activate Campaign

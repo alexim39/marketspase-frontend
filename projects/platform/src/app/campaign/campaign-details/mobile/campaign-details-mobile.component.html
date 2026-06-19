@@ -26,9 +26,11 @@
         <strong>{{ campaign.title | titlecase }}</strong>
       </div>
 
-      <button type="button" class="icon-button" (click)="editCampaign()" aria-label="Edit campaign">
-        <mat-icon aria-hidden="true">edit</mat-icon>
-      </button>
+      @if (isOwner()) {
+        <button type="button" class="icon-button" (click)="editCampaign()" aria-label="Edit campaign">
+          <mat-icon aria-hidden="true">edit</mat-icon>
+        </button>
+      }
     </header>
 
     <main class="mobile-content">
@@ -70,7 +72,7 @@
       </section>
 
       <section class="action-grid" aria-label="Campaign actions">
-        @if (canTopUpCampaign()) {
+        @if (isOwner() && canTopUpCampaign()) {
           <button type="button" class="quick-action primary" (click)="openTopUpDialog(campaign)">
             <mat-icon aria-hidden="true">add_circle</mat-icon>
             <span>Top up</span>
@@ -82,26 +84,28 @@
           <span>{{ canOpenCollaborationRoom() ? 'Room' : 'Waiting' }}</span>
         </button>
 
-        <button type="button" class="quick-action" (click)="targetAudienceByLocation()">
-          <mat-icon aria-hidden="true">edit_location</mat-icon>
-          <span>Target</span>
-        </button>
+        @if (isOwner()) {
+          <button type="button" class="quick-action" (click)="targetAudienceByLocation()">
+            <mat-icon aria-hidden="true">edit_location</mat-icon>
+            <span>Target</span>
+          </button>
+        }
 
-        @if (campaign.status === 'active') {
+        @if (isOwner() && campaign.status === 'active') {
           <button type="button" class="quick-action warn" (click)="pauseCampaign(campaign)">
             <mat-icon aria-hidden="true">pause_circle</mat-icon>
             <span>Pause</span>
           </button>
         }
 
-        @if (campaign.status === 'paused') {
+        @if (isOwner() && campaign.status === 'paused') {
           <button type="button" class="quick-action success" (click)="resumeCampaign(campaign)">
             <mat-icon aria-hidden="true">play_circle</mat-icon>
             <span>Resume</span>
           </button>
         }
 
-        @if (campaign.status === 'draft') {
+        @if (isOwner() && campaign.status === 'draft') {
           <button type="button" class="quick-action success" (click)="activateCampaign(campaign)">
             <mat-icon aria-hidden="true">start</mat-icon>
             <span>Activate</span>

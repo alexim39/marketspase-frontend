@@ -87,6 +87,17 @@ export class CampaignDetailsComponent implements OnInit {
   private userService = inject(UserService);
   public user = this.userService.user;
 
+  // Ownership check — only the campaign owner should see management controls
+  readonly isOwner = computed(() => {
+    const campaign = this.campaign();
+    const u = this.user();
+    if (!campaign || !u) return false;
+    const ownerId = typeof campaign.owner === 'string'
+      ? campaign.owner
+      : campaign.owner?._id;
+    return ownerId === u._id;
+  });
+
   private readonly destroyRef = inject(DestroyRef);
 
   
@@ -230,6 +241,10 @@ export class CampaignDetailsComponent implements OnInit {
   }
 
   editCampaign() {
+    if (!this.isOwner()) {
+      this.snackBar.open('Only the campaign owner can edit this campaign.', 'Close', { duration: 3000 });
+      return;
+    }
     const campaign = this.campaign();
     if (campaign) {
       this.router.navigate(['/dashboard/campaigns/edit', campaign._id]);
@@ -275,6 +290,10 @@ export class CampaignDetailsComponent implements OnInit {
   }
 
   targetAudienceByLocation() {
+    if (!this.isOwner()) {
+      this.snackBar.open('Only the campaign owner can modify targeting.', 'Close', { duration: 3000 });
+      return;
+    }
     const campaign = this.campaign();
     if (campaign) {
       this.router.navigate([`/dashboard/campaigns/${campaign._id}/targeting`]);
@@ -297,6 +316,10 @@ export class CampaignDetailsComponent implements OnInit {
   }
 
   toggleCampaignStatus() {
+    if (!this.isOwner()) {
+      this.snackBar.open('Only the campaign owner can change campaign status.', 'Close', { duration: 3000 });
+      return;
+    }
     const campaign = this.campaign();
     if (!campaign) return;
     
@@ -536,6 +559,10 @@ export class CampaignDetailsComponent implements OnInit {
   }
 
   openTopUpDialog(campaign: CampaignInterface): void {
+    if (!this.isOwner()) {
+      this.snackBar.open('Only the campaign owner can top up this campaign.', 'Close', { duration: 3000 });
+      return;
+    }
     const dialogRef = this.dialog.open(CampaignTopUpDialogComponent, {
       width: '460px',
       maxWidth: '95vw',

@@ -4,9 +4,22 @@
   } @else {
     @if (error()) {
       <section class="error-state">
-        <mat-icon>error_outline</mat-icon>
-        <strong>{{ error() }}</strong>
-        <button type="button" class="primary-action" (click)="ngOnInit()">Retry</button>
+        <div class="error-icon">
+          <mat-icon>person_off</mat-icon>
+        </div>
+        <h2>Profile Unavailable</h2>
+        <p>{{ error() }}</p>
+        <span class="error-hint">This user may not exist or the profile could not be loaded.</span>
+        <div class="error-actions">
+          <button type="button" class="secondary-action" (click)="goToHome()">
+            <mat-icon>home</mat-icon>
+            Home
+          </button>
+          <button type="button" class="primary-action" (click)="ngOnInit()">
+            <mat-icon>refresh</mat-icon>
+            Retry
+          </button>
+        </div>
       </section>
     } @else {
       @if (profile(); as profile) {
@@ -22,7 +35,9 @@
       </div>
 
       <section class="identity-card">
-        <img [src]="profile.avatar || 'img/avatar.png'" [alt]="profile.displayName || 'Profile avatar'" class="avatar">
+        <div class="avatar-wrap" [class.online]="profile.isOnline">
+          <img [src]="profile.avatar || 'img/avatar.png'" [alt]="profile.displayName || 'Profile avatar'" class="avatar">
+        </div>
 
         <div class="identity-copy">
           <div class="name-row">

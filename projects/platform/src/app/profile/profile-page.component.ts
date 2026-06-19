@@ -359,7 +359,11 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
         switchMap(params => {
           const userId = params.get('id');
           const currentUserId = this.currentUser()?._id;
-          
+
+          // Clear previous error on new navigation
+          this.error.set(null);
+          this.loading.set(true);
+
           // Case 1: We have an :id parameter – view that user's profile
           if (userId) {
             // Validate MongoDB ObjectId format
@@ -374,7 +378,7 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
             }
             return this.profileService.getProfile(userId, currentUserId ?? '');
           }
-          
+
           // Case 2: No :id parameter – load the current user's profile
           if (!currentUserId) {
             // Not logged in – redirect to home
@@ -388,6 +392,7 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (profile) => {
           if (profile) {
+            this.error.set(null);
             this.profile.set(profile);
             this.loading.set(false);
             this.loadPosts(true); // load first page of posts
@@ -396,7 +401,8 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
-          this.error.set('Failed to load profile');
+          const msg = err?.error?.message || err?.message || 'Failed to load profile';
+          this.error.set(msg);
           this.loading.set(false);
         }
       });
@@ -406,6 +412,10 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
     this.postsObserver?.disconnect();
     this.followersObserver?.disconnect();
     this.followingObserver?.disconnect();
+  }
+
+  goToHome(): void {
+    this.router.navigate(['/dashboard/home']);
   }
 
   // ---------- Posts ----------

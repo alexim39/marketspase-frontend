@@ -9,9 +9,22 @@
   } 
   @if (error()) {
     <div class="error-state">
-      <mat-icon>error</mat-icon>
+      <div class="error-icon">
+        <mat-icon>person_off</mat-icon>
+      </div>
+      <h2>Profile Unavailable</h2>
       <p>{{ error() }}</p>
-      <button mat-raised-button color="primary" (click)="ngOnInit()">Retry</button>
+      <span class="error-hint">This could be because the user doesn't exist, the profile is private, or a network issue occurred.</span>
+      <div class="error-actions">
+        <button mat-stroked-button (click)="goToHome()">
+          <mat-icon>home</mat-icon>
+          Home
+        </button>
+        <button mat-raised-button color="primary" (click)="ngOnInit()">
+          <mat-icon>refresh</mat-icon>
+          Retry
+        </button>
+      </div>
     </div>
   } 
   @if (profile(); as profile) {
@@ -21,7 +34,9 @@
         <!-- Optional cover image -->
       </div>
       <div class="profile-info">
-        <img [src]="profile.avatar || 'img/avatar.png'" alt="Avatar" class="profile-avatar">
+        <div class="profile-avatar-wrap" [class.online]="profile.isOnline">
+          <img [src]="profile.avatar || 'img/avatar.png'" alt="Avatar" class="profile-avatar">
+        </div>
         <div class="profile-details">
           <div class="name-row">
             <h1>{{ profile.displayName }}</h1>
