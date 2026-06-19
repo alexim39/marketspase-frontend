@@ -201,6 +201,31 @@
             </div>
           </div>
 
+          <!-- Recent Activity -->
+          @if (recentThreads.length) {
+            <div class="sidebar-card recent-activity-card">
+              <div class="card-header">
+                <h4>
+                  <mat-icon class="header-icon">history</mat-icon>
+                  Recent Activity
+                </h4>
+              </div>
+              <div class="recent-list">
+                @for (thread of recentThreads; track thread._id) {
+                  <div class="recent-item" (click)="navigateToThread(thread._id)">
+                    <span class="recent-title">{{ thread.title }}</span>
+                    <span class="recent-meta">
+                      <span class="recent-time">{{ formatTimeAgo(thread.updatedAt) }}</span>
+                      @if (thread.commentCount) {
+                        <span class="recent-comments">{{ thread.commentCount }} replies</span>
+                      }
+                    </span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
           <!-- Pinned Discussions -->
           <div class="sidebar-card">
             <div class="card-header">

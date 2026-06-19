@@ -107,6 +107,29 @@
     </section>
   }
 
+  @if (recentThreads.length) {
+    <section class="hot-strip" aria-label="Recent activity">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Latest activity</p>
+          <h2>Recently active</h2>
+        </div>
+      </div>
+      <div class="hot-rail">
+        @for (thread of recentThreads; track thread._id) {
+          <button type="button" class="hot-card" (click)="navigateToThread(thread._id)">
+            <span class="hot-label">
+              <mat-icon>history</mat-icon>
+              {{ formatTimeAgo(thread.updatedAt) }}
+            </span>
+            <strong>{{ thread.title }}</strong>
+            <span>{{ thread.commentCount || 0 }} replies</span>
+          </button>
+        }
+      </div>
+    </section>
+  }
+
   <section class="thread-section" aria-label="Discussion list">
     <div class="section-title">
       <div>
