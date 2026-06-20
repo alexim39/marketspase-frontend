@@ -25,6 +25,10 @@ export const dashboardRoutes: Routes = [
             {   path: 'leads', 
                 loadComponent: () => import('../leads/leads.component').then(c => c.AdminLeadsComponent),
                 title: 'Campaign Leads - Admin Dashboard'
+            },
+            {   path: 'metrics', 
+                loadComponent: () => import('../metrics/metrics.component').then(c => c.AdminMetricsComponent),
+                title: 'Campaign Metrics - Admin Dashboard'
             },  
             {   path: 'promotions', 
                 loadChildren: () => import('../promotion/promotion.routes').then(r => r.PromotionRoutes),

@@ -84,6 +84,7 @@ export class AdminDashboardComponent implements OnInit {
         { id: 'ppc-analytics', title: 'PPC Analytics', icon: 'query_stats', route: '/dashboard/promotions/ppc-analytics' },
         { id: 'promotion-fraud', title: 'Fraud Monitor', icon: 'shield', route: '/dashboard/promotions/fraud' },
         { id: 'leads', title: 'Leads', icon: 'contact_phone', route: '/dashboard/leads' },
+        { id: 'metrics', title: 'Metrics', icon: 'query_stats', route: '/dashboard/metrics' },
 
       ]
     },
@@ -289,6 +290,7 @@ export class AdminDashboardComponent implements OnInit {
         '/dashboard/users': 'users',
         '/dashboard/campaigns': 'ads',
         '/dashboard/leads': 'ads',
+        '/dashboard/metrics': 'ads',
         '/dashboard/promotions': 'ads',
         '/dashboard/stores': 'storefront',
         '/dashboard/financial': 'payments',
