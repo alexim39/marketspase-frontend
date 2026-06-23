@@ -149,6 +149,7 @@
           <button class="tab-btn" [class.active]="selectedTab() === 'following'" (click)="selectedTab.set('following')">Following</button>
           <button class="tab-btn" [class.active]="selectedTab() === 'trending'" (click)="selectedTab.set('trending')">Trending</button>
           <button class="tab-btn" [class.active]="selectedTab() === 'latest'" (click)="selectedTab.set('latest')">Latest</button>
+          <button class="tab-btn" [class.active]="selectedTab() === 'saved'" (click)="selectedTab.set('saved')">Saved</button>
         </div>
 
         <div class="feed-actions">
@@ -265,6 +266,7 @@
 
       <div class="feed-posts">
         @if (featuredPost(); as post) {
+          @if (selectedTab() === 'for-you') {
           <div class="featured-post-container reel-post-shell" [class.active]="commentRailOpen() && activeCommentPostId() === post._id">
             <div class="featured-badge">
               <mat-icon>stars</mat-icon>
@@ -284,6 +286,7 @@
               (hashtagClick)="onHashtagClick($event)"
             />
           </div>
+          }
         }
 
         @if (loading() && posts().length === 0) {

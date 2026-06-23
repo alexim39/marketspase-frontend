@@ -28,6 +28,15 @@
       >
         For You
       </button>
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="selectedTab() === 'saved'"
+        [class.active]="selectedTab() === 'saved'"
+        (click)="selectedTab.set('saved')"
+      >
+        Saved
+      </button>
     </div>
 
     <button class="top-icon" type="button" (click)="refreshFeed()" aria-label="Refresh feed">
@@ -68,6 +77,7 @@
 
     <!-- Featured / Spotlight post (admin-enabled) -->
     @if (featuredPost(); as spotlightPost) {
+      @if (selectedTab() === 'for-you') {
       <section
         class="reel-post spotlight-post"
         [attr.data-post-id]="spotlightPost._id"
@@ -245,6 +255,7 @@
           }
         </div>
       </section>
+      }
     }
 
     @for (post of regularPosts(); track trackPost($index, post); let index = $index) {

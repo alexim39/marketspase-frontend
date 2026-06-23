@@ -94,7 +94,7 @@ export class DesktopFeedPageComponent implements AfterViewInit {
   suggestedUsers = this.profileService.suggestedUsers;
   following = signal<Set<string>>(new Set());
 
-  selectedTab = signal<'for-you' | 'following' | 'trending' | 'latest'>('for-you');
+  selectedTab = signal<'for-you' | 'following' | 'trending' | 'latest' | 'saved'>('for-you');
   selectedType = signal<string>('all');
   searchQuery = signal<string>('');
   showFilters = signal<boolean>(false);
@@ -120,6 +120,7 @@ export class DesktopFeedPageComponent implements AfterViewInit {
     if (tab === 'following') return 'following';
     if (tab === 'trending') return 'trending';
     if (tab === 'latest') return 'latest';
+    if (tab === 'saved') return 'saved';
     return 'for_you';
   });
   activeCommentPost = computed(() => {
