@@ -1,0 +1,35 @@
+@use '../../../../../../styles/variables' as *;
+
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--background-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.sms-dialog {
+  min-width: 400px;
+  max-width: 520px;
+}
+
+.recipient-info {
+  margin-bottom: 16px;
+
+  strong { display: block; }
+
+  span {
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+}
+
+.full-width { width: 100%; }
+
+.cost-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: -8px;
+
+  strong { color: var(--text-primary); }
+}

@@ -30,8 +30,8 @@ import {
 } from "../contact.service";
 import { CreateContactDialogComponent } from "./create-contact-dialog.component";
 import { ConfirmDeleteDialogComponent } from "./confirm-delete-dialog.component";
-import { SmsDialogComponent } from "./sms-dialog.component";
-import { BulkSmsDialogComponent } from "./bulk-sms-dialog.component";
+import { SmsDialogComponent } from "./sms-dialog/sms-dialog.component";
+import { BulkSmsDialogComponent } from "./bulk-sms-dialog/bulk-sms-dialog.component";
 
 @Component({
   selector: "app-contacts-index",

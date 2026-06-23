@@ -184,6 +184,46 @@ export interface LeadDetailResponse {
   generatedAt: string;
 }
 
+export interface PromoterMetricsRow {
+  campaignId: string;
+  title: string;
+  status: string;
+  landingViews: number;
+  contactMe: number;
+  formViews: number;
+  leads: number;
+  failures: number;
+  conversionRate: number;
+}
+
+export interface PromoterMetricsResponse {
+  success: boolean;
+  data: {
+    summary: {
+      totalViews: number;
+      totalLeads: number;
+      totalContactMe: number;
+      totalFormViews: number;
+      totalFailures: number;
+      campaignCount: number;
+    };
+    campaignBreakdown: PromoterMetricsRow[];
+    topCampaign: { campaignId: string; title: string; count: number } | null;
+  };
+  generatedAt: string;
+}
+
+export interface PromoterDetailResponse {
+  success: boolean;
+  data: {
+    campaign: { campaignId: string; title: string; status: string };
+    summary: { totalViews: number; totalLeads: number; totalContactMe: number; totalFormViews: number; totalFailures: number; conversionRate: number };
+    promotionBreakdown: { promotionId: string | null; upi: string; landingViews: number; contactMe: number; formViews: number; leads: number; failures: number }[];
+    dailySeries: { date: string; landingViews: number; contactMe: number; formViews: number; leads: number; failures: number }[];
+  };
+  generatedAt: string;
+}
+
 export interface CollaborationStarterCampaign extends CampaignInterface {}
 
 export interface CollaborationStarterPromotion extends PromotionInterface {}
@@ -393,6 +433,24 @@ export class CollaborationService {
   getPromoterAnalytics(userId: string, filters: AnalyticsFilters = {}): Observable<AnalyticsResponse> {
     return this.apiService.get<AnalyticsResponse>(
       `api/v1/promotion/analytics/promoter/${userId}`,
+      this.buildParams(filters),
+      undefined,
+      true
+    );
+  }
+
+  getPromoterMetrics(userId: string, filters: AnalyticsFilters = {}): Observable<PromoterMetricsResponse> {
+    return this.apiService.get<PromoterMetricsResponse>(
+      `api/v1/promotion/metrics/promoter/${userId}`,
+      this.buildParams(filters),
+      undefined,
+      true
+    );
+  }
+
+  getPromoterMetricsDetail(userId: string, campaignId: string, filters: AnalyticsFilters = {}): Observable<PromoterDetailResponse> {
+    return this.apiService.get<PromoterDetailResponse>(
+      `api/v1/promotion/metrics/promoter/${userId}/metrics/${campaignId}`,
       this.buildParams(filters),
       undefined,
       true

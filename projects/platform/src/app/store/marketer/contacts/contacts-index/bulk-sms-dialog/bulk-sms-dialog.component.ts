@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ContactService } from '../contact.service';
+import { ContactService } from '../../contact.service';
 
 export interface BulkSmsDialogData { customerIds: string[]; count: number; }
 
@@ -18,27 +18,8 @@ const COST_PER_SMS = 10;
   selector: 'app-bulk-sms-dialog',
   standalone: true,
   imports: [CommonModule, FormsModule, MatDialogModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatProgressSpinnerModule, MatSnackBarModule],
-  template: `
-    <div class="sms-dialog">
-      <h2 mat-dialog-title>Send Bulk SMS</h2>
-      <mat-dialog-content>
-        <p class="recipient-info">Sending to <strong>{{ data.count }}</strong> recipient(s) · ₦{{ totalCost() }} total</p>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Message</mat-label>
-          <textarea matInput rows="5" [ngModel]="message()" (ngModelChange)="message.set($event)" maxlength="480" placeholder="Type your bulk SMS message..."></textarea>
-          <mat-hint align="end">{{ message().length }}/480 · {{ smsCount() }} page(s)</mat-hint>
-        </mat-form-field>
-        <p class="cost-note">₦{{ COST_PER_SMS }}/page × {{ data.count }} recipients × {{ smsCount() }} page(s) = <strong>₦{{ totalCost() }}</strong></p>
-      </mat-dialog-content>
-      <mat-dialog-actions align="end">
-        <button mat-button [disabled]="sending()" (click)="close()">Cancel</button>
-        <button mat-flat-button color="primary" [disabled]="sending() || !message().trim()" (click)="send()">
-          @if (sending()) { <mat-spinner diameter="18"></mat-spinner> } @else { Send (₦{{ totalCost() }}) }
-        </button>
-      </mat-dialog-actions>
-    </div>
-  `,
-  styles: [`.sms-dialog { min-width: 400px; max-width: 520px; } .recipient-info { margin-bottom: 16px; } .full-width { width: 100%; } .cost-note { font-size: 12px; color: #888; margin-top: -8px; }`]
+  templateUrl: './bulk-sms-dialog.component.html',
+  styleUrls: ['./bulk-sms-dialog.component.scss'],
 })
 export class BulkSmsDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<BulkSmsDialogComponent>);

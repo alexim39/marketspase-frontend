@@ -38,6 +38,7 @@ export function getPromoterNavigation(
       children: [
         { icon: 'search', label: 'Find Campaigns', route: '/dashboard/campaigns' },
         { icon: 'list_alt', label: 'My Promotions', route: '/dashboard/campaigns/promotions' },
+        { icon: 'bar_chart', label: 'Metrics', route: '/dashboard/campaigns/promotions/metrics' },
         // { icon: 'design_services', label: 'Ad Template Builder', route: '/dashboard/campaigns/promotions/ad-builder' },
         { icon: 'insights', label: 'Analytics', route: '/dashboard/campaigns/analytics' },
         { icon: 'gpp_bad', label: 'Account Health', route: '/dashboard/campaigns/promotions/compliance' },

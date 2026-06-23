@@ -23,6 +23,13 @@ export const CampaignRoutes: Routes = [
                 title: "Promotions - List all accepted promoter promotions",
            },
            {
+                path: 'metrics',
+                children: [
+                    { path: '', loadComponent: () => import('../promoter/promotion/metrics').then(c => c.PromoterMetricsIndexComponent), title: "Promoter Metrics - Promotion performance analytics" },
+                    { path: ':campaignId', loadComponent: () => import('../promoter/promotion/metrics/promoter-metrics-detail').then(c => c.PromoterMetricsDetailIndexComponent), title: "Promoter Metrics Detail - Per-campaign analytics" },
+                ],
+           },
+           {
                 path: 'ad-builder',
                 loadComponent: () => import('../promoter/promotion/ad-template-builder/ad-template-builder.component').then(c => c.AdTemplateBuilderComponent),
                 title: "Ad Template Builder - Create social-ready promotions",

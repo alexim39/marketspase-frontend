@@ -1,0 +1,53 @@
+<div class="mobile-metrics">
+  <header class="page-header">
+    <div><span class="eyebrow">Promotion Funnel</span><h1>Promoter Metrics</h1></div>
+    <button class="refresh-btn" (click)="refreshNow()" [disabled]="loading()" aria-label="Refresh"><mat-icon>refresh</mat-icon></button>
+  </header>
+
+  <div class="filters-strip">
+    <select class="native-select" [ngModel]="filtersForm.controls.range.value" (ngModelChange)="filtersForm.controls.range.setValue($event)">
+      <option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="custom">Custom range</option>
+    </select>
+    @if (filtersForm.controls.range.value === 'custom') { <input type="date" class="native-input" [ngModel]="filtersForm.controls.startDate.value" (ngModelChange)="filtersForm.controls.startDate.setValue($event)" /><input type="date" class="native-input" [ngModel]="filtersForm.controls.endDate.value" (ngModelChange)="filtersForm.controls.endDate.setValue($event)" /> }
+    <button class="clear-btn" (click)="clearFilters()">Reset</button>
+  </div>
+
+  @if (generatedAt()) { <div class="updated-chip"><mat-icon>update</mat-icon><span>Updated {{ generatedAt() | date:'shortTime' }}</span></div> }
+
+  @if (loading()) {
+    <div class="sk-mobile">
+      <div class="sk-hero"><div class="sk-pill"></div><div class="sk-line wide"></div><div class="sk-line medium"></div></div>
+      <div class="sk-stats">
+        @for (i of [1,2,3,4]; track i) { <div class="sk-stat"><div class="sk-line short"></div><div class="sk-line wide tall"></div></div> }
+      </div>
+      @for (i of [1,2,3]; track i) { <div class="sk-card"><div class="sk-line long"></div><div class="sk-line short"></div><div class="sk-row-m"><div class="sk-line medium"></div><div class="sk-line short"></div></div></div> }
+    </div>
+  }
+  @else if (error()) { <div class="error-state"><mat-icon>insights</mat-icon><h2>Could not load</h2><p>{{ error() }}</p><button class="retry-btn" (click)="refreshNow()">Retry</button></div> }
+  @else {
+    <div class="stats-grid">
+      <div class="stat-card"><mat-icon>visibility</mat-icon><strong>{{ formatNumber(totalViews()) }}</strong><span>Views</span></div>
+      <div class="stat-card"><mat-icon>contact_phone</mat-icon><strong>{{ formatNumber(totalContactMe()) }}</strong><span>Inquiries</span></div>
+      <div class="stat-card"><mat-icon>person_add</mat-icon><strong>{{ formatNumber(totalLeads()) }}</strong><span>Leads</span></div>
+      <div class="stat-card"><mat-icon>trending_up</mat-icon><strong>{{ formatNumber(aggregateRate()) }}%</strong><span>Conv.</span></div>
+    </div>
+
+    @if (topCampaign(); as top) {
+      <div class="highlight-card"><mat-icon>trophy</mat-icon><div><span class="hl-label">Top Campaign</span><strong>{{ top.title }}</strong><em>{{ top.count }} leads</em></div></div>
+    }
+
+    <div class="section-header"><h2>Campaigns</h2><span class="count">{{ campaignBreakdown().length }} shown</span></div>
+
+    @if (hasData()) {
+      <div class="campaign-list">
+        @for (row of campaignBreakdown(); track trackById($index, row)) {
+          <article class="campaign-card" (click)="navigateToDetail(row.campaignId)" role="button" tabindex="0">
+            <div class="card-header"><div class="card-title"><strong>{{ row.title }}</strong>@if (topCampaign()?.campaignId === row.campaignId) { <span class="top-badge"><mat-icon>stars</mat-icon> Top</span> }</div><span class="status-badge" [class]="'status-badge status-' + row.status">{{ row.status | titlecase }}</span></div>
+            <div class="card-metrics"><div class="metric"><mat-icon>visibility</mat-icon><span>{{ formatNumber(row.landingViews) }} views</span></div><div class="metric"><mat-icon>contact_phone</mat-icon><span>{{ formatNumber(row.contactMe) }} inquiries</span></div><div class="metric"><mat-icon>person_add</mat-icon><span>{{ formatNumber(row.leads) }} leads</span></div><div class="metric"><mat-icon>trending_up</mat-icon><span>{{ formatNumber(row.conversionRate) }}%</span></div></div>
+            <mat-icon class="card-chevron">chevron_right</mat-icon>
+          </article>
+        }
+      </div>
+    } @else { <div class="empty-state"><mat-icon>campaign</mat-icon><p>No promotion activity recorded yet.</p></div> }
+  }
+</div>

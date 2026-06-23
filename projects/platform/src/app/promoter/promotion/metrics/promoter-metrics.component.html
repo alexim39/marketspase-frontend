@@ -1,0 +1,88 @@
+<section class="metrics-page">
+  <header class="hero-card">
+    <div class="hero-copy">
+      <span class="hero-kicker">Promotion Funnel</span>
+      <h1>Promoter Metrics</h1>
+      <p>Track landing-page performance for campaigns you've promoted — views, inquiries, and leads generated.</p>
+    </div>
+    <div class="hero-actions">
+      <div class="pulse-chip"><mat-icon>update</mat-icon><span>@if (generatedAt()) { Updated {{ generatedAt() | date:'mediumTime' }} } @else { Waiting for first load }</span></div>
+      <button mat-raised-button color="primary" type="button" (click)="refreshNow()"><mat-icon>refresh</mat-icon> Refresh</button>
+    </div>
+  </header>
+
+  <form [formGroup]="filtersForm" class="filters-card" aria-label="Metrics filters">
+    <div class="filters-grid">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Date range</mat-label>
+        <mat-select formControlName="range"><mat-option value="7">Last 7 days</mat-option><mat-option value="30">Last 30 days</mat-option><mat-option value="90">Last 90 days</mat-option><mat-option value="custom">Custom range</mat-option></mat-select>
+      </mat-form-field>
+      @if (filtersForm.controls.range.value === 'custom') {
+        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Start date</mat-label><input matInput type="date" formControlName="startDate" /></mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>End date</mat-label><input matInput type="date" formControlName="endDate" /></mat-form-field>
+      }
+      <div class="filter-actions"><button mat-stroked-button type="button" (click)="clearFilters()">Reset</button></div>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <section class="loading-state" aria-busy="true">
+      <article class="skeleton hero-skeleton">
+        <div class="sk-pill"></div>
+        <div class="sk-line wide"></div>
+        <div class="sk-line medium"></div>
+        <div class="sk-line short"></div>
+      </article>
+      <div class="sk-grid">
+        @for (i of [1,2,3,4]; track i) {
+          <article class="sk-card"><div class="sk-line short"></div><div class="sk-line wide tall"></div></article>
+        }
+      </div>
+      <article class="skeleton table-skeleton">
+        <div class="sk-row"><div class="sk-line wide"></div><div class="sk-line short"></div><div class="sk-line medium"></div><div class="sk-line short"></div></div>
+        @for (i of [1,2,3]; track i) {
+          <div class="sk-row"><div class="sk-line long"></div><div class="sk-line medium"></div><div class="sk-line short"></div><div class="sk-line medium"></div></div>
+        }
+      </article>
+    </section>
+  } @else if (error()) {
+    <section class="empty-state"><mat-icon>insights</mat-icon><h2>Could not load metrics</h2><p>{{ error() }}</p><button mat-stroked-button type="button" (click)="refreshNow()">Retry</button></section>
+  } @else {
+    <section class="overview-strip">
+      <div class="overview-card"><mat-icon>visibility</mat-icon><strong>{{ formatNumber(totalViews()) }}</strong><span>Landing Views</span></div>
+      <div class="overview-card"><mat-icon>contact_phone</mat-icon><strong>{{ formatNumber(totalContactMe()) }}</strong><span>Contact Me</span></div>
+      <div class="overview-card"><mat-icon>person_add</mat-icon><strong>{{ formatNumber(totalLeads()) }}</strong><span>Leads</span></div>
+      <div class="overview-card"><mat-icon>trending_up</mat-icon><strong>{{ formatNumber(aggregateRate()) }}%</strong><span>Conv. Rate</span></div>
+    </section>
+
+    @if (topCampaign()) {
+      <section class="highlights-strip">
+        <article class="highlight-card"><mat-icon class="hl-icon campaign">trophy</mat-icon><div><span class="hl-label">Top Campaign</span><strong>{{ topCampaign()!.title }}</strong><em>{{ topCampaign()!.count }} leads</em></div></article>
+      </section>
+    }
+
+    <section class="panel-card table-panel">
+      <div class="panel-head"><div><h2>Campaign Breakdown</h2><p>Per-campaign landing funnel — views, inquiries, leads, and conversion.</p></div></div>
+      @if (hasData()) {
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Campaign</th><th>Status</th><th>Landing Views</th><th>Contact Me</th><th>Leads</th><th>Conv. Rate</th></tr></thead>
+            <tbody>
+              @for (row of campaignBreakdown(); track trackById($index, row)) {
+                <tr class="clickable-row" (click)="navigateToDetail(row.campaignId)" (keydown.enter)="navigateToDetail(row.campaignId)" tabindex="0" role="button">
+                  <td data-label="Campaign"><strong>{{ row.title }}</strong>@if (topCampaign()?.campaignId === row.campaignId) { <span class="top-badge"><mat-icon>stars</mat-icon> Top</span> }</td>
+                  <td data-label="Status"><span class="status-badge" [class]="'status-badge status-' + row.status">{{ row.status | titlecase }}</span></td>
+                  <td data-label="Landing Views">{{ formatNumber(row.landingViews) }}</td>
+                  <td data-label="Contact Me">{{ formatNumber(row.contactMe) }}</td>
+                  <td data-label="Leads">{{ formatNumber(row.leads) }}</td>
+                  <td data-label="Conv. Rate">{{ formatNumber(row.conversionRate) }}%</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="inline-empty"><mat-icon>campaign</mat-icon><p>No promotion activity recorded yet.</p></div>
+      }
+    </section>
+  }
+</section>

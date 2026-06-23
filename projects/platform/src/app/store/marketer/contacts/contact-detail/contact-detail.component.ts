@@ -11,7 +11,7 @@ import { MatSnackBarModule, MatSnackBar } from "@angular/material/snack-bar";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 
 import { ContactService, CustomerContact, ContactLogEntry } from "../contact.service";
-import { SmsDialogComponent } from "../contacts-index/sms-dialog.component";
+import { SmsDialogComponent } from "../contacts-index/sms-dialog/sms-dialog.component";
 
 @Component({
   selector: "app-contact-detail",
