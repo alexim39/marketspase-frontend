@@ -142,7 +142,7 @@
           </thead>
           <tbody>
             @for (row of campaignBreakdown(); track trackById($index, row)) {
-              <tr>
+              <tr class="clickable-row" (click)="navigateToDetail(row.campaignId)" (keydown.enter)="navigateToDetail(row.campaignId)" tabindex="0" role="button" [attr.aria-label]="'View details for ' + row.title">
                 <td data-label="Campaign">
                   <strong>{{ row.title }}</strong>
                   @if (topCampaign()?.campaignId === row.campaignId) {

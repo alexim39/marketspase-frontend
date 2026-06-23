@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
-import { Subject } from 'rxjs';
+import { Subject, interval } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { ApiService } from '@shared/services';
 
@@ -26,6 +26,21 @@ export interface CollaborationConversationUpdateEvent {
   lastMessageBy?: string | null;
 }
 
+export interface PresenceChangeEvent {
+  userId: string;
+  status: 'online' | 'offline';
+  displayName?: string;
+  timestamp: string;
+}
+
+export interface TypingEvent {
+  userId: string;
+  displayName: string;
+  conversationId: string;
+  action: 'start' | 'stop';
+  timestamp: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CollaborationRealtimeService {
   private readonly apiService = inject(ApiService);
@@ -33,12 +48,20 @@ export class CollaborationRealtimeService {
 
   private socket: Socket | null = null;
   private connectedUserId: string | null = null;
+  private heartbeatInterval: any = null;
 
   private readonly collaborationMessageSubject = new Subject<CollaborationMessageEvent>();
   private readonly collaborationConversationUpdateSubject = new Subject<CollaborationConversationUpdateEvent>();
+  private readonly presenceChangeSubject = new Subject<PresenceChangeEvent>();
+  private readonly typingSubject = new Subject<TypingEvent>();
 
   readonly collaborationMessages$ = this.collaborationMessageSubject.asObservable();
   readonly collaborationConversationUpdates$ = this.collaborationConversationUpdateSubject.asObservable();
+  readonly presenceChanged$ = this.presenceChangeSubject.asObservable();
+  readonly typing$ = this.typingSubject.asObservable();
+
+  /** Signal of currently online user IDs — updated by presence events. */
+  readonly onlineUsers = signal<Set<string>>(new Set());
 
   connect(userId: string): void {
     if (!userId) {
@@ -62,10 +85,26 @@ export class CollaborationRealtimeService {
     this.socket?.emit('join_collaboration_conversation', conversationId);
   }
 
+  isUserOnline(userId: string): boolean {
+    return this.onlineUsers().has(userId);
+  }
+
   disconnect(): void {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
+    }
     this.socket?.disconnect();
     this.socket = null;
     this.connectedUserId = null;
+    this.onlineUsers.set(new Set());
+  }
+
+  private startHeartbeat(): void {
+    if (this.heartbeatInterval) return;
+    this.heartbeatInterval = setInterval(() => {
+      this.socket?.emit('presence_heartbeat');
+    }, 30000);
   }
 
   private async initializeSocket(): Promise<void> {
@@ -94,5 +133,28 @@ export class CollaborationRealtimeService {
     this.socket.on('collaboration_conversation_updated', (payload: CollaborationConversationUpdateEvent) => {
       this.collaborationConversationUpdateSubject.next(payload);
     });
+
+    this.socket.on('presence_changed', (payload: PresenceChangeEvent) => {
+      this.presenceChangeSubject.next(payload);
+      this.onlineUsers.update((set) => {
+        const next = new Set(set);
+        if (payload.status === 'online') {
+          next.add(payload.userId);
+        } else {
+          next.delete(payload.userId);
+        }
+        return next;
+      });
+    });
+
+    this.socket.on('collaboration_typing', (payload: TypingEvent) => {
+      this.typingSubject.next(payload);
+    });
+
+    this.startHeartbeat();
+  }
+
+  emitTyping(conversationId: string, action: 'start' | 'stop'): void {
+    this.socket?.emit(`typing_${action}`, conversationId);
   }
 }

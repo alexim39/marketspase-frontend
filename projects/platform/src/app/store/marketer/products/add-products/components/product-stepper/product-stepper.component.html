@@ -68,8 +68,10 @@
           <span class="loading-text">Saving...</span>
         </div>
       } @else {
-        <mat-icon class="button-icon">save</mat-icon>
-        <span class="button-text">Save Product</span>
+        <ng-container matButtonIcon>
+          <mat-icon class="button-icon">save</mat-icon>
+          <span class="button-text">Save Product</span>
+        </ng-container>
       }
     </button>
   }

@@ -2,8 +2,8 @@ import { CommonModule, DatePipe, DecimalPipe, TitleCasePipe } from '@angular/com
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { finalize } from 'rxjs';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { finalize, switchMap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,12 +13,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   CollaborationService,
-  LeadAnalyticsResponse,
-  LeadCampaignRow,
-} from '../collaboration/collaboration.service';
+  LeadDailyRow,
+  LeadPromotionRow,
+} from '../../collaboration/collaboration.service';
 
 @Component({
-  selector: 'app-campaign-metrics',
+  selector: 'app-campaign-metrics-detail',
   standalone: true,
   imports: [
     CommonModule,
@@ -33,12 +33,13 @@ import {
     MatTooltipModule,
   ],
   providers: [DatePipe, DecimalPipe, TitleCasePipe],
-  templateUrl: './campaign-metrics.component.html',
-  styleUrls: ['./campaign-metrics.component.scss'],
+  templateUrl: './campaign-metrics-detail.component.html',
+  styleUrls: ['./campaign-metrics-detail.component.scss'],
 })
-export class CampaignMetricsComponent {
-  private readonly collaborationService = inject(CollaborationService);
+export class CampaignMetricsDetailComponent {
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly collaborationService = inject(CollaborationService);
   private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
@@ -50,7 +51,18 @@ export class CampaignMetricsComponent {
   readonly refreshing = signal(false);
   readonly generatedAt = signal<string | null>(null);
   readonly error = signal<string | null>(null);
-  readonly data = signal<LeadAnalyticsResponse['data'] | null>(null);
+
+  readonly campaignTitle = signal('');
+  readonly campaignStatus = signal('');
+  readonly campaignId = signal('');
+
+  readonly summary = signal({
+    totalViews: 0, totalLeads: 0, totalContactMe: 0,
+    totalFormViews: 0, totalFailures: 0, conversionRate: 0,
+  });
+
+  readonly promotionBreakdown = signal<LeadPromotionRow[]>([]);
+  readonly dailySeries = signal<LeadDailyRow[]>([]);
 
   readonly filtersForm = this.fb.nonNullable.group({
     range: ['30'],
@@ -58,59 +70,46 @@ export class CampaignMetricsComponent {
     endDate: [''],
   });
 
-  readonly campaignBreakdown = computed<LeadCampaignRow[]>(() => {
-    return this.data()?.campaignBreakdown ?? [];
-  });
-
-  readonly topCampaign = computed(() => this.data()?.topCampaign ?? null);
-  readonly topPromoter = computed(() => this.data()?.topPromoter ?? null);
-
-  readonly hasData = computed(() => (this.data()?.campaignBreakdown ?? []).length > 0);
-
-  readonly totalLeads = computed(() =>
-    this.campaignBreakdown().reduce((s, r) => s + (r.leads || 0), 0)
-  );
-
-  readonly totalViews = computed(() =>
-    this.campaignBreakdown().reduce((s, r) => s + (r.landingViews || 0), 0)
-  );
-
-  readonly totalContactMe = computed(() =>
-    this.campaignBreakdown().reduce((s, r) => s + (r.contactMe || 0), 0)
-  );
-
-  readonly aggregateRate = computed(() => {
-    const v = this.totalViews();
-    const l = this.totalLeads();
-    return v > 0 ? Math.round((l / v) * 100) : 0;
-  });
+  readonly hasPromotions = computed(() => this.promotionBreakdown().length > 0);
+  readonly hasDailyData = computed(() => this.dailySeries().length > 0);
 
   constructor() {
+    this.route.paramMap
+      .pipe(
+        switchMap((params) => {
+          const id = params.get('campaignId') || '';
+          this.campaignId.set(id);
+          return this.route.queryParams;
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.loadData();
+      });
+
     this.filtersForm.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         if (value.range !== 'custom' && (value.startDate || value.endDate)) {
           this.filtersForm.patchValue(
             { startDate: '', endDate: '' },
-            { emitEvent: false }
+            { emitEvent: false },
           );
         }
         this.loadData(true);
       });
-
-    this.loadData();
   }
 
   refreshNow(): void {
     this.loadData(true);
   }
 
-  navigateToDetail(campaignId: string): void {
-    this.router.navigate(['/dashboard/campaigns/metrics', campaignId]);
-  }
-
   clearFilters(): void {
     this.filtersForm.setValue({ range: '30', startDate: '', endDate: '' });
+  }
+
+  goBack(): void {
+    this.router.navigate(['/dashboard/campaigns/metrics']);
   }
 
   formatNumber(value: number, digits: number = 0): string {
@@ -118,11 +117,18 @@ export class CampaignMetricsComponent {
     return this.decimalPipe.transform(value || 0, format) || '0';
   }
 
-  trackByCampaignId(_index: number, item: LeadCampaignRow): string {
-    return item.campaignId;
+  trackByPromotionId(_index: number, item: LeadPromotionRow): string {
+    return item.promotionId || item.upi || '';
+  }
+
+  trackByDate(_index: number, item: LeadDailyRow): string {
+    return item.date;
   }
 
   private loadData(silent: boolean = false): void {
+    const campaignId = this.campaignId();
+    if (!campaignId) return;
+
     if (silent) {
       this.refreshing.set(true);
     } else {
@@ -137,21 +143,26 @@ export class CampaignMetricsComponent {
       endDate: rawValue.range === 'custom' ? rawValue.endDate || null : null,
     };
 
-    this.collaborationService.getMarketerLeadAnalytics(filters)
+    this.collaborationService.getCampaignLeadDetail(campaignId, filters)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => {
           this.loading.set(false);
           this.refreshing.set(false);
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
-          this.data.set(response.data);
+          const d = response.data;
+          this.campaignTitle.set(d.campaign.title);
+          this.campaignStatus.set(d.campaign.status);
+          this.summary.set(d.summary);
+          this.promotionBreakdown.set(d.promotionBreakdown);
+          this.dailySeries.set(d.dailySeries);
           this.generatedAt.set(response.generatedAt);
         },
         error: (error) => {
-          const message = error?.error?.message || 'Could not load campaign metrics.';
+          const message = error?.error?.message || 'Could not load campaign detail metrics.';
           this.error.set(message);
           this.snackBar.open(message, 'Close', { duration: 3200 });
         },

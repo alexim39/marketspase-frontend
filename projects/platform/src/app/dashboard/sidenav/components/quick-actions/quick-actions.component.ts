@@ -18,6 +18,7 @@ import { UserInterface } from '@shared/services';
 export class QuickActionsComponent {
   @Input({ required: true }) user!: Signal<UserInterface | null>;
   @Output() createCampaign = new EventEmitter<void>();
+  @Output() createPost = new EventEmitter<void>();
   @Output() fundWallet = new EventEmitter<void>();
   @Output() switchUser = new EventEmitter<string>();
   @Output() viewPromotion = new EventEmitter<void>();

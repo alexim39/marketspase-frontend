@@ -162,8 +162,8 @@
         </button>
       } @else {
         <button class="action-btn secondary whatsapp-status-btn" (click)="shareToWhatsAppStatus()" [disabled]="isStatusSharing()">
-          <i class="material-icons">share</i>
-          <span>{{ isStatusSharing() ? 'Preparing Status...' : 'Post to Status' }}</span>
+          <i class="fa fa-whatsapp" aria-hidden="true"></i>
+          <span>{{ isStatusSharing() ? 'Preparing Status...' : 'Post to WhatsApp Status' }}</span>
         </button>
         <button class="action-btn primary" (click)="downloadAdAsset()" [disabled]="isDownloading()">
           <i class="material-icons">download</i>

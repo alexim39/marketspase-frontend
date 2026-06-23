@@ -6,6 +6,10 @@
         <mat-icon>add_circle_outline</mat-icon>
         Create Campaign
     </button>
+    <button mat-stroked-button class="action-btn" (click)="createPost.emit(); mobileAction.emit()">
+        <mat-icon>dynamic_feed</mat-icon>
+        Create Post
+    </button>
     <button mat-stroked-button class="action-btn" (click)="fundWallet.emit(); mobileAction.emit()">
         <mat-icon>account_balance_wallet</mat-icon>
         Fund Wallet
@@ -38,9 +42,9 @@
         Switch to Promoter
     </button>
     }
-    <button mat-stroked-button class="action-btn" (click)="logout.emit()">
-    <mat-icon>exit_to_app</mat-icon>
-    Logout
+    <button mat-stroked-button class="action-btn sign-out" (click)="logout.emit()">
+        <mat-icon>exit_to_app</mat-icon>
+        Sign Out
     </button>
 </div>
 }

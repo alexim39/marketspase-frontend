@@ -48,8 +48,18 @@ export const CampaignRoutes: Routes = [
     },
     {
         path: 'metrics',
-        loadComponent: () => import('./metrics').then(c => c.CampaignMetricsComponent),
-        title: "Campaign Metrics - Lead performance and conversion funnel",
+        children: [
+            {
+                path: '',
+                loadComponent: () => import('./metrics').then(c => c.CampaignMetricsIndexComponent),
+                title: "Campaign Metrics - Lead performance and conversion funnel",
+            },
+            {
+                path: ':campaignId',
+                loadComponent: () => import('./metrics/campaign-metrics-detail').then(c => c.CampaignMetricsDetailIndexComponent),
+                title: "Campaign Metrics Detail - Lead analytics per campaign",
+            },
+        ],
     },
     {
         path: 'collaboration',

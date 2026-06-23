@@ -12,7 +12,6 @@
   .section-title {
     font-size: 14px;
     font-weight: 600;
-    // UPDATED: Use text-secondary variable for dynamic theming
     color: $text-secondary;
     margin: 0;
   }
@@ -21,15 +20,20 @@
     width: 100%;
     justify-content: flex-start;
     border-radius: 8px;
-    // UPDATED: Use border-color variable for dynamic theming
     border: 1px solid $border-color;
-    // UPDATED: Use text-primary variable for dynamic theming
     color: $text-primary;
     
     .mat-icon {
-      // UPDATED: Use text-secondary variable for dynamic theming
       color: $text-secondary;
       margin-right: 8px;
+    }
+  }
+
+  .sign-out {
+    color: rgb(195, 87, 63);
+    border-color: rgb(199, 115, 67);
+    mat-icon {
+      color: rgb(184, 96, 77) !important;
     }
   }
   
@@ -38,7 +42,6 @@
   }
   
   .big {
-    // UPDATED: Use primary-color variable for dynamic theming
     color: $primary-color;
     border-color: $primary-color;
   }

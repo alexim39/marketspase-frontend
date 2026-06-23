@@ -86,22 +86,34 @@
         <mat-icon>chat</mat-icon>
         Message
       </button>
+      <button type="button" (click)="openPromotionRoom()">
+        <mat-icon>forum</mat-icon>
+        Room
+      </button>
     } @else {
-      <button type="button" class="primary" (click)="copyPromotionLink()" [disabled]="isSharing()">
+      <!-- <button type="button" class="primary" (click)="copyPromotionLink()" [disabled]="isSharing()">
         <mat-icon>link</mat-icon>
         Copy link
-      </button>
-      <button type="button" (click)="shareToWhatsAppStatus()" [disabled]="isStatusSharing()">
-        <mat-icon>share</mat-icon>
+      </button> -->
+      <button type="button" class="whatsapp" (click)="shareToWhatsAppStatus()" [disabled]="isStatusSharing()">
+        <i class="fa fa-whatsapp" aria-hidden="true"></i>
         {{ isStatusSharing() ? 'Preparing' : 'Status' }}
       </button>
-      <button type="button" (click)="copyCaption(promotion.campaign.caption)">
+      <button type="button" class="primary"  (click)="copyCaption(promotion.campaign.caption)">
         <mat-icon>content_copy</mat-icon>
         Caption
       </button>
       <button type="button" (click)="downloadAdAsset()" [disabled]="isDownloading()">
         <mat-icon>download</mat-icon>
         Asset
+      </button>
+      <button type="button" (click)="messageMarketer()">
+        <mat-icon>chat</mat-icon>
+        Message
+      </button>
+      <button type="button" (click)="openPromotionRoom()">
+        <mat-icon>forum</mat-icon>
+        Room
       </button>
     }
   </footer>

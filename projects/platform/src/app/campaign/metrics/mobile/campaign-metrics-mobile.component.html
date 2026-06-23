@@ -1,0 +1,149 @@
+<div class="mobile-metrics">
+  <!-- Header -->
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Campaign Funnel</span>
+      <h1>Lead Metrics</h1>
+    </div>
+    <button class="refresh-btn" (click)="refreshNow()" [disabled]="loading()" aria-label="Refresh">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </header>
+
+  <!-- Filters -->
+  <div class="filters-strip">
+    <select class="native-select" [ngModel]="filtersForm.controls.range.value" (ngModelChange)="filtersForm.controls.range.setValue($event)">
+      <option value="7">Last 7 days</option>
+      <option value="30">Last 30 days</option>
+      <option value="90">Last 90 days</option>
+      <option value="custom">Custom range</option>
+    </select>
+
+    @if (filtersForm.controls.range.value === 'custom') {
+      <input type="date" class="native-input" [ngModel]="filtersForm.controls.startDate.value" (ngModelChange)="filtersForm.controls.startDate.setValue($event)" />
+      <input type="date" class="native-input" [ngModel]="filtersForm.controls.endDate.value" (ngModelChange)="filtersForm.controls.endDate.setValue($event)" />
+    }
+
+    <button class="clear-btn" (click)="clearFilters()">Reset</button>
+  </div>
+
+  <!-- Updated chip -->
+  @if (generatedAt()) {
+    <div class="updated-chip">
+      <mat-icon>update</mat-icon>
+      <span>Updated {{ generatedAt() | date:'shortTime' }}</span>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="34" />
+      <p>Loading metrics...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <mat-icon>insights</mat-icon>
+      <h2>Could not load metrics</h2>
+      <p>{{ error() }}</p>
+      <button class="retry-btn" (click)="refreshNow()">Retry</button>
+    </div>
+  } @else {
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <mat-icon>visibility</mat-icon>
+        <strong>{{ formatNumber(totalViews()) }}</strong>
+        <span>Landing Views</span>
+      </div>
+      <div class="stat-card">
+        <mat-icon>contact_phone</mat-icon>
+        <strong>{{ formatNumber(totalContactMe()) }}</strong>
+        <span>Contact Me</span>
+      </div>
+      <div class="stat-card">
+        <mat-icon>person_add</mat-icon>
+        <strong>{{ formatNumber(totalLeads()) }}</strong>
+        <span>Leads</span>
+      </div>
+      <div class="stat-card">
+        <mat-icon>trending_up</mat-icon>
+        <strong>{{ formatNumber(aggregateRate()) }}%</strong>
+        <span>Conv. Rate</span>
+      </div>
+    </div>
+
+    <!-- Top highlights -->
+    @if (topCampaign() || topPromoter()) {
+      <div class="highlights-strip">
+        @if (topCampaign(); as top) {
+          <div class="highlight-card">
+            <mat-icon>trophy</mat-icon>
+            <div>
+              <span class="hl-label">Top Campaign</span>
+              <strong>{{ top.title }}</strong>
+              <em>{{ top.count }} leads</em>
+            </div>
+          </div>
+        }
+        @if (topPromoter(); as top) {
+          <div class="highlight-card">
+            <mat-icon>person</mat-icon>
+            <div>
+              <span class="hl-label">Top Promoter</span>
+              <strong>{{ top.name }}</strong>
+              <em>{{ top.count }} leads</em>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Campaign list -->
+    <div class="section-header">
+      <h2>Campaigns</h2>
+      <span class="count">{{ campaignBreakdown().length }} shown</span>
+    </div>
+
+    @if (hasData()) {
+      <div class="campaign-list">
+        @for (row of campaignBreakdown(); track trackByCampaignId($index, row)) {
+          <article class="campaign-card" (click)="navigateToDetail(row.campaignId)" role="button" tabindex="0" [attr.aria-label]="'View details for ' + row.title">
+            <div class="card-header">
+              <div class="card-title">
+                <strong>{{ row.title }}</strong>
+                @if (topCampaign()?.campaignId === row.campaignId) {
+                  <span class="top-badge"><mat-icon>stars</mat-icon> Top</span>
+                }
+              </div>
+              <span class="status-badge" [class]="'status-badge status-' + row.status">{{ row.status | titlecase }}</span>
+            </div>
+            <div class="card-metrics">
+              <div class="metric">
+                <mat-icon>visibility</mat-icon>
+                <span>{{ formatNumber(row.landingViews) }} views</span>
+              </div>
+              <div class="metric">
+                <mat-icon>contact_phone</mat-icon>
+                <span>{{ formatNumber(row.contactMe) }} inquiries</span>
+              </div>
+              <div class="metric">
+                <mat-icon>person_add</mat-icon>
+                <span>{{ formatNumber(row.leads) }} leads</span>
+              </div>
+              <div class="metric">
+                <mat-icon>trending_up</mat-icon>
+                <span>{{ formatNumber(row.conversionRate) }}%</span>
+              </div>
+            </div>
+            <mat-icon class="card-chevron">chevron_right</mat-icon>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <mat-icon>campaign</mat-icon>
+        <p>No lead activity recorded for your campaigns yet.</p>
+      </div>
+    }
+  }
+</div>

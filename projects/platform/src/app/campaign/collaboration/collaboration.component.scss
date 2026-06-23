@@ -2,6 +2,8 @@
 
 :host {
   display: block;
+  background: var(--background-color);
+  min-height: 100vh;
 }
 
 .collaboration-page {
@@ -245,6 +247,10 @@
   overflow: hidden;
   min-height: min(760px, calc(100vh - 180px));
   border-radius: 22px;
+
+  &.standalone {
+    min-height: calc(100vh - 140px);
+  }
 }
 
 .thread-rail {
@@ -258,6 +264,46 @@
 .conversation-head,
 .composer {
   padding: 1rem 1rem 0.85rem;
+}
+
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 1rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  animation: fadeIn 0.2s ease;
+
+  em {
+    font-style: italic;
+  }
+}
+
+.typing-dots {
+  display: flex;
+  gap: 3px;
+
+  span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    animation: typingBounce 1.2s infinite ease-in-out;
+
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+  }
+}
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .rail-head {
@@ -505,6 +551,118 @@
   font: inherit;
   text-decoration: underline;
   padding: 0 0.15rem;
+}
+
+.message-read-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+  color: var(--primary-color);
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.75;
+
+  mat-icon { width: 14px; height: 14px; font-size: 14px; }
+}
+
+:host ::ng-deep .mention {
+  color: var(--primary-color);
+  font-weight: 700;
+  background: rgba(var(--primary-rgb), 0.1);
+  padding: 0.05rem 0.25rem;
+  border-radius: 4px;
+}
+
+.pinned-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.65rem 1rem;
+  background: rgba(var(--primary-rgb), 0.06);
+  border-bottom: 1px solid rgba(var(--primary-rgb), 0.1);
+
+  > mat-icon {
+    color: var(--primary-color);
+    width: 18px; height: 18px; font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+}
+
+.pinned-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.pinned-item {
+  display: flex;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+
+  strong { color: var(--text-primary); white-space: nowrap; }
+  span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+.pin-toggle {
+  opacity: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  position: absolute;
+  top: 0.25rem;
+  right: 0.5rem;
+  transition: opacity 0.15s;
+
+  mat-icon { width: 16px; height: 16px; font-size: 16px; }
+
+  &:hover { color: var(--primary-color); }
+  &.pinned {
+    opacity: 1;
+    color: var(--primary-color);
+  }
+}
+
+.message-card {
+  position: relative;
+
+  &:hover .pin-toggle { opacity: 0.6; }
+}
+
+.mention-dropdown {
+  max-height: 180px;
+  overflow-y: auto;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.1);
+  margin: 0 1rem 0.5rem;
+}
+
+.mention-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid rgba(var(--primary-rgb), 0.06);
+
+  &:last-child { border-bottom: none; }
+  &:hover, &:focus { background: rgba(var(--primary-rgb), 0.06); }
+
+  strong { color: var(--primary-color); }
+  span { color: var(--text-secondary); font-size: 0.78rem; }
 }
 
 .message-author {

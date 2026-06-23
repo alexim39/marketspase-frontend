@@ -1,9 +1,20 @@
-<section class="metrics-page">
+<section class="detail-page">
   <header class="hero-card">
-    <div class="hero-copy">
-      <span class="hero-kicker">Campaign Funnel</span>
-      <h1>Lead Metrics</h1>
-      <p>Track landing-page performance — views, inquiries, and leads generated for each campaign.</p>
+    <div class="hero-left">
+      <button mat-icon-button class="back-btn" type="button" (click)="goBack()" matTooltip="Back to all campaigns">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="hero-copy">
+        <span class="hero-kicker">Campaign Details</span>
+        <div class="title-row">
+          <h1>{{ campaignTitle() || 'Loading...' }}</h1>
+          @if (campaignStatus()) {
+            <span class="status-badge" [class]="'status-badge status-' + campaignStatus()">
+              {{ campaignStatus() | titlecase }}
+            </span>
+          }
+        </div>
+      </div>
     </div>
 
     <div class="hero-actions">
@@ -58,105 +69,91 @@
       <div class="loading-copy">
         <mat-spinner diameter="34" />
         <div>
-          <strong>Loading metrics</strong>
-          <small>Compiling campaign lead performance data.</small>
+          <strong>Loading campaign details</strong>
+          <small>Compiling promotion and daily lead data.</small>
         </div>
       </div>
     </section>
   } @else if (error()) {
     <section class="empty-state">
       <mat-icon>insights</mat-icon>
-      <h2>Metrics need another try</h2>
+      <h2>Could not load details</h2>
       <p>{{ error() }}</p>
       <button mat-stroked-button type="button" (click)="refreshNow()">Retry</button>
     </section>
   } @else {
-    @if (data(); as d) {
     <section class="overview-strip">
       <div class="overview-card">
         <mat-icon>visibility</mat-icon>
-        <strong>{{ formatNumber(totalViews()) }}</strong>
+        <strong>{{ formatNumber(summary().totalViews) }}</strong>
         <span>Landing Views</span>
       </div>
       <div class="overview-card">
         <mat-icon>contact_phone</mat-icon>
-        <strong>{{ formatNumber(totalContactMe()) }}</strong>
+        <strong>{{ formatNumber(summary().totalContactMe) }}</strong>
         <span>Contact Me</span>
       </div>
       <div class="overview-card">
+        <mat-icon>description</mat-icon>
+        <strong>{{ formatNumber(summary().totalFormViews) }}</strong>
+        <span>Form Views</span>
+      </div>
+      <div class="overview-card">
         <mat-icon>person_add</mat-icon>
-        <strong>{{ formatNumber(totalLeads()) }}</strong>
+        <strong>{{ formatNumber(summary().totalLeads) }}</strong>
         <span>Leads</span>
       </div>
       <div class="overview-card">
+        <mat-icon>error_outline</mat-icon>
+        <strong>{{ formatNumber(summary().totalFailures) }}</strong>
+        <span>Failures</span>
+      </div>
+      <div class="overview-card">
         <mat-icon>trending_up</mat-icon>
-        <strong>{{ formatNumber(aggregateRate()) }}%</strong>
+        <strong>{{ formatNumber(summary().conversionRate) }}%</strong>
         <span>Conv. Rate</span>
       </div>
     </section>
 
-    @if (topCampaign() || topPromoter()) {
-      <section class="highlights-strip">
-        @if (topCampaign(); as top) {
-          <article class="highlight-card">
-            <mat-icon class="hl-icon campaign">trophy</mat-icon>
-            <div>
-              <span class="hl-label">Top Campaign</span>
-              <strong>{{ top.title }}</strong>
-              <em>{{ top.count }} leads</em>
-            </div>
-          </article>
-        }
-        @if (topPromoter(); as top) {
-          <article class="highlight-card">
-            <mat-icon class="hl-icon promoter">person</mat-icon>
-            <div>
-              <span class="hl-label">Top Promoter</span>
-              <strong>{{ top.name }}</strong>
-              <em>{{ top.count }} leads</em>
-            </div>
-          </article>
-        }
-      </section>
-    }
-
     <section class="panel-card table-panel">
       <div class="panel-head">
         <div>
-          <h2>Campaign Breakdown</h2>
-          <p>Per-campaign landing funnel — views, inquiries, leads, and conversion rate.</p>
+          <h2>Per-Promotion Breakdown</h2>
+          <p>Performance by promoter — views, inquiries, leads per promotion.</p>
         </div>
       </div>
 
-      @if (hasData()) {
+      @if (hasPromotions()) {
         <div class="table-wrap">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Campaign</th>
-                <th>Status</th>
+                <th>Promoter</th>
+                <th>UPI</th>
                 <th>Landing Views</th>
                 <th>Contact Me</th>
+                <th>Form Views</th>
                 <th>Leads</th>
-                <th>Conv. Rate</th>
+                <th>Failures</th>
               </tr>
             </thead>
             <tbody>
-              @for (row of campaignBreakdown(); track trackByCampaignId($index, row)) {
-                <tr class="clickable-row" (click)="navigateToDetail(row.campaignId)" (keydown.enter)="navigateToDetail(row.campaignId)" tabindex="0" role="button" [attr.aria-label]="'View metrics for ' + row.title">
-                  <td data-label="Campaign">
-                    <strong>{{ row.title }}</strong>
-                    @if (topCampaign()?.campaignId === row.campaignId) {
-                      <span class="top-badge"><mat-icon>stars</mat-icon> Top</span>
-                    }
+              @for (row of promotionBreakdown(); track trackByPromotionId($index, row)) {
+                <tr>
+                  <td data-label="Promoter">
+                    <div class="promoter-cell">
+                      <img [src]="row.promoterAvatar || 'img/avatar.png'" alt="" class="promoter-avatar" />
+                      <strong>{{ row.promoterName }}</strong>
+                    </div>
                   </td>
-                  <td data-label="Status">
-                    <span class="status-badge" [class]="'status-badge status-' + row.status">{{ row.status | titlecase }}</span>
+                  <td data-label="UPI">
+                    <code>{{ row.upi || '—' }}</code>
                   </td>
                   <td data-label="Landing Views">{{ formatNumber(row.landingViews) }}</td>
                   <td data-label="Contact Me">{{ formatNumber(row.contactMe) }}</td>
+                  <td data-label="Form Views">{{ formatNumber(row.formViews) }}</td>
                   <td data-label="Leads">{{ formatNumber(row.leads) }}</td>
-                  <td data-label="Conv. Rate">{{ formatNumber(row.conversionRate) }}%</td>
+                  <td data-label="Failures">{{ formatNumber(row.failures) }}</td>
                 </tr>
               }
             </tbody>
@@ -165,7 +162,7 @@
       } @else {
         <div class="inline-empty">
           <mat-icon>campaign</mat-icon>
-          <p>No lead activity has been recorded for your campaigns yet.</p>
+          <p>No promotion-level event data recorded for this campaign yet.</p>
         </div>
       }
     </section>
@@ -173,41 +170,35 @@
     <section class="panel-card table-panel">
       <div class="panel-head">
         <div>
-          <h2>Recent Lead Successes</h2>
-          <p>Latest leads generated across your campaigns.</p>
+          <h2>Daily Event Log</h2>
+          <p>Date-by-date breakdown of landing-page funnel events for this campaign.</p>
         </div>
       </div>
 
-      @if (hasData()) {
+      @if (hasDailyData()) {
         <div class="table-wrap">
-          <table class="data-table compact">
+          <table class="data-table">
             <thead>
               <tr>
-                <th>Campaign</th>
-                <th>Status</th>
-                <th>Leads</th>
+                <th>Date</th>
+                <th>Landing Views</th>
+                <th>Contact Me</th>
                 <th>Form Views</th>
+                <th>Leads</th>
                 <th>Failures</th>
-                <th>Contact Rate</th>
               </tr>
             </thead>
             <tbody>
-              @for (row of campaignBreakdown(); track trackByCampaignId($index, row)) {
-                <tr class="clickable-row" (click)="navigateToDetail(row.campaignId)" (keydown.enter)="navigateToDetail(row.campaignId)" tabindex="0" role="button" [attr.aria-label]="'View metrics for ' + row.title">
-                  <td data-label="Campaign"><strong>{{ row.title }}</strong></td>
-                  <td data-label="Status">
-                    <span class="status-badge" [class]="'status-badge status-' + row.status">{{ row.status | titlecase }}</span>
+              @for (row of dailySeries(); track trackByDate($index, row)) {
+                <tr>
+                  <td data-label="Date">
+                    <strong>{{ row.date | date:'mediumDate' }}</strong>
                   </td>
-                  <td data-label="Leads">{{ formatNumber(row.leads) }}</td>
+                  <td data-label="Landing Views">{{ formatNumber(row.landingViews) }}</td>
+                  <td data-label="Contact Me">{{ formatNumber(row.contactMe) }}</td>
                   <td data-label="Form Views">{{ formatNumber(row.formViews) }}</td>
+                  <td data-label="Leads">{{ formatNumber(row.leads) }}</td>
                   <td data-label="Failures">{{ formatNumber(row.failures) }}</td>
-                  <td data-label="Contact Rate">
-                    @if (row.landingViews) {
-                      {{ formatNumber((row.contactMe / row.landingViews) * 100, 1) }}%
-                    } @else {
-                      0%
-                    }
-                  </td>
                 </tr>
               }
             </tbody>
@@ -216,10 +207,9 @@
       } @else {
         <div class="inline-empty">
           <mat-icon>insights</mat-icon>
-          <p>No lead data to display yet.</p>
+          <p>No daily event data for the selected period.</p>
         </div>
       }
     </section>
-    }
   }
 </section>

@@ -245,7 +245,7 @@
                 </div>
                 <h4>{{ thread.title }}</h4>
                 <p>{{ thread.content }}</p>
-                @if (thread.topicTags?.length) {
+                @if (thread.topicTags.length) {
                   <div class="highlight-tags">
                     @for (topic of thread.topicTags.slice(0, 3); track topic) {
                       <span>#{{ topic }}</span>
@@ -412,10 +412,10 @@
               <div class="comment-list">
                 @for (comment of comments(); track trackByCommentId($index, comment)) {
                   <article class="comment-item">
-                    <img [src]="comment.user?.avatar || 'img/avatar.png'" [alt]="comment.user?.displayName || 'Comment author'" class="comment-avatar">
+                    <img [src]="comment.user.avatar || 'img/avatar.png'" [alt]="comment.user.displayName || 'Comment author'" class="comment-avatar">
                     <div class="comment-copy">
                       <header>
-                        <strong>{{ comment.user?.displayName || comment.user?.username || 'Member' }}</strong>
+                        <strong>{{ comment.user.displayName || comment.user.username || 'Member' }}</strong>
                         <span>{{ formatCommentTime(comment.createdAt) }}</span>
                       </header>
                       <p>{{ comment.content }}</p>
@@ -431,10 +431,10 @@
                         <div class="reply-list">
                           @for (reply of comment.replies || []; track reply._id) {
                             <article class="reply-item">
-                              <img [src]="reply.user?.avatar || 'img/avatar.png'" [alt]="reply.user?.displayName || 'Reply author'" class="comment-avatar small">
+                              <img [src]="reply.user.avatar || 'img/avatar.png'" [alt]="reply.user.displayName || 'Reply author'" class="comment-avatar small">
                               <div class="comment-copy">
                                 <header>
-                                  <strong>{{ reply.user?.displayName || reply.user?.username || 'Member' }}</strong>
+                                  <strong>{{ reply.user.displayName || reply.user.username || 'Member' }}</strong>
                                   <span>{{ formatCommentTime(reply.createdAt) }}</span>
                                 </header>
                                 <p>{{ reply.content }}</p>

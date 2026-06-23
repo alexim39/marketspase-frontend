@@ -335,8 +335,8 @@ $comment-rail-width: 420px;
 
       .featured-badge {
         position: absolute;
-        top: $spacing-1;
-        left: 5em;
+        top: -1em;
+        left: 25em;
         display: flex;
         align-items: center;
         gap: $spacing-1;

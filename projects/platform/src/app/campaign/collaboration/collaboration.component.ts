@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   CollaborationStarterCampaign,
   CollaborationStarterPromotion,
@@ -54,6 +55,7 @@ interface RecentCollaborator {
     TextFieldModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatTooltipModule,
   ],
   providers: [DatePipe, TitleCasePipe],
   templateUrl: './collaboration.component.html',
@@ -85,6 +87,13 @@ export class CampaignCollaborationComponent {
   readonly draftMessage = signal('');
   readonly kindFilter = signal<ConversationKind>('all');
   readonly error = signal<string | null>(null);
+  readonly typingUsers = signal<Map<string, string>>(new Map());
+  readonly pinnedMessages = signal<CollaborationMessage[]>([]);
+  readonly activeSection = signal<'activity' | 'direct' | 'rooms'>('activity');
+  readonly mentionQuery = signal('');
+  readonly mentionSuggestions = signal<Array<{ username: string; displayName: string }>>([]);
+  readonly showMentionDropdown = signal(false);
+  private typingTimer: any = null;
   readonly isMarketer = computed(() => this.currentUser()?.role === 'marketer');
   readonly isPromoter = computed(() => this.currentUser()?.role === 'promoter');
   protected readonly messageStreamRef = viewChild<ElementRef<HTMLElement>>('messageStream');
@@ -247,6 +256,16 @@ export class CampaignCollaborationComponent {
           promotionId: params.get('promotionId'),
           targetUserId: params.get('targetUserId'),
         };
+        const section = params.get('section');
+        if (section === 'direct') {
+          this.kindFilter.set('direct');
+          this.activeSection.set('direct');
+        } else if (section === 'rooms') {
+          this.kindFilter.set('campaign_room');
+          this.activeSection.set('rooms');
+        } else {
+          this.activeSection.set('activity');
+        }
         this.resolvePendingContext();
       });
 
@@ -274,6 +293,24 @@ export class CampaignCollaborationComponent {
         );
       });
 
+    this.realtimeService.typing$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        const currentConv = this.selectedConversation();
+        if (!currentConv || event.conversationId !== currentConv._id) return;
+        if (event.userId === this.currentUser()?._id) return;
+
+        this.typingUsers.update((map) => {
+          const next = new Map(map);
+          if (event.action === 'start') {
+            next.set(event.userId, event.displayName);
+          } else {
+            next.delete(event.userId);
+          }
+          return next;
+        });
+      });
+
     effect(() => {
       const user = this.currentUser();
       if (!user?._id || this.initializedForUserId === user._id) {
@@ -294,6 +331,13 @@ export class CampaignCollaborationComponent {
 
   setKindFilter(kind: string): void {
     this.kindFilter.set(kind as ConversationKind);
+    if (kind === 'direct') {
+      this.activeSection.set('direct');
+    } else if (kind === 'campaign_room' || kind === 'promotion_room') {
+      this.activeSection.set('rooms');
+    } else {
+      this.activeSection.set('activity');
+    }
   }
 
   selectConversation(conversation: CollaborationConversation, updateRoute: boolean = true): void {
@@ -332,6 +376,99 @@ export class CampaignCollaborationComponent {
           this.error.set(error?.error?.message || 'We could not load this conversation right now.');
         }
       });
+  }
+
+  onDraftChange(value: string): void {
+    this.draftMessage.set(value);
+    const conv = this.selectedConversation();
+    if (!conv) return;
+
+    if (value.trim()) {
+      this.realtimeService.emitTyping(conv._id, 'start');
+      if (this.typingTimer) clearTimeout(this.typingTimer);
+      this.typingTimer = setTimeout(() => {
+        this.realtimeService.emitTyping(conv._id, 'stop');
+      }, 3000);
+    } else {
+      this.realtimeService.emitTyping(conv._id, 'stop');
+      if (this.typingTimer) {
+        clearTimeout(this.typingTimer);
+        this.typingTimer = null;
+      }
+    }
+
+    // Mention suggestion detection
+    const cursorPos = this.extractMentionQuery(value);
+    if (cursorPos !== null) {
+      const afterAt = value.slice(cursorPos + 1);
+      const query = afterAt.split(/\s/)[0].toLowerCase();
+      this.mentionQuery.set(query);
+      const allParticipants = this.getConversationParticipants(conv);
+      const filtered = allParticipants.filter(
+        (p) => p.username.toLowerCase().includes(query),
+      );
+      this.mentionSuggestions.set(query ? filtered : allParticipants);
+      this.showMentionDropdown.set(true);
+    } else {
+      this.showMentionDropdown.set(false);
+    }
+  }
+
+  readonly typingIndicatorText = computed(() => {
+    const typing = this.typingUsers();
+    if (typing.size === 0) return '';
+    const names = Array.from(typing.values());
+    if (names.length === 1) return `${names[0]} is typing...`;
+    if (names.length === 2) return `${names[0]} and ${names[1]} are typing...`;
+    return `${names[0]} and ${names.length - 1} others are typing...`;
+  });
+
+  private extractMentionQuery(value: string): number | null {
+    const idx = value.lastIndexOf('@');
+    if (idx === -1) return null;
+    const afterAt = value.slice(idx + 1);
+    if (afterAt.includes(' ')) return null;
+    return idx;
+  }
+
+  private getConversationParticipants(conv: any): Array<{ userId: string; username: string; displayName: string }> {
+    const result: Array<{ userId: string; username: string; displayName: string }> = [];
+    const participants = conv.participants || [];
+
+    for (const p of participants) {
+      const user = p?.user || p || {};
+      const username = user?.username || '';
+      if (username && user?._id && user._id !== this.currentUser()?._id) {
+        result.push({
+          userId: String(user._id),
+          username,
+          displayName: user?.displayName || username,
+        });
+      }
+    }
+
+    // Fallback for direct chats: use counterpart if participants didn't yield results
+    if (result.length === 0 && conv.type === 'direct' && conv.counterpart?.username) {
+      result.push({
+        userId: String(conv.counterpart._id),
+        username: conv.counterpart.username,
+        displayName: conv.counterpart.displayName || conv.counterpart.username,
+      });
+    }
+
+    return result;
+  }
+
+  insertMention(suggestion: { username: string }): void {
+    const draft = this.draftMessage();
+    const idx = draft.lastIndexOf('@');
+    if (idx === -1) return;
+    const before = draft.slice(0, idx);
+    const rest = draft.slice(idx).replace(/^@\w*/, `@${suggestion.username} `);
+    const newValue = before + rest;
+    this.draftMessage.set(newValue);
+    this.showMentionDropdown.set(false);
+    this.mentionQuery.set('');
   }
 
   sendMessage(): void {
@@ -438,7 +575,51 @@ export class CampaignCollaborationComponent {
   }
 
   isFailedMessage(message: CollaborationMessage): boolean {
-    return message.deliveryStatus === 'failed';
+    return (message as any).deliveryStatus === 'failed';
+  }
+
+  getMessageReadStatus(message: CollaborationMessage): string | null {
+    const readBy = message.readBy || [];
+    const otherReaders = readBy.filter((r) => r.user !== this.currentUser()?._id);
+    if (otherReaders.length === 0) return null;
+
+    const latestRead = otherReaders.reduce((latest, r) => {
+      const time = new Date(r.readAt).getTime();
+      return time > latest ? time : latest;
+    }, 0);
+
+    const diffMs = Date.now() - latestRead;
+    if (diffMs < 60000) return 'Seen just now';
+    if (diffMs < 3600000) return `Seen ${Math.floor(diffMs / 60000)}m ago`;
+    return `Seen by ${otherReaders.length}`;
+  }
+
+  togglePinMessage(message: CollaborationMessage): void {
+    const conv = this.selectedConversation();
+    if (!conv) return;
+
+    const isPinned = (message as any).isPinned;
+    const request = isPinned
+      ? this.collaborationService.unpinMessage(conv._id, message._id)
+      : this.collaborationService.pinMessage(conv._id, message._id);
+
+    request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.messages.update((msgs) =>
+          msgs.map((m) => m._id === message._id ? { ...m, isPinned: !isPinned } : m)
+        );
+        this.snackBar.open(isPinned ? 'Unpinned' : 'Pinned', 'OK', { duration: 1500 });
+      },
+      error: () => this.snackBar.open('Failed to update pin', 'Close', { duration: 2000 }),
+    });
+  }
+
+  getMessageHtml(content: string): string {
+    return String(content || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/@(\w{2,30})/g, '<span class="mention">@$1</span>');
   }
 
   retryFailedMessage(message: CollaborationMessage): void {

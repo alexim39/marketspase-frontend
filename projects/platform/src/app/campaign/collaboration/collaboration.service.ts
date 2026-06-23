@@ -141,6 +141,49 @@ export interface LeadAnalyticsResponse {
   generatedAt: string;
 }
 
+export interface LeadPromotionRow {
+  promotionId: string | null;
+  upi: string;
+  promoterName: string;
+  promoterAvatar?: string;
+  landingViews: number;
+  contactMe: number;
+  formViews: number;
+  leads: number;
+  failures: number;
+}
+
+export interface LeadDailyRow {
+  date: string;
+  landingViews: number;
+  contactMe: number;
+  formViews: number;
+  leads: number;
+  failures: number;
+}
+
+export interface LeadDetailResponse {
+  success: boolean;
+  data: {
+    campaign: {
+      campaignId: string;
+      title: string;
+      status: string;
+    };
+    summary: {
+      totalViews: number;
+      totalLeads: number;
+      totalContactMe: number;
+      totalFormViews: number;
+      totalFailures: number;
+      conversionRate: number;
+    };
+    promotionBreakdown: LeadPromotionRow[];
+    dailySeries: LeadDailyRow[];
+  };
+  generatedAt: string;
+}
+
 export interface CollaborationStarterCampaign extends CampaignInterface {}
 
 export interface CollaborationStarterPromotion extends PromotionInterface {}
@@ -155,6 +198,18 @@ export interface CollaborationParticipant {
     isVerified?: boolean;
   };
   role: string;
+}
+
+export interface DashboardConversation {
+  _id: string;
+  type: string;
+  title: string;
+  lastMessagePreview: string;
+  lastMessageBy: { displayName: string; username: string; avatar?: string } | null;
+  lastMessageAt: string | Date;
+  isUnread: boolean;
+  campaignId: string | null;
+  promotionId: string | null;
 }
 
 export interface CollaborationConversation {
@@ -213,6 +268,11 @@ export interface CollaborationMessage {
     label?: string;
     url?: string;
   }>;
+  readBy?: Array<{
+    user: string;
+    readAt: string | Date;
+  }>;
+  isPinned?: boolean;
   createdAt: string | Date;
   updatedAt?: string | Date;
 }
@@ -321,6 +381,15 @@ export class CollaborationService {
     );
   }
 
+  getCampaignLeadDetail(campaignId: string, filters: AnalyticsFilters = {}): Observable<LeadDetailResponse> {
+    return this.apiService.get<LeadDetailResponse>(
+      `api/v1/campaign/analytics/marketer/leads/${campaignId}`,
+      this.buildParams(filters),
+      undefined,
+      true
+    );
+  }
+
   getPromoterAnalytics(userId: string, filters: AnalyticsFilters = {}): Observable<AnalyticsResponse> {
     return this.apiService.get<AnalyticsResponse>(
       `api/v1/promotion/analytics/promoter/${userId}`,
@@ -414,6 +483,24 @@ export class CollaborationService {
     );
   }
 
+  getUnreadCount(): Observable<{ success: boolean; data: { unreadCount: number } }> {
+    return this.apiService.get<{ success: boolean; data: { unreadCount: number } }>(
+      'api/v1/collaboration/unread-count',
+      undefined,
+      undefined,
+      true
+    );
+  }
+
+  getDashboardConversations(): Observable<{ success: boolean; data: { conversations: DashboardConversation[] } }> {
+    return this.apiService.get<{ success: boolean; data: { conversations: DashboardConversation[] } }>(
+      'api/v1/collaboration/dashboard',
+      undefined,
+      undefined,
+      true
+    );
+  }
+
   openCampaignConversation(campaignId: string): Observable<{ success: boolean; data: CollaborationConversation }> {
     return this.apiService.post<{ success: boolean; data: CollaborationConversation }>(
       `api/v1/collaboration/conversations/campaign/${campaignId}`,
@@ -466,6 +553,24 @@ export class CollaborationService {
   markConversationRead(conversationId: string): Observable<{ success: boolean; message: string }> {
     return this.apiService.patch<{ success: boolean; message: string }>(
       `api/v1/collaboration/conversations/${conversationId}/read`,
+      {},
+      undefined,
+      true
+    );
+  }
+
+  pinMessage(conversationId: string, messageId: string): Observable<{ success: boolean; data: CollaborationMessage }> {
+    return this.apiService.patch<{ success: boolean; data: CollaborationMessage }>(
+      `api/v1/collaboration/conversations/${conversationId}/messages/${messageId}/pin`,
+      {},
+      undefined,
+      true
+    );
+  }
+
+  unpinMessage(conversationId: string, messageId: string): Observable<{ success: boolean }> {
+    return this.apiService.patch<{ success: boolean }>(
+      `api/v1/collaboration/conversations/${conversationId}/messages/${messageId}/unpin`,
       {},
       undefined,
       true

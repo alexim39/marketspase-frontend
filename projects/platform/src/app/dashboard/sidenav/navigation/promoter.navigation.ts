@@ -1,7 +1,8 @@
 import { NavigationItem } from './navigation.model';
 
 export function getPromoterNavigation(
-  pendingPromotions: number
+  pendingPromotions: number,
+  unreadMessagesCount: number = 0
 ): NavigationItem[] {
   return [
     {
@@ -40,7 +41,6 @@ export function getPromoterNavigation(
         // { icon: 'design_services', label: 'Ad Template Builder', route: '/dashboard/campaigns/promotions/ad-builder' },
         { icon: 'insights', label: 'Analytics', route: '/dashboard/campaigns/analytics' },
         { icon: 'gpp_bad', label: 'Account Health', route: '/dashboard/campaigns/promotions/compliance' },
-        { icon: 'forum', label: 'Collaboration', route: '/dashboard/campaigns/collaboration' }
       ]
     },
 
@@ -57,6 +57,32 @@ export function getPromoterNavigation(
         //{ icon: 'analytics', label: 'Product Performance', route: '/dashboard/storefronts/performance' },
         //{ icon: 'star', label: 'Favorites', route: '/dashboard/storefronts/favorites' },
         //{ icon: 'rate_review', label: 'Store Reviews', route: '/dashboard/storefronts/reviews' }
+      ]
+    },
+
+    {
+      icon: 'attach_email',
+      label: 'Messages',
+      badge: unreadMessagesCount > 0 ? unreadMessagesCount : undefined,
+      badgeColor: 'warn',
+      expanded: false,
+      children: [
+        {
+          icon: 'inbox',
+          label: 'Inbox',
+          route: '/dashboard/messages/inbox'
+        },
+        {
+          icon: 'groups',
+          label: 'Group Chats',
+          route: '/dashboard/messages/groups'
+        },
+        {
+          icon: 'dynamic_feed',
+          label: 'Activity Feed',
+          //route: '/dashboard/messages/activity'
+          route: '/dashboard/campaigns/collaboration'
+        },
       ]
     },
     

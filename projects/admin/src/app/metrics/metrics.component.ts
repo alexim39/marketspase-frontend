@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -13,7 +14,7 @@ import { MetricService, CampaignMetricRow, MetricStats, TopEntry } from './metri
   standalone: true,
   providers: [MetricService, DecimalPipe, TitleCasePipe],
   imports: [
-    CommonModule, FormsModule,
+    CommonModule, FormsModule, RouterModule,
     MatIconModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSnackBarModule,
   ],
@@ -22,6 +23,7 @@ import { MetricService, CampaignMetricRow, MetricStats, TopEntry } from './metri
 })
 export class AdminMetricsComponent implements OnInit {
   readonly metricService = inject(MetricService);
+  private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly decimalPipe = inject(DecimalPipe);
   private readonly destroyRef = inject(DestroyRef);
@@ -92,5 +94,9 @@ export class AdminMetricsComponent implements OnInit {
 
   trackById(_index: number, item: CampaignMetricRow): string {
     return item.campaignId;
+  }
+
+  navigateToDetail(campaignId: string): void {
+    this.router.navigate(['/dashboard/metrics', campaignId]);
   }
 }
