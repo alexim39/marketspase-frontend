@@ -128,8 +128,16 @@ export class PromotionService {
   public api = this.apiService.getBaseUrl();
   private readonly apiUrl = 'api/v1/promotion';
 
-  getAllPromotions(): Observable<PromotionResponse> {
-    return this.apiService.get<PromotionResponse>(`${this.apiUrl}/admin/promotions`);
+  getAllPromotions(params?: {
+    status?: string; search?: string; campaign?: string;
+    page?: number; limit?: number;
+    startDate?: string; endDate?: string;
+  }): Observable<any> {
+    let httpParams = new HttpParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') httpParams = httpParams.set(k, String(v)); });
+    }
+    return this.apiService.get<any>(`${this.apiUrl}/admin/promotions`, httpParams);
   }
 
   // getPromotionsByStatus(status: string): Observable<PromotionResponse> {

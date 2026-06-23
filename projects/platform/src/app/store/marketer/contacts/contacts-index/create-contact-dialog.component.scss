@@ -88,7 +88,7 @@
 }
 
 .required-star {
-  color: $error-color-hex;
+  color: $error-color;
   margin-left: 2px;
 }
 
@@ -136,7 +136,7 @@
     line-height: 1;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.1);
+      background: rgba(var(--primary-rgb), 0.08);
     }
   }
 }

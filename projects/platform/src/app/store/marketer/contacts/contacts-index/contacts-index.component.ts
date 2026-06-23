@@ -21,6 +21,7 @@ import {
   MatDialog,
   MatDialogRef,
 } from "@angular/material/dialog";
+import { ApiService } from "@shared/services";
 
 import {
   ContactService,
@@ -28,8 +29,9 @@ import {
   CustomerGroup,
 } from "../contact.service";
 import { CreateContactDialogComponent } from "./create-contact-dialog.component";
-import { SmsDialogComponent } from "./sms-dialog.component";
-import { BulkSmsDialogComponent } from "./bulk-sms-dialog.component";
+import { ConfirmDeleteDialogComponent } from "./confirm-delete-dialog.component";
+import { SmsDialogComponent } from "./sms-dialog/sms-dialog.component";
+import { BulkSmsDialogComponent } from "./bulk-sms-dialog/bulk-sms-dialog.component";
 
 @Component({
   selector: "app-contacts-index",
@@ -52,12 +54,14 @@ import { BulkSmsDialogComponent } from "./bulk-sms-dialog.component";
     MatNativeDateModule,
     MatDialogModule,
     CreateContactDialogComponent,
+    ConfirmDeleteDialogComponent,
   ],
   templateUrl: "./contacts-index.component.html",
   styleUrls: ["./contacts-index.component.scss"],
 })
 export class ContactsIndexComponent {
   readonly contactService = inject(ContactService);
+  readonly apiService = inject(ApiService);
   readonly snackBar = inject(MatSnackBar);
   readonly dialog = inject(MatDialog);
   readonly fb = inject(FormBuilder);
@@ -80,6 +84,14 @@ export class ContactsIndexComponent {
     totals: { total: number; withSmsConsent: number; withEmailConsent: number };
     lifecycleBreakdown: Record<string, number>;
     recentAdditions: CustomerContact[];
+  } | null>(null);
+
+  // Campaign lead analytics
+  readonly leadAnalytics = signal<{
+    summary: { totalViews: number; totalLeads: number; conversionRate: number; totalContactMe: number; totalFormViews: number; totalFailures: number };
+    byCampaign: Array<{ campaignId: string; title: string; count: number }>;
+    byPromoter: Array<{ promoterId: string; name: string; count: number }>;
+    recentLeads: Array<{ campaignName: string; promoterName: string; phone: string | null; createdAt: string }>;
   } | null>(null);
 
   readonly filtersForm = this.fb.group({
@@ -133,6 +145,7 @@ export class ContactsIndexComponent {
     this.loadCustomers();
     this.loadAnalytics();
     this.loadGroups();
+    this.loadLeadAnalytics();
 
     // Debounced search
     this.filtersForm.controls.search.valueChanges
@@ -292,52 +305,73 @@ export class ContactsIndexComponent {
   bulkDelete(): void {
     const count = this.selectedIds().size;
     if (count === 0) return;
-    if (!confirm(`Delete ${count} contact${count > 1 ? "s" : ""}?`)) return;
 
-    const ids = [...this.selectedIds()];
-    let done = 0;
-    ids.forEach((id) => {
-      this.contactService
-        .deleteCustomer(id)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => {
-            done++;
-            if (done === ids.length) {
-              this.selectedIds.set(new Set());
-              this.snackBar.open(`${count} contact${count > 1 ? "s" : ""} deleted`, "Close", { duration: 2400 });
-              this.loadCustomers();
-              this.loadAnalytics();
-            }
-          },
-          error: () => {
-            done++;
-            if (done === ids.length) {
-              this.snackBar.open("Some deletions failed", "Close", { duration: 3000 });
-              this.loadCustomers();
-            }
-          },
-        });
+    const ref = this.dialog.open(ConfirmDeleteDialogComponent, {
+      width: '380px',
+      data: {
+        title: 'Delete Contacts',
+        message: `Delete ${count} contact${count > 1 ? 's' : ''}?`,
+        detail: 'This action cannot be undone. The contacts will be permanently removed.',
+      },
+    });
+
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      const ids = [...this.selectedIds()];
+      let done = 0;
+      ids.forEach((id) => {
+        this.contactService.deleteCustomer(id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              done++;
+              if (done === ids.length) {
+                this.selectedIds.set(new Set());
+                this.snackBar.open(`${count} contact${count > 1 ? 's' : ''} deleted`, 'Close', { duration: 2400 });
+                this.loadCustomers();
+                this.loadAnalytics();
+              }
+            },
+            error: () => {
+              done++;
+              if (done === ids.length) {
+                this.snackBar.open('Some deletions failed', 'Close', { duration: 3000 });
+                this.loadCustomers();
+              }
+            },
+          });
+      });
     });
   }
 
   // ── CRUD ──
   deleteContact(id: string, name: string): void {
-    if (!confirm(`Delete "${name}"?`)) return;
+    const ref = this.dialog.open(ConfirmDeleteDialogComponent, {
+      width: '380px',
+      data: {
+        title: 'Delete Contact',
+        message: `Delete "${name}"?`,
+        detail: 'This action cannot be undone. The contact will be permanently removed.',
+      },
+    });
 
-    this.contactService
-      .deleteCustomer(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.snackBar.open("Contact deleted", "Close", { duration: 2400 });
-          this.loadCustomers();
-          this.loadAnalytics();
-        },
-        error: (err) => {
-          this.snackBar.open(err.error?.message || "Failed to delete", "Close", { duration: 3000 });
-        },
-      });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      this.contactService.deleteCustomer(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Contact deleted', 'Close', { duration: 2400 });
+            this.loadCustomers();
+            this.loadAnalytics();
+          },
+          error: (err) => {
+            this.snackBar.open(err.error?.message || 'Failed to delete', 'Close', { duration: 3000 });
+          },
+        });
+    });
   }
 
   handleFileImport(event: Event): void {
@@ -392,6 +426,13 @@ export class ContactsIndexComponent {
     };
 
     reader.readAsText(file);
+  }
+
+  loadLeadAnalytics(): void {
+    this.apiService.get<any>('api/v1/campaign/lead/stats').pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (r) => { if (r.success) this.leadAnalytics.set(r.data); },
+      error: () => {},
+    });
   }
 
   // ── Create / Edit Dialog ──

@@ -298,7 +298,7 @@ export class FeedService {
     totalEngagement: 0,
     topHashtag: ''
   });
-  private sortModeSignal = signal<'for_you' | 'following' | 'trending' | 'latest'>('for_you');
+  private sortModeSignal = signal<'for_you' | 'following' | 'trending' | 'latest' | 'saved'>('for_you');
 
   // Spotlight rotation
   private spotlightPostSignal = signal<FeedPost | null>(null);
@@ -641,7 +641,9 @@ export class FeedService {
         ? 'trending'
         : payload.sortMode === 'latest'
           ? 'latest'
-          : 'for_you';
+          : payload.sortMode === 'saved'
+            ? 'saved'
+            : 'for_you';
     this.sortModeSignal.set(normalizedSort);
     this.updateLikedSavedSets(newPosts);
   }

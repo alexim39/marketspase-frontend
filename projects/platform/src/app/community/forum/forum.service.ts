@@ -143,6 +143,14 @@ export interface HotTopic {
   latestActivityAt?: string;
 }
 
+export interface RecentActivityThread {
+  _id: string;
+  title: string;
+  updatedAt: string;
+  commentCount: number;
+  authorName: string;
+}
+
 export interface ForumFollows {
   followedTopics: string[];
   followedThreads: Thread[];
@@ -285,6 +293,11 @@ export class ForumService {
 
   getCategories(): Observable<any> {
     return this.apiService.get<any>(`${this.apiUrl}/categories`, undefined, undefined, true);
+  }
+
+  getRecentActivity(limit: number = 5): Observable<{ success: boolean; data: RecentActivityThread[] }> {
+    const params = new HttpParams().set('limit', limit.toString());
+    return this.apiService.get<{ success: boolean; data: RecentActivityThread[] }>(`${this.apiUrl}/threads/recent-activity`, params, undefined, true);
   }
 
   addComment(threadId: string, content: string, _authorId?: string, parentCommentId?: string): Observable<any> {

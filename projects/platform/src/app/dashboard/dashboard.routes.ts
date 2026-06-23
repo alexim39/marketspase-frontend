@@ -76,6 +76,14 @@ export const dashboardRoutes: Routes = [
                 path: 'notifications',
                 loadComponent: () => import('./notification/notification-center/index.component').then(c => c.NotificationCenterIndexComponent),
             },
+            {
+                path: 'messages',
+                children: [
+                    { path: 'inbox', redirectTo: '/dashboard/campaigns/collaboration?section=direct', pathMatch: 'full' },
+                    { path: 'groups', redirectTo: '/dashboard/campaigns/collaboration?section=rooms', pathMatch: 'full' },
+                    { path: '**', redirectTo: '/dashboard/campaigns/collaboration' },
+                ],
+            },
             // { path: 'settings', loadChildren: () => import('./settings/settings-routes').then(r => r.SettingsRoutes) },            
             // { path: 'support', loadChildren: () => import('./support/support-routes').then(r => r.SupportRoutes) },            
             // { path: 'business', loadChildren: () => import('./business/business-routes').then(r => r.BusinessRoutes) },            

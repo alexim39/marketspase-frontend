@@ -18,7 +18,7 @@
   min-height: 60px;
   margin: -12px -12px 12px;
   padding: 8px 12px;
-  background: rgba(248, 250, 252, 0.95);
+  background: color-mix(in srgb, var(--background-color) 95%, transparent);
   border-bottom: 1px solid rgba(148, 163, 184, 0.22);
   backdrop-filter: blur(14px);
 
@@ -55,7 +55,7 @@
   border-radius: 24px;
   color: var(--on-primary-color);
   background:
-    linear-gradient(135deg, rgba(15, 118, 110, 0.94), rgba(15, 23, 42, 0.96)),
+    linear-gradient(135deg, rgba(var(--primary-rgb), 0.94), rgba(15, 23, 42, 0.96)),
     radial-gradient(circle at top right, rgba(250, 204, 21, 0.34), transparent 36%);
   box-shadow: 0 20px 42px rgba(15, 23, 42, 0.16);
 
@@ -114,7 +114,7 @@
 
 .hero-actions button {
   flex: 1;
-  color: #0f766e;
+  color: var(--primary-color);
   background: var(--surface-color);
 }
 
@@ -148,7 +148,7 @@
     display: grid;
     place-items: center;
     color: var(--on-primary-color);
-    background: #0f766e;
+    background: var(--primary-color);
   }
 
   strong,
@@ -199,7 +199,7 @@
   }
 
   strong {
-    color: #0f766e;
+    color: var(--primary-color);
     font-size: 20px;
   }
 
@@ -273,17 +273,17 @@
   font-weight: 900;
 
   &.active {
-    border-color: rgba(15, 118, 110, 0.32);
-    color: #0f766e;
-    background: color-mix(in srgb, #10b981, var(--surface-color) 88%);
+    border-color: rgba(var(--primary-rgb), 0.32);
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color), var(--surface-color) 88%);
   }
 }
 
 .filter-button {
   width: 100%;
   margin-top: 2px;
-  color: #0f766e;
-  background: color-mix(in srgb, #10b981, var(--surface-color) 88%);
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color), var(--surface-color) 88%);
 
   span {
     min-width: 24px;
@@ -292,7 +292,7 @@
     display: inline-grid;
     place-items: center;
     color: var(--on-primary-color);
-    background: #0f766e;
+    background: var(--primary-color);
     font-size: 12px;
   }
 }
@@ -308,9 +308,9 @@
   margin-bottom: 12px;
   padding: 10px;
   border-radius: 18px;
-  color: #0f766e;
-  background: color-mix(in srgb, #10b981, var(--surface-color) 88%);
-  border: 1px solid rgba(15, 118, 110, 0.18);
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color), var(--surface-color) 88%);
+  border: 1px solid rgba(var(--primary-rgb), 0.18);
 
   strong,
   span {
@@ -320,7 +320,7 @@
   button {
     min-height: 42px;
     padding: 0 10px;
-    color: #0f766e;
+    color: var(--primary-color);
     background: var(--surface-color);
   }
 }
@@ -365,7 +365,7 @@
 input[type='checkbox'] {
   width: 20px;
   height: 20px;
-  accent-color: #0f766e;
+  accent-color: var(--primary-color);
 }
 
 .mobile-state {
@@ -396,7 +396,7 @@ input[type='checkbox'] {
   margin-bottom: 12px;
 
   &.active {
-    border-color: rgba(15, 118, 110, 0.38);
+    border-color: rgba(var(--primary-rgb), 0.38);
   }
 }
 
@@ -413,8 +413,8 @@ input[type='checkbox'] {
   border-radius: 18px;
   display: grid;
   place-items: center;
-  color: #0f766e;
-  background: color-mix(in srgb, #14b8a6, var(--surface-color) 78%);
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color), var(--surface-color) 78%);
   font-weight: 900;
 }
 
@@ -451,8 +451,8 @@ input[type='checkbox'] {
   width: fit-content;
   padding: 5px 10px;
   border-radius: 999px;
-  background: color-mix(in srgb, #10b981, var(--surface-color) 88%);
-  color: #0f766e;
+  background: color-mix(in srgb, var(--primary-color), var(--surface-color) 88%);
+  color: var(--primary-color);
   font-size: 12px;
   font-weight: 900;
   text-transform: capitalize;
@@ -585,8 +585,8 @@ input[type='checkbox'] {
   display: grid;
   place-items: center;
   color: var(--on-primary-color);
-  background: #0f766e;
-  box-shadow: 0 18px 34px rgba(15, 118, 110, 0.28);
+  background: var(--primary-color);
+  box-shadow: 0 18px 34px rgba(var(--primary-rgb), 0.28);
 }
 
 .sheet-backdrop {
@@ -624,7 +624,7 @@ input[type='checkbox'] {
     }
 
     span {
-      color: #0f766e;
+      color: var(--primary-color);
       font-size: 12px;
       font-weight: 900;
       text-transform: uppercase;
@@ -662,8 +662,8 @@ input[type='checkbox'] {
     font: inherit;
 
     &:focus {
-      border-color: #0f766e;
-      box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.12);
     }
   }
 
@@ -684,7 +684,7 @@ input[type='checkbox'] {
 
 .primary-action {
   color: var(--on-primary-color);
-  background: #0f766e;
+  background: var(--primary-color);
 }
 
 .secondary-action {

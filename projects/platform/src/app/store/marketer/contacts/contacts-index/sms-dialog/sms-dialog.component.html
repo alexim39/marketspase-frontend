@@ -1,0 +1,18 @@
+ <div class="sms-dialog">
+      <h2 mat-dialog-title>Send SMS</h2>
+      <mat-dialog-content>
+        <div class="recipient-info"><strong>{{ data.customerName }}</strong><span>{{ data.phone }}</span></div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Message</mat-label>
+          <textarea matInput rows="4" [ngModel]="message()" (ngModelChange)="message.set($event)" maxlength="480" placeholder="Type your SMS message..."></textarea>
+          <mat-hint align="end">{{ message().length }}/480 · {{ smsCount() }} page(s) · ₦{{ totalCost() }}</mat-hint>
+        </mat-form-field>
+        <p class="cost-note">Cost: ₦{{ COST_PER_SMS }} per 160-character page. Total: ₦{{ totalCost() }}</p>
+      </mat-dialog-content>
+      <mat-dialog-actions align="end">
+        <button mat-button [disabled]="sending()" (click)="close()">Cancel</button>
+        <button mat-flat-button color="primary" [disabled]="sending() || !message().trim()" (click)="send()">
+          @if (sending()) { <mat-spinner diameter="18"></mat-spinner> } @else { Send SMS (₦{{ totalCost() }}) }
+        </button>
+      </mat-dialog-actions>
+    </div>

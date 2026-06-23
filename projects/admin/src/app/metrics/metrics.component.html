@@ -1,0 +1,168 @@
+<div class="page-shell">
+  <!-- Header -->
+  <section class="hero-section">
+    <div class="page-header">
+      <div>
+        <p class="eyebrow">Campaign Metrics</p>
+        <h2>Platform-wide lead funnel performance</h2>
+      </div>
+      <button class="refresh-btn" (click)="loadMetrics()" [disabled]="loading()" matTooltip="Refresh">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-content">
+          <mat-icon class="stat-icon">visibility</mat-icon>
+          <div class="stat-details">
+            <span class="stat-value">{{ formatNumber(totalViews()) }}</span>
+            <span class="stat-label">Landing Views</span>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <span class="stat-dot active"></span>
+          <div class="stat-details">
+            <span class="stat-value active-val">{{ formatNumber(totalLeads()) }}</span>
+            <span class="stat-label">Total Leads</span>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <mat-icon class="stat-icon">contact_phone</mat-icon>
+          <div class="stat-details">
+            <span class="stat-value">{{ formatNumber(totalContactMe()) }}</span>
+            <span class="stat-label">Contact Me</span>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <span class="stat-dot pending"></span>
+          <div class="stat-details">
+            <span class="stat-value">{{ formatNumber(conversionRate()) }}%</span>
+            <span class="stat-label">Conv. Rate</span>
+          </div>
+        </div>
+      </div>
+      @if (topCampaign() || topPromoter()) {
+        <div class="stat-card">
+          <div class="stat-content">
+            <mat-icon class="stat-icon trophy">trophy</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value" style="font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;">{{ topCampaign()?.title || topPromoter()?.name || 'N/A' }}</span>
+              <span class="stat-label">{{ topCampaign()?.count || topPromoter()?.count || 0 }} leads — Top {{ topCampaign() ? 'Campaign' : 'Promoter' }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <section class="filters-card">
+    <div class="filters-container">
+      <div class="filter-select-group">
+        <label class="filter-label">Date Range</label>
+        <select class="select-control" [ngModel]="range()" (ngModelChange)="range.set($event)">
+          <option value="7">Last 7 days</option>
+          <option value="30">Last 30 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+
+      @if (range() === 'custom') {
+        <div class="filter-select-group">
+          <label class="filter-label">Start</label>
+          <input type="date" class="select-control" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)" />
+        </div>
+        <div class="filter-select-group">
+          <label class="filter-label">End</label>
+          <input type="date" class="select-control" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)" />
+        </div>
+      }
+
+      <button type="button" class="filter-btn primary" (click)="applyFilters()">
+        <mat-icon>filter_alt</mat-icon>
+        Apply
+      </button>
+      <button type="button" class="filter-btn" (click)="clearFilters()">Clear</button>
+    </div>
+  </section>
+
+  <!-- Table -->
+  <section class="management-section">
+    <div class="section-header">
+      <span>
+        @if (!loading()) {
+          {{ campaignBreakdown().length }} campaigns shown
+        }
+      </span>
+      @if (loading()) {
+        <mat-spinner diameter="20" />
+      }
+    </div>
+
+    @if (loading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="36" />
+        <p>Loading metrics...</p>
+      </div>
+    } @else if (error()) {
+      <div class="empty-container">
+        <mat-icon>error_outline</mat-icon>
+        <h3>Something went wrong</h3>
+        <p>{{ error() }}</p>
+        <button class="retry-btn" (click)="loadMetrics()">Retry</button>
+      </div>
+    } @else if (!hasData()) {
+      <div class="empty-container">
+        <mat-icon>insights</mat-icon>
+        <h3>No campaign activity yet</h3>
+        <p>Campaign funnel events will appear here as promotions start receiving traffic and leads.</p>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Campaign</th>
+              <th>Status</th>
+              <th>Landing Views</th>
+              <th>Contact Me</th>
+              <th>Form Views</th>
+              <th>Leads</th>
+              <th>Failures</th>
+              <th>Conv. Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of campaignBreakdown(); track trackById($index, row)) {
+              <tr class="clickable-row" (click)="navigateToDetail(row.campaignId)" (keydown.enter)="navigateToDetail(row.campaignId)" tabindex="0" role="button" [attr.aria-label]="'View details for ' + row.title">
+                <td data-label="Campaign">
+                  <strong>{{ row.title }}</strong>
+                  @if (topCampaign()?.campaignId === row.campaignId) {
+                    <span class="top-badge"><mat-icon>stars</mat-icon> Top</span>
+                  }
+                </td>
+                <td data-label="Status">
+                  <span class="campaign-status" [class]="row.status">{{ row.status }}</span>
+                </td>
+                <td data-label="Landing Views">{{ formatNumber(row.landingViews) }}</td>
+                <td data-label="Contact Me">{{ formatNumber(row.contactMe) }}</td>
+                <td data-label="Form Views">{{ formatNumber(row.formViews) }}</td>
+                <td data-label="Leads">{{ formatNumber(row.leads) }}</td>
+                <td data-label="Failures">{{ formatNumber(row.failures) }}</td>
+                <td data-label="Conv. Rate">{{ formatNumber(row.conversionRate) }}%</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</div>

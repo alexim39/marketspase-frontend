@@ -284,6 +284,14 @@
     color: var(--on-primary-color);
   }
 
+  button.whatsapp {
+    background: #25D366;
+    color: white;
+    .fa {
+      font-size: 20px;
+    }
+  }
+
   button.danger {
     background: rgba($error-color, 0.12);
     color: $error-color;

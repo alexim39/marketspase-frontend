@@ -452,7 +452,7 @@ a {
   background: linear-gradient(
     90deg,
     var(--surface-color) 0%,
-    var(--divider-color) 50%,
+    rgba(var(--primary-rgb), 0.1) 50%,
     var(--surface-color) 100%
   );
   background-size: 200% 100%;

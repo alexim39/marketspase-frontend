@@ -17,6 +17,7 @@ import { GeneralMsgNotifierBannerComponent } from './notification-banner/general
 import { ProfileNotifierBannerComponent } from './notification-banner/profiile-notifier/profile-notifier-banner.component';
 import { PromoBannerComponent } from './notification-banner/promo/promo-banner.component';
 import { NotificationService } from '../notification/notification.service';
+import { CollabChatWidgetComponent } from './components/collab-chat-widget/collab-chat-widget.component';
 
 interface DashboardInsight {
   icon: string;
@@ -54,6 +55,7 @@ interface RevenueBreakdownItem {
     PromoBannerComponent,
     GeneralMsgNotifierBannerComponent,
     MatIconModule,
+    CollabChatWidgetComponent,
   ],
   providers: [DashboardService],
   templateUrl: './main-content.component.html',

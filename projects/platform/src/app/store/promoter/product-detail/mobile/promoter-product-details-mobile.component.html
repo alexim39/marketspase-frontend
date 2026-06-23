@@ -77,7 +77,7 @@
               <mat-icon>{{ stockTone(item) === 'good' ? 'inventory' : stockTone(item) === 'warn' ? 'warning' : 'block' }}</mat-icon>
               {{ stockLabel(item) }}
             </span>
-            @if (item.store?.verificationTier) {
+            @if (item.store.verificationTier) {
               <span class="status-chip trust">
                 <mat-icon>verified</mat-icon>
                 {{ item.store.verificationTier | titlecase }}
@@ -175,7 +175,7 @@
               </div>
               <div>
                 <span>Total earned</span>
-                <strong>{{ item.promotion?.earnings || 0 | currencyUtils:user()?.wallets?.promoter?.currency }}</strong>
+                <strong>{{ item.promotion.earnings || 0 | currencyUtils:user()?.wallets?.promoter?.currency }}</strong>
               </div>
               <div>
                 <span>Performance score</span>
@@ -187,33 +187,33 @@
           @case ('store') {
             <div class="store-card">
               <div class="store-avatar">
-                @if (item.store?.logo) {
+                @if (item.store.logo) {
                   <img [src]="item.store.logo" [alt]="item.store.name" />
                 } @else {
                   <mat-icon>store</mat-icon>
                 }
               </div>
               <div>
-                <h2>{{ item.store?.name || 'Store' }}</h2>
-                <p>{{ item.store?.description || 'Verified MarketSpase storefront.' }}</p>
+                <h2>{{ item.store.name || 'Store' }}</h2>
+                <p>{{ item.store.description || 'Verified MarketSpase storefront.' }}</p>
               </div>
             </div>
             <div class="info-grid store-stats">
               <div>
                 <span>Products</span>
-                <strong>{{ item.store?.productCount || 0 }}</strong>
+                <strong>{{ item.store.productCount || 0 }}</strong>
               </div>
               <div>
                 <span>Rating</span>
-                <strong>{{ item.store?.rating || 'N/A' }}</strong>
+                <strong>{{ item.store.rating || 'N/A' }}</strong>
               </div>
               <div>
                 <span>Reviews</span>
-                <strong>{{ item.store?.reviewCount || 0 }}</strong>
+                <strong>{{ item.store.reviewCount || 0 }}</strong>
               </div>
               <div>
                 <span>Joined</span>
-                <strong>{{ getFormattedDate(item.store?.createdAt || '') }}</strong>
+                <strong>{{ getFormattedDate(item.store.createdAt || '') }}</strong>
               </div>
             </div>
             @if (storeUrl(item)) {
@@ -255,9 +255,9 @@
           <div class="related-rail">
             @for (related of relatedProducts(); track related._id) {
               <button type="button" class="related-card" (click)="navigateToProduct(related)">
-                @if (related.images?.[0]?.url) {
-                  <img [src]="related.images?.[0]?.url" [alt]="related.name" loading="lazy" />
-                } @else {
+              @if (related.images[0].url) {
+                <img [src]="related.images[0].url" [alt]="related.name" loading="lazy" />
+              }@else {
                   <span class="mini-placeholder"><mat-icon>image</mat-icon></span>
                 }
                 <strong>{{ related.name }}</strong>

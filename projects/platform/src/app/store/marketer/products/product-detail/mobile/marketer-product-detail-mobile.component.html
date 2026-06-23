@@ -240,11 +240,11 @@
 
         @case ('promotion') {
           <div class="row-list">
-            <div><span>Promotion status</span><strong>{{ item.promotion?.isActive ? 'Enabled' : item.affiliate?.enabled ? 'Enabled' : 'Not enabled' }}</strong></div>
+            <div><span>Promotion status</span><strong>{{ item.promotion.isActive ? 'Enabled' : item.affiliate?.enabled ? 'Enabled' : 'Not enabled' }}</strong></div>
             <div><span>Commission</span><strong>{{ commissionText() }}</strong></div>
-            <div><span>Promotion views</span><strong>{{ item.promotion?.views || item.promotion?.viewCount || 0 }}</strong></div>
-            <div><span>Referral clicks</span><strong>{{ item.promotion?.clickCount || 0 }}</strong></div>
-            <div><span>Conversions</span><strong>{{ item.promotion?.conversions || item.promotion?.conversionCount || 0 }}</strong></div>
+            <div><span>Promotion views</span><strong>{{ item.promotion.views || item.promotion.viewCount || 0 }}</strong></div>
+            <div><span>Referral clicks</span><strong>{{ item.promotion.clickCount || 0 }}</strong></div>
+            <div><span>Conversions</span><strong>{{ item.promotion.conversions || item.promotion.conversionCount || 0 }}</strong></div>
             <div><span>Conversion rate</span><strong>{{ conversionRate() }}%</strong></div>
           </div>
         }
@@ -289,9 +289,9 @@
 
         @case ('seo') {
           <div class="row-list">
-            <div><span>SEO title</span><strong>{{ item.seo?.title || 'Not set' }}</strong></div>
-            <div><span>Slug</span><strong>{{ item.seo?.slug || 'Not set' }}</strong></div>
-            <div><span>SEO description</span><strong>{{ item.seo?.description || 'Not set' }}</strong></div>
+            <div><span>SEO title</span><strong>{{ item.seo.title || 'Not set' }}</strong></div>
+            <div><span>Slug</span><strong>{{ item.seo.slug || 'Not set' }}</strong></div>
+            <div><span>SEO description</span><strong>{{ item.seo.description || 'Not set' }}</strong></div>
           </div>
         }
 

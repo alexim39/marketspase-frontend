@@ -65,6 +65,7 @@ export class AdminDashboardComponent implements OnInit {
       isExpanded: false,
       children: [
         { id: 'all-users', title: 'All Users', icon: 'supervisor_account', route: '/dashboard/users' },
+        { id: 'active-users', title: 'Active Users', icon: 'wifi', route: '/dashboard/users/active' },
         { id: 'user-analytics', title: 'User Analytics', icon: 'insights', route: '/dashboard/users/analytics' },
         { id: 'collaboration-reviews', title: 'Collaboration Reviews', icon: 'reviews', route: '/dashboard/users/reviews' },
         { id: 'marketers', title: 'Marketers', icon: 'business', route: '/dashboard/users/marketers' },
@@ -81,7 +82,10 @@ export class AdminDashboardComponent implements OnInit {
         { id: 'all-campaigns', title: 'All Campaigns', icon: 'campaign', route: '/dashboard/campaigns' },
         { id: 'all-promotions', title: 'All Promotions', icon: 'ads_click', route: '/dashboard/promotions' },
         { id: 'ppc-analytics', title: 'PPC Analytics', icon: 'query_stats', route: '/dashboard/promotions/ppc-analytics' },
-        { id: 'promotion-fraud', title: 'Fraud Monitor', icon: 'shield', route: '/dashboard/promotions/fraud' }
+        { id: 'promotion-fraud', title: 'Fraud Monitor', icon: 'shield', route: '/dashboard/promotions/fraud' },
+        { id: 'leads', title: 'Leads', icon: 'contact_phone', route: '/dashboard/leads' },
+        { id: 'metrics', title: 'Metrics', icon: 'query_stats', route: '/dashboard/metrics' },
+
       ]
     },
     {
@@ -285,6 +289,8 @@ export class AdminDashboardComponent implements OnInit {
             const routeMapping: Record<string, string> = {
         '/dashboard/users': 'users',
         '/dashboard/campaigns': 'ads',
+        '/dashboard/leads': 'ads',
+        '/dashboard/metrics': 'ads',
         '/dashboard/promotions': 'ads',
         '/dashboard/stores': 'storefront',
         '/dashboard/financial': 'payments',

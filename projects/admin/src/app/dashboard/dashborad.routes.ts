@@ -18,23 +18,48 @@ export const dashboardRoutes: Routes = [
                 loadChildren: () => import('../users/user.routes').then(r => r.UserRoutes),
                 title: 'User Management - Admin Dashboard'
             }, 
-            {   path: 'campaigns', 
-                loadComponent: () => import('../campaign/campaign.component').then(c => c.CampaignMgtComponent),
-                title: 'Campaign Management - Admin Dashboard'
+            {   path: 'leads', 
+                loadComponent: () => import('../leads/leads.component').then(c => c.AdminLeadsComponent),
+                title: 'Campaign Leads - Admin Dashboard'
+            },
+            {   path: 'metrics',
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('../metrics/metrics.component').then(c => c.AdminMetricsComponent),
+                        title: 'Campaign Metrics - Admin Dashboard'
+                    },
+                    {
+                        path: ':campaignId',
+                        loadComponent: () => import('../metrics/campaign-metrics-detail/campaign-metrics-detail.component').then(c => c.CampaignMetricsDetailComponent),
+                        title: 'Campaign Metrics Detail - Admin Dashboard'
+                    },
+                ]
             },  
             {   path: 'promotions', 
                 loadChildren: () => import('../promotion/promotion.routes').then(r => r.PromotionRoutes),
                 title: 'Promotion Management - Admin Dashboard'
             },  
-            {   
-                path: 'campaigns/:id', 
-                loadComponent: () => import('../campaign/campaign-details/campaign-details.component').then(c => c.CampaignDetailsComponent),
-                title: 'Campaign Details - Admin Dashboard'
-            },
-            {   path: 'campaigns/:id/promotions', 
-                loadComponent: () => import('../promotion/promotion.component').then(c => c.CampaignPromotionsComponent),
-                title: 'Promotion Details - Admin Dashboard'
-            },  
+            {
+               path: 'campaigns',
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('../campaign/campaign.component').then(c => c.CampaignMgtComponent),
+                        title: 'Campaign Management - Admin Dashboard'
+                    },
+                    {
+                        path: ':id',
+                        loadComponent: () => import('../campaign/campaign-details/campaign-details.component').then(c => c.CampaignDetailsComponent),
+                        title: 'Campaign Details - Admin Dashboard'
+                    },
+                    {
+                        path: ':id/promotions',
+                        loadComponent: () => import('../promotion/promotion.component').then(c => c.CampaignPromotionsComponent),
+                        title: 'Promotion Details - Admin Dashboard'
+                    },
+                ]
+            },    
             {   path: 'testimonials', 
                 loadComponent: () => import('../testimonial/testimonial.component').then(c => c.TestimonialMgtComponent),
                 title: 'Testimonial Management - Admin Dashboard'

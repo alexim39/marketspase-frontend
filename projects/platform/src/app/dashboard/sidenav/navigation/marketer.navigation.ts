@@ -2,7 +2,8 @@ import { NavigationItem } from './navigation.model';
 
 export function getMarketerNavigation(
   pendingCampaigns: number,
-  activeCampaigns: number
+  activeCampaigns: number,
+  unreadMessagesCount: number = 0
 ): NavigationItem[] {
   return [
      {
@@ -38,7 +39,7 @@ export function getMarketerNavigation(
         { icon: 'list_alt', label: 'My Campaigns', route: '/dashboard/campaigns' },
         { icon: 'add_circle', label: 'Create Campaign', route: '/dashboard/campaigns/create' },
         { icon: 'insights', label: 'Analytics', route: '/dashboard/campaigns/analytics' },
-        { icon: 'forum', label: 'Collaboration', route: '/dashboard/campaigns/collaboration' }
+        { icon: 'bar_chart', label: 'Metrics', route: '/dashboard/campaigns/metrics' },
       ]
     },
 
@@ -97,6 +98,32 @@ export function getMarketerNavigation(
         // { icon: 'dynamic_feed', label: 'Social Media Management', route: '/dashboard/assistant/social/overview' },
         // { icon: 'analytics', label: 'Business Insights', route: '/dashboard/assistant/insights' },
         // { icon: 'settings', label: 'Settings', route: '/dashboard/assistant/settings' }
+      ]
+    },
+
+    {
+      icon: 'attach_email',
+      label: 'Messages',
+      badge: unreadMessagesCount > 0 ? unreadMessagesCount : undefined,
+      badgeColor: 'warn',
+      expanded: false,
+      children: [
+        {
+          icon: 'inbox',
+          label: 'Inbox',
+          route: '/dashboard/messages/inbox'
+        },
+        {
+          icon: 'groups',
+          label: 'Group Chats',
+          route: '/dashboard/messages/groups'
+        },
+        {
+          icon: 'dynamic_feed',
+          label: 'Activity Feed',
+          //route: '/dashboard/messages/activity'
+          route: '/dashboard/campaigns/collaboration'
+        },
       ]
     },
 

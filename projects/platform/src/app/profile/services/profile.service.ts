@@ -118,6 +118,7 @@ export interface ProfileUser {
   totalEngagements?: number;
   isFollowing: boolean;
   isOwnProfile: boolean;
+  isOnline: boolean;
   socialMetrics?: {
     totalEngagements: number;
     feedPosts: number;

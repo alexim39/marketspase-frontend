@@ -117,7 +117,71 @@
         }
 
       <section class="panel-grid two-up">
-        <article class="panel">
+      <!-- User Growth Sparkline -->
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Growth</p>
+            <h3>User Growth</h3>
+            <p>Cumulative user growth over time.</p>
+          </div>
+          <div class="growth-toggles">
+            @for (g of ['daily', 'weekly', 'monthly', 'yearly']; track g) {
+              <button class="growth-chip" [class.active]="growthGranularity() === g" (click)="setGrowthGranularity($any(g))">{{ g | titlecase }}</button>
+            }
+          </div>
+        </div>
+        <div class="sparkline-container">
+          @if (growthPoints().length > 0) {
+            <svg class="growth-sparkline" viewBox="0 0 840 145" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#8b5cf6"/>
+                  <stop offset="100%" stop-color="rgba(139,92,246,0.2)"/>
+                </linearGradient>
+              </defs>
+              <!-- Y-axis grid lines -->
+              @for (tick of yAxisTicks(); track tick.y) {
+                <line [attr.x1]="40" [attr.x2]="840" [attr.y1]="tick.y" [attr.y2]="tick.y"
+                  stroke="rgba(148,163,184,0.12)" stroke-dasharray="4,4"/>
+                <text [attr.x]="36" [attr.y]="tick.y + 4" text-anchor="end"
+                  fill="var(--admin-text-muted)" font-size="10">{{ tick.label }}</text>
+              }
+              <!-- X-axis labels -->
+              @for (lab of xAxisLabels(); track lab.x) {
+                <text [attr.x]="lab.x + 40" y="138" text-anchor="middle"
+                  fill="var(--admin-text-muted)" font-size="9">{{ lab.label }}</text>
+              }
+              <!-- Chart area (offset 40px for Y-axis) -->
+              <g transform="translate(40,0)">
+                <!-- Bars -->
+                @for (bar of growthBars(); track bar.x; let i = $index) {
+                  <rect
+                    [attr.x]="bar.x" [attr.y]="120 - bar.h"
+                    [attr.width]="bar.w" [attr.height]="bar.h" rx="2" ry="2"
+                    fill="url(#barGrad)" opacity="0.6"
+                    [matTooltip]="$any(growthPoints())[i]?.label + ' · ' + (bar.count | number) + ' new · ' + ($any(growthPoints())[i]?.cumulative | number) + ' total'"/>
+                }
+                <!-- Cumulative line -->
+                <polyline class="growth-line" [attr.points]="growthSparklinePath(growthCumulativeValues(), growthMax())"/>
+                <!-- Dots -->
+                @for (dot of growthDots(); track dot.cx; let i = $index) {
+                  <circle [attr.cx]="dot.cx" [attr.cy]="dot.cy" r="4" fill="#fff" stroke="#8b5cf6" stroke-width="1.5"
+                    style="cursor:pointer"
+                    [matTooltip]="($any(growthPoints())[i]?.cumulative | number) + ' total by ' + $any(growthPoints())[i]?.label" matTooltipPosition="above"/>
+                }
+              </g>
+            </svg>
+            <div class="growth-labels">
+              <span>{{ growthFirstLabel() }}</span>
+              <span class="growth-total">{{ growthLastCumulative() | number }} users</span>
+              <span>{{ growthLastLabel() }}</span>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="panel">
           <div class="panel-header">
             <div>
               <p class="eyebrow">Geography</p>

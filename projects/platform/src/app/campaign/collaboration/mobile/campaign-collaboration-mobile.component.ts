@@ -8,10 +8,11 @@ import { MatInputModule } from '@angular/material/input';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CampaignCollaborationComponent } from '../collaboration.component';
 import { CollaborationConversation } from '../collaboration.service';
 
-type CollaborationMobileView = 'home' | 'threads' | 'chat';
+type CollaborationMobileView = 'list' | 'chat';
 
 @Component({
   selector: 'app-campaign-collaboration-mobile',
@@ -26,6 +27,7 @@ type CollaborationMobileView = 'home' | 'threads' | 'chat';
     TextFieldModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatTooltipModule,
   ],
   providers: [DatePipe, TitleCasePipe],
   templateUrl: './campaign-collaboration-mobile.component.html',
@@ -33,15 +35,12 @@ type CollaborationMobileView = 'home' | 'threads' | 'chat';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CampaignCollaborationMobileComponent extends CampaignCollaborationComponent {
-  protected readonly activeView = signal<CollaborationMobileView>('home');
-  protected readonly filterKinds = ['all', 'direct', 'campaign_room', 'promotion_room'] as const;
+  protected readonly activeView = signal<CollaborationMobileView>('list');
 
   protected readonly latestThreads = computed(() => this.visibleConversations().slice(0, 6));
-  protected readonly threadList = computed(() => this.visibleConversations().slice(0, 30));
   protected readonly starterCampaignPreview = computed(() => this.starterCampaigns().slice(0, 4));
   protected readonly starterPromotionPreview = computed(() => this.starterPromotions().slice(0, 4));
   protected readonly collaboratorPreview = computed(() => this.recentCollaborators().slice(0, 5));
-  protected readonly hasSelectedChat = computed(() => !!this.selectedConversation());
 
   protected showView(view: CollaborationMobileView): void {
     this.activeView.set(view);
@@ -50,11 +49,5 @@ export class CampaignCollaborationMobileComponent extends CampaignCollaborationC
   protected openThread(conversation: CollaborationConversation): void {
     this.selectConversation(conversation);
     this.activeView.set('chat');
-  }
-
-  protected openSelectedChat(): void {
-    if (this.selectedConversation()) {
-      this.activeView.set('chat');
-    }
   }
 }

@@ -1,0 +1,246 @@
+<div class="page-shell">
+  <!-- Header -->
+  <section class="hero-section">
+    <div class="page-header">
+      <div>
+        <p class="eyebrow">Campaign Leads</p>
+        <h2>All leads across the platform</h2>
+      </div>
+      <button class="refresh-btn" (click)="loadLeads()" [disabled]="loading()" matTooltip="Refresh">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+
+    @if (stats(); as s) {
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-content">
+            <mat-icon class="stat-icon">person_add</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value">{{ s.totalLeads | number }}</span>
+              <span class="stat-label">Total Leads</span>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <span class="stat-dot active"></span>
+            <div class="stat-details">
+              <span class="stat-value active-val">{{ s.todayLeads | number }}</span>
+              <span class="stat-label">Today</span>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <span class="stat-dot pending"></span>
+            <div class="stat-details">
+              <span class="stat-value">{{ s.weekLeads | number }}</span>
+              <span class="stat-label">This Week</span>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <mat-icon class="stat-icon trophy">trophy</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value" style="font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">{{ s.topCampaign?.title || 'N/A' }}</span>
+              <span class="stat-label">{{ s.topCampaign?.count ?? 0 }} leads — Top Campaign</span>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <mat-icon class="stat-icon promoter">person</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value" style="font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">{{ s.topPromoter?.name || 'N/A' }}</span>
+              <span class="stat-label">{{ s.topPromoter?.count ?? 0 }} leads — Top Promoter</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- Filters -->
+  <section class="filters-card">
+    <div class="filters-container">
+      <div class="filter-field search-field">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search by name, phone, or email..."
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchInput($event)"
+        />
+        @if (searchQuery()) {
+          <button type="button" class="icon-btn" (click)="searchQuery.set(''); onSearchInput('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">Page Size</label>
+        <select class="select-control" [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
+          @for (size of pageSizeOptions; track size) {
+            <option [value]="size">{{ size }} per page</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">Start Date</label>
+        <input type="date" class="select-control" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)" />
+      </div>
+
+      <div class="filter-select-group">
+        <label class="filter-label">End Date</label>
+        <input type="date" class="select-control" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)" />
+      </div>
+
+      @if (hasFilters()) {
+        <button type="button" class="filter-btn" (click)="clearFilters()">
+          <mat-icon>filter_list_off</mat-icon>
+          Clear
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- Table -->
+  <section class="management-section">
+    <div class="section-header">
+      <span>
+        @if (!loading()) {
+          Showing {{ (currentPage() - 1) * pageSize() + 1 | number }}–{{ totalItems() | number }} of {{ totalItems() | number }} leads
+        }
+      </span>
+      @if (loading()) {
+        <mat-spinner diameter="20" />
+      }
+    </div>
+
+    @if (loading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="36" />
+        <p>Loading leads...</p>
+      </div>
+    } @else if (error()) {
+      <div class="empty-container">
+        <mat-icon>error_outline</mat-icon>
+        <h3>Something went wrong</h3>
+        <p>{{ error() }}</p>
+        <button class="retry-btn" (click)="loadLeads()">Retry</button>
+      </div>
+    } @else if (!leads().length) {
+      <div class="empty-container">
+        <mat-icon>contact_page</mat-icon>
+        <h3>No campaign leads found</h3>
+        <p>Leads will appear here as marketers receive submissions from their campaign landing pages.</p>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Lead</th>
+              <th>Phone</th>
+              <th>Campaign</th>
+              <th>Promoter</th>
+              <th>Marketer</th>
+              <th>Stage</th>
+              <th>Consent</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (lead of leads(); track trackById($index, lead)) {
+              <tr>
+                <td data-label="Lead">
+                  <div class="lead-cell">
+                    <span class="lead-avatar">{{ lead.displayName.charAt(0).toUpperCase() }}</span>
+                    <div class="lead-info">
+                      <strong>{{ lead.displayName || 'Unknown' }}</strong>
+                      @if (lead.email) { <small>{{ lead.email }}</small> }
+                    </div>
+                  </div>
+                </td>
+                <td data-label="Phone">
+                  @if (lead.phone) {
+                    <code>{{ lead.phone }}</code>
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+                <td data-label="Campaign">
+                  <div class="campaign-cell">
+                    <strong>{{ lead.campaignTitle }}</strong>
+                    <span class="campaign-status" [class]="lead.campaignStatus">{{ lead.campaignStatus }}</span>
+                  </div>
+                </td>
+                <td data-label="Promoter">
+                  @if (lead.promoterName) {
+                    <span>{{ lead.promoterName }}</span>
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+                <td data-label="Marketer">
+                  <span>{{ lead.marketerName }}</span>
+                </td>
+                <td data-label="Stage">
+                  <span class="stage-badge" [class]="lifecycleClass(lead.lifecycleStage)">{{ lead.lifecycleStage | titlecase }}</span>
+                </td>
+                <td data-label="Consent">
+                  <span class="consent-badges">
+                    @if (lead.consent.email) { <span class="cb email" matTooltip="Email consent">E</span> }
+                    @if (lead.consent.sms) { <span class="cb sms" matTooltip="SMS consent">S</span> }
+                    @if (!lead.consent.email && !lead.consent.sms) { <span class="text-muted">—</span> }
+                  </span>
+                </td>
+                <td data-label="Date">{{ formatDate(lead.createdAt) }}</td>
+                <td data-label="">
+                  <button class="delete-btn" matTooltip="Permanently delete this lead" (click)="deleteLead(lead._id, lead.displayName || 'Unknown')">
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination-row">
+        <button class="page-btn" [disabled]="currentPage() === 1" (click)="goToPage(1)">
+          <mat-icon>first_page</mat-icon>
+        </button>
+        <button class="page-btn" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        @for (pg of visiblePages; track pg) {
+          @if (pg === -1) {
+            <span class="page-ellipsis">...</span>
+          } @else {
+            <button class="page-btn" [class.active]="currentPage() === pg" (click)="goToPage(pg)">
+              {{ pg }}
+            </button>
+          }
+        }
+
+        <button class="page-btn" [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+        <button class="page-btn" [disabled]="currentPage() === totalPages()" (click)="goToPage(totalPages())">
+          <mat-icon>last_page</mat-icon>
+        </button>
+      </div>
+    }
+  </section>
+</div>

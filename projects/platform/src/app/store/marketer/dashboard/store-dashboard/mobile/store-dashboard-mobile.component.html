@@ -157,7 +157,7 @@
             @for (product of topProducts(); track trackProduct($index, product)) {
               <article class="product-card">
                 <div class="product-image">
-                  @if (product.images?.[0]?.url) {
+                  @if (product?.images?.[0]?.url) {
                     <img [src]="product.images[0].url" [alt]="product.name" loading="lazy" />
                   } @else {
                     <mat-icon>image</mat-icon>

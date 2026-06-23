@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, computed } from '@angular/core';
-import { ForumService, Thread, PinnedThread, TrendingThread, HotTopic } from './forum.service';
+import { ForumService, Thread, PinnedThread, TrendingThread, HotTopic, RecentActivityThread } from './forum.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -90,6 +90,7 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   trendingThreads: TrendingThread[] = [];
   activeUsers: ActiveUser[] = [];
   hotTopics: HotTopic[] = [];
+  recentThreads: RecentActivityThread[] = [];
   followedTopics = new Set<string>();
   
   // Search and filter
@@ -186,7 +187,8 @@ export class ForumPageComponent implements OnInit, OnDestroy {
       trending: this.forumService.getTrendingThreads(5),
       activeUsers: this.forumService.getActiveUsers(5),
       popularTags: this.forumService.getPopularTags(10),
-      hotTopics: this.forumService.getHotTopics(6, 'week')
+      hotTopics: this.forumService.getHotTopics(6, 'week'),
+      recentThreads: this.forumService.getRecentActivity(5)
     }).pipe(
       finalize(() => {
         this.isLoading = false;
@@ -211,6 +213,7 @@ export class ForumPageComponent implements OnInit, OnDestroy {
         this.activeUsers = results.activeUsers?.data || [];
         this.popularTags = results.popularTags?.data || [];
         this.hotTopics = results.hotTopics?.data || [];
+        this.recentThreads = results.recentThreads?.data || [];
         this.loadFollowState();
         this.cd.detectChanges();
       },
@@ -491,6 +494,19 @@ export class ForumPageComponent implements OnInit, OnDestroy {
     if (threadId) { 
       this.router.navigate(['/dashboard/community/discussion', threadId]);  
     }
+  }
+
+  formatTimeAgo(iso: string): string {
+    const diff = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d ago`;
+    const weeks = Math.floor(days / 7);
+    return `${weeks}w ago`;
   }
 
   backToList(): void {

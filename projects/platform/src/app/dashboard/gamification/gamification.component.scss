@@ -43,7 +43,7 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #7c3aed;
+  color: var(--primary-color);
 }
 
 .subcopy {
@@ -66,8 +66,8 @@
 }
 
 .hero-panel {
-  border: 1px solid rgba(#7c3aed, 0.14);
-  background: linear-gradient(135deg, rgba(#7c3aed, 0.1), rgba(#06b6d4, 0.08));
+  border: 1px solid rgba(var(--primary-color), 0.14);
+  background: linear-gradient(135deg, rgba(var(--primary-color), 0.1), rgba(var(--primary-rgb), 0.08));
   padding: 22px;
   box-shadow: $shadow-sm;
 }
@@ -135,7 +135,7 @@
 
 .panel,
 .stat-card {
-  border: 1px solid rgba($border-color, 0.7);
+  border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
   background: $surface-color;
   box-shadow: $shadow-sm;
 }
@@ -190,9 +190,9 @@
   gap: 12px;
   align-items: flex-start;
   padding: 14px;
-  border: 1px solid rgba($border-color, 0.65);
+  border: 1px solid color-mix(in srgb, var(--border-color) 65%, transparent);
   border-radius: 16px;
-  background: rgba($background-color, 0.56);
+  background: color-mix(in srgb, var(--background-color) 56%, transparent);
 }
 
 .milestone-icon {
@@ -228,8 +228,8 @@
   align-items: center;
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(#16a34a, 0.1);
-  color: #15803d;
+  background: rgba(var(--success-color), 0.1);
+  color: var(--success-color);
   font-size: 0.76rem;
   font-weight: 600;
 }
@@ -237,7 +237,7 @@
 .breakdown-item,
 .event-item {
   padding: 12px 0;
-  border-bottom: 1px solid rgba($border-color, 0.55);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 55%, transparent);
 
   &:last-child {
     border-bottom: 0;
@@ -266,7 +266,7 @@
   span {
     display: block;
     font-weight: 700;
-    color: #7c3aed;
+    color: var(--primary-color);
   }
 
   small {
@@ -292,7 +292,7 @@
   display: grid;
   gap: 10px;
   padding: 14px 18px;
-  border: 1px solid rgba($border-color, 0.72);
+  border: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
   border-radius: 18px;
   background: $surface-color;
   box-shadow: $shadow-sm;
@@ -315,8 +315,8 @@
   align-items: center;
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(#7c3aed, 0.12);
-  color: #6d28d9;
+  background: rgba(var(--primary-color), 0.12);
+  color: var(--primary-color);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -330,7 +330,7 @@
 .loading-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba($border-color, 0.72);
+  border: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
   background: $surface-color;
   box-shadow: $shadow-sm;
   padding: 18px;
@@ -374,9 +374,9 @@
 .loading-mini-stat {
   gap: 10px;
   padding: 14px;
-  border: 1px solid rgba($border-color, 0.55);
+  border: 1px solid color-mix(in srgb, var(--border-color) 55%, transparent);
   border-radius: 16px;
-  background: rgba($background-color, 0.48);
+  background: color-mix(in srgb, var(--background-color) 48%, transparent);
 }
 
 .loading-stat-card {
@@ -413,7 +413,7 @@
   gap: 12px;
   align-items: flex-start;
   padding: 12px 0;
-  border-bottom: 1px solid rgba($border-color, 0.45);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 45%, transparent);
 
   &:last-child {
     padding-bottom: 0;
@@ -427,7 +427,7 @@
 
 .loading-row {
   padding: 10px 0;
-  border-bottom: 1px solid rgba($border-color, 0.45);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 45%, transparent);
 
   &:last-child {
     padding-bottom: 0;
@@ -438,9 +438,9 @@
 .loading-unlocked-card {
   gap: 10px;
   padding: 14px;
-  border: 1px solid rgba($border-color, 0.55);
+  border: 1px solid color-mix(in srgb, var(--border-color) 55%, transparent);
   border-radius: 16px;
-  background: rgba($background-color, 0.48);
+  background: color-mix(in srgb, var(--background-color) 48%, transparent);
 }
 
 .loading-progress-strip {
@@ -455,7 +455,7 @@
 .skeleton-avatar {
   position: relative;
   overflow: hidden;
-  background: rgba($border-color, 0.85);
+  background: color-mix(in srgb, var(--surface-color), var(--primary-color) 8%);
 
   &::after {
     content: '';
@@ -465,7 +465,7 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(255, 255, 255, 0.6) 50%,
+      rgba(var(--primary-rgb), 0.08) 50%,
       transparent 100%
     );
     animation: shimmer 1.5s infinite ease-in-out;

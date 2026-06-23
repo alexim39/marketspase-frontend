@@ -1,0 +1,179 @@
+<div class="mobile-detail">
+  <!-- Header -->
+  <header class="page-header">
+    <button class="back-btn" (click)="goBack()" aria-label="Back to metrics">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-content">
+      <span class="eyebrow">Campaign Details</span>
+      <div class="title-row">
+        <h1>{{ campaignTitle() || 'Loading...' }}</h1>
+        @if (campaignStatus()) {
+          <span class="status-badge" [class]="'status-badge status-' + campaignStatus()">{{ campaignStatus() | titlecase }}</span>
+        }
+      </div>
+    </div>
+    <button class="refresh-btn" (click)="refreshNow()" [disabled]="loading()" aria-label="Refresh">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </header>
+
+  <!-- Filters -->
+  <div class="filters-strip">
+    <select class="native-select" [ngModel]="filtersForm.controls.range.value" (ngModelChange)="filtersForm.controls.range.setValue($event)">
+      <option value="7">Last 7 days</option>
+      <option value="30">Last 30 days</option>
+      <option value="90">Last 90 days</option>
+      <option value="custom">Custom range</option>
+    </select>
+
+    @if (filtersForm.controls.range.value === 'custom') {
+      <input type="date" class="native-input" [ngModel]="filtersForm.controls.startDate.value" (ngModelChange)="filtersForm.controls.startDate.setValue($event)" />
+      <input type="date" class="native-input" [ngModel]="filtersForm.controls.endDate.value" (ngModelChange)="filtersForm.controls.endDate.setValue($event)" />
+    }
+
+    <button class="clear-btn" (click)="clearFilters()">Reset</button>
+  </div>
+
+  @if (generatedAt()) {
+    <div class="updated-chip">
+      <mat-icon>update</mat-icon>
+      <span>Updated {{ generatedAt() | date:'shortTime' }}</span>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="34" />
+      <p>Loading campaign details...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <mat-icon>insights</mat-icon>
+      <h2>Could not load details</h2>
+      <p>{{ error() }}</p>
+      <button class="retry-btn" (click)="refreshNow()">Retry</button>
+    </div>
+  } @else {
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <mat-icon>visibility</mat-icon>
+        <strong>{{ formatNumber(summary().totalViews) }}</strong>
+        <span>Landing Views</span>
+      </div>
+      <div class="stat-card">
+        <mat-icon>contact_phone</mat-icon>
+        <strong>{{ formatNumber(summary().totalContactMe) }}</strong>
+        <span>Contact Me</span>
+      </div>
+      <div class="stat-card">
+        <mat-icon>description</mat-icon>
+        <strong>{{ formatNumber(summary().totalFormViews) }}</strong>
+        <span>Form Views</span>
+      </div>
+      <div class="stat-card">
+        <mat-icon>person_add</mat-icon>
+        <strong>{{ formatNumber(summary().totalLeads) }}</strong>
+        <span>Leads</span>
+      </div>
+      <div class="stat-card">
+        <mat-icon>error_outline</mat-icon>
+        <strong>{{ formatNumber(summary().totalFailures) }}</strong>
+        <span>Failures</span>
+      </div>
+      <div class="stat-card">
+        <mat-icon>trending_up</mat-icon>
+        <strong>{{ formatNumber(summary().conversionRate) }}%</strong>
+        <span>Conv. Rate</span>
+      </div>
+    </div>
+
+    <!-- Per-Promotion -->
+    <div class="section-header">
+      <h2>Per-Promotion</h2>
+      @if (hasPromotions()) { <span class="count">{{ promotionBreakdown().length }} promo{{ promotionBreakdown().length !== 1 ? 's' : '' }}</span> }
+    </div>
+
+    @if (hasPromotions()) {
+      <div class="promo-list">
+        @for (row of promotionBreakdown(); track trackByPromotionId($index, row)) {
+          <article class="promo-card">
+            <div class="promo-header">
+              <img [src]="row.promoterAvatar || 'img/avatar.png'" alt="" class="promo-avatar" />
+              <div>
+                <strong>{{ row.promoterName }}</strong>
+                <code class="upi">{{ row.upi || '—' }}</code>
+              </div>
+            </div>
+            <div class="promo-metrics">
+              <div class="promo-metric">
+                <mat-icon>visibility</mat-icon>
+                <span>{{ formatNumber(row.landingViews) }} <small>Views</small></span>
+              </div>
+              <div class="promo-metric">
+                <mat-icon>contact_phone</mat-icon>
+                <span>{{ formatNumber(row.contactMe) }} <small>Inquiries</small></span>
+              </div>
+              <div class="promo-metric">
+                <mat-icon>description</mat-icon>
+                <span>{{ formatNumber(row.formViews) }} <small>Forms</small></span>
+              </div>
+              <div class="promo-metric">
+                <mat-icon>person_add</mat-icon>
+                <span>{{ formatNumber(row.leads) }} <small>Leads</small></span>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <mat-icon>campaign</mat-icon>
+        <p>No promotion data for this campaign yet.</p>
+      </div>
+    }
+
+    <!-- Daily Log -->
+    <div class="section-header">
+      <h2>Daily Log</h2>
+      @if (hasDailyData()) { <span class="count">{{ dailySeries().length }} day{{ dailySeries().length !== 1 ? 's' : '' }}</span> }
+    </div>
+
+    @if (hasDailyData()) {
+      <div class="daily-list">
+        @for (row of dailySeries(); track trackByDate($index, row)) {
+          <article class="daily-card">
+            <div class="daily-date">
+              <mat-icon>calendar_today</mat-icon>
+              <strong>{{ row.date | date:'mediumDate' }}</strong>
+            </div>
+            <div class="daily-metrics">
+              <div class="daily-metric">
+                <span class="val">{{ formatNumber(row.landingViews) }}</span>
+                <span class="lbl">Views</span>
+              </div>
+              <div class="daily-metric">
+                <span class="val">{{ formatNumber(row.contactMe) }}</span>
+                <span class="lbl">Inquiries</span>
+              </div>
+              <div class="daily-metric">
+                <span class="val">{{ formatNumber(row.formViews) }}</span>
+                <span class="lbl">Forms</span>
+              </div>
+              <div class="daily-metric">
+                <span class="val">{{ formatNumber(row.leads) }}</span>
+                <span class="lbl">Leads</span>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <mat-icon>insights</mat-icon>
+        <p>No daily event data for the selected period.</p>
+      </div>
+    }
+  }
+</div>

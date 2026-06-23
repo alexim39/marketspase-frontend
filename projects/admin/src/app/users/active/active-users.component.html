@@ -1,0 +1,110 @@
+<div class="page-shell">
+  <section class="hero-section">
+    <div class="page-header">
+      <div>
+        <p class="eyebrow">User Management</p>
+        <h2>Active Users Online</h2>
+        <p>Users seen on the platform within the last {{ minutesFilter() }} minutes. Auto-refreshes every 30 seconds.</p>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-content">
+          <span class="stat-dot active"></span>
+          <div class="stat-details"><span class="stat-value">{{ onlineCount().total | number }}</span><span class="stat-label">Online Now</span></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <mat-icon class="stat-icon">campaign</mat-icon>
+          <div class="stat-details"><span class="stat-value">{{ onlineCount().marketers | number }}</span><span class="stat-label">Marketers</span></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <mat-icon class="stat-icon">groups</mat-icon>
+          <div class="stat-details"><span class="stat-value">{{ onlineCount().promoters | number }}</span><span class="stat-label">Promoters</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <section class="filters-card">
+    <div class="filters-container">
+      <div class="filter-field search-field">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input type="text" class="search-input" placeholder="Search by name, email, username..." [ngModel]="searchFilter()" (ngModelChange)="onSearchChange($event)" />
+      </div>
+      <div class="filter-select-group">
+        <label class="filter-label">Role</label>
+        <select class="filter-select" [ngModel]="roleFilter()" (ngModelChange)="onRoleChange($event)">
+          <option value="all">All roles</option><option value="marketer">Marketer</option><option value="promoter">Promoter</option>
+        </select>
+      </div>
+      <div class="filter-select-group">
+        <label class="filter-label">Active within</label>
+        <select class="filter-select" [ngModel]="minutesFilter()" (ngModelChange)="onMinutesChange($event)">
+          <option [value]="5">5 minutes</option><option [value]="10">10 minutes</option><option [value]="30">30 minutes</option><option [value]="60">1 hour</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- Table -->
+  <section class="management-section">
+    <div class="section-header">
+      <span class="table-count">{{ totalItems() | number }} users online within {{ minutesFilter() }} minutes</span>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-card"><mat-progress-bar mode="indeterminate"/><span>Loading active users...</span></div>
+    } @else if (users().length === 0) {
+      <div class="empty-state"><mat-icon>wifi_off</mat-icon><strong>No active users</strong><span>No users seen within the selected time window.</span></div>
+    } @else {
+      <table class="users-table">
+        <thead>
+          <tr><th></th><th>User</th><th>Role</th><th>Balance</th><th>Last Active</th></tr>
+        </thead>
+        <tbody>
+          @for (u of users(); track u._id) {
+            <tr [routerLink]="['/dashboard/users', u._id]" class="user-row">
+              <td><span class="online-dot" [class]="getOnlineDot(u.updatedAt)"></span></td>
+              <td>
+                <div class="user-info">
+                  <img [src]="u.avatar" class="user-avatar" onerror="this.src='/img/avatar.png'" />
+                  <div><span class="user-name">{{ u.displayName }}</span><span class="user-sub">@{{ u.username }}</span></div>
+                </div>
+              </td>
+              <td><span class="role-pill" [class.marketer]="u.role==='marketer'" [class.promoter]="u.role==='promoter'">{{ u.role | titlecase }}</span></td>
+              <td>
+                <span class="balance">{{ (u.wallets?.[u.role]?.balance || 0) | currency:'NGN':'₦' }}</span>
+              </td>
+              <td><span class="time-ago">{{ getTimeAgo(u.updatedAt) }}</span></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (totalPages() > 1) {
+        <div class="pagination-bar">
+          <div class="pagination-inner">
+            <div class="page-size-select"><span class="page-size-label">Rows</span><select class="page-size-dropdown" [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($any($event.target).value)">@for(o of pageSizeOptions;track o){<option [value]="o">{{o}}</option>}</select></div>
+            <button type="button" class="page-btn" [disabled]="currentPage()<=1" (click)="goToPage(1)"><mat-icon>first_page</mat-icon></button>
+            <button type="button" class="page-btn" [disabled]="currentPage()<=1" (click)="goToPage(currentPage()-1)"><mat-icon>chevron_left</mat-icon></button>
+            <div class="page-numbers">
+              @if(currentPage()>3){<button type="button" class="page-btn number" (click)="goToPage(1)">1</button>@if(currentPage()>4){<span class="page-ellipsis">...</span>}}
+              @for(p of pageNumbers();track p){<button type="button" class="page-btn number" [class.active]="p===currentPage()" (click)="goToPage(p)">{{p}}</button>}
+              @if(currentPage()<totalPages()-2){@if(currentPage()<totalPages()-3){<span class="page-ellipsis">...</span>}<button type="button" class="page-btn number" (click)="goToPage(totalPages())">{{totalPages()}}</button>}
+            </div>
+            <button type="button" class="page-btn" [disabled]="currentPage()>=totalPages()" (click)="goToPage(currentPage()+1)"><mat-icon>chevron_right</mat-icon></button>
+            <button type="button" class="page-btn" [disabled]="currentPage()>=totalPages()" (click)="goToPage(totalPages())"><mat-icon>last_page</mat-icon></button>
+            <div class="page-jump"><span class="page-jump-label">Go</span><input type="number" class="page-jump-input" min="1" [max]="totalPages()" placeholder="#" (keydown.enter)="onPageInput($event)" (blur)="onPageInput($event)"/></div>
+            <span class="page-total">Page {{currentPage()}} of {{totalPages()}}</span>
+          </div>
+        </div>
+      }
+    }
+  </section>
+</div>

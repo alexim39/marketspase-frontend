@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -21,6 +21,8 @@ import { WalletFundingIndexComponent } from '../../wallet/funding';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { UserInterface, DeviceService, CurrencyUtilsPipe } from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NotificationService } from '../notification/notification.service';
+import { map } from 'rxjs/internal/operators/map';
 
 // Import new components
 import { UserProfileCardComponent } from './components/user-profile-card/user-profile-card.component';
@@ -41,6 +43,7 @@ import { interval } from 'rxjs/internal/observable/interval';
 import { take } from 'rxjs/internal/operators/take';
 import { CountdownOverlayComponent } from '../../common/components/countdown-overlay/countdown-overlay.component';
 import { SwitchUserRoleService } from '../../common/services/switch-user-role.service';
+import { CollaborationService } from '../../campaign/collaboration/collaboration.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -80,6 +83,8 @@ export class DashboardComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
+  private collaborationService = inject(CollaborationService);
+  private notificationService = inject(NotificationService);
   private switchUserRoleService = inject(SwitchUserRoleService); // Event used to trigger user role switcher method
   private readonly deviceService = inject(DeviceService);
   private readonly destroyRef = inject(DestroyRef);
@@ -92,9 +97,32 @@ export class DashboardComponent implements OnInit {
   activeTab: 'cart' | 'quick-actions' = 'cart';
   private cartDialogRef?: MatDialogRef<any>;
 
+  constructor() {
+    this.notificationService.notifications$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        map((notifications) =>
+          notifications.filter(
+            (n) => n.type === 'collaboration_message' && n.status === 'unread',
+          ).length,
+        ),
+      )
+      .subscribe((count) => {
+        this.unreadMessagesCount.set(count);
+      });
+
+    effect(() => {
+      const currentUser = this.user();
+      if (currentUser?._id) {
+        this.notificationService.loadUnreadCount();
+      }
+    });
+  }
+
   activeCampaignsCount: number | undefined = 0;
   pendingCampaignsCount: number | undefined = 0;
   pendingPromotionsCount: number | undefined = 0;
+  unreadMessagesCount = signal(0);
 
   // Use the DeviceService signal directly to avoid extra allocations and keep the
   // value stable during initial change detection (prevents NG0100 in dev mode).
@@ -111,11 +139,11 @@ export class DashboardComponent implements OnInit {
     const activeCampaigns = this.activeCampaignsCount || 0;
 
     if (userRole === 'marketer') {
-      return getMarketerNavigation(pendingCampaigns, activeCampaigns);
+      return getMarketerNavigation(pendingCampaigns, activeCampaigns, this.unreadMessagesCount());
     }
 
     if (userRole === 'promoter') {
-      return getPromoterNavigation(pendingPromotions);
+      return getPromoterNavigation(pendingPromotions, this.unreadMessagesCount());
     }
 
     if (userRole === 'marketing_rep') {
@@ -168,6 +196,10 @@ export class DashboardComponent implements OnInit {
 
   public createCampaign(): void {
     this.router.navigate(['dashboard/campaigns/create']);
+  }
+
+  public createPost(): void {
+    this.router.navigate(['dashboard/community/feeds/create']);
   }
 
   public viewPromotion(): void {

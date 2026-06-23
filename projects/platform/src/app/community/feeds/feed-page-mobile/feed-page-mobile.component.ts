@@ -33,7 +33,7 @@ import { UserInterface } from '@shared/services';
 import { ProfileService } from '../../../profile/services/profile.service';
 import { FeedLiveActivityToastComponent } from '../shared/feed-live-activity-toast/feed-live-activity-toast.component';
 
-type MobileFeedTab = 'for-you' | 'following';
+type MobileFeedTab = 'for-you' | 'following' | 'saved';
 type FeedMedia = NonNullable<FeedPost['media']>[number];
 type SharePlatform = 'native' | 'copy' | 'whatsapp' | 'facebook' | 'x';
 type NetworkInformationLike = {
@@ -307,7 +307,7 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
       undefined,
       this.searchQuery() || undefined,
       reset,
-      this.selectedTab() === 'following' ? 'following' : 'for_you',
+      this.selectedTab() === 'following' ? 'following' : this.selectedTab() === 'saved' ? 'saved' : 'for_you',
       8
     );
   }

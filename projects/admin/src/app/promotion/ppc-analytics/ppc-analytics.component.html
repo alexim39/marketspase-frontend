@@ -225,7 +225,7 @@
                   </div>
                 </td>
                 <td>
-                  @if ((row.anomalies ?? []).length) {
+                  @if (row.anomalies.length) {
                     <div class="anomaly-chips">
                       @for (code of row.anomalies.slice(0, 3); track code) {
                         <span class="anomaly-pill">{{ resolveAnomalyLabel(code) }}</span>

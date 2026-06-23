@@ -15,7 +15,7 @@
     background: $gradient-primary;
     color: white;
     // UPDATED: Use primary-color with rgba for dynamic theming
-    box-shadow: 0 4px 20px rgba($primary-color, 0.3);
+    box-shadow: 0 4px 20px rgba(var(--primary-rgb), 0.3);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -116,7 +116,7 @@
         // UPDATED: Use primary-color variable for dynamic theming
         background-color: $primary-color;
         // UPDATED: Use primary-color with rgba for dynamic theming
-        box-shadow: 0 4px 12px rgba($primary-color, 0.4);
+        box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.4);
         transform: scale(1.1);
       }
     }
@@ -152,8 +152,8 @@
       margin-top: 1rem;
       padding: 1rem 1.125rem;
       border-radius: 18px;
-      border: 1px solid rgba($primary-color, 0.16);
-      background: rgba($primary-color, 0.06);
+      border: 1px solid rgba(var(--primary-rgb), 0.16);
+      background: rgba(var(--primary-rgb), 0.06);
       display: grid;
       gap: 0.875rem;
 
