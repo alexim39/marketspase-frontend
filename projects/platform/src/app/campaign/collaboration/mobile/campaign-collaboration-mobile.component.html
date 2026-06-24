@@ -56,6 +56,17 @@
                 }
                 @if (!isSystemMessage(message)) {
                   <button class="pin-toggle" type="button" [class.pinned]="message.isPinned" (click)="togglePinMessage(message)" aria-label="Toggle pin"><mat-icon>push_pin</mat-icon></button>
+                  <button class="react-toggle" type="button" (click)="showReactions(message)" aria-label="Add reaction">😊</button>
+                }
+                @if (getReactionSummary(message.reactions)) {
+                  <div class="reaction-bar">{{ getReactionSummary(message.reactions) }}</div>
+                }
+                @if (activeReactionMsgId() === message._id) {
+                  <div class="emoji-picker">
+                    @for (emoji of quickEmojis; track emoji) {
+                      <button type="button" (click)="toggleReact(message, emoji)">{{ emoji }}</button>
+                    }
+                  </div>
                 }
                 @if (isOwnMessage(message) && (isPendingMessage(message) || isFailedMessage(message))) {
                   <div class="message-delivery" [class.failed]="isFailedMessage(message)">

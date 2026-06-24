@@ -69,12 +69,12 @@ export const dashboardRoutes: Routes = [
                 loadChildren: () => import('../financial/financial.routes').then(r => r.FinancialRoutes),
                 title: 'Financial Management - Admin Dashboard'
             }, 
-            {   path: 'newletters', 
+            {   path: 'newsletters', 
                 loadComponent: () => import('../newsletter/newsletter.component').then(c => c.NewsletterManagementComponent),
-                title: 'Newletters Management - Admin Dashboard'
+                title: 'Newsletters Management - Admin Dashboard'
             }, 
-            {   path: 'newsletters',
-                redirectTo: 'newletters',
+            {   path: 'newletters',
+                redirectTo: 'newsletters',
                 pathMatch: 'full'
             },
             { 

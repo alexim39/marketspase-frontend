@@ -8,7 +8,7 @@ export const routes: Routes = [
     },
     { 
         path: 'dashboard', 
-        loadChildren: () => import('./dashboard/dashborad.routes').then(r => r.dashboardRoutes) 
+        loadChildren: () => import('./dashboard/dashboard.routes').then(r => r.dashboardRoutes) 
     },
 
 ];

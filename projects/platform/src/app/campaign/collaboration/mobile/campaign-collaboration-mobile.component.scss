@@ -732,6 +732,48 @@
   &:hover .pin-toggle { opacity: 0.6; }
 }
 
+.react-toggle {
+  opacity: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  font-size: 14px;
+  position: absolute;
+  top: 0.2rem;
+  right: 2.5rem;
+  transition: opacity 0.15s;
+  border-radius: 4px;
+}
+
+.reaction-bar {
+  font-size: 0.78rem;
+  padding: 0.12rem 0.35rem;
+  margin-top: 0.15rem;
+  border-radius: 8px;
+  background: rgba(var(--primary-rgb), 0.04);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.emoji-picker {
+  display: flex;
+  gap: 0.15rem;
+  margin-top: 0.25rem;
+
+  button {
+    background: none;
+    border: 1px solid rgba(var(--primary-rgb), 0.1);
+    border-radius: 6px;
+    padding: 0.2rem 0.35rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+
+    &:active { transform: scale(1.15); background: rgba(var(--primary-rgb), 0.06); }
+  }
+}
+
 .message-attachments {
   display: flex;
   flex-wrap: wrap;
