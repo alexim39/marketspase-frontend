@@ -62,8 +62,8 @@
         }
         
         &.promoter {
-          background-color: rgba($warning-color, 0.2);
-          border: $border-width solid rgba($warning-color, 0.3);
+          background-color: rgba(var(--warning-rgb), 0.2);
+          border: $border-width solid rgba(var(--warning-rgb), 0.3);
           color: $warning-color;
         }
       }
@@ -441,37 +441,37 @@
     font-weight: $font-weight-semibold;
     
     &.successful {
-      background-color: rgba($success-color, 0.1);
+      background-color: rgba(var(--success-rgb), 0.1);
       color: $success-color;
     }
     
     &.pending {
-      background-color: rgba($warning-color, 0.1);
+      background-color: rgba(var(--warning-rgb), 0.1);
       color: $warning-color;
     }
 
     &.processing {
-      background-color: rgba($warning-color, 0.1);
+      background-color: rgba(var(--warning-rgb), 0.1);
       color: $warning-color;
     }
 
     &.reserved {
-      background-color: rgba($warning-color, 0.1);
+      background-color: rgba(var(--warning-rgb), 0.1);
       color: $warning-color;
     }
 
     &.reversed {
-      background-color: rgba($warning-color, 0.1);
+      background-color: rgba(var(--warning-rgb), 0.1);
       color: $warning-color;
     }
     
     &.failed {
-      background-color: rgba($error-color, 0.1);
+      background-color: rgba(var(--error-rgb), 0.1);
       color: $error-color;
     }
 
     &.rejected {
-      background-color: rgba($error-color, 0.1);
+      background-color: rgba(var(--error-rgb), 0.1);
       color: $error-color;
     }
     

@@ -13,7 +13,7 @@
   
   &:hover {
     // UPDATED: Use primary-color with lightened border for dynamic theming
-    border-color: rgba($primary-color, 0.3);
+    border-color: rgba(var(--primary-rgb), 0.3);
   }
   
   .comment-main {
@@ -107,7 +107,7 @@
         
         &:hover {
           // UPDATED: Use error-color with lightened background for dynamic theming
-          background-color: rgba($error-color, 0.1);
+          background-color: rgba(var(--error-rgb), 0.1);
         }
         
         mat-icon {
@@ -129,7 +129,7 @@
         
         &:hover {
           // UPDATED: Use error-color with lightened background for dynamic theming
-          background-color: rgba($info-color, 0.1);
+          background-color: rgba(var(--info-rgb), 0.1);
         }
         
         mat-icon {
@@ -188,21 +188,21 @@
         
         &:hover {
           // UPDATED: Use primary-color with lightened background for dynamic theming
-          background-color: rgba($primary-color, 0.1);
+          background-color: rgba(var(--primary-rgb), 0.1);
           // UPDATED: Use primary-color variable for dynamic theming
           color: $primary-color;
-          border-color: rgba($primary-color, 0.2);
+          border-color: rgba(var(--primary-rgb), 0.2);
         }
         
         &.liked {
           // UPDATED: Use error-color variable for dynamic theming
           color: $error-color;
           // UPDATED: Use error-color with lightened background for dynamic theming
-          background-color: rgba($error-color, 0.1);
+          background-color: rgba(var(--error-rgb), 0.1);
           
           &:hover {
             // UPDATED: Use error-color with darker background for dynamic theming
-            background-color: rgba($error-color, 0.2);
+            background-color: rgba(var(--error-rgb), 0.2);
           }
         }
         
@@ -232,7 +232,7 @@
         }
         
         &:hover {
-          background: rgba($primary-color, 0.1) !important;
+          background: rgba(var(--primary-rgb), 0.1) !important;
           color: $primary-color !important;
         }
       }
@@ -243,7 +243,7 @@
         font-weight: $font-weight-bold !important;
         
         &:hover {
-          background-color: rgba($error-color, 0.1) !important;
+          background-color: rgba(var(--error-rgb), 0.1) !important;
         }
       }
     }
@@ -261,7 +261,7 @@
             
             &:focus-within {
               // UPDATED: Use primary-color with lightened border for dynamic theming
-              border-color: rgba($primary-color, 0.5);
+              border-color: rgba(var(--primary-rgb), 0.5);
             }
           }
         }
@@ -392,7 +392,7 @@
     background-color: color-mix(in srgb, var(--surface-color), white 5%);
     
     &:hover {
-      border-color: rgba($primary-color, 0.5);
+      border-color: rgba(var(--primary-rgb), 0.5);
     }
   }
   
@@ -406,14 +406,14 @@
   
   .comment-actions button {
     &:hover {
-      background-color: rgba($primary-color, 0.15);
+      background-color: rgba(var(--primary-rgb), 0.15);
     }
     
     &.liked {
-      background-color: rgba($error-color, 0.15);
+      background-color: rgba(var(--error-rgb), 0.15);
       
       &:hover {
-        background-color: rgba($error-color, 0.25);
+        background-color: rgba(var(--error-rgb), 0.25);
       }
     }
   }

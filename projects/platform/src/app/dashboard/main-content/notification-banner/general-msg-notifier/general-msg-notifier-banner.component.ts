@@ -1,6 +1,7 @@
 // general-msg-notifier-banner.component.ts
-import { Component, effect, inject, input, OnDestroy, signal } from '@angular/core';
+import { Component, effect, inject, input, OnDestroy, signal, SecurityContext } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { NotificationBannerService } from '../notfication-banner.service';
@@ -54,10 +55,15 @@ export class GeneralMsgNotifierBannerComponent implements OnDestroy {
   readonly user = input<UserInterface | null>(null);
 
   private notificationBannerService = inject(NotificationBannerService);
+  private sanitizer = inject(DomSanitizer);
   private subscriptions: Subscription = new Subscription();
 
   activeNotifications = signal<NotificationMessage[]>([]);
   dismissedNotificationIds = signal<string[]>([]);
+
+  private sanitizeHtml(value: string): string {
+    return this.sanitizer.sanitize(SecurityContext.HTML, value) || '';
+  }
 
   constructor() {
     // Set up reactivity to user changes
@@ -88,7 +94,11 @@ export class GeneralMsgNotifierBannerComponent implements OnDestroy {
             // Filter out dismissed notifications
             const filteredNotifications = response.data.filter(notification => 
               !this.dismissedNotificationIds().includes(notification._id)
-            );
+            ).map(n => ({
+              ...n,
+              title: this.sanitizeHtml(n.title),
+              message: this.sanitizeHtml(n.message),
+            }));
             this.activeNotifications.set(filteredNotifications);
           }
         },

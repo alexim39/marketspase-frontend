@@ -16,7 +16,7 @@
   padding: 1rem;
   color: var(--text-primary);
   background:
-    linear-gradient(180deg, rgba($primary-color, 0.08), rgba($background-color, 0) 17rem),
+    linear-gradient(180deg, rgba(var(--primary-rgb), 0.08), rgba($background-color, 0) 17rem),
     $background-color;
 }
 
@@ -87,9 +87,9 @@
   min-height: 52px;
   gap: 0.5rem;
   padding: 0 0.75rem;
-  border: 1px solid rgba($primary-color, 0.14);
+  border: 1px solid rgba(var(--primary-rgb), 0.14);
   border-radius: 16px;
-  background: rgba($primary-color, 0.04);
+  background: rgba(var(--primary-rgb), 0.04);
 
   mat-icon {
     color: var(--primary-color);
@@ -149,8 +149,8 @@
 
 .filter-button,
 .ghost-button {
-  border: 1px solid rgba($primary-color, 0.14);
-  background: rgba($primary-color, 0.04);
+  border: 1px solid rgba(var(--primary-rgb), 0.14);
+  background: rgba(var(--primary-rgb), 0.04);
   color: $text-primary;
 
   strong {
@@ -193,7 +193,7 @@
   min-height: 48px;
   align-items: center;
   gap: 0.45rem;
-  border: 1px solid rgba($primary-color, 0.14);
+  border: 1px solid rgba(var(--primary-rgb), 0.14);
   border-radius: 16px;
   background: $surface-color;
   color: $text-secondary;
@@ -215,8 +215,8 @@
   }
 
   &.active {
-    border-color: rgba($primary-color, 0.34);
-    background: rgba($primary-color, 0.1);
+    border-color: rgba(var(--primary-rgb), 0.34);
+    background: rgba(var(--primary-rgb), 0.1);
     color: $primary-color;
   }
 }
@@ -312,9 +312,9 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba($primary-color, 0.14);
+  border: 1px solid rgba(var(--primary-rgb), 0.14);
   border-radius: 16px;
-  background: rgba($primary-color, 0.08);
+  background: rgba(var(--primary-rgb), 0.08);
   color: $primary-color;
   overflow: hidden;
 
@@ -367,7 +367,7 @@
 
 .type-pill {
   padding: 0.25rem 0.55rem;
-  background: rgba($primary-color, 0.1);
+  background: rgba(var(--primary-rgb), 0.1);
   color: $primary-color;
   text-transform: uppercase;
 }
@@ -380,17 +380,17 @@
   span {
     min-height: 1.8rem;
     padding: 0 0.65rem;
-    background: rgba($primary-color, 0.06);
+    background: rgba(var(--primary-rgb), 0.06);
     color: $text-secondary;
   }
 }
 
 .status-pill {
-  background: rgba($success-color, 0.12) !important;
+  background: rgba(var(--success-rgb), 0.12) !important;
   color: $success-color !important;
 
   &.inactive {
-    background: rgba($error-color, 0.1) !important;
+    background: rgba(var(--error-rgb), 0.1) !important;
     color: $error-color !important;
   }
 }
@@ -411,9 +411,9 @@
 .metric-card {
   min-width: 0;
   padding: 0.65rem;
-  border: 1px solid rgba($primary-color, 0.1);
+  border: 1px solid rgba(var(--primary-rgb), 0.1);
   border-radius: 14px;
-  background: rgba($primary-color, 0.04);
+  background: rgba(var(--primary-rgb), 0.04);
 
   mat-icon {
     color: $primary-color;
@@ -522,7 +522,7 @@
     height: 44px;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba($primary-color, 0.14);
+    border: 1px solid rgba(var(--primary-rgb), 0.14);
     border-radius: 999px;
     background: $surface-color;
     color: $text-primary;
@@ -539,10 +539,10 @@
   width: 100%;
   min-height: 48px;
   padding: 0 0.8rem;
-  border: 1px solid rgba($primary-color, 0.14);
+  border: 1px solid rgba(var(--primary-rgb), 0.14);
   border-radius: 14px;
   outline: 0;
-  background: rgba($primary-color, 0.04);
+  background: rgba(var(--primary-rgb), 0.04);
   color: $text-primary;
   font: inherit;
   font-size: 1rem;

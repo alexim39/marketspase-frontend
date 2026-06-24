@@ -13,12 +13,12 @@
 
   &.success {
     border-color: $success-color;
-    background: linear-gradient(145deg, rgba($success-color, 0.1) 0%, $surface-color 100%);
+    background: linear-gradient(145deg, rgba(var(--success-rgb), 0.1) 0%, $surface-color 100%);
   }
 
   &.error {
     border-color: $error-color;
-    background: linear-gradient(145deg, rgba($error-color, 0.1) 0%, $surface-color 100%);
+    background: linear-gradient(145deg, rgba(var(--error-rgb), 0.1) 0%, $surface-color 100%);
   }
 
   .status-content {
@@ -68,9 +68,9 @@
     .success-details {
       margin-top: $spacing-5;
       padding: $spacing-5;
-      background: rgba($success-color, 0.1);
+      background: rgba(var(--success-rgb), 0.1);
       border-radius: $border-radius-md;
-      border: $border-width solid rgba($success-color, 0.2);
+      border: $border-width solid rgba(var(--success-rgb), 0.2);
 
       p {
         font-size: $font-size-sm;

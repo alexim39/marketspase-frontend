@@ -43,7 +43,7 @@
   margin: 20px 16px 24px;
   padding: 24px;
   background:
-    radial-gradient(circle at top right, rgba($primary-color, 0.12), transparent 34%),
+    radial-gradient(circle at top right, rgba(var(--primary-rgb), 0.12), transparent 34%),
     linear-gradient(135deg, color-mix(in srgb, $surface-color, $primary-color 4%), $surface-color);
 
   @include tablet {
@@ -78,7 +78,7 @@
 .section-heading span,
 .revenue-card span,
 .module-copy span {
-  color: $primary-color;
+  color: var(--primary-color);
   font-size: $font-size-xs;
   font-weight: $font-weight-bold;
   letter-spacing: 0;
@@ -107,9 +107,9 @@
   }
 
   .primary-action {
-    border-color: $primary-color;
+    border-color: var(--primary-color);
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
   }
 }
 
@@ -128,11 +128,11 @@
   button {
     align-self: flex-start;
     min-height: 42px;
-    border: 1px solid rgba($primary-color, 0.24);
+    border: 1px solid rgba(var(--primary-rgb), 0.24);
     border-radius: $border-radius-lg;
     padding: 0 14px;
-    background: rgba($primary-color, 0.08);
-    color: $primary-color;
+    background: rgba(var(--primary-rgb), 0.08);
+    color: var(--primary-color);
     font-weight: $font-weight-semibold;
     cursor: pointer;
   }
@@ -184,8 +184,8 @@
   display: inline-grid;
   place-items: center;
   border-radius: $border-radius-lg;
-  background: rgba($primary-color, 0.1);
-  color: $primary-color;
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary-color);
 }
 
 .stats-activity-grid {
@@ -217,7 +217,7 @@
 
   &:hover {
     transform: translateY(-2px);
-    border-color: rgba($primary-color, 0.35);
+    border-color: rgba(var(--primary-rgb), 0.35);
     box-shadow: $shadow-md;
   }
 
@@ -275,20 +275,20 @@
   }
 
   &.warn {
-    border-color: rgba($warning-color, 0.42);
+    border-color: rgba(var(--warning-rgb), 0.42);
 
     > mat-icon {
-      background: rgba($warning-color, 0.12);
-      color: $warning-color;
+      background: rgba(var(--warning-rgb), 0.12);
+      color: var(--warning-color);
     }
   }
 
   &.good {
-    border-color: rgba($success-color, 0.32);
+    border-color: rgba(var(--success-rgb), 0.32);
 
     > mat-icon {
-      background: rgba($success-color, 0.12);
-      color: $success-color;
+      background: rgba(var(--success-rgb), 0.12);
+      color: var(--success-color);
     }
   }
 }

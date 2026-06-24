@@ -241,7 +241,7 @@
       }
       
       .new-badge {
-        background: rgba($success-color, 0.9);
+        background: rgba(var(--success-rgb), 0.9);
         
         mat-icon {
           font-size: $font-size-sm;
@@ -285,7 +285,7 @@
       .course-category {
         font-size: $font-size-xs;
         color: $primary-color;
-        background: rgba($primary-color, 0.1);
+        background: rgba(var(--primary-rgb), 0.1);
         padding: 2px $spacing-2;
         border-radius: $border-radius-lg;
         font-weight: $font-weight-medium;

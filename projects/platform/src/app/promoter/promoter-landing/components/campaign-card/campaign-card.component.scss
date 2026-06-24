@@ -93,7 +93,7 @@
 }
 
 .status-badge.status-active {
-  background: rgba($success-color, 0.1);
+  background: rgba(var(--success-rgb), 0.1);
   color: $success-color;
 }
 
@@ -104,13 +104,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  &.leads { background: rgba($primary-color, 0.1); color: $primary-color; }
-  &.awareness { background: rgba($info-color, 0.1); color: $info-color; }
+  &.leads { background: rgba(var(--primary-rgb), 0.1); color: $primary-color; }
+  &.awareness { background: rgba(var(--info-rgb), 0.1); color: $info-color; }
 }
 
 .status-badge.status-paused {
   // UPDATED: Use warning-color with light background
-  background: rgba($warning-color, 0.1);
+  background: rgba(var(--warning-rgb), 0.1);
   color: $warning-color;
 }
 
@@ -122,7 +122,7 @@
 
 .status-badge.status-completed {
   // UPDATED: Use primary-color with light background
-  background: rgba($primary-color, 0.1);
+  background: rgba(var(--primary-rgb), 0.1);
   color: $primary-color;
 }
 
@@ -188,7 +188,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba($gray-900, 0.5) 60%, rgba($primary-color, 0.18) 100%);
+    background: linear-gradient(135deg, rgba($gray-900, 0.5) 60%, rgba(var(--primary-rgb), 0.18) 100%);
     z-index: 1;
     pointer-events: none;
   }
@@ -227,7 +227,7 @@
       top: 50%;
       width: 70px;
       height: 70px;
-      background: rgba($primary-color, 0.18);
+      background: rgba(var(--primary-rgb), 0.18);
       border-radius: 50%;
       transform: translate(-50%, -50%);
       z-index: -1;
@@ -476,13 +476,13 @@
   
   &.video {
     // UPDATED: Use error-color with opacity for video overlay
-    background: rgba($error-color, 0.85);
+    background: rgba(var(--error-rgb), 0.85);
     color: $white;
   }
   
   &.image {
     // UPDATED: Use info-color with opacity for image overlay
-    background: rgba($info-color, 0.85);
+    background: rgba(var(--info-rgb), 0.85);
     color: $white;
   }
 }
@@ -510,7 +510,7 @@
   align-items: center;
   gap: 0.5rem;
   // UPDATED: Use success-color with light background
-  background-color: rgba($success-color, 0.1);
+  background-color: rgba(var(--success-rgb), 0.1);
   color: $success-color;
   font-size: 0.9rem;
   font-weight: 600;

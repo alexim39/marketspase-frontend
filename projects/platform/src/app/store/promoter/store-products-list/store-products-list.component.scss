@@ -104,7 +104,7 @@
             font-weight: $font-weight-medium;
             
             &.premium {
-              background: rgba($warning-color, 0.15);
+              background: rgba(var(--warning-rgb), 0.15);
               color: $warning-color;
             }
           }
@@ -554,7 +554,7 @@
           position: absolute;
           top: $spacing-3;
           right: $spacing-3;
-          background: rgba($success-color, 0.9);
+          background: rgba(var(--success-rgb), 0.9);
           color: $white;
           padding: $spacing-1 $spacing-2;
           border-radius: $border-radius-full;

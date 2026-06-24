@@ -20,6 +20,10 @@ import {
 } from './collaboration.service';
 import { UserService } from '../../common/services/user.service';
 import { CollaborationRealtimeService } from './realtime-events.service';
+import { PinnedBannerComponent } from './components/pinned-banner/pinned-banner.component';
+import { TypingIndicatorComponent } from './components/typing-indicator/typing-indicator.component';
+import { MentionDropdownComponent } from './components/mention-dropdown/mention-dropdown.component';
+import { MessageComposerComponent } from './components/composer/message-composer.component';
 
 type ConversationKind = 'all' | 'direct' | 'campaign_room' | 'promotion_room' | 'context_room';
 
@@ -56,6 +60,10 @@ interface RecentCollaborator {
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
+    PinnedBannerComponent,
+    TypingIndicatorComponent,
+    MentionDropdownComponent,
+    MessageComposerComponent,
   ],
   providers: [DatePipe, TitleCasePipe],
   templateUrl: './collaboration.component.html',
@@ -247,6 +255,21 @@ export class CampaignCollaborationComponent {
   };
 
   constructor() {
+    this.route.data
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        const dataSection = (data as any)?.['section'];
+        if (dataSection && !this.route.snapshot.queryParamMap.get('section')) {
+          if (dataSection === 'direct') {
+            this.kindFilter.set('direct');
+            this.activeSection.set('direct');
+          } else if (dataSection === 'rooms') {
+            this.kindFilter.set('campaign_room');
+            this.activeSection.set('rooms');
+          }
+        }
+      });
+
     this.route.queryParamMap
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((params) => {
@@ -256,7 +279,7 @@ export class CampaignCollaborationComponent {
           promotionId: params.get('promotionId'),
           targetUserId: params.get('targetUserId'),
         };
-        const section = params.get('section');
+        const section = params.get('section') || (this.route.snapshot.data as any)?.['section'];
         if (section === 'direct') {
           this.kindFilter.set('direct');
           this.activeSection.set('direct');
@@ -321,6 +344,29 @@ export class CampaignCollaborationComponent {
       this.realtimeService.connect(user._id);
       this.loadConversations();
       this.loadStarterEntries();
+    });
+
+    effect(() => {
+      const draft = this.draftMessage();
+      const conv = this.selectedConversation();
+      if (!conv) { this.showMentionDropdown.set(false); return; }
+
+      if (draft.trim()) {
+        this.realtimeService.emitTyping(conv._id, 'start');
+        if (this.typingTimer) clearTimeout(this.typingTimer);
+        this.typingTimer = setTimeout(() => { this.realtimeService.emitTyping(conv._id, 'stop'); }, 3000);
+      }
+
+      const idx = draft.lastIndexOf('@');
+      if (idx !== -1 && !draft.slice(idx + 1).includes(' ')) {
+        const query = draft.slice(idx + 1).toLowerCase();
+        const participants = this.getConversationParticipants(conv);
+        const filtered = participants.filter(p => p.username.toLowerCase().includes(query));
+        this.mentionSuggestions.set(query ? filtered : participants);
+        this.showMentionDropdown.set(filtered.length > 0 || !query);
+      } else {
+        this.showMentionDropdown.set(false);
+      }
     });
   }
 
@@ -474,16 +520,19 @@ export class CampaignCollaborationComponent {
   sendMessage(): void {
     const conversation = this.selectedConversation();
     const content = this.draftMessage().trim();
-    if (!conversation || !content) {
+    const attachment = this.pendingAttachment();
+    if (!conversation || (!content && !attachment)) {
       return;
     }
 
-    const optimisticMessage = this.createOptimisticMessage(conversation._id, content);
+    const atts = attachment ? [{ kind: attachment.kind, label: attachment.label, url: attachment.url }] : [];
+    const optimisticMessage = this.createOptimisticMessage(conversation._id, content, atts);
     this.draftMessage.set('');
+    this.pendingAttachment.set(null);
     this.appendOptimisticMessage(optimisticMessage);
     this.updateConversationPreview(conversation._id, content, optimisticMessage.createdAt, this.currentUser()?._id || null);
     this.sendingMessage.set(true);
-    this.collaborationService.sendMessage(conversation._id, content)
+    this.collaborationService.sendMessage(conversation._id, content, atts)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -612,6 +661,53 @@ export class CampaignCollaborationComponent {
       },
       error: () => this.snackBar.open('Failed to update pin', 'Close', { duration: 2000 }),
     });
+  }
+
+  readonly quickEmojis = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
+  readonly activeReactionMsgId = signal<string | null>(null);
+
+  toggleReact(message: CollaborationMessage, emoji: string): void {
+    const conv = this.selectedConversation();
+    if (!conv) return;
+
+    this.collaborationService.reactToMessage(conv._id, message._id, emoji)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r) => {
+          const reactions = r?.data?.reactions || [];
+          this.messages.update((msgs) =>
+            msgs.map((m) => m._id === message._id ? { ...m, reactions } : m)
+          );
+        },
+        error: () => null,
+      });
+  }
+
+  showReactions(message: CollaborationMessage): void {
+    this.activeReactionMsgId.set(this.activeReactionMsgId() === message._id ? null : message._id);
+  }
+
+  getReactionSummary(reactions?: Array<{ emoji: string }>): string {
+    if (!reactions?.length) return '';
+    const counts: Record<string, number> = {};
+    reactions.forEach(r => counts[r.emoji] = (counts[r.emoji] || 0) + 1);
+    return Object.entries(counts).map(([e, c]) => c > 1 ? `${e}${c}` : e).join(' ');
+  }
+
+  readonly pendingAttachment = signal<{ url: string; kind: string; label: string } | null>(null);
+
+  onFileSelected(event: { file: File; kind: string }): void {
+    const conv = this.selectedConversation();
+    if (!conv) return;
+    this.collaborationService.uploadAttachment(conv._id, event.file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r) => {
+          this.pendingAttachment.set(r.data);
+          this.snackBar.open('File attached', 'OK', { duration: 1500 });
+        },
+        error: () => this.snackBar.open('Upload failed', 'Close', { duration: 2000 }),
+      });
   }
 
   getMessageHtml(content: string): string {
@@ -1122,7 +1218,7 @@ export class CampaignCollaborationComponent {
     );
   }
 
-  private createOptimisticMessage(conversationId: string, content: string): CollaborationMessage {
+  private createOptimisticMessage(conversationId: string, content: string, attachments: any[] = []): CollaborationMessage {
     const user = this.currentUser();
     const now = new Date().toISOString();
     const displayName = user?.displayName || user?.username || 'You';
@@ -1140,7 +1236,7 @@ export class CampaignCollaborationComponent {
       },
       content,
       messageType: 'text',
-      attachments: [],
+      attachments,
       createdAt: now,
       updatedAt: now,
       deliveryStatus: 'pending',

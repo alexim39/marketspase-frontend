@@ -37,7 +37,7 @@
 /* --- Active Alert Styles --- */
 .active-alert {
   // UPDATED: Use info-color with lightened background for alert
-  background: linear-gradient(135deg, rgba($info-color, 0.1) 0%, rgba($info-color, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(var(--info-rgb), 0.1) 0%, rgba(var(--info-rgb), 0.05) 100%);
   border-radius: 12px;
   padding: 16px;
   margin: 24px 0;

@@ -39,7 +39,7 @@
         height: 48px;
         border-radius: 12px;
         // UPDATED: Already using primary-color with rgba - good!
-        background-color: rgba($primary-color, 0.1);
+        background-color: rgba(var(--primary-rgb), 0.1);
         color: $primary-color;
         
         mat-icon {

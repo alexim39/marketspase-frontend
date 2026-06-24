@@ -43,9 +43,9 @@
   border-radius: 50%;
   flex-shrink: 0;
 
-  &.active  { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
-  &.pending { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
-  &.completed { background: #8b5cf6; box-shadow: 0 0 8px rgba(139, 92, 246, 0.4); }
+  &.active  { background: var(--admin-success); box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+  &.pending { background: var(--admin-warning); box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+  &.completed { background: var(--admin-primary); box-shadow: 0 0 8px rgba(139, 92, 246, 0.4); }
 }
 
 .stat-icon {
@@ -67,7 +67,7 @@
   color: var(--admin-text);
   line-height: 1.2;
 
-  &.active-val { color: #10b981; }
+  &.active-val { color: var(--admin-success); }
 }
 
 .stat-label {
@@ -170,7 +170,7 @@
   &.selected {
     background: rgba(139, 92, 246, 0.16);
     border-color: rgba(139, 92, 246, 0.35);
-    color: #c4b5fd;
+    color: var(--admin-primary);
   }
 }
 
@@ -179,11 +179,11 @@
   height: 7px;
   border-radius: 50%;
 
-  &.active    { background: #10b981; }
-  &.pending   { background: #f59e0b; }
-  &.paused    { background: #38bdf8; }
-  &.rejected  { background: #ef4444; }
-  &.completed { background: #8b5cf6; }
+  &.active    { background: var(--admin-success); }
+  &.pending   { background: var(--admin-warning); }
+  &.paused    { background: var(--admin-info); }
+  &.rejected  { background: var(--admin-danger); }
+  &.completed { background: var(--admin-primary); }
   &.exhausted { background: #94a3b8; }
   &.expired   { background: #64748b; }
 }
@@ -328,11 +328,11 @@
 .budget-bar-fill {
   height: 100%;
   border-radius: 4px;
-  background: #10b981;
+  background: var(--admin-success);
   transition: width 0.3s ease;
 
-  &.warning { background: #f59e0b; }
-  &.danger  { background: #ef4444; }
+  &.warning { background: var(--admin-warning); }
+  &.danger  { background: var(--admin-danger); }
 }
 
 /* ──────────────── Status pill ──────────────── */
@@ -357,35 +357,35 @@
     background: rgba(16, 185, 129, 0.12);
     border-color: rgba(16, 185, 129, 0.25);
     color: #6ee7b7;
-    .pill-dot { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.5); }
+    .pill-dot { background: var(--admin-success); box-shadow: 0 0 6px rgba(16, 185, 129, 0.5); }
   }
 
   &.pending {
     background: rgba(245, 158, 11, 0.12);
     border-color: rgba(245, 158, 11, 0.25);
     color: #fcd34d;
-    .pill-dot { background: #f59e0b; }
+    .pill-dot { background: var(--admin-warning); }
   }
 
   &.paused {
     background: rgba(56, 189, 248, 0.12);
     border-color: rgba(56, 189, 248, 0.25);
     color: #7dd3fc;
-    .pill-dot { background: #38bdf8; }
+    .pill-dot { background: var(--admin-info); }
   }
 
   &.rejected {
     background: rgba(239, 68, 68, 0.12);
     border-color: rgba(239, 68, 68, 0.25);
     color: #fca5a5;
-    .pill-dot { background: #ef4444; }
+    .pill-dot { background: var(--admin-danger); }
   }
 
   &.completed {
     background: rgba(139, 92, 246, 0.12);
     border-color: rgba(139, 92, 246, 0.25);
-    color: #c4b5fd;
-    .pill-dot { background: #8b5cf6; }
+    color: var(--admin-primary);
+    .pill-dot { background: var(--admin-primary); }
   }
 
   &.exhausted {
@@ -513,7 +513,7 @@
 
     &.active {
       background: rgba(139, 92, 246, 0.18);
-      color: #c4b5fd;
+      color: var(--admin-primary);
       font-weight: 600;
       border-color: rgba(139, 92, 246, 0.3);
     }

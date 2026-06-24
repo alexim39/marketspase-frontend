@@ -59,7 +59,7 @@
     max-width: 100%;
     width: 100%;
     text-align: center;
-    border: 2px dashed rgba($primary-color, 0.3);
+    border: 2px dashed rgba(var(--primary-rgb), 0.3);
     //background: transparent;
     background-color: color-mix(in srgb, $background-color, black 5%);
     margin: 0 $spacing-4;
@@ -88,7 +88,7 @@
           font-size: 64px;
           width: 64px;
           height: 64px;
-          color: $primary-color;
+          color: var(--primary-color);
           opacity: 0.8;
 
           @include tablet {
@@ -456,18 +456,18 @@
     transition: all $transition-normal;
 
     &.up {
-      background-color: rgba($success-color, 0.1);
-      color: $success-color;
+      background-color: rgba(var(--success-rgb), 0.1);
+      color: var(--success-color);
     }
 
     &.down {
-      background-color: rgba($error-color, 0.1);
-      color: $error-color;
+      background-color: rgba(var(--error-rgb), 0.1);
+      color: var(--error-color);
     }
 
     &.neutral {
-      background-color: rgba($warning-color, 0.1);
-      color: $warning-color;
+      background-color: rgba(var(--warning-rgb), 0.1);
+      color: var(--warning-color);
     }
 
     mat-icon {
@@ -555,13 +555,13 @@
     }
 
     &.critical {
-      border-left-color: $error-color;
-      background: linear-gradient(135deg, #fff 0%, #ffebee 100%);
+      border-left-color: var(--error-color);
+      background: linear-gradient(135deg, var(--on-primary-color) 0%, rgba(var(--error-rgb), 0.08) 100%);
     }
 
     &.warning {
-      border-left-color: $warning-color;
-      background: linear-gradient(135deg, #fff 0%, #fff3e0 100%);
+      border-left-color: var(--warning-color);
+      background: linear-gradient(135deg, var(--on-primary-color) 0%, var(--on-primary-color)3e0 100%);
     }
 
     .alert-content {
@@ -580,7 +580,7 @@
         height: 40px;
         border-radius: $border-radius-full;
         background: $error-color;
-        color: $white;
+        color: var(--on-primary-color);
         flex-shrink: 0;
 
         @include tablet {
@@ -630,17 +630,17 @@
 
             &.critical {
               background: $error-color;
-              color: $white;
+              color: var(--on-primary-color);
             }
 
             &.high {
               background: $warning-color;
-              color: $white;
+              color: var(--on-primary-color);
             }
 
             &.medium {
               background: $info-color;
-              color: $white;
+              color: var(--on-primary-color);
             }
           }
 
@@ -699,18 +699,18 @@
           font-weight: $font-weight-semibold;
 
           &.up {
-            background: rgba($success-color, 0.1);
-            color: $success-color;
+            background: rgba(var(--success-rgb), 0.1);
+            color: var(--success-color);
           }
 
           &.down {
-            background: rgba($error-color, 0.1);
-            color: $error-color;
+            background: rgba(var(--error-rgb), 0.1);
+            color: var(--error-color);
           }
 
           &.neutral {
-            background: rgba($warning-color, 0.1);
-            color: $warning-color;
+            background: rgba(var(--warning-rgb), 0.1);
+            color: var(--warning-color);
           }
         }
       }
@@ -825,15 +825,15 @@
       }
 
       &.positive mat-icon {
-        color: $success-color;
+        color: var(--success-color);
       }
 
       &.neutral mat-icon {
-        color: $warning-color;
+        color: var(--warning-color);
       }
 
       &.action mat-icon {
-        color: $primary-color;
+        color: var(--primary-color);
       }
 
       .insight-content {

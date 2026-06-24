@@ -110,7 +110,7 @@
       }
 
       &.active-link {
-        background: rgba($primary-color, 0.1);
+        background: rgba(var(--primary-rgb), 0.1);
         color: $primary-color;
 
         mat-icon {

@@ -146,17 +146,17 @@
           border-radius: $border-radius-full;
           
           &.up {
-            background: rgba($success-color, 0.1);
+            background: rgba(var(--success-rgb), 0.1);
             color: $success-color;
           }
           
           &.down {
-            background: rgba($error-color, 0.1);
+            background: rgba(var(--error-rgb), 0.1);
             color: $error-color;
           }
           
           &.new {
-            background: rgba($warning-color, 0.1);
+            background: rgba(var(--warning-rgb), 0.1);
             color: $warning-color;
           }
           
@@ -187,7 +187,7 @@
           .trend-category {
             font-size: $font-size-xs;
             color: $primary-color;
-            background: rgba($primary-color, 0.1);
+            background: rgba(var(--primary-rgb), 0.1);
             padding: 2px $spacing-2;
             border-radius: $border-radius-lg;
             font-weight: $font-weight-medium;
@@ -230,7 +230,7 @@
         padding: $spacing-2;
         
         &:hover:not(:disabled) {
-          background: rgba($primary-color, 0.1);
+          background: rgba(var(--primary-rgb), 0.1);
         }
       }
     }

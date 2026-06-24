@@ -1,6 +1,6 @@
     .dashboard-container {
       min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color) 100%);
       position: relative;
       overflow-x: hidden;
     }
@@ -12,7 +12,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color) 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -21,7 +21,7 @@
 
     .loading-content {
       text-align: center;
-      color: white;
+      color: var(--on-primary-color);
       padding: 2rem;
       animation: fadeInUp 0.6s ease-out;
     }
@@ -35,8 +35,8 @@
     .spinner {
       width: 3rem;
       height: 3rem;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-top: 3px solid white;
+      border: 3px solid rgba(var(--primary-rgb), 0.3);
+      border-top: 3px solid rgba(var(--primary-rgb), 0.4);
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
@@ -58,7 +58,7 @@
     /* Dashboard Wrapper */
     .dashboard-wrapper {
       min-height: 100vh;
-      background: #f8fafc;
+      background: var(--background-color);
       transition: all 0.3s ease;
     }
 
@@ -78,12 +78,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color) 100%);
     }
 
     .error-content {
       text-align: center;
-      color: white;
+      color: var(--on-primary-color);
       padding: 2rem;
     }
 
@@ -149,7 +149,7 @@
     /* Desktop Styles */
     @media (min-width: 1025px) {
       .dashboard-wrapper[data-device="desktop"] {
-        background: #ffffff;
+        background: var(--surface-color);
       }
     }
 
@@ -171,13 +171,13 @@
     /* High contrast mode support */
     @media (prefers-contrast: high) {
       .loading-overlay {
-        background: #000;
-        color: #fff;
+        background: var(--text-primary);
+        color: var(--on-primary-color);
       }
       
       .spinner {
-        border-color: #fff;
-        border-top-color: #000;
+        border-color: var(--on-primary-color);
+        border-top-color: var(--text-primary);
       }
       
      
@@ -186,7 +186,7 @@
     /* Dark mode support (if needed) */
     @media (prefers-color-scheme: dark) {
       .dashboard-wrapper {
-        background: #1f2937;
+        background: var(--surface-color);
       }
       
     }

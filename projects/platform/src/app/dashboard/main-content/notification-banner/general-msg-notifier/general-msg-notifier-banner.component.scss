@@ -7,7 +7,7 @@
   align-items: center;
   justify-content: space-between;
   // UPDATED: Use warning-color with lightened background for dynamic theming
-  background-color: rgba($warning-color, 0.1);
+  background-color: rgba(var(--warning-rgb), 0.1);
   // UPDATED: Use warning-color variable for dynamic theming
   color: $warning-color;
   padding: 12px;
@@ -107,7 +107,7 @@ a:hover {
   border-left: 4px solid;
   position: relative;
   // UPDATED: Use warning-color with lightened background for dynamic theming
-  background-color: rgba($warning-color, 0.1);
+  background-color: rgba(var(--warning-rgb), 0.1);
   // UPDATED: Use warning-color variable for dynamic theming
   color: $warning-color;
   // UPDATED: Use warning-color variable for dynamic theming

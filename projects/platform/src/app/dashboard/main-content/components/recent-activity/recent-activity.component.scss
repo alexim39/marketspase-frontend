@@ -64,7 +64,7 @@
         flex-shrink: 0;
         
         &.credit {
-          background: rgba($success-color, 0.1);
+          background: rgba(var(--success-rgb), 0.1);
           
           .activity-icon {
             color: $success-color;
@@ -72,7 +72,7 @@
         }
         
         &.debit {
-          background: rgba($error-color, 0.1);
+          background: rgba(var(--error-rgb), 0.1);
           
           .activity-icon {
             color: $error-color;
@@ -113,17 +113,17 @@
             color: color-mix($gray-800 85%);
             
             &.completed {
-              background: rgba($success-color, 0.1);
+              background: rgba(var(--success-rgb), 0.1);
               color: $success-color;
             }
             
             &.pending {
-              background: rgba($warning-color, 0.1);
+              background: rgba(var(--warning-rgb), 0.1);
               color: $warning-color;
             }
             
             &.failed {
-              background: rgba($error-color, 0.1);
+              background: rgba(var(--error-rgb), 0.1);
               color: $error-color;
             }
           }
@@ -143,7 +143,7 @@
           .activity-wallet {
             font-size: $font-size-xs;
             color: $primary-color;
-            background: rgba($primary-color, 0.1);
+            background: rgba(var(--primary-rgb), 0.1);
             padding: 2px $spacing-2;
             border-radius: $border-radius-lg;
             font-weight: $font-weight-medium;
@@ -175,7 +175,7 @@
     .empty-icon-container {
       width: 80px;
       height: 80px;
-      background: rgba($primary-color, 0.1);
+      background: rgba(var(--primary-rgb), 0.1);
       border-radius: $border-radius-full;
       @include flex-center;
       margin: 0 auto $spacing-5;

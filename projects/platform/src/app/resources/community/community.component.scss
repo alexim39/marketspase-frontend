@@ -415,7 +415,7 @@
     }
     
     &.hot {
-      background: rgba($warning-color, 0.1);
+      background: rgba(var(--warning-rgb), 0.1);
       color: $warning-color;
     }
     

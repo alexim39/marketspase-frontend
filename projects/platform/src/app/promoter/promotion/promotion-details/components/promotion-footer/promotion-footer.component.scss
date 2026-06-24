@@ -21,19 +21,19 @@
     
     &.alert-error {
       // UPDATED: Already using error-color with rgba - good!
-      background-color: rgba($error-color, 0.1);
+      background-color: rgba(var(--error-rgb), 0.1);
       color: $error-color;
     }
     
     &.alert-warning {
       // UPDATED: Already using warning-color with rgba - good!
-      background-color: rgba($warning-color, 0.1);
+      background-color: rgba(var(--warning-rgb), 0.1);
       color: $warning-color;
     }
     
     &.alert-info {
       // UPDATED: Already using info-color with rgba - good!
-      background-color: rgba($info-color, 0.1);
+      background-color: rgba(var(--info-rgb), 0.1);
       color: $info-color;
     }
     
@@ -80,7 +80,7 @@
         
         &:hover {
           // UPDATED: Use rgba with primary-color for hover background
-          background-color: rgba($primary-color, 0.1);
+          background-color: rgba(var(--primary-rgb), 0.1);
         }
       }
     }

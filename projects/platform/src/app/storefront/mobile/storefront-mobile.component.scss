@@ -166,11 +166,11 @@ button {
   min-height: 28px;
   padding: 4px 9px;
   border-radius: 999px;
-  background: rgba($success-color, 0.16);
+  background: rgba(var(--success-rgb), 0.16);
   color: $success-color;
   font-size: 12px;
   font-weight: 800;
-  border: 1px solid rgba($success-color, 0.32);
+  border: 1px solid rgba(var(--success-rgb), 0.32);
 
   mat-icon {
     width: 15px;
@@ -611,17 +611,17 @@ button {
     font-weight: 800;
 
     &.good {
-      background: rgba($success-color, 0.12);
+      background: rgba(var(--success-rgb), 0.12);
       color: $success-color;
     }
 
     &.warn {
-      background: rgba($warning-color, 0.12);
+      background: rgba(var(--warning-rgb), 0.12);
       color: $warning-color;
     }
 
     &.bad {
-      background: rgba($error-color, 0.12);
+      background: rgba(var(--error-rgb), 0.12);
       color: $error-color;
     }
   }

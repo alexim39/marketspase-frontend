@@ -79,9 +79,21 @@ export const dashboardRoutes: Routes = [
             {
                 path: 'messages',
                 children: [
-                    { path: 'inbox', redirectTo: '/dashboard/campaigns/collaboration?section=direct', pathMatch: 'full' },
-                    { path: 'groups', redirectTo: '/dashboard/campaigns/collaboration?section=rooms', pathMatch: 'full' },
-                    { path: '**', redirectTo: '/dashboard/campaigns/collaboration' },
+                    {
+                        path: '',
+                        loadComponent: () => import('../messages').then(c => c.CampaignCollaborationIndexComponent),
+                        data: { section: 'activity' },
+                    },
+                    {
+                        path: 'inbox',
+                        loadComponent: () => import('../messages').then(c => c.CampaignCollaborationIndexComponent),
+                        data: { section: 'direct' },
+                    },
+                    {
+                        path: 'groups',
+                        loadComponent: () => import('../messages').then(c => c.CampaignCollaborationIndexComponent),
+                        data: { section: 'rooms' },
+                    },
                 ],
             },
             // { path: 'settings', loadChildren: () => import('./settings/settings-routes').then(r => r.SettingsRoutes) },            

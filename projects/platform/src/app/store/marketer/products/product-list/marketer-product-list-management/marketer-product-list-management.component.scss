@@ -102,12 +102,12 @@
             transition: all $transition-normal;
             
             &.warning {
-              background: rgba($warning-color, 0.1);
+              background: rgba(var(--warning-rgb), 0.1);
               border-left: 3px solid $warning-color;
             }
             
             &.error {
-              background: rgba($error-color, 0.1);
+              background: rgba(var(--error-rgb), 0.1);
               border-left: 3px solid $error-color;
             }
             
@@ -128,7 +128,7 @@
               }
               
               &.warning {
-                background: rgba($warning-color, 0.3);
+                background: rgba(var(--warning-rgb), 0.3);
                 
                 mat-icon {
                   color: $warning-color;
@@ -136,7 +136,7 @@
               }
               
               &.error {
-                background: rgba($error-color, 0.3);
+                background: rgba(var(--error-rgb), 0.3);
                 
                 mat-icon {
                   color: $error-color;
@@ -214,7 +214,7 @@
           &:focus-within {
             border-color: $primary-color;
             background: $surface-color;
-            box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
           }
           
           @include mobile {
@@ -276,9 +276,9 @@
           align-items: center;
           gap: $spacing-2;
           padding: $spacing-1 $spacing-3;
-          background: rgba($primary-color, 0.1);
+          background: rgba(var(--primary-rgb), 0.1);
           border-radius: $border-radius;
-          border: 1px solid rgba($primary-color, 0.2);
+          border: 1px solid rgba(var(--primary-rgb), 0.2);
           
           .selected-count {
             @include caption;
@@ -292,7 +292,7 @@
             color: $primary-color;
             
             &:hover {
-              background: rgba($primary-color, 0.1);
+              background: rgba(var(--primary-rgb), 0.1);
             }
           }
           @include mobile {
@@ -420,7 +420,7 @@
         
         &.selected {
           border-color: $primary-color;
-          box-shadow: 0 0 0 3px rgba($primary-color, 0.2);
+          box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
         }
         
         .product-image {
@@ -758,7 +758,7 @@
           }
           
           &.selected {
-            background: rgba($primary-color, 0.05);
+            background: rgba(var(--primary-rgb), 0.05);
             border-left: 3px solid $primary-color;
           }
         }
@@ -893,7 +893,7 @@
           width: fit-content;
           
           &.primary {
-            background: rgba($success-color, 0.1);
+            background: rgba(var(--success-rgb), 0.1);
             color: $success-color;
             
             mat-icon {
@@ -902,7 +902,7 @@
           }
           
           &.accent {
-            background: rgba($warning-color, 0.1);
+            background: rgba(var(--warning-rgb), 0.1);
             color: $warning-color;
             
             mat-icon {
@@ -911,7 +911,7 @@
           }
           
           &.warn {
-            background: rgba($error-color, 0.1);
+            background: rgba(var(--error-rgb), 0.1);
             color: $error-color;
             
             mat-icon {

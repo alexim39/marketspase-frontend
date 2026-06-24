@@ -85,12 +85,12 @@
     
     &.video {
       // UPDATED: Use error-color with opacity for video badge
-      background: rgba($error-color, 0.9);
+      background: rgba(var(--error-rgb), 0.9);
     }
     
     &.image {
       // UPDATED: Use info-color with opacity for image badge
-      background: rgba($info-color, 0.9);
+      background: rgba(var(--info-rgb), 0.9);
     }
   }
   
@@ -106,21 +106,21 @@
     
     &.status-active {
       // UPDATED: Use success-color with light background
-      background: rgba($success-color, 1);
+      background: rgba(var(--success-rgb), 1);
       color: var(--on-primary-color);
       // color: $success-color;
     }
     
     &.status-paused {
       // UPDATED: Use warning-color with light background
-      background: rgba($warning-color, 1);
+      background: rgba(var(--warning-rgb), 1);
       //color: $warning-color;
       color: var(--on-primary-color);
     }
     
     &.status-completed {
       // UPDATED: Use primary-color with light background
-      background: rgba($primary-color, 1);
+      background: rgba(var(--primary-rgb), 1);
       //color: $primary-color;
       color: var(--on-primary-color);
     }
@@ -326,19 +326,19 @@
       
       &.status-active {
         // UPDATED: Use success-color with light background
-        background: rgba($success-color, 0.1);
+        background: rgba(var(--success-rgb), 0.1);
         color: $success-color;
       }
       
       &.status-paused {
         // UPDATED: Use warning-color with light background
-        background: rgba($warning-color, 0.1);
+        background: rgba(var(--warning-rgb), 0.1);
         color: $warning-color;
       }
       
       &.status-completed {
         // UPDATED: Use primary-color with light background
-        background: rgba($primary-color, 0.1);
+        background: rgba(var(--primary-rgb), 0.1);
         color: $primary-color;
       }
     }
@@ -432,12 +432,12 @@
     
     &.video {
       // UPDATED: Use error-color with opacity for video badge
-      background: rgba($error-color, 0.9);
+      background: rgba(var(--error-rgb), 0.9);
     }
     
     &.image {
       // UPDATED: Use info-color with opacity for image badge
-      background: rgba($info-color, 0.9);
+      background: rgba(var(--info-rgb), 0.9);
     }
   }
 }
@@ -699,7 +699,7 @@
   align-items: center;
   gap: 0.5rem;
   // UPDATED: Use success-color with light background
-  background-color: rgba($success-color, 0.1);
+  background-color: rgba(var(--success-rgb), 0.1);
   color: $success-color;
   font-size: 0.9rem;
   font-weight: 600;

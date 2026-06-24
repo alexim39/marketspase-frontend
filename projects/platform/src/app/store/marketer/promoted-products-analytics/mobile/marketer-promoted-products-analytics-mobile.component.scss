@@ -109,8 +109,8 @@
     white-space: nowrap;
 
     &.active {
-      border-color: rgba($primary-color, 0.45);
-      background: rgba($primary-color, 0.1);
+      border-color: rgba(var(--primary-rgb), 0.45);
+      background: rgba(var(--primary-rgb), 0.1);
       color: $primary-color;
     }
   }
@@ -258,7 +258,7 @@ label,
   margin-bottom: 14px;
   padding: 16px;
   background:
-    linear-gradient(135deg, rgba($primary-color, 0.12), rgba($success-color, 0.08)),
+    linear-gradient(135deg, rgba(var(--primary-rgb), 0.12), rgba(var(--success-rgb), 0.08)),
     $surface-color;
 
   span {
@@ -293,19 +293,19 @@ label,
   min-height: 30px;
   padding: 0 10px;
   border-radius: 999px;
-  background: rgba($success-color, 0.12);
+  background: rgba(var(--success-rgb), 0.12);
   color: $success-color;
   font-size: 0.76rem;
   font-weight: 900;
   white-space: nowrap;
 
   &.warn {
-    background: rgba($warning-color, 0.14);
+    background: rgba(var(--warning-rgb), 0.14);
     color: darken($warning-color, 18%);
   }
 
   &.bad {
-    background: rgba($error-color, 0.12);
+    background: rgba(var(--error-rgb), 0.12);
     color: $error-color;
   }
 }
@@ -361,8 +361,8 @@ label,
   gap: 12px;
   margin-bottom: 14px;
   padding: 14px;
-  background: rgba($primary-color, 0.06);
-  border-color: rgba($primary-color, 0.18);
+  background: rgba(var(--primary-rgb), 0.06);
+  border-color: rgba(var(--primary-rgb), 0.18);
 
   header {
     display: flex;
@@ -564,11 +564,11 @@ label,
   padding: 12px;
 
   &.warn {
-    border-color: rgba($warning-color, 0.45);
+    border-color: rgba(var(--warning-rgb), 0.45);
   }
 
   &.bad {
-    border-color: rgba($error-color, 0.45);
+    border-color: rgba(var(--error-rgb), 0.45);
   }
 }
 

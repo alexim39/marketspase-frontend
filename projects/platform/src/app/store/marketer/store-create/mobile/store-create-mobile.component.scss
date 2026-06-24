@@ -181,7 +181,7 @@
     &.active {
       border-color: rgba(var(--primary-rgb), 0.34);
       color: var(--primary-color);
-      background: rgba($success-color, 0.12);
+      background: rgba(var(--success-rgb), 0.12);
     }
 
     &.done span {
@@ -211,7 +211,7 @@
     border-radius: 16px;
     display: inline-grid;
     place-items: center;
-    background: rgba($success-color, 0.12);
+    background: rgba(var(--success-rgb), 0.12);
     color: var(--primary-color);
   }
 
@@ -316,7 +316,7 @@
 
   &.error {
     border-color: $error-color;
-    background: rgba($error-color, 0.05);
+    background: rgba(var(--error-rgb), 0.05);
   }
 
   img {
@@ -338,7 +338,7 @@
     border-radius: 24px;
     display: grid;
     place-items: center;
-    background: rgba($success-color, 0.12);
+    background: rgba(var(--success-rgb), 0.12);
     color: $success-color;
     font-weight: 900;
     font-size: 24px;
@@ -469,7 +469,7 @@
     margin-top: 7px;
     padding: 5px 10px;
     border-radius: 999px;
-    background: rgba($success-color, 0.12);
+    background: rgba(var(--success-rgb), 0.12);
     color: var(--primary-color);
     font-size: 12px;
     font-weight: 800;
@@ -496,8 +496,8 @@
   gap: 10px;
   margin-top: 14px;
   padding: 14px;
-  background: rgba($warning-color, 0.08);
-  border-color: rgba($warning-color, 0.3);
+  background: rgba(var(--warning-rgb), 0.08);
+  border-color: rgba(var(--warning-rgb), 0.3);
 
   mat-icon {
     color: $warning-color;
@@ -591,7 +591,7 @@
     display: grid;
     place-items: center;
     color: $warning-color;
-    background: rgba($warning-color, 0.08);
+    background: rgba(var(--warning-rgb), 0.08);
   }
 
   h2 {

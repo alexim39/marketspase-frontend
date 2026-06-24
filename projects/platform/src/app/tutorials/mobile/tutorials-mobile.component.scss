@@ -91,10 +91,10 @@ input {
   border-radius: 28px;
   padding: 20px;
   background:
-    linear-gradient(135deg, rgba($primary-color, 0.95), rgba(#0f766e, 0.9)),
+    linear-gradient(135deg, rgba(var(--primary-rgb), 0.95), rgba(#0f766e, 0.9)),
     $primary-color;
   color: var(--on-primary-color);
-  box-shadow: 0 18px 38px rgba($primary-color, 0.24);
+  box-shadow: 0 18px 38px rgba(var(--primary-rgb), 0.24);
 }
 
 .hero-copy {
@@ -235,8 +235,8 @@ input {
     font-weight: 900;
 
     &.active {
-      border-color: rgba($primary-color, 0.32);
-      background: rgba($primary-color, 0.12);
+      border-color: rgba(var(--primary-rgb), 0.32);
+      background: rgba(var(--primary-rgb), 0.12);
       color: $primary-color;
     }
 
@@ -348,7 +348,7 @@ input {
     border: 0;
     border-radius: 999px;
     padding: 0 13px;
-    background: rgba($primary-color, 0.12);
+    background: rgba(var(--primary-rgb), 0.12);
     color: $primary-color;
     font-size: 12px;
     font-weight: 950;
@@ -649,7 +649,7 @@ input {
     display: grid;
     place-items: center;
     border-radius: 16px;
-    background: rgba($primary-color, 0.12);
+    background: rgba(var(--primary-rgb), 0.12);
     color: $primary-color;
     font-size: 24px;
   }
@@ -785,8 +785,8 @@ input {
     font-weight: 850;
 
     &.active {
-      border-color: rgba($primary-color, 0.32);
-      background: rgba($primary-color, 0.12);
+      border-color: rgba(var(--primary-rgb), 0.32);
+      background: rgba(var(--primary-rgb), 0.12);
       color: $primary-color;
     }
 

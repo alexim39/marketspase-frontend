@@ -226,17 +226,7 @@
         </header>
 
         @if (pinnedMessages().length > 0) {
-          <div class="pinned-banner">
-            <mat-icon>push_pin</mat-icon>
-            <div class="pinned-content">
-              @for (msg of pinnedMessages(); track msg._id) {
-                <div class="pinned-item">
-                  <strong>{{ msg.sender?.displayName || 'Someone' }}</strong>
-                  <span>{{ msg.content }}</span>
-                </div>
-              }
-            </div>
-          </div>
+          <app-pinned-banner [messages]="pinnedMessages()" />
         }
 
         @if (loadingMessages()) {
@@ -273,10 +263,40 @@
                     <span>{{ formatTime(message.createdAt) }}</span>
                   </div>
                   <p [innerHTML]="getMessageHtml(message.content)"></p>
+                  @if (message.attachments?.length) {
+                    <div class="message-attachments">
+                      @for (att of message.attachments; track att.url) {
+                        <div class="message-attachment-item">
+                          @if (att.kind === 'image') {
+                            <a [href]="att.url" target="_blank" class="attachment-link">
+                              <img [src]="att.url" [alt]="att.label" class="attachment-image" loading="lazy" />
+                            </a>
+                          } @else {
+                            <a [href]="att.url" target="_blank" class="attachment-link attachment-file">
+                              <mat-icon>attach_file</mat-icon>
+                              <span>{{ att.label || 'Attachment' }}</span>
+                              <mat-icon>open_in_new</mat-icon>
+                            </a>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
                   @if (!isSystemMessage(message)) {
                     <button class="pin-toggle" type="button" [class.pinned]="message.isPinned" (click)="togglePinMessage(message)" [matTooltip]="message.isPinned ? 'Unpin' : 'Pin'" aria-label="Toggle pin">
                       <mat-icon>push_pin</mat-icon>
                     </button>
+                    <button class="react-toggle" type="button" (click)="showReactions(message)" aria-label="Add reaction">😊</button>
+                  }
+                  @if (getReactionSummary(message.reactions)) {
+                    <div class="reaction-bar">{{ getReactionSummary(message.reactions) }}</div>
+                  }
+                  @if (activeReactionMsgId() === message._id) {
+                    <div class="emoji-picker">
+                      @for (emoji of quickEmojis; track emoji) {
+                        <button type="button" (click)="toggleReact(message, emoji)">{{ emoji }}</button>
+                      }
+                    </div>
                   }
                   @if (isOwnMessage(message) && (isPendingMessage(message) || isFailedMessage(message))) {
                     <div class="message-delivery" [class.failed]="isFailedMessage(message)">
@@ -300,42 +320,11 @@
           </div>
         }
 
-        @if (typingIndicatorText()) {
-          <div class="typing-indicator" aria-live="polite">
-            <span class="typing-dots"><span></span><span></span><span></span></span>
-            <em>{{ typingIndicatorText() }}</em>
-          </div>
-        }
+        <app-typing-indicator [text]="typingIndicatorText()" />
 
-        @if (showMentionDropdown() && mentionSuggestions().length > 0) {
-          <div class="mention-dropdown">
-            @for (s of mentionSuggestions(); track s.username) {
-              <button type="button" class="mention-item" (click)="insertMention(s)">
-                <strong>@{{ s.username }}</strong>
-                <span>{{ s.displayName }}</span>
-              </button>
-            }
-          </div>
-        }
+        <app-mention-dropdown [suggestions]="mentionSuggestions()" (select)="insertMention($event)" />
 
-        <footer class="composer composer--chat">
-          <div class="composer-row">
-            <div class="composer-actions composer-actions--chat">
-              <button mat-icon-button type="button" class="composer-action" aria-label="Add emoji" (click)="openEmojiPicker($event)">
-                <mat-icon>emoji_emotions</mat-icon>
-              </button>
-            </div>
-            <mat-form-field appearance="outline" class="composer-field composer-field--chat">
-              <textarea matInput rows="1" cdkTextareaAutosize cdkAutosizeMinRows="1" cdkAutosizeMaxRows="6"
-                [ngModel]="draftMessage()" (ngModelChange)="onDraftChange($event)"
-                (keydown)="onComposerKeydown($event)" placeholder="Message"></textarea>
-              <button mat-icon-button matSuffix color="primary" type="button" [disabled]="!draftMessage().trim()"
-                (click)="sendMessage()" aria-label="Send message">
-                <mat-icon>send</mat-icon>
-              </button>
-            </mat-form-field>
-          </div>
-        </footer>
+        <app-message-composer [(draftMessage)]="draftMessage" [(attachment)]="pendingAttachment" (send)="sendMessage()" (emojiClick)="openEmojiPicker($event)" (fileSelected)="onFileSelected($event)" />
       } @else {
         <div class="conversation-empty conversation-empty--full">
           <mat-icon>forum</mat-icon>

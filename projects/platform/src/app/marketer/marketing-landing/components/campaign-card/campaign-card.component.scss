@@ -49,11 +49,11 @@
   text-transform: uppercase;
 
   &.status-active {
-    background: rgba($success-color, 0.1);
+    background: rgba(var(--success-rgb), 0.1);
     color: $success-color;
   }
   &.status-paused {
-    background: rgba($warning-color, 0.1);
+    background: rgba(var(--warning-rgb), 0.1);
     color: $warning-color;
   }
   &.status-draft {
@@ -61,15 +61,15 @@
     color: $secondary-color;
   }
   &.status-completed {
-    background: rgba($success-color, 0.1);
+    background: rgba(var(--success-rgb), 0.1);
     color: $success-color;
   }
   &.status-expired {
-    background: rgba($error-color, 0.1);
+    background: rgba(var(--error-rgb), 0.1);
     color: $error-color;
   }
   &.status-pending {
-    background: rgba($info-color, 0.1);
+    background: rgba(var(--info-rgb), 0.1);
     color: $info-color;
   }
   &.status-exhausted {
@@ -188,7 +188,7 @@
     position: absolute;
     inset: 0;
     // UPDATED: Use primary-color in gradient
-    background: linear-gradient(135deg, rgba(24,24,27,0.5) 60%, rgba($primary-color, 0.18) 100%);
+    background: linear-gradient(135deg, rgba(24,24,27,0.5) 60%, rgba(var(--primary-rgb), 0.18) 100%);
     z-index: 1;
     pointer-events: none;
   }
@@ -207,7 +207,7 @@
     align-items: center;
     justify-content: center;
     // UPDATED: Use primary-color in shadow
-    box-shadow: 0 4px 16px rgba($primary-color, 0.12);
+    box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.12);
     cursor: pointer;
     transition: background $transition-fast, box-shadow $transition-fast;
 
@@ -215,7 +215,7 @@
       // UPDATED: Use primary-color for hover state
       background: $primary-color;
       // UPDATED: Use primary-color in shadow
-      box-shadow: 0 8px 24px rgba($primary-color, 0.18);
+      box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.18);
       svg { fill: $white; }
     }
 
@@ -227,7 +227,7 @@
       width: 70px;
       height: 70px;
       // UPDATED: Use primary-color in pulse animation
-      background: rgba($primary-color, 0.18);
+      background: rgba(var(--primary-rgb), 0.18);
       border-radius: 50%;
       transform: translate(-50%, -50%);
       z-index: -1;
@@ -444,14 +444,14 @@
   padding: 0.75rem 1rem;
   background: transparent;
   color: $primary-color;
-  border: 1px solid rgba($primary-color, 0.45);
+  border: 1px solid rgba(var(--primary-rgb), 0.45);
   border-radius: 0.5rem;
   font-weight: 500;
   cursor: pointer;
   transition: all $transition-fast;
 
   &:hover:not(:disabled) {
-    background: rgba($primary-color, 0.08);
+    background: rgba(var(--primary-rgb), 0.08);
     transform: translateY(-1px);
   }
 
@@ -459,7 +459,7 @@
     border-color: $border-color;
     color: $text-tertiary;
     cursor: not-allowed;
-    background: rgba($primary-color, 0.03);
+    background: rgba(var(--primary-rgb), 0.03);
   }
 }
 
@@ -469,7 +469,7 @@
 
   &:hover {
     // UPDATED: Use error-color with lightened background
-    background: rgba($error-color, 0.1) !important;
+    background: rgba(var(--error-rgb), 0.1) !important;
   }
 }
 

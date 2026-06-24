@@ -241,7 +241,7 @@ button,
       }
       
       &:hover {
-        background-color: rgba($error-color, 0.1);
+        background-color: rgba(var(--error-rgb), 0.1);
         color: $error-color;
       }
     }
@@ -297,7 +297,7 @@ button,
     
     .mdc-evolution-chip {
       // UPDATED: Use primary-color with lightened background for dynamic theming
-      background-color: rgba($primary-color, 0.1);
+      background-color: rgba(var(--primary-rgb), 0.1);
       color: $primary-color;
       
       &--selected {
@@ -322,7 +322,7 @@ button,
       &:focus {
         outline: none;
         //border-color: $primary-color;
-        box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
       }
     }
   }
@@ -350,7 +350,7 @@ button,
       
       &:hover {
         // UPDATED: Use primary-color with lightened background for dynamic theming
-        background-color: rgba($primary-color, 0.1);
+        background-color: rgba(var(--primary-rgb), 0.1);
         border-color: $primary-color;
         color: $primary-color;
       }

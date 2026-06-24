@@ -191,7 +191,7 @@
 
   &:hover {
     box-shadow: $shadow-sm;
-    border-color: rgba($primary-color, 0.5);
+    border-color: rgba(var(--primary-rgb), 0.5);
   }
 
   &.static {
@@ -247,8 +247,8 @@
   align-items: flex-start;
   padding: $spacing-4;
   border-radius: $border-radius-md;
-  background: rgba($primary-color, 0.06);
-  border: 1px solid rgba($primary-color, 0.18);
+  background: rgba(var(--primary-rgb), 0.06);
+  border: 1px solid rgba(var(--primary-rgb), 0.18);
   margin-bottom: $spacing-5;
 
   mat-icon {
@@ -274,7 +274,7 @@
   align-items: center;
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba($primary-color, 0.12);
+  background: rgba(var(--primary-rgb), 0.12);
   color: $text-primary;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;

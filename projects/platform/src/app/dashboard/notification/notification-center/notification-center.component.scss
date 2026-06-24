@@ -89,7 +89,7 @@
 }
 
 .meta-pill.muted {
-  border-color: rgba($warning-color, 0.35);
+  border-color: rgba(var(--warning-rgb), 0.35);
 }
 
 .dot {
@@ -184,23 +184,23 @@
 }
 
 .notification-row.unread {
-  background: rgba($primary-color, 0.05);
+  background: rgba(var(--primary-rgb), 0.05);
 }
 
 .notification-row.tone-info {
-  border-left-color: rgba($info-color, 0.85);
+  border-left-color: rgba(var(--info-rgb), 0.85);
 }
 
 .notification-row.tone-success {
-  border-left-color: rgba($success-color, 0.85);
+  border-left-color: rgba(var(--success-rgb), 0.85);
 }
 
 .notification-row.tone-warning {
-  border-left-color: rgba($warning-color, 0.85);
+  border-left-color: rgba(var(--warning-rgb), 0.85);
 }
 
 .notification-row.tone-critical {
-  border-left-color: rgba($error-color, 0.9);
+  border-left-color: rgba(var(--error-rgb), 0.9);
 }
 
 .row-select {
@@ -222,7 +222,7 @@
 }
 
 .row-main:focus-visible {
-  outline: 2px solid rgba($primary-color, 0.35);
+  outline: 2px solid rgba(var(--primary-rgb), 0.35);
   outline-offset: 4px;
   border-radius: 8px;
 }
@@ -314,7 +314,7 @@
 }
 
 .row-chip.chip-unread {
-  border-color: rgba($primary-color, 0.25);
+  border-color: rgba(var(--primary-rgb), 0.25);
   color: $text-primary;
 }
 

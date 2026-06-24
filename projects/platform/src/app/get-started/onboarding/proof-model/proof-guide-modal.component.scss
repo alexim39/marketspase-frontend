@@ -563,7 +563,7 @@ mat-dialog-actions {
     position: absolute;
     border: 2px solid $success-color;
     border-radius: $border-radius-sm;
-    background: rgba($success-color, 0.1);
+    background: rgba(var(--success-rgb), 0.1);
     padding: $spacing-1 $spacing-2;
     animation: pulseHighlight 2s infinite;
     

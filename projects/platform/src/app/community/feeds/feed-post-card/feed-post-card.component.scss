@@ -153,7 +153,7 @@
 }
 
 .status-pill {
-  background: rgba($success-color, 0.12);
+  background: rgba(var(--success-rgb), 0.12);
   color: $success-color;
 }
 
@@ -236,8 +236,8 @@
   }
 
   &.product-highlight {
-    background: linear-gradient(135deg, rgba($success-color, 0.1) 0%, rgba($success-color, 0.03) 100%);
-    border-color: rgba($success-color, 0.08);
+    background: linear-gradient(135deg, rgba(var(--success-rgb), 0.1) 0%, rgba(var(--success-rgb), 0.03) 100%);
+    border-color: rgba(var(--success-rgb), 0.08);
 
     .highlight-icon mat-icon {
       color: $success-color;
@@ -424,7 +424,7 @@
 
   &.like-btn.active {
     color: $error-color;
-    background: rgba($error-color, 0.08);
+    background: rgba(var(--error-rgb), 0.08);
   }
 
   &.save-btn.active {
