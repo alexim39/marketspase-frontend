@@ -313,6 +313,7 @@ export interface CollaborationMessage {
     readAt: string | Date;
   }>;
   isPinned?: boolean;
+  reactions?: Array<{ emoji: string; user: string }>;
   createdAt: string | Date;
   updatedAt?: string | Date;
 }
@@ -630,6 +631,26 @@ export class CollaborationService {
     return this.apiService.patch<{ success: boolean }>(
       `api/v1/collaboration/conversations/${conversationId}/messages/${messageId}/unpin`,
       {},
+      undefined,
+      true
+    );
+  }
+
+  reactToMessage(conversationId: string, messageId: string, emoji: string): Observable<{ success: boolean; data: { _id: string; reactions: Array<{ emoji: string; user: string }> } }> {
+    return this.apiService.patch<{ success: boolean; data: { _id: string; reactions: Array<{ emoji: string; user: string }> } }>(
+      `api/v1/collaboration/conversations/${conversationId}/messages/${messageId}/react`,
+      { emoji },
+      undefined,
+      true
+    );
+  }
+
+  uploadAttachment(conversationId: string, file: File): Observable<{ success: boolean; data: { url: string; kind: string; label: string } }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.apiService.post<{ success: boolean; data: { url: string; kind: string; label: string } }>(
+      `api/v1/collaboration/conversations/${conversationId}/attachments`,
+      formData,
       undefined,
       true
     );

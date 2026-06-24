@@ -41,6 +41,19 @@
                   <span>{{ formatTime(message.createdAt) }}</span>
                 </div>
                 <p [innerHTML]="getMessageHtml(message.content)"></p>
+                @if (message.attachments?.length) {
+                  <div class="message-attachments">
+                    @for (att of message.attachments; track att.url) {
+                      @if (att.kind === 'image') {
+                        <a [href]="att.url" target="_blank"><img [src]="att.url" [alt]="att.label" class="attachment-image" loading="lazy" /></a>
+                      } @else {
+                        <a [href]="att.url" target="_blank" class="attachment-link attachment-file">
+                          <mat-icon>attach_file</mat-icon><span>{{ att.label || 'Attachment' }}</span><mat-icon>open_in_new</mat-icon>
+                        </a>
+                      }
+                    }
+                  </div>
+                }
                 @if (!isSystemMessage(message)) {
                   <button class="pin-toggle" type="button" [class.pinned]="message.isPinned" (click)="togglePinMessage(message)" aria-label="Toggle pin"><mat-icon>push_pin</mat-icon></button>
                 }
@@ -67,7 +80,7 @@
 
       <app-mention-dropdown [suggestions]="mentionSuggestions()" (select)="insertMention($event)" />
 
-      <app-message-composer [(draftMessage)]="draftMessage" (send)="sendMessage()" (emojiClick)="openEmojiPicker($event)" />
+      <app-message-composer [(draftMessage)]="draftMessage" [(attachment)]="pendingAttachment" (send)="sendMessage()" (emojiClick)="openEmojiPicker($event)" (fileSelected)="onFileSelected($event)" />
     </section>
   } @else {
     <!-- List views -->

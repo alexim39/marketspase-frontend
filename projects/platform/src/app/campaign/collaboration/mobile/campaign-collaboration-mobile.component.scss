@@ -732,6 +732,42 @@
   &:hover .pin-toggle { opacity: 0.6; }
 }
 
+.message-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+
+.attachment-image {
+  max-width: 100%;
+  max-height: 180px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(var(--primary-rgb), 0.1);
+  display: block;
+}
+
+.attachment-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(var(--primary-rgb), 0.06);
+  border: 1px solid rgba(var(--primary-rgb), 0.12);
+  text-decoration: none;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+}
+
+.attachment-file span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .mention-dropdown {
   position: absolute;
   bottom: 0;
