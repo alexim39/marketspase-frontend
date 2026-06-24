@@ -24,6 +24,7 @@ import { PinnedBannerComponent } from './components/pinned-banner/pinned-banner.
 import { TypingIndicatorComponent } from './components/typing-indicator/typing-indicator.component';
 import { MentionDropdownComponent } from './components/mention-dropdown/mention-dropdown.component';
 import { MessageComposerComponent } from './components/composer/message-composer.component';
+import { PromoterTierBadgeComponent } from '../../common/components/promoter-tier-badge/promoter-tier-badge.component';
 
 type ConversationKind = 'all' | 'direct' | 'campaign_room' | 'promotion_room' | 'context_room';
 
@@ -64,6 +65,7 @@ interface RecentCollaborator {
     TypingIndicatorComponent,
     MentionDropdownComponent,
     MessageComposerComponent,
+    PromoterTierBadgeComponent,
   ],
   providers: [DatePipe, TitleCasePipe],
   templateUrl: './collaboration.component.html',

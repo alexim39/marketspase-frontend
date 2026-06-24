@@ -34,6 +34,10 @@
               <mat-icon>edit</mat-icon>
               Edit Campaign
             </button>
+            <label class="auto-renew-toggle">
+              <input type="checkbox" [checked]="autoRenewEnabled()" (change)="toggleAutoRenew($event)" />
+              <span>Auto-Renew</span>
+            </label>
           }
           <!-- <button class="btn btn-outline" mat-raised-button (click)="targetAudienceByLocation()">
             <mat-icon>edit_location</mat-icon>
@@ -410,6 +414,7 @@
                     <div class="avatar">{{getInitials(promotion.promoter.displayName)}}</div>
                     <div class="promoter-details">
                       <span class="promoter-name">{{promotion.promoter.displayName || 'Unknown'}}</span>
+                      <promoter-tier-badge [promoterId]="promotion.promoter._id" />
                      @if (promotion.promoter.rating) {
                        <span class="promoter-rating">
                         <mat-icon>star</mat-icon>

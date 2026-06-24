@@ -248,6 +248,9 @@
                 Promotion {{ conversation.promotion?.upi }}
               } @else {
                 {{ counterpartyLabel() }}
+                @if (conversation.type === 'direct' && conversation.counterpart?._id) {
+                  <promoter-tier-badge [promoterId]="conversation.counterpart!._id" />
+                }
               }
             </p>
           </div>

@@ -9,11 +9,11 @@
     </div>
     <div class="header-actions">
       <button mat-stroked-button (click)="saveDraft()" class="save-draft-btn" matTooltip="Save campaign for later" [disabled]="isSubmitting()">
-        <!-- <mat-icon>save</mat-icon> -->
-         Save
-        @if (deviceType() === 'desktop') {
-          As Draft
-        }
+        Save
+        @if (deviceType() === 'desktop') { As Draft }
+      </button>
+      <button mat-stroked-button (click)="loadTemplate()" matTooltip="Start from a saved template">
+        <mat-icon>description</mat-icon> Use Template
       </button>
     </div>
   </mat-toolbar>

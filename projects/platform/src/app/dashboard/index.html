@@ -59,9 +59,11 @@
           }
           
         </div>
+        
+        <app-onboarding-overlay />
       }
-      
-      <!-- Fallback for unauthenticated users (shouldn't normally show due to redirect) -->
+
+      <!-- Fallback for unauthenticated users -->
       @else {
         <div class="error-state" role="alert">
           <div class="error-content">

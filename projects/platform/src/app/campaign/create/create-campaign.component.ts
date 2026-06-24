@@ -360,6 +360,10 @@ export class CreateCampaignComponent implements OnInit {
     });
   }
 
+  loadTemplate(): void {
+    this.snackBar.open('Template loading coming soon', 'OK', { duration: 2000 });
+  }
+
   onSaveAsDraft(): void {
     if (this.currentStep() === 3) {
       if (this.budgetForm.get('ageTarget')?.valid) {

@@ -18,6 +18,8 @@ import { PromotionDetailsDialogComponent } from './promotion-details-dialog/prom
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { TruncateIDPipe } from './truncate-id.pipe';
 import { CampaignDetailsService } from './campaign-details.service';
+import { CollaborationService } from '../collaboration/collaboration.service';
+import { PromoterTierBadgeComponent } from '../../common/components/promoter-tier-badge/promoter-tier-badge.component';
 import { MediaViewerOnlyDialogComponent } from './media-viewer-dialog/media-viewer-dialog.component';
 import { UserService } from '../../common/services/user.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -61,7 +63,8 @@ export enum CampaignStatus {
     ShortNumberPipe,
     //CategoryPlaceholderPipe,
     MatProgressBarModule,
-    TruncateIDPipe
+    TruncateIDPipe,
+    PromoterTierBadgeComponent,
   ],
   templateUrl: './campaign-details.component.html',
   styleUrls: ['./campaign-details.component.scss']
@@ -70,6 +73,7 @@ export class CampaignDetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private campaignDetailsService = inject(CampaignDetailsService);
+  private collaborationService = inject(CollaborationService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
@@ -97,6 +101,18 @@ export class CampaignDetailsComponent implements OnInit {
       : campaign.owner?._id;
     return ownerId === u._id;
   });
+
+  readonly autoRenewEnabled = signal(false);
+
+  toggleAutoRenew(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    const campaign = this.campaign();
+    if (!campaign) return;
+    this.collaborationService.setAutoRenew(campaign._id, checked).subscribe({
+      next: () => { this.autoRenewEnabled.set(checked); this.snackBar.open(checked ? 'Auto-renew enabled' : 'Auto-renew disabled', 'OK', { duration: 2000 }); },
+      error: () => this.snackBar.open('Failed to update auto-renew', 'Close', { duration: 2000 }),
+    });
+  }
 
   private readonly destroyRef = inject(DestroyRef);
 
