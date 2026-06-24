@@ -252,6 +252,21 @@ export interface DashboardConversation {
   promotionId: string | null;
 }
 
+export interface ActivityEvent {
+  type: 'message' | 'campaign_update';
+  id: string;
+  actor?: string;
+  actorAvatar?: string;
+  content?: string;
+  conversationTitle?: string;
+  conversationId?: string;
+  conversationType?: string;
+  title?: string;
+  status?: string;
+  isOwner?: boolean;
+  createdAt: string | Date;
+}
+
 export interface CollaborationConversation {
   _id: string;
   type: 'direct' | 'campaign_room' | 'promotion_room' | 'context_room';
@@ -555,6 +570,16 @@ export class CollaborationService {
     return this.apiService.get<{ success: boolean; data: { conversations: DashboardConversation[] } }>(
       'api/v1/collaboration/dashboard',
       undefined,
+      undefined,
+      true
+    );
+  }
+
+  getActivityFeed(page: number = 1, limit: number = 15): Observable<{ success: boolean; data: { events: ActivityEvent[]; page: number; total: number } }> {
+    const params = new HttpParams().set('page', page.toString()).set('limit', limit.toString());
+    return this.apiService.get<{ success: boolean; data: { events: ActivityEvent[]; page: number; total: number } }>(
+      'api/v1/collaboration/activity-feed',
+      params,
       undefined,
       true
     );

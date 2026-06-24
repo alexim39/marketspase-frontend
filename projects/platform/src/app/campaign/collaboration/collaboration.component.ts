@@ -98,6 +98,8 @@ export class CampaignCollaborationComponent {
   readonly typingUsers = signal<Map<string, string>>(new Map());
   readonly pinnedMessages = signal<CollaborationMessage[]>([]);
   readonly activeSection = signal<'activity' | 'direct' | 'rooms'>('activity');
+  readonly activityEvents = signal<any[]>([]);
+  readonly loadingActivity = signal(false);
   readonly mentionQuery = signal('');
   readonly mentionSuggestions = signal<Array<{ username: string; displayName: string }>>([]);
   readonly showMentionDropdown = signal(false);
@@ -344,6 +346,7 @@ export class CampaignCollaborationComponent {
       this.realtimeService.connect(user._id);
       this.loadConversations();
       this.loadStarterEntries();
+      this.loadActivityFeed();
     });
 
     effect(() => {
@@ -373,6 +376,17 @@ export class CampaignCollaborationComponent {
   refresh(): void {
     this.loadConversations();
     this.loadStarterEntries();
+    this.loadActivityFeed();
+  }
+
+  loadActivityFeed(): void {
+    this.loadingActivity.set(true);
+    this.collaborationService.getActivityFeed(1, 15)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r) => { this.activityEvents.set(r.data?.events || []); this.loadingActivity.set(false); },
+        error: () => this.loadingActivity.set(false),
+      });
   }
 
   setKindFilter(kind: string): void {

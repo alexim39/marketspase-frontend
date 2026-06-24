@@ -157,6 +157,34 @@
     </section>
   }
 
+  @if (activityEvents().length > 0) {
+    <section class="panel-card activity-timeline">
+      <div class="panel-head"><h2>Recent Activity</h2></div>
+      <div class="timeline-list">
+        @for (event of activityEvents(); track event.id + event.type) {
+          <div class="timeline-item">
+            @if (event.type === 'message') {
+              <mat-icon class="tl-icon">chat</mat-icon>
+              <div class="tl-body">
+                <strong>{{ event.actor }}</strong> in <em>{{ event.conversationTitle }}</em>
+                <p>{{ event.content }}</p>
+                <span class="tl-time">{{ formatTime(event.createdAt) }}</span>
+              </div>
+            }
+            @if (event.type === 'campaign_update') {
+              <mat-icon class="tl-icon">campaign</mat-icon>
+              <div class="tl-body">
+                <strong>{{ event.title }}</strong>
+                <span class="status-badge" [class]="'status-badge status-' + event.status">{{ event.status | titlecase }}</span>
+                <span class="tl-time">{{ formatTime(event.createdAt) }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  }
+
   <!-- Conversation workspace (shared across all sections) -->
   <section class="workspace-shell" [class.standalone]="activeSection() !== 'activity'">
     <aside class="thread-rail">
