@@ -82,15 +82,15 @@
         }
         
         &.badge-discount {
-          background: linear-gradient(135deg, rgba($error-color, 0.9) 0%, rgba($error-color, 0.8) 100%);
+          background: linear-gradient(135deg, rgba(var(--error-rgb), 0.9) 0%, rgba(var(--error-rgb), 0.8) 100%);
         }
         
         &.badge-featured {
-          background: linear-gradient(135deg, rgba($warning-color, 0.9) 0%, rgba($warning-color, 0.8) 100%);
+          background: linear-gradient(135deg, rgba(var(--warning-rgb), 0.9) 0%, rgba(var(--warning-rgb), 0.8) 100%);
         }
         
         &.badge-low-stock {
-          background: linear-gradient(135deg, rgba($warning-color, 0.9) 0%, rgba($warning-color, 0.8) 100%);
+          background: linear-gradient(135deg, rgba(var(--warning-rgb), 0.9) 0%, rgba(var(--warning-rgb), 0.8) 100%);
         }
       }
     }

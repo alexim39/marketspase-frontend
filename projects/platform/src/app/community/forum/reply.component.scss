@@ -12,7 +12,7 @@
   transition: border-color $transition-normal;
   
   &:hover {
-    border-color: rgba($primary-color, 0.3);
+    border-color: rgba(var(--primary-rgb), 0.3);
   }
   
   .reply-main {
@@ -87,7 +87,7 @@
         transition: background-color $transition-fast;
         
         &:hover {
-          background-color: rgba($error-color, 0.1);
+          background-color: rgba(var(--error-rgb), 0.1);
         }
         
         mat-icon {
@@ -148,16 +148,16 @@
         }
         
         &:hover {
-          background: rgba($primary-color, 0.1) !important;
+          background: rgba(var(--primary-rgb), 0.1) !important;
           color: $primary-color !important;
         }
         
         &.liked {
           color: $error-color !important;
-          background-color: rgba($error-color, 0.1) !important;
+          background-color: rgba(var(--error-rgb), 0.1) !important;
           
           &:hover {
-            background-color: rgba($error-color, 0.2) !important;
+            background-color: rgba(var(--error-rgb), 0.2) !important;
           }
         }
       }
@@ -202,7 +202,7 @@
     background-color: color-mix(in srgb, var(--surface-color), black 5%);
     
     &:hover {
-      border-color: rgba($primary-color, 0.5);
+      border-color: rgba(var(--primary-rgb), 0.5);
     }
   }
   
@@ -212,14 +212,14 @@
   
   .reply-actions button {
     &:hover {
-      background-color: rgba($primary-color, 0.15) !important;
+      background-color: rgba(var(--primary-rgb), 0.15) !important;
     }
     
     &.liked {
-      background-color: rgba($error-color, 0.15) !important;
+      background-color: rgba(var(--error-rgb), 0.15) !important;
       
       &:hover {
-        background-color: rgba($error-color, 0.25) !important;
+        background-color: rgba(var(--error-rgb), 0.25) !important;
       }
     }
   }

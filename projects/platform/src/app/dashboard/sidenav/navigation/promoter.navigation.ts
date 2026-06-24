@@ -82,7 +82,7 @@ export function getPromoterNavigation(
           icon: 'dynamic_feed',
           label: 'Activity Feed',
           //route: '/dashboard/messages/activity'
-          route: '/dashboard/campaigns/collaboration'
+          route: '/dashboard/messages'
         },
       ]
     },

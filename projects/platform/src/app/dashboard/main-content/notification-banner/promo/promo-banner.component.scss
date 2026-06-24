@@ -10,7 +10,7 @@
   margin: 20px;
   overflow: hidden;
   // UPDATED: Use primary-color with rgba for dynamic theming
-  box-shadow: 0 4px 20px rgba($primary-color, 0.3);
+  box-shadow: 0 4px 20px rgba(var(--primary-rgb), 0.3);
   position: relative;
   transition: all 0.3s ease;
   
@@ -146,11 +146,11 @@
 @keyframes pulse-glow {
   0%, 100% {
     // UPDATED: Use primary-color with rgba for dynamic theming
-    box-shadow: 0 4px 20px rgba($primary-color, 0.3);
+    box-shadow: 0 4px 20px rgba(var(--primary-rgb), 0.3);
   }
   50% {
     // UPDATED: Use primary-color with rgba for dynamic theming
-    box-shadow: 0 4px 30px rgba($primary-color, 0.6);
+    box-shadow: 0 4px 30px rgba(var(--primary-rgb), 0.6);
   }
 }
 

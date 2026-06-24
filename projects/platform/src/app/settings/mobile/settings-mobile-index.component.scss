@@ -155,7 +155,7 @@ button {
   gap: 7px;
   border-radius: 999px;
   padding: 0 10px;
-  background: rgba($error-color, 0.12);
+  background: rgba(var(--error-rgb), 0.12);
   color: $error-color;
   font-size: 12px;
   font-weight: 900;
@@ -168,7 +168,7 @@ button {
   }
 
   &.online {
-    background: rgba($success-color, 0.12);
+    background: rgba(var(--success-rgb), 0.12);
     color: $success-color;
   }
 
@@ -259,8 +259,8 @@ button {
     font-weight: 900;
 
     &.active {
-      border-color: rgba($primary-color, 0.32);
-      background: rgba($primary-color, 0.12);
+      border-color: rgba(var(--primary-rgb), 0.32);
+      background: rgba(var(--primary-rgb), 0.12);
       color: $primary-color;
     }
 
@@ -289,22 +289,22 @@ button {
   text-decoration: none;
 
   &.active-card {
-    border-color: rgba($primary-color, 0.38);
-    background: rgba($primary-color, 0.12);
+    border-color: rgba(var(--primary-rgb), 0.38);
+    background: rgba(var(--primary-rgb), 0.12);
   }
 
   &.success .shortcut-icon {
-    background: rgba($success-color, 0.12);
+    background: rgba(var(--success-rgb), 0.12);
     color: $success-color;
   }
 
   &.warning .shortcut-icon {
-    background: rgba($warning-color, 0.12);
+    background: rgba(var(--warning-rgb), 0.12);
     color: $warning-color;
   }
 
   &.info .shortcut-icon {
-    background: rgba($info-color, 0.12);
+    background: rgba(var(--info-rgb), 0.12);
     color: $info-color;
   }
 }
@@ -315,7 +315,7 @@ button {
   display: grid;
   place-items: center;
   border-radius: 16px;
-  background: rgba($primary-color, 0.12);
+  background: rgba(var(--primary-rgb), 0.12);
   color: $primary-color;
 }
 

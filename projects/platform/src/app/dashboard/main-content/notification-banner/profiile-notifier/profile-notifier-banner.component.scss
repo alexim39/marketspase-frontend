@@ -4,7 +4,7 @@
 
 .profile-completion-banner {
   // UPDATED: Use info-color with lightened background for dynamic theming
-  background-color: rgba($info-color, 0.08);
+  background-color: rgba(var(--info-rgb), 0.08);
   // UPDATED: Use info-color variable for dynamic theming
   color: $info-color;
   border-radius: 12px;
@@ -12,7 +12,7 @@
   position: relative;
   overflow: hidden;
   border-left: 4px solid $info-color;
-  box-shadow: 0 4px 20px rgba($info-color, 0.1);
+  box-shadow: 0 4px 20px rgba(var(--info-rgb), 0.1);
   animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   
   // Optional: Add a subtle gradient effect
@@ -25,7 +25,7 @@
     left: 0;
     background: linear-gradient(90deg, 
       transparent 0%, 
-      rgba($info-color, 0.03) 50%, 
+      rgba(var(--info-rgb), 0.03) 50%, 
       transparent 100%);
     pointer-events: none;
   }
@@ -153,9 +153,9 @@
     &:hover {
       // UPDATED: Use darken-bg mixin for consistent darkening
       @include darken-bg($info-color, 10%);
-      background-color: rgba($info-color, 0.1);
+      background-color: rgba(var(--info-rgb), 0.1);
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba($info-color, 0.2);
+      box-shadow: 0 4px 12px rgba(var(--info-rgb), 0.2);
     }
     
     &:active {
@@ -222,7 +222,7 @@
       opacity: 1;
       // UPDATED: Use darken-bg mixin for consistent darkening
       @include darken-bg($info-color, 20%);
-      background-color: rgba($info-color, 0.1);
+      background-color: rgba(var(--info-rgb), 0.1);
     }
   }
 
@@ -236,7 +236,7 @@
 
   .progress-bar {
     height: 6px;
-    background-color: rgba($info-color, 0.15);
+    background-color: rgba(var(--info-rgb), 0.15);
     border-radius: 3px;
     overflow: hidden;
     margin-bottom: 6px;
@@ -369,10 +369,10 @@ a {
 // Optional: Add a subtle pulsing effect for attention
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 4px 20px rgba($info-color, 0.1);
+    box-shadow: 0 4px 20px rgba(var(--info-rgb), 0.1);
   }
   50% {
-    box-shadow: 0 4px 25px rgba($info-color, 0.2);
+    box-shadow: 0 4px 25px rgba(var(--info-rgb), 0.2);
   }
 }
 

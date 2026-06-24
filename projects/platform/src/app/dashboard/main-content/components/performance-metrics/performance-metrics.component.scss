@@ -128,12 +128,12 @@
       border-radius: $border-radius-xl;
       
       &.up {
-        background: rgba($success-color, 0.1);
+        background: rgba(var(--success-rgb), 0.1);
         color: $success-color;
       }
       
       &.down {
-        background: rgba($error-color, 0.1);
+        background: rgba(var(--error-rgb), 0.1);
         color: $error-color;
       }
       
@@ -197,7 +197,7 @@
   // Different metric card styles with theme-aware backgrounds
   &.metric-1 {
     .metric-icon {
-      background: rgba($primary-color, 0.1);
+      background: rgba(var(--primary-rgb), 0.1);
       
       mat-icon {
         color: $primary-color;
@@ -207,7 +207,7 @@
   
   &.metric-2 {
     .metric-icon {
-      background: rgba($warning-color, 0.1);
+      background: rgba(var(--warning-rgb), 0.1);
       
       mat-icon {
         color: $warning-color;
@@ -217,7 +217,7 @@
   
   &.metric-3 {
     .metric-icon {
-      background: rgba($success-color, 0.1);
+      background: rgba(var(--success-rgb), 0.1);
       
       mat-icon {
         color: $success-color;

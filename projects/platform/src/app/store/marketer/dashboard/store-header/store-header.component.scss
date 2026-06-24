@@ -52,7 +52,7 @@
   background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
   border-radius: $border-radius-xl;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba($primary-color, 0.2);
+  box-shadow: 0 8px 32px rgba(var(--primary-rgb), 0.2);
   
   .no-store-content {
     padding: $spacing-8;
@@ -285,7 +285,7 @@
       font-weight: $font-weight-medium;
       
       &.active {
-        background: rgba($success-color, 0.1);
+        background: rgba(var(--success-rgb), 0.1);
         color: $success-color;
       }
       
@@ -295,7 +295,7 @@
       }
       
       &.inactive {
-        background: rgba($error-color, 0.1);
+        background: rgba(var(--error-rgb), 0.1);
         color: $error-color;
       }
       
@@ -585,7 +585,7 @@
   }
   
   .active-store {
-    background: rgba($primary-color, 0.04);
+    background: rgba(var(--primary-rgb), 0.04);
   }
   
   .create-store-menu-item {
@@ -644,7 +644,7 @@
   width: 48px;
   height: 48px;
   border-radius: $border-radius-md;
-  background: rgba($primary-color, 0.1);
+  background: rgba(var(--primary-rgb), 0.1);
   display: flex;
   align-items: center;
   justify-content: center;

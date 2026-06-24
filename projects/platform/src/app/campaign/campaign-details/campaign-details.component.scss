@@ -102,22 +102,22 @@
         font-weight: 600;
         
         &.status-active {
-          background-color: rgba($success-color, 0.1);
+          background-color: rgba(var(--success-rgb), 0.1);
           color: $success-color;
         }
         
         &.status-paused {
-          background-color: rgba($warning-color, 0.1);
+          background-color: rgba(var(--warning-rgb), 0.1);
           color: $warning-color;
         }
         
         &.status-completed {
-          background-color: rgba($info-color, 0.1);
+          background-color: rgba(var(--info-rgb), 0.1);
           color: $info-color;
         }
         
         &.status-pending {
-          background-color: rgba($info-color, 0.1);
+          background-color: rgba(var(--info-rgb), 0.1);
           color: $info-color;
         }
         
@@ -127,7 +127,7 @@
         }
         
         &.status-rejected {
-          background-color: rgba($error-color, 0.1);
+          background-color: rgba(var(--error-rgb), 0.1);
           color: $error-color;
         }
 
@@ -327,7 +327,7 @@
         width: 48px;
         height: 48px;
         border-radius: 12px;
-        background-color: rgba($primary-color, 0.1);
+        background-color: rgba(var(--primary-rgb), 0.1);
         color: $primary-color;
         
         mat-icon {
@@ -553,27 +553,27 @@
             font-weight: 600;
             
             &.status-pending {
-              background-color: rgba($info-color, 0.1);
+              background-color: rgba(var(--info-rgb), 0.1);
               color: $info-color;
             }
             
             &.status-submitted {
-              background-color: rgba($warning-color, 0.1);
+              background-color: rgba(var(--warning-rgb), 0.1);
               color: $warning-color;
             }
             
             &.status-validated {
-              background-color: rgba($success-color, 0.1);
+              background-color: rgba(var(--success-rgb), 0.1);
               color: $success-color;
             }
             
             &.status-paid {
-              background-color: rgba($success-color, 0.1);
+              background-color: rgba(var(--success-rgb), 0.1);
               color: $success-color;
             }
             
             &.status-rejected {
-              background-color: rgba($error-color, 0.1);
+              background-color: rgba(var(--error-rgb), 0.1);
               color: $error-color;
             }
 
@@ -1006,14 +1006,14 @@
   
   .tag {
     padding: 0.35rem 0.75rem;
-    background-color: rgba($primary-color, 0.1);
+    background-color: rgba(var(--primary-rgb), 0.1);
     color: $primary-color;
     border-radius: 16px;
     font-size: 0.8rem;
     font-weight: 500;
     
     &:hover {
-      background-color: rgba($primary-color, 0.2);
+      background-color: rgba(var(--primary-rgb), 0.2);
     }
   }
 }
@@ -1078,7 +1078,7 @@
     }
     
     &:hover {
-      background-color: rgba($primary-color, 0.1);
+      background-color: rgba(var(--primary-rgb), 0.1);
     }
   }
 }

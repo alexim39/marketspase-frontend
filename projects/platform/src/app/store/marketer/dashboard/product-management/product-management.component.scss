@@ -338,17 +338,17 @@
           font-weight: $font-weight-medium;
 
           &.primary {
-            background: rgba($success-color, 0.1);
+            background: rgba(var(--success-rgb), 0.1);
             color: $success-color;
           }
 
           &.accent {
-            background: rgba($warning-color, 0.1);
+            background: rgba(var(--warning-rgb), 0.1);
             color: $warning-color;
           }
 
           &.warn {
-            background: rgba($error-color, 0.1);
+            background: rgba(var(--error-rgb), 0.1);
             color: $error-color;
           }
 

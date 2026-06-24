@@ -285,7 +285,7 @@
             align-items: center;
             gap: $spacing-1;
             padding: $spacing-1 $spacing-3;
-            background: rgba($success-color, 0.1);
+            background: rgba(var(--success-rgb), 0.1);
             color: $success-color;
             border-radius: $border-radius-full;
             font-size: $font-size-xs;
@@ -313,8 +313,8 @@
         border: 1px solid var(--border-color);
         
         &.highlight {
-            background: rgba($primary-color, 0.1);
-            border-color: rgba($primary-color, 0.2);
+            background: rgba(var(--primary-rgb), 0.1);
+            border-color: rgba(var(--primary-rgb), 0.2);
         }
         
         .stat-label {

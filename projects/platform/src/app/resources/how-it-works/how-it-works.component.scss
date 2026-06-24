@@ -700,7 +700,7 @@
   }
   
   &.promoter {
-    background: rgba($error-color, 0.1);
+    background: rgba(var(--error-rgb), 0.1);
     color: $error-color;
   }
   

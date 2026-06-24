@@ -39,7 +39,7 @@
 
   .profile-cover-skeleton {
     height: 200px;
-    background: linear-gradient(135deg, rgba($primary-color, 0.3), rgba($secondary-color, 0.3));
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.3), rgba($secondary-color, 0.3));
   }
 
   .profile-info-skeleton {

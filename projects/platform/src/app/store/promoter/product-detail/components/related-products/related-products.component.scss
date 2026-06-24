@@ -106,7 +106,7 @@
             font-size: $font-size-xs;
             padding: 1px $spacing-2;
             border-radius: $border-radius-full;
-            background: rgba($primary-color, 0.1);
+            background: rgba(var(--primary-rgb), 0.1);
             color: $primary-color;
             }
         }

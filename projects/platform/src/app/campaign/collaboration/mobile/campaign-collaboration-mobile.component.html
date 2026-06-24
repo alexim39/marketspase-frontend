@@ -59,38 +59,15 @@
         </div>
       }
 
-      @if (typingIndicatorText()) {
-        <div class="typing-indicator" aria-live="polite">
-          <span class="typing-dots"><span></span><span></span><span></span></span>
-          <em>{{ typingIndicatorText() }}</em>
-        </div>
+      @if (pinnedMessages().length > 0) {
+        <app-pinned-banner [messages]="pinnedMessages()" />
       }
 
-      @if (showMentionDropdown() && mentionSuggestions().length > 0) {
-        <div class="mention-dropdown">
-          @for (s of mentionSuggestions(); track s.username) {
-            <button type="button" class="mention-item" (click)="insertMention(s)">
-              <strong>@{{ s.username }}</strong>
-              <span>{{ s.displayName }}</span>
-            </button>
-          }
-        </div>
-      }
+      <app-typing-indicator [text]="typingIndicatorText()" />
 
-      <footer class="composer composer--chat" aria-label="Send message">
-        <div class="composer-row">
-          <div class="composer-actions composer-actions--chat">
-            <button mat-icon-button type="button" class="composer-action" aria-label="Add emoji" (click)="openEmojiPicker($event)"><mat-icon>emoji_emotions</mat-icon></button>
-          </div>
-          <mat-form-field appearance="outline" class="composer-field composer-field--chat">
-            <textarea matInput rows="1" cdkTextareaAutosize cdkAutosizeMinRows="1" cdkAutosizeMaxRows="6"
-              [ngModel]="draftMessage()" (ngModelChange)="onDraftChange($event)"
-              (keydown)="onComposerKeydown($event)" placeholder="Message"></textarea>
-            <button mat-icon-button matSuffix color="primary" type="button" [disabled]="!draftMessage().trim()"
-              (click)="sendMessage()" aria-label="Send"><mat-icon>send</mat-icon></button>
-          </mat-form-field>
-        </div>
-      </footer>
+      <app-mention-dropdown [suggestions]="mentionSuggestions()" (select)="insertMention($event)" />
+
+      <app-message-composer [(draftMessage)]="draftMessage" (send)="sendMessage()" (emojiClick)="openEmojiPicker($event)" />
     </section>
   } @else {
     <!-- List views -->

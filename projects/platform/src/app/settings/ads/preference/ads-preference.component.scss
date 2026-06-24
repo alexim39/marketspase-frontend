@@ -217,7 +217,7 @@
 
             &.mat-checked {
               .mat-slide-toggle-bar {
-                background: rgba($primary-color, 0.5);
+                background: rgba(var(--primary-rgb), 0.5);
               }
 
               .mat-slide-toggle-thumb {
@@ -322,7 +322,7 @@
         }
 
         &.mat-checked .mat-slide-toggle-bar {
-          background-color: rgba($primary-color, 0.54);
+          background-color: rgba(var(--primary-rgb), 0.54);
         }
 
         .mat-slide-toggle-thumb {

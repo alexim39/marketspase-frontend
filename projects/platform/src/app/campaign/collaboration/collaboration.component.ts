@@ -20,6 +20,10 @@ import {
 } from './collaboration.service';
 import { UserService } from '../../common/services/user.service';
 import { CollaborationRealtimeService } from './realtime-events.service';
+import { PinnedBannerComponent } from './components/pinned-banner/pinned-banner.component';
+import { TypingIndicatorComponent } from './components/typing-indicator/typing-indicator.component';
+import { MentionDropdownComponent } from './components/mention-dropdown/mention-dropdown.component';
+import { MessageComposerComponent } from './components/composer/message-composer.component';
 
 type ConversationKind = 'all' | 'direct' | 'campaign_room' | 'promotion_room' | 'context_room';
 
@@ -56,6 +60,10 @@ interface RecentCollaborator {
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
+    PinnedBannerComponent,
+    TypingIndicatorComponent,
+    MentionDropdownComponent,
+    MessageComposerComponent,
   ],
   providers: [DatePipe, TitleCasePipe],
   templateUrl: './collaboration.component.html',
@@ -247,6 +255,21 @@ export class CampaignCollaborationComponent {
   };
 
   constructor() {
+    this.route.data
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        const dataSection = (data as any)?.['section'];
+        if (dataSection && !this.route.snapshot.queryParamMap.get('section')) {
+          if (dataSection === 'direct') {
+            this.kindFilter.set('direct');
+            this.activeSection.set('direct');
+          } else if (dataSection === 'rooms') {
+            this.kindFilter.set('campaign_room');
+            this.activeSection.set('rooms');
+          }
+        }
+      });
+
     this.route.queryParamMap
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((params) => {
@@ -256,7 +279,7 @@ export class CampaignCollaborationComponent {
           promotionId: params.get('promotionId'),
           targetUserId: params.get('targetUserId'),
         };
-        const section = params.get('section');
+        const section = params.get('section') || (this.route.snapshot.data as any)?.['section'];
         if (section === 'direct') {
           this.kindFilter.set('direct');
           this.activeSection.set('direct');
@@ -321,6 +344,29 @@ export class CampaignCollaborationComponent {
       this.realtimeService.connect(user._id);
       this.loadConversations();
       this.loadStarterEntries();
+    });
+
+    effect(() => {
+      const draft = this.draftMessage();
+      const conv = this.selectedConversation();
+      if (!conv) { this.showMentionDropdown.set(false); return; }
+
+      if (draft.trim()) {
+        this.realtimeService.emitTyping(conv._id, 'start');
+        if (this.typingTimer) clearTimeout(this.typingTimer);
+        this.typingTimer = setTimeout(() => { this.realtimeService.emitTyping(conv._id, 'stop'); }, 3000);
+      }
+
+      const idx = draft.lastIndexOf('@');
+      if (idx !== -1 && !draft.slice(idx + 1).includes(' ')) {
+        const query = draft.slice(idx + 1).toLowerCase();
+        const participants = this.getConversationParticipants(conv);
+        const filtered = participants.filter(p => p.username.toLowerCase().includes(query));
+        this.mentionSuggestions.set(query ? filtered : participants);
+        this.showMentionDropdown.set(filtered.length > 0 || !query);
+      } else {
+        this.showMentionDropdown.set(false);
+      }
     });
   }
 

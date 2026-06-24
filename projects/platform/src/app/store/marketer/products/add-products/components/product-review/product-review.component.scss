@@ -87,7 +87,7 @@
     background: $gray-900;
 
     &.valid {
-      background: rgba($success-color, 0.6);
+      background: rgba(var(--success-rgb), 0.6);
     }
 
     mat-icon {

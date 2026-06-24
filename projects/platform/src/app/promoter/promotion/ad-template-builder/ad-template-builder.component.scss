@@ -131,8 +131,8 @@
   justify-items: start;
 
   &.selected {
-    border-color: rgba($primary-color, 0.6) !important;
-    box-shadow: 0 0 0 3px rgba($primary-color, 0.12);
+    border-color: rgba(var(--primary-rgb), 0.6) !important;
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.12);
   }
 }
 
@@ -404,7 +404,7 @@
   color: $text-secondary;
 
   &.error {
-    border-color: rgba($error-color, 0.35);
+    border-color: rgba(var(--error-rgb), 0.35);
     color: $error-color;
 
     mat-icon {

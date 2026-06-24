@@ -109,7 +109,7 @@
         color: $error-color;
         
         &:hover {
-          background: rgba($error-color, 0.1);
+          background: rgba(var(--error-rgb), 0.1);
         }
       }
       

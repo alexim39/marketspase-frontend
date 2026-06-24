@@ -41,7 +41,7 @@
     .thread-card {
       background: linear-gradient(
         135deg,
-        rgba($primary-color, 0.08) 0%,
+        rgba(var(--primary-rgb), 0.08) 0%,
         $surface-color 100%
       );
       border-left: 4px solid $primary-color;
@@ -65,7 +65,7 @@
         border-left-color: $primary-dark;
         background: linear-gradient(
           135deg,
-          rgba($primary-color, 0.12) 0%,
+          rgba(var(--primary-rgb), 0.12) 0%,
           $surface-color 100%
         );
       }
@@ -75,7 +75,7 @@
       display: flex;
       align-items: center;
       gap: $spacing-1;
-      background-color: rgba($primary-color, 0.15);
+      background-color: rgba(var(--primary-rgb), 0.15);
       color: $primary-color;
       padding: $spacing-1 $spacing-3;
       border-radius: $border-radius-full;
@@ -101,7 +101,7 @@
   overflow: hidden;
   
   &:hover {
-    border-color: rgba($primary-color, 0.3);
+    border-color: rgba(var(--primary-rgb), 0.3);
     box-shadow: $shadow-md;
   }
 
@@ -203,7 +203,7 @@
     display: inline-flex;
     align-items: center;
     gap: $spacing-1;
-    background: rgba($primary-color, 0.1);
+    background: rgba(var(--primary-rgb), 0.1);
     padding: $spacing-1 $spacing-2;
     border-radius: $border-radius-full;
     flex-shrink: 0;
@@ -225,7 +225,7 @@
     }
 
     &:hover {
-      background: rgba($primary-color, 0.18);
+      background: rgba(var(--primary-rgb), 0.18);
     }
   }
 }
@@ -364,7 +364,7 @@
     }
 
     .pin-badge {
-      background: rgba($primary-color, 0.15);
+      background: rgba(var(--primary-rgb), 0.15);
 
       .pin-icon,
       .pin-text {
@@ -490,7 +490,7 @@
       gap: $spacing-2;
       
       mat-chip {
-        background-color: rgba($primary-color, 0.1);
+        background-color: rgba(var(--primary-rgb), 0.1);
         color: $primary-color;
         font-weight: $font-weight-medium;
         font-size: $font-size-xs;
@@ -498,7 +498,7 @@
         border-radius: $border-radius-full;
         
         &:hover {
-          background-color: rgba($primary-color, 0.2);
+          background-color: rgba(var(--primary-rgb), 0.2);
         }
       }
     }
@@ -531,7 +531,7 @@
       }
       
       &:hover {
-        background: rgba($primary-color, 0.1) !important;
+        background: rgba(var(--primary-rgb), 0.1) !important;
         color: $primary-color !important;
       }
 
@@ -539,7 +539,7 @@
         color: $primary-color !important;
         
         &:hover {
-          background: rgba($primary-color, 0.15) !important;
+          background: rgba(var(--primary-rgb), 0.15) !important;
         }
 
         &.pinned {
@@ -564,7 +564,7 @@
       font-weight: $font-weight-bold !important;
       
       &:hover {
-        background-color: rgba($error-color, 0.1) !important;
+        background-color: rgba(var(--error-rgb), 0.1) !important;
       }
     }
     
@@ -573,7 +573,7 @@
       font-weight: $font-weight-bold !important;
       
       &:hover {
-        background-color: rgba($info-color, 0.1) !important;
+        background-color: rgba(var(--info-rgb), 0.1) !important;
       }
     }
   }
@@ -681,7 +681,7 @@
     background-color: color-mix(in srgb, var(--surface-color), white 2%);
     
     &:hover {
-      border-color: rgba($primary-color, 0.5);
+      border-color: rgba(var(--primary-rgb), 0.5);
     }
     
     .media-preview .preview-image {
@@ -693,10 +693,10 @@
     }
     
     .thread-tags mat-chip {
-      background-color: rgba($primary-color, 0.15);
+      background-color: rgba(var(--primary-rgb), 0.15);
       
       &:hover {
-        background-color: rgba($primary-color, 0.25);
+        background-color: rgba(var(--primary-rgb), 0.25);
       }
     }
   }
@@ -704,26 +704,26 @@
   .thread-item.pinned .thread-card {
     background: linear-gradient(
       135deg,
-      rgba($primary-color, 0.12) 0%,
+      rgba(var(--primary-rgb), 0.12) 0%,
       color-mix(in srgb, var(--surface-color), white 2%) 100%
     );
   }
   
   .thread-card mat-card-actions button {
     &.liked {
-      background-color: rgba($error-color, 0.15);
+      background-color: rgba(var(--error-rgb), 0.15);
       
       &:hover {
-        background-color: rgba($error-color, 0.25);
+        background-color: rgba(var(--error-rgb), 0.25);
       }
     }
     
     &.share-btn:hover {
-      background-color: rgba($success-color, 0.15);
+      background-color: rgba(var(--success-rgb), 0.15);
     }
     
     &.comment-btn:hover {
-      background-color: rgba($info-color, 0.15);
+      background-color: rgba(var(--info-rgb), 0.15);
     }
   }
   

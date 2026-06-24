@@ -37,7 +37,7 @@
   align-items: center;
   gap: 16px;
   // UPDATED: Use error-color with lightened background for dynamic theming
-  background-color: rgba($error-color, 0.08);
+  background-color: rgba(var(--error-rgb), 0.08);
   color: $error-color;
   padding: 16px;
   border-radius: 8px;

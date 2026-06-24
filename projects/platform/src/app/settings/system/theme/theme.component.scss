@@ -136,7 +136,7 @@
 
       &.active {
         border-color: $primary-color;
-        background: rgba($primary-color, 0.05);
+        background: rgba(var(--primary-rgb), 0.05);
       }
 
       &.disabled {
@@ -250,7 +250,7 @@
     padding: $spacing-6;
     border: $border-width solid $border-color;
     border-radius: $border-radius-lg;
-    background: rgba($primary-color, 0.54);
+    background: rgba(var(--primary-rgb), 0.54);
 
     h5 {
       margin: 0 0 $spacing-6;
@@ -316,7 +316,7 @@
         }
 
         &.mat-checked .mat-slide-toggle-bar {
-          background-color: rgba($primary-color, 0.54);
+          background-color: rgba(var(--primary-rgb), 0.54);
         }
 
         .mat-slide-toggle-thumb {

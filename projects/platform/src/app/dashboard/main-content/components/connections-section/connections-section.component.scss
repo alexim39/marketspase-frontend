@@ -218,7 +218,7 @@
             .skill-tag {
               font-size: $font-size-xs;
               color: $primary-color;
-              background: rgba($primary-color, 0.1);
+              background: rgba(var(--primary-rgb), 0.1);
               padding: 2px $spacing-2;
               border-radius: $border-radius-lg;
             }

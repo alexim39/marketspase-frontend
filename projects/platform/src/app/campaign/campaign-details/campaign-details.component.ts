@@ -202,6 +202,7 @@ export class CampaignDetailsComponent implements OnInit {
     // Subscribe to search input changes
     this.promotionSearchControl.valueChanges
       .pipe(
+        takeUntilDestroyed(this.destroyRef),
         debounceTime(300),
         distinctUntilChanged()
       )

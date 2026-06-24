@@ -42,11 +42,11 @@
 }
 
 .summary-card {
-  border: 1px solid rgba($primary-color, 0.12);
+  border: 1px solid rgba(var(--primary-rgb), 0.12);
   border-radius: 16px;
   padding: 18px;
   background:
-    linear-gradient(135deg, rgba($primary-color, 0.08), rgba(#8b5cf6, 0.06));
+    linear-gradient(135deg, rgba(var(--primary-rgb), 0.08), rgba(#8b5cf6, 0.06));
   margin-bottom: 20px;
 }
 

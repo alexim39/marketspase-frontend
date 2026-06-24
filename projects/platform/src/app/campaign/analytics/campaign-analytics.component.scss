@@ -24,7 +24,7 @@
     var(--surface-color);
   border: 1px solid rgba(var(--primary-rgb), 0.1);
   border-radius: 20px;
-  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 38px rgba(0,0,0,0.06);
 }
 
 .hero-card {
@@ -117,23 +117,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--on-primary-color);
 }
 
 .summary-card.primary .summary-icon {
-  background: linear-gradient(135deg, #667eea, #818cf8);
+  background: linear-gradient(135deg, var(--primary-color), rgba(var(--primary-rgb), 0.7));
 }
 
 .summary-card.success .summary-icon {
-  background: linear-gradient(135deg, #10b981, #34d399);
+  background: linear-gradient(135deg, var(--success-color), rgba(var(--success-rgb), 0.7));
 }
 
 .summary-card.warning .summary-icon {
-  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  background: linear-gradient(135deg, var(--warning-color), rgba(var(--warning-rgb), 0.7));
 }
 
 .summary-card.info .summary-icon {
-  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  background: linear-gradient(135deg, var(--info-color), rgba(var(--info-rgb), 0.7));
 }
 
 .summary-copy {
@@ -229,11 +229,11 @@
 }
 
 .legend-swatch.tracked {
-  background: rgba(148, 163, 184, 0.9);
+  background: rgba(148,163,184,0.9);
 }
 
 .legend-swatch.billable {
-  background: rgba(16, 185, 129, 0.85);
+  background: rgba(var(--success-rgb), 0.85);
 }
 
 .sparkline {
@@ -243,7 +243,7 @@
 
 .sparkline-tracked {
   fill: none;
-  stroke: rgba(148, 163, 184, 0.95);
+  stroke: rgba(148,163,184,0.95);
   stroke-width: 2.25;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -251,7 +251,7 @@
 
 .sparkline-billable {
   fill: none;
-  stroke: rgba(16, 185, 129, 0.95);
+  stroke: rgba(var(--success-rgb), 0.95);
   stroke-width: 2.25;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -321,7 +321,7 @@
 }
 
 .timeline-bar.billable {
-  background: linear-gradient(90deg, rgba(16, 185, 129, 0.18), rgba(16, 185, 129, 0.88));
+  background: linear-gradient(90deg, rgba(var(--success-rgb), 0.18), rgba(var(--success-rgb), 0.88));
 }
 
 .breakdown-row {
@@ -348,7 +348,7 @@
 }
 
 .breakdown-bar.device {
-  background: linear-gradient(90deg, rgba(59, 130, 246, 0.3), rgba(14, 165, 233, 0.92));
+  background: linear-gradient(90deg, rgba(var(--info-rgb), 0.3), rgba(var(--info-rgb), 0.92));
 }
 
 .breakdown-value {
@@ -428,9 +428,9 @@
 }
 
 .status-badge.inactive {
-  background: rgba(239, 68, 68, 0.12);
-  border-color: rgba(239, 68, 68, 0.22);
-  color: #dc2626;
+  background: rgba(var(--error-rgb), 0.12);
+  border-color: rgba(var(--error-rgb), 0.22);
+  color: var(--error-color);
 }
 
 .loading-card,

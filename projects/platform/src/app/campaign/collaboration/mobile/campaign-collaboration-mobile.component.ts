@@ -11,6 +11,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CampaignCollaborationComponent } from '../collaboration.component';
 import { CollaborationConversation } from '../collaboration.service';
+import { PinnedBannerComponent } from '../components/pinned-banner/pinned-banner.component';
+import { TypingIndicatorComponent } from '../components/typing-indicator/typing-indicator.component';
+import { MentionDropdownComponent } from '../components/mention-dropdown/mention-dropdown.component';
+import { MessageComposerComponent } from '../components/composer/message-composer.component';
 
 type CollaborationMobileView = 'list' | 'chat';
 
@@ -28,6 +32,10 @@ type CollaborationMobileView = 'list' | 'chat';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
+    PinnedBannerComponent,
+    TypingIndicatorComponent,
+    MentionDropdownComponent,
+    MessageComposerComponent,
   ],
   providers: [DatePipe, TitleCasePipe],
   templateUrl: './campaign-collaboration-mobile.component.html',

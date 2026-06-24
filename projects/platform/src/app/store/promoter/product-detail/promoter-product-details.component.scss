@@ -153,8 +153,8 @@
               }
               
               &.highlight {
-                background: rgba($primary-color, 0.1);
-                border-color: rgba($primary-color, 0.2);
+                background: rgba(var(--primary-rgb), 0.1);
+                border-color: rgba(var(--primary-rgb), 0.2);
                 
                 .stat-value {
                   color: $primary-color;
@@ -185,17 +185,17 @@
   font-weight: 600;
   
   &.high {
-    background: rgba($success-color, 0.1);
+    background: rgba(var(--success-rgb), 0.1);
     color: $success-color;
   }
   
   &.medium {
-    background: rgba($warning-color, 0.1);
+    background: rgba(var(--warning-rgb), 0.1);
     color: $warning-color;
   }
   
   &.low {
-    background: rgba($primary-color, 0.1);
+    background: rgba(var(--primary-rgb), 0.1);
     color: $primary-color;
   }
 }

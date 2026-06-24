@@ -55,10 +55,10 @@
   gap: 12px;
   padding: 16px;
   border-radius: 8px;
-  //background: linear-gradient(135deg, rgba($primary-color, 0.96), rgba($secondary-color, 0.88)),   $primary-color;
+  //background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.96), rgba($secondary-color, 0.88)),   $primary-color;
   background: $background-color;
   color: $primary-color;
-  box-shadow: 0 16px 36px rgba($primary-color, 0.22);
+  box-shadow: 0 16px 36px rgba(var(--primary-rgb), 0.22);
 }
 
 .balance-main {
@@ -154,7 +154,7 @@
     color: $text-primary;
     border-color: transparent;
     background: $primary-color;
-    box-shadow: 0 8px 18px rgba($primary-color, 0.22);
+    box-shadow: 0 8px 18px rgba(var(--primary-rgb), 0.22);
   }
 }
 
@@ -216,8 +216,8 @@
     font-weight: 750;
 
     &.active {
-      background: rgba($primary-color, 0.1);
-      border-color: rgba($primary-color, 0.28);
+      background: rgba(var(--primary-rgb), 0.1);
+      border-color: rgba(var(--primary-rgb), 0.28);
       color: $primary-color;
     }
   }
@@ -280,24 +280,24 @@
   display: grid;
   place-items: center;
   border-radius: 8px;
-  background: rgba($primary-color, 0.1);
+  background: rgba(var(--primary-rgb), 0.1);
   color: $primary-color;
 
   &.deposit,
   &.bonus {
-    background: rgba($success-color, 0.11);
+    background: rgba(var(--success-rgb), 0.11);
     color: $success-color;
   }
 
   &.withdrawal,
   &.fee {
-    background: rgba($error-color, 0.1);
+    background: rgba(var(--error-rgb), 0.1);
     color: $error-color;
   }
 
   &.campaign,
   &.promotion {
-    background: rgba($warning-color, 0.12);
+    background: rgba(var(--warning-rgb), 0.12);
     color: $warning-color;
   }
 }
@@ -387,17 +387,17 @@
 
   &.successful {
     color: $success-color;
-    background: rgba($success-color, 0.1);
+    background: rgba(var(--success-rgb), 0.1);
   }
 
   &.pending {
     color: $warning-color;
-    background: rgba($warning-color, 0.1);
+    background: rgba(var(--warning-rgb), 0.1);
   }
 
   &.failed {
     color: $error-color;
-    background: rgba($error-color, 0.1);
+    background: rgba(var(--error-rgb), 0.1);
   }
 }
 
@@ -451,7 +451,7 @@
   right: 18px;
   bottom: 78px;
   z-index: 6;
-  box-shadow: 0 14px 34px rgba($primary-color, 0.28);
+  box-shadow: 0 14px 34px rgba(var(--primary-rgb), 0.28);
 }
 
 @media (max-width: 360px) {

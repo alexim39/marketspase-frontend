@@ -43,7 +43,7 @@
   margin-bottom: 1.5rem;
   padding: 1rem;
   // UPDATED: Use primary-color with rgba for dynamic theming
-  background: rgba($primary-color, 0.03);
+  background: rgba(var(--primary-rgb), 0.03);
   border-radius: 8px;
   //border: 1px solid $border-color; // Commented out - using default
 }
@@ -138,16 +138,16 @@
       // UPDATED: Use primary-color variable for dynamic theming
       border-color: $primary-color;
       // UPDATED: Use primary-color with rgba for dynamic theming
-      box-shadow: 0 2px 8px rgba($primary-color, 0.1);
+      box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.1);
     }
 
     &.selected {
       // UPDATED: Use primary-color variable for dynamic theming
       border-color: $primary-color;
       // UPDATED: Use primary-color with rgba for dynamic theming
-      background-color: rgba($primary-color, 0.05);
+      background-color: rgba(var(--primary-rgb), 0.05);
       // UPDATED: Use primary-color with rgba for dynamic theming
-      box-shadow: 0 2px 8px rgba($primary-color, 0.15);
+      box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.15);
     }
 
     .type-content {
@@ -208,14 +208,14 @@
     // UPDATED: Use primary-color variable for dynamic theming
     border-color: $primary-color;
     // UPDATED: Use primary-color with rgba for dynamic theming
-    box-shadow: 0 2px 8px rgba($primary-color, 0.1);
+    box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.1);
   }
 
   &.selected {
     // UPDATED: Use primary-color variable for dynamic theming
     border-color: $primary-color;
     // UPDATED: Use primary-color with rgba for dynamic theming
-    background-color: rgba($primary-color, 0.05);
+    background-color: rgba(var(--primary-rgb), 0.05);
   }
 
   .precision-content {
@@ -392,7 +392,7 @@
         // UPDATED: Use primary-color variable for dynamic theming
         border-color: $primary-color;
         // UPDATED: Use primary-color with rgba for dynamic theming
-        background: rgba($primary-color, 0.05);
+        background: rgba(var(--primary-rgb), 0.05);
       }
 
       @media (min-width: 768px) {
