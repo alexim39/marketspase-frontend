@@ -95,6 +95,19 @@
     </section>
   } @else {
     <!-- List views -->
+    <!-- Fixed search for inbox/groups -->
+    @if (activeSection() !== 'activity') {
+      <div class="modern-search">
+        <mat-icon>search</mat-icon>
+        <input type="search" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Search" />
+        @if (search()) {
+          <button type="button" class="search-clear" (click)="search.set('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+    }
+
     <main class="mobile-content">
       <!-- Activity Feed -->
       @if (activeSection() === 'activity') {
@@ -163,16 +176,6 @@
 
       <!-- Inbox / Groups -->
       @if (activeSection() !== 'activity') {
-        <div class="modern-search">
-          <mat-icon>search</mat-icon>
-          <input type="search" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Search" />
-          @if (search()) {
-            <button type="button" class="search-clear" (click)="search.set('')">
-              <mat-icon>close</mat-icon>
-            </button>
-          }
-        </div>
-
         @if (loadingConversations()) {
           <div class="modern-empty">
             <mat-spinner diameter="24" /><span>Loading...</span>

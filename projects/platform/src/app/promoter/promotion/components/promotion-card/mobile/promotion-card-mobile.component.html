@@ -39,7 +39,7 @@
       <div>
         <p>
           {{ promotion.campaign.category | titlecase }}
-          @if (promotion.campaign?.campaignGoal) {
+          @if (promotion.campaign.campaignGoal) {
             <span class="goal-hint" [class.leads]="promotion.campaign.campaignGoal === 'leads'"> · {{ promotion.campaign.campaignGoal === 'leads' ? 'Leads' : 'Awareness' }}</span>
           }
         </p>

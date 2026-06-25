@@ -3,7 +3,8 @@
 
 :host {
   display: block;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: var(--background-color);
 }
 
@@ -12,6 +13,7 @@
   flex-direction: column;
   height: 100dvh;
   height: 100vh;
+  overflow: hidden;
 }
 
 .mobile-topbar {
@@ -219,7 +221,8 @@
   padding: 0 0.55rem;
   background: rgba(var(--primary-rgb), 0.04);
   border-radius: 10px;
-  margin: 0.5rem 0.65rem 0.25rem;
+  margin: 0.5rem 0.65rem;
+  flex-shrink: 0;
 
   mat-icon { color: var(--text-secondary); width: 17px; height: 17px; font-size: 17px; flex-shrink: 0; }
 
@@ -285,7 +288,9 @@
   cursor: pointer;
   overflow: hidden;
   flex-shrink: 0;
+  border-bottom: 0.5px solid rgba(var(--primary-rgb), 0.06);
 
+  &:last-child { border-bottom: none; }
   &:active { background: rgba(var(--primary-rgb), 0.03); }
 }
 
@@ -317,10 +322,7 @@
   gap: 0.15rem;
   justify-content: center;
   padding: 0.15rem 0;
-  border-bottom: 0.5px solid rgba(var(--primary-rgb), 0.06);
 }
-
-.modern-row:last-child .modern-body { border-bottom: none; }
 
 .modern-top {
   display: flex;
