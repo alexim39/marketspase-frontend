@@ -22,6 +22,7 @@ export class QuickActionsComponent {
   @Output() fundWallet = new EventEmitter<void>();
   @Output() switchUser = new EventEmitter<string>();
   @Output() viewPromotion = new EventEmitter<void>();
+  @Output() viewProducts = new EventEmitter<void>();
   @Output() viewMyPromotion = new EventEmitter<void>();
   @Output() logout = new EventEmitter<void>();
   @Output() mobileAction = new EventEmitter<void>();

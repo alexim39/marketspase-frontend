@@ -206,6 +206,10 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/dashboard/campaigns']);
   }
 
+  public viewProducts(): void {
+    this.router.navigate(['/dashboard/stores/products']);
+  }
+
   public viewMyPromotion(): void {
     this.router.navigate(['/dashboard/campaigns/promotions']);
   }
