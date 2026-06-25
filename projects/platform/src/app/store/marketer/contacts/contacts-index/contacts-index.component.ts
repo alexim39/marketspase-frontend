@@ -53,8 +53,6 @@ import { BulkSmsDialogComponent } from "./bulk-sms-dialog/bulk-sms-dialog.compon
     MatDatepickerModule,
     MatNativeDateModule,
     MatDialogModule,
-    CreateContactDialogComponent,
-    ConfirmDeleteDialogComponent,
   ],
   templateUrl: "./contacts-index.component.html",
   styleUrls: ["./contacts-index.component.scss"],

@@ -163,34 +163,46 @@
 
       <!-- Inbox / Groups -->
       @if (activeSection() !== 'activity') {
-        <div class="search-bar">
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>Search</mat-label>
-            <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Search conversations...">
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
+        <div class="modern-search">
+          <mat-icon>search</mat-icon>
+          <input type="search" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Search" />
+          @if (search()) {
+            <button type="button" class="search-clear" (click)="search.set('')">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
         </div>
 
         @if (loadingConversations()) {
-          <div class="empty-card"><mat-spinner diameter="28" /><p>Loading...</p></div>
+          <div class="modern-empty">
+            <mat-spinner diameter="24" /><span>Loading...</span>
+          </div>
         } @else if (visibleConversations().length === 0) {
-          <div class="empty-card"><mat-icon>forum</mat-icon><p>No conversations yet.</p></div>
+          <div class="modern-empty">
+            <mat-icon>forum</mat-icon>
+            <p>No conversations yet</p>
+          </div>
         } @else {
-          <div class="thread-list">
+          <div class="modern-list">
             @for (conversation of visibleConversations(); track trackConversation($index, conversation)) {
-              <button type="button" class="thread-row-native" [class.active]="selectedConversation()?._id === conversation._id" (click)="openThread(conversation)">
-                <div class="thread-avatar">
-                  @if (conversation.counterpart?.avatar) { <img [src]="conversation.counterpart!.avatar" alt="" /> }
-                  @else { <span>{{ (conversation.counterpart?.displayName || conversation.title || '?')[0] }}</span> }
+              <button type="button" class="modern-row" [class.active]="selectedConversation()?._id === conversation._id" (click)="openThread(conversation)">
+                <div class="modern-avatar" [class.online]="conversation.type === 'direct' && conversation.counterpart?._id && realtimeService.isUserOnline(conversation.counterpart!._id)">
+                  @if (conversation.counterpart?.avatar) {
+                    <img [src]="conversation.counterpart!.avatar" alt="" />
+                  } @else {
+                    <span>{{ (conversation.counterpart?.displayName || conversation.title || '?')[0] }}</span>
+                  }
                 </div>
-                <div class="thread-body">
-                  <div class="thread-top">
+                <div class="modern-body">
+                  <div class="modern-top">
                     <strong>{{ formatConversationTitle(conversation) }}</strong>
-                    <span class="thread-time">{{ formatTime(conversation.lastMessageAt || conversation.updatedAt) }}</span>
+                    <span class="modern-time">{{ formatTime(conversation.lastMessageAt || conversation.updatedAt) }}</span>
                   </div>
-                  <div class="thread-bottom">
-                    <p class="thread-preview">{{ conversation.lastMessagePreview || 'No messages yet.' }}</p>
-                    @if (conversation.unreadCount > 0) { <span class="unread-pill">{{ conversation.unreadCount }}</span> }
+                  <div class="modern-bottom">
+                    <p class="modern-preview">{{ conversation.lastMessagePreview || 'No messages yet.' }}</p>
+                    @if (conversation.unreadCount > 0) {
+                      <span class="modern-badge">{{ conversation.unreadCount }}</span>
+                    }
                   </div>
                 </div>
               </button>

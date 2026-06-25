@@ -18,10 +18,10 @@ import { Subject, takeUntil, interval, Subscription } from 'rxjs';
 import { StoreService } from '../../../services/store.service';
 import { DeviceService, UserInterface } from '@shared/services';
 import { Store} from '../../../models/store.model';
-import { ProductManagementComponent } from '../product-management/product-management.component';
-import { StoreAnalyticsComponent } from '../store-analytics/store-analytics.component';
-import { StorePromotionsComponent } from '../store-promotions/store-promotions.component';
-import { RealTimeStatsComponent } from '../real-time-stats/real-time-stats.component';
+//import { ProductManagementComponent } from '../product-management/product-management.component';
+//import { StoreAnalyticsComponent } from '../store-analytics/store-analytics.component';
+//import { StorePromotionsComponent } from '../store-promotions/store-promotions.component';
+//import { RealTimeStatsComponent } from '../real-time-stats/real-time-stats.component';
 import { QuickActionBarComponent } from '../quick-action-bar/quick-action-bar.component';
 import { StoreHeaderComponent } from '../store-header/store-header.component';
 import { Product } from '../../../models';
@@ -68,17 +68,16 @@ interface PerformanceMetric {
     MatTooltipModule,
     MatChipsModule,
     MatProgressSpinnerModule,
-    ProductManagementComponent,
-    StoreAnalyticsComponent,
-    StorePromotionsComponent,
-    RealTimeStatsComponent,
+    //ProductManagementComponent,
+    //StoreAnalyticsComponent,
+    //StorePromotionsComponent,
+    //RealTimeStatsComponent,
     QuickActionBarComponent,
     StoreHeaderComponent,
     MatFormFieldModule,
     MatSelectModule,
     MatOptionModule,
     MatInputModule,
-    StoreAnalyticsComponent
   ],
   templateUrl: './store-dashboard.component.html',
   styleUrls: ['./store-dashboard.component.scss']

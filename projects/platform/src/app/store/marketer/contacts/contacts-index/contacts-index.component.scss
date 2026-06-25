@@ -144,7 +144,7 @@
 .stage-pill {
   &.good { background: color-mix(in srgb, vars.$success-color-hex, transparent 90%); color: vars.$success-color; }
   &.info { background: color-mix(in srgb, vars.$info-color-hex, transparent 90%); color: vars.$info-color; }
-  &.warn { background: color-mix(in srgb, vars.$warning-color-hex, transparent 88%); color: darken(vars.$warning-color-hex, 10%); }
+  &.warn { background: color-mix(in srgb, vars.$warning-color-hex, transparent 88%); color: color-mix(in srgb, vars.$warning-color-hex, #000000 20%); }
   &.premium { background: color-mix(in srgb, vars.$secondary-color-hex, transparent 88%); color: vars.$secondary-color-hex; }
   &.muted { background: color-mix(in srgb, vars.$text-secondary, transparent 94%); color: vars.$text-secondary; }
 }

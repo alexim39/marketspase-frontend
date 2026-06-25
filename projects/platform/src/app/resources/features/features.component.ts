@@ -9,7 +9,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { HeaderComponent } from '../core/header/header.component';
 import { FooterComponent } from '../core/footer/footer.component';
-import { TestimonialsComponent } from '../../dashboard/testimonial/testimonial.component';
+//import { TestimonialsComponent } from '../../dashboard/testimonial/testimonial.component';
 
 export interface Feature {
   icon: string;
@@ -60,7 +60,7 @@ export interface Testimonial {
     MatCheckboxModule,
     HeaderComponent,
     FooterComponent,
-    TestimonialsComponent
+    //TestimonialsComponent
   ],
   templateUrl: './features.component.html',
   styleUrls: ['./features.component.scss']

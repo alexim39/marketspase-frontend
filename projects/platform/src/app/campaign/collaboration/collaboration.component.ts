@@ -73,7 +73,7 @@ interface RecentCollaborator {
 })
 export class CampaignCollaborationComponent {
   private readonly collaborationService = inject(CollaborationService);
-  private readonly realtimeService = inject(CollaborationRealtimeService);
+  protected readonly realtimeService = inject(CollaborationRealtimeService);
   private readonly userService = inject(UserService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

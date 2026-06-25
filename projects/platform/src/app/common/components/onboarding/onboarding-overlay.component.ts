@@ -64,8 +64,21 @@ export class OnboardingOverlayComponent {
 
   readonly steps = STEPS;
   readonly currentStep = signal(0);
-  readonly visible = signal(true);
+  readonly visible = signal(false);
   readonly dismissed = signal(false);
+
+  constructor() {
+    this.api.get<any>('api/v1/user/onboarding', undefined, undefined, true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r) => {
+          if (!r?.data?.completed && !r?.data?.dismissed) {
+            this.visible.set(true);
+          }
+        },
+        error: () => null,
+      });
+  }
 
   get currentStepData() { return this.steps[this.currentStep()]; }
 

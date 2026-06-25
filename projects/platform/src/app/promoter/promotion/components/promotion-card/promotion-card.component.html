@@ -111,7 +111,7 @@
         <i class="material-icons">{{ getCategoryIcon(promotion.campaign.category) }}</i> 
         {{ promotion.campaign.category | titlecase }}
       </span>
-      @if (promotion.campaign?.campaignGoal) {
+      @if (promotion.campaign.campaignGoal) {
         <span class="goal-label" [class.leads]="promotion.campaign.campaignGoal === 'leads'">
           {{ promotion.campaign.campaignGoal === 'leads' ? 'Lead campaign' : 'Awareness campaign' }}
         </span>

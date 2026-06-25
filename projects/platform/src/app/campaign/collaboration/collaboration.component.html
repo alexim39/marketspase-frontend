@@ -218,17 +218,26 @@
         <div class="thread-list">
           @for (conversation of visibleConversations(); track trackConversation($index, conversation)) {
             <button type="button" class="thread-row" [class.active]="selectedConversation()?._id === conversation._id" (click)="selectConversation(conversation)">
-              <div class="thread-row-top">
-                <strong>{{ formatConversationTitle(conversation) }}</strong>
-                @if (conversation.unreadCount > 0) {
-                  <span class="unread-pill">{{ conversation.unreadCount }}</span>
+              <div class="thread-row-avatar" [class.online]="conversation.type === 'direct' && conversation.counterpart?._id && realtimeService.isUserOnline(conversation.counterpart!._id)">
+                @if (conversation.counterpart?.avatar) {
+                  <img [src]="conversation.counterpart!.avatar" alt="" />
+                } @else {
+                  <span>{{ (conversation.counterpart?.displayName || conversation.title || '?')[0] }}</span>
                 }
               </div>
-              <div class="thread-row-meta">
-                <span>{{ formatConversationType(conversation.type) }}</span>
-                <span>{{ formatTime(conversation.lastMessageAt || conversation.updatedAt) }}</span>
+              <div class="thread-row-body">
+                <div class="thread-row-top">
+                  <strong>{{ formatConversationTitle(conversation) }}</strong>
+                  @if (conversation.unreadCount > 0) {
+                    <span class="unread-pill">{{ conversation.unreadCount }}</span>
+                  }
+                </div>
+                <div class="thread-row-meta">
+                  <span>{{ formatConversationType(conversation.type) }}</span>
+                  <span>{{ formatTime(conversation.lastMessageAt || conversation.updatedAt) }}</span>
+                </div>
+                <p>{{ conversation.lastMessagePreview || 'No messages yet.' }}</p>
               </div>
-              <p>{{ conversation.lastMessagePreview || 'No messages yet.' }}</p>
             </button>
           }
         </div>
