@@ -256,7 +256,7 @@
                       <div class="case-field">
                         <span>Reason</span>
                         <strong>{{ c.reasons?.[0]?.label || c.promotion?.fraudStatus?.reasonSummary || 'Suspicious activity detected' }}</strong>
-                        @if ((c.reasons?.length || 0) > 1) {
+                        @if ((c.reasons.length || 0) > 1) {
                           <small>+{{ c.reasons.length - 1 }} more signal(s)</small>
                         }
                       </div>
@@ -277,16 +277,16 @@
                         <span>Ban / Block</span>
                         <strong>{{ formatDate(c.promotion?.fraudStatus?.blockedAt, 'medium') }}</strong>
                         @if (c.promotion?.fraudStatus?.blockedUntil) {
-                          <small>Until {{ formatDate(c.promotion?.fraudStatus?.blockedUntil, 'medium') }}</small>
+                          <small>Until {{ formatDate(c.promotion?.fraudStatus.blockedUntil, 'medium') }}</small>
                         } @else if (c.promotion?.fraudStatus?.autoRestoredAt) {
-                          <small>Restored {{ formatDate(c.promotion?.fraudStatus?.autoRestoredAt, 'medium') }}</small>
+                          <small>Restored {{ formatDate(c.promotion?.fraudStatus.autoRestoredAt, 'medium') }}</small>
                         } @else {
                           <small>--</small>
                         }
                       </div>
                     </div>
 
-                    @if (c.reasons?.length) {
+                    @if (c.reasons.length) {
                       <div class="reason-chips">
                         @for (r of c.reasons; track r.code) {
                           <mat-chip>{{ r.label }}</mat-chip>
