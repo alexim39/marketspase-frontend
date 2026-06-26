@@ -15,12 +15,3 @@ import { CollectionsListComponent } from '../collections-list.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CollectionsListMobileComponent extends CollectionsListComponent {}
-
-@Component({
-  selector: 'app-collections-detail-mobile',
-  standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatCardModule, RouterModule],
-  templateUrl: './collections-detail-mobile.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class CollectionsDetailMobileComponent {}

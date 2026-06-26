@@ -103,6 +103,8 @@ export class ProductsContentViewComponent implements OnChanges {
     return (conversions / clickCount) * 100 | 0;
   }
 
+  getAvgConversionRate(product: any): number { return product.averageConversionRate ?? 0; }
+
   getStoreBadgeClass(tier: string): string {
     return tier === 'premium' ? 'premium-badge' : 'basic-badge';
   }

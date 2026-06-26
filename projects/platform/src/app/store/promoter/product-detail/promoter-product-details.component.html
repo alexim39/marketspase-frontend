@@ -142,7 +142,7 @@
                   </div>
                   <div class="preview-info">
                     <p class="preview-title">{{ product()?.name }}</p>
-                    <p class="preview-price">{{ product()?.price | currencyUtils:user()?.wallets?.promoter?.currency }}</p>
+                    <p class="preview-price">{{ product()?.price | currency:'NGN':'symbol':'1.2-2' }}</p>
                     <p class="preview-reco">Recommended by {{ user()?.displayName || 'You' }}</p>
                   </div>
                 </div>

@@ -193,4 +193,6 @@ export class PromoterDiscoveryComponent implements OnInit {
     if (rate == null) return '0%';
     return `${Number(rate).toFixed(1)}%`;
   }
+
+  formatCurrency(value: number): string { return value ? '₦' + value.toLocaleString() : '₦0'; }
 }

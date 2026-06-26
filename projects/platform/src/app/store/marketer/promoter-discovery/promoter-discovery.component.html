@@ -106,7 +106,7 @@
             <div class="stat-item">
               <span>Earnings Generated</span>
               <strong>
-                &#8358;{{ promoter.totalEarningsGenerated?.toLocaleString?.('en-NG') || Number(promoter.totalEarningsGenerated || 0).toLocaleString('en-NG') }}
+                {{ formatCurrency(promoter.totalEarningsGenerated) }}
               </strong>
             </div>
             <div class="stat-item">

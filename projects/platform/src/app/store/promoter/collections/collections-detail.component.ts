@@ -11,7 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { take } from 'rxjs';
-import { ApiService, CurrencyUtilsPipe } from '@shared/services';
+import { ApiService } from '@shared/services';
 
 interface CollectionDetail {
   _id: string;
@@ -52,7 +52,6 @@ interface CollectionProduct {
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatDialogModule,
-    CurrencyUtilsPipe,
   ],
   templateUrl: './collections-detail.component.html',
   styleUrls: ['./collections-detail.component.scss'],

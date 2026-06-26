@@ -89,10 +89,10 @@
           </div>
 
           <!-- Analytics Badge -->
-          @if (product.averageConversionRate > 0) {
-            <div class="analytics-badge" [class.high-perf]="product.averageConversionRate >= 5">
+          @if (getAvgConversionRate(product) > 0) {
+            <div class="analytics-badge" [class.high-perf]="getAvgConversionRate(product) >= 5">
               <mat-icon>insights</mat-icon>
-              <span>{{ product.averageConversionRate }}%</span>
+              <span>{{ getAvgConversionRate(product) }}%</span>
             </div>
           }
 
