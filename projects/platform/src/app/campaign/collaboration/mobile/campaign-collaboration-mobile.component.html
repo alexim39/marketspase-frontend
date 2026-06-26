@@ -199,6 +199,9 @@
                 <div class="modern-body">
                   <div class="modern-top">
                     <strong>{{ formatConversationTitle(conversation) }}</strong>
+                    @if (conversation.type === 'direct' && conversation.counterpart?._id) {
+                      <promoter-tier-badge [promoterId]="conversation.counterpart!._id" />
+                    }
                     <span class="modern-time">{{ formatTime(conversation.lastMessageAt || conversation.updatedAt) }}</span>
                   </div>
                   <div class="modern-bottom">

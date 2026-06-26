@@ -111,7 +111,22 @@
             <span>Activate</span>
           </button>
         }
+
+        @if (isOwner()) {
+          <button type="button" class="quick-action" (click)="openBulkInvite()">
+            <mat-icon aria-hidden="true">group_add</mat-icon>
+            <span>Invite</span>
+          </button>
+        }
       </section>
+
+      @if (isOwner()) {
+        <section class="settings-strip">
+          <mat-slide-toggle [checked]="autoRenewEnabled()" (change)="toggleAutoRenew($event)" color="primary">
+            Auto-Renew Budget
+          </mat-slide-toggle>
+        </section>
+      }
 
       <section class="budget-card">
         <div class="budget-header">
@@ -248,6 +263,8 @@
                   <div class="avatar">{{ getInitials(getPromoterName(promotion)) }}</div>
                   <div>
                     <strong>{{ getPromoterName(promotion) }}</strong>
+                    <promoter-tier-badge [promoterId]="promotion.promoter._id" />
+                    <promoter-trust-metrics [promoterId]="promotion.promoter._id" />
                     <span class="status-badge status-{{ promotion.status }}">{{ promotion.status | titlecase }}</span>
                   </div>
                 </div>

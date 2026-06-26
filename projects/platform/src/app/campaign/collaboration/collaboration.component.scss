@@ -16,8 +16,10 @@
 
   &[data-section="direct"],
   &[data-section="rooms"] {
-    height: calc(100vh - 140px);
-    grid-template-rows: auto 1fr;
+    min-height: calc(100vh - 140px);
+    max-height: calc(100vh - 140px);
+    display: flex;
+    flex-direction: column;
     padding: 0.5rem 0 0;
     gap: 0;
     overflow: hidden;
@@ -260,7 +262,12 @@
 
   &.standalone {
     min-height: 0;
-    height: 100%;
+    flex: 1;
+  }
+
+  > * {
+    min-height: 0;
+    overflow: hidden;
   }
 }
 
@@ -272,6 +279,10 @@
     linear-gradient(180deg, rgba(var(--primary-rgb), 0.04), rgba(var(--primary-rgb), 0.01)),
     color-mix(in srgb, var(--surface-color) 94%, var(--background-color));
   overflow: hidden;
+  height: 100%;
+  min-height: 0;
+  height: 100%;
+
 
   .thread-list {
     flex: 1;
@@ -378,8 +389,8 @@
   transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
   border-radius: 16px;
   align-items: center;
-  min-height: 72px;
-  max-height: 72px;
+  min-height: 110px;
+  max-height: 110px;
 }
 
 .thread-row:hover,
@@ -452,12 +463,15 @@
 .conversation-panel {
   display: grid;
   grid-template-rows: auto 1fr auto;
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
   background:
     radial-gradient(circle at 12% 12%, rgba(var(--primary-rgb), 0.06), transparent 26rem),
     linear-gradient(135deg, rgba(var(--primary-rgb), 0.03) 0 25%, transparent 25% 50%, rgba(var(--primary-rgb), 0.025) 50% 75%, transparent 75%),
     var(--background-color);
   background-size: auto, 34px 34px, auto;
+  height: 100%;
 }
 
 .conversation-head {
@@ -893,6 +907,7 @@
 .rail-empty,
 .conversation-empty {
   min-height: 220px;
+  height: 100%;
   display: grid;
   place-items: center;
   gap: 0.75rem;

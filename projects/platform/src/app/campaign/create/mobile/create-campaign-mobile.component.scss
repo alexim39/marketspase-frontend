@@ -81,7 +81,8 @@
   place-items: center;
   border-radius: 999px;
   color: $text-primary;
-  background: $gray-100;
+  background: rgba(var(--primary-rgb), 0.06);
+  border: 1px solid var(--border-color);
 }
 
 .draft-action {
@@ -93,6 +94,31 @@
   font-weight: 800;
 }
 
+.mobile-template-bar {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+
+  .template-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 2.6rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.85rem;
+    background: var(--surface-color);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
+    &:active { background: var(--hover-color); }
+  }
+}
+
 .mobile-status-card,
 .step-context,
 .budget-snapshot,
@@ -100,7 +126,7 @@
   border: 1px solid var(--border-color);
   border-radius: 1.35rem;
   background: color-mix(in srgb, var(--surface-color) 96%, transparent);
-  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.04);
 }
 
 .mobile-status-card {
@@ -171,7 +197,8 @@
   padding: 0.65rem 0.5rem;
   border-radius: 1rem;
   color: $text-secondary;
-  background: $gray-100;
+  background: rgba(var(--primary-rgb), 0.06);
+  border: 1px solid var(--border-color);
 
   mat-icon {
     font-size: 1.25rem;
@@ -248,7 +275,8 @@
     min-width: 0;
     padding: 0.7rem;
     border-radius: 1rem;
-    background: $gray-100;
+    background: rgba(var(--primary-rgb), 0.06);
+    border: 1px solid var(--border-color);
   }
 
   span {
@@ -276,7 +304,7 @@
     .form-card {
       margin: 0;
       border-radius: 1.35rem !important;
-      box-shadow: 0 1rem 2.4rem rgba($text-primary, 0.08) !important;
+      box-shadow: 0 1rem 2.4rem rgba(0, 0, 0, 0.06) !important;
       overflow: hidden;
     }
 
@@ -381,7 +409,7 @@
   padding: 0.85rem 0.875rem calc(0.85rem + env(safe-area-inset-bottom));
   background: color-mix(in srgb, var(--surface-color) 96%, transparent);
   border-top: 1px solid var(--border-color);
-  box-shadow: 0 -1rem 2rem rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -1rem 2rem rgba(0, 0, 0, 0.04);
   backdrop-filter: blur(16px);
 }
 
@@ -398,7 +426,8 @@
 
 .secondary-action {
   color: $text-primary;
-  background: $gray-100;
+  background: rgba(var(--primary-rgb), 0.06);
+  border: 1px solid var(--border-color);
 }
 
 .primary-action {

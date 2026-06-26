@@ -34,10 +34,13 @@
               <mat-icon>edit</mat-icon>
               Edit Campaign
             </button>
-            <label class="auto-renew-toggle">
-              <input type="checkbox" [checked]="autoRenewEnabled()" (change)="toggleAutoRenew($event)" />
-              <span>Auto-Renew</span>
-            </label>
+            <mat-slide-toggle [checked]="autoRenewEnabled()" (change)="toggleAutoRenew($event)" class="auto-renew-toggle" color="primary">
+              Auto-Renew
+            </mat-slide-toggle>
+            <button class="btn btn-outline" mat-raised-button (click)="openBulkInvite()" matTooltip="Invite multiple promoters">
+              <mat-icon>group_add</mat-icon>
+              Bulk Invite
+            </button>
           }
           <!-- <button class="btn btn-outline" mat-raised-button (click)="targetAudienceByLocation()">
             <mat-icon>edit_location</mat-icon>
@@ -415,6 +418,7 @@
                     <div class="promoter-details">
                       <span class="promoter-name">{{promotion.promoter.displayName || 'Unknown'}}</span>
                       <promoter-tier-badge [promoterId]="promotion.promoter._id" />
+                      <promoter-trust-metrics [promoterId]="promotion.promoter._id" />
                      @if (promotion.promoter.rating) {
                        <span class="promoter-rating">
                         <mat-icon>star</mat-icon>

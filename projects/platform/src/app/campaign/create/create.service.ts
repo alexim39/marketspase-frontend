@@ -67,6 +67,18 @@ export class CampaignService {
     return this.apiService.get<CampaignPpcPricingConfigResponse>(`${this.apiUrl}/pricing/config`, undefined, undefined, true);
   }
 
+  getTemplates(): Observable<any> {
+    return this.apiService.get<any>(`${this.apiUrl}/templates`, undefined, undefined, true);
+  }
+
+  saveAsTemplate(data: Record<string, unknown>): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/templates`, data, undefined, true);
+  }
+
+  deleteTemplate(id: string): Observable<any> {
+    return this.apiService.delete<any>(`${this.apiUrl}/templates/${id}`, undefined, undefined, true);
+  }
+
   uploadMedia(file: File): Observable<HttpEvent<CampaignMediaUploadResponse>> {
     const formData = new FormData();
     formData.append('media', file);

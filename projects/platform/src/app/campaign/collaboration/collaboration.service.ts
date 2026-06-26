@@ -754,4 +754,8 @@ export class CollaborationService {
   setAutoRenew(campaignId: string, enabled: boolean, maxTopUps?: number, topUpAmount?: number): Observable<any> {
     return this.apiService.patch<any>(`api/v1/campaign/${campaignId}/auto-renew`, { enabled, maxTopUps, topUpAmount }, undefined, true);
   }
+
+  getPerformanceBenchmarks(): Observable<any> {
+    return this.apiService.get<any>('api/v1/user/performance-benchmarks', undefined, undefined, true);
+  }
 }

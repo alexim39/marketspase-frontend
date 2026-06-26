@@ -120,6 +120,35 @@
       </section>
     }
 
+    @if (benchmarks(); as b) {
+      <section class="benchmarks-strip">
+        <h3 class="section-title">Performance Benchmarks</h3>
+        <p class="section-sub">How your campaigns compare to the platform average</p>
+        <div class="benchmarks-grid">
+          <div class="benchmark-card">
+            <mat-icon>analytics</mat-icon>
+            <strong>{{ b.platformAvgConversionRate }}%</strong>
+            <span>Platform Avg Conv. Rate</span>
+          </div>
+          <div class="benchmark-card">
+            <mat-icon>bar_chart</mat-icon>
+            <strong>{{ b.medianConversionRate }}%</strong>
+            <span>Median Conv. Rate</span>
+          </div>
+          <div class="benchmark-card">
+            <mat-icon>equalizer</mat-icon>
+            <strong>{{ b.top25ConversionRate }}%</strong>
+            <span>Top 25% Conv. Rate</span>
+          </div>
+          <div class="benchmark-card">
+            <mat-icon>campaign</mat-icon>
+            <strong>{{ b.totalCampaigns }}</strong>
+            <span>Campaigns Compared</span>
+          </div>
+        </div>
+      </section>
+    }
+
     <section class="panel-card table-panel">
       <div class="panel-head">
         <div>

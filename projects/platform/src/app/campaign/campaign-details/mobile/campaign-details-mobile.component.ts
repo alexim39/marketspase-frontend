@@ -5,8 +5,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { PromotionInterface } from '@shared/services';
 import { ShortNumberPipe } from '../../../common/pipes/short-number.pipe';
+import { PromoterTierBadgeComponent } from '../../../common/components/promoter-tier-badge/promoter-tier-badge.component';
+import { PromoterTrustMetricsComponent } from '../../../common/components/promoter-trust-metrics/promoter-trust-metrics.component';
 import { CampaignDetailsComponent } from '../campaign-details.component';
 import { CampaignDetailsService } from '../campaign-details.service';
 
@@ -35,7 +38,10 @@ interface MobileCampaignInfoItem {
     MatIconModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
+    MatSlideToggleModule,
     ShortNumberPipe,
+    PromoterTierBadgeComponent,
+    PromoterTrustMetricsComponent,
   ],
   templateUrl: './campaign-details-mobile.component.html',
   styleUrls: ['./campaign-details-mobile.component.scss'],

@@ -13,6 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { CampaignInterface, DeviceService, PromotionInterface } from '@shared/services';
 
+import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
 import { PromotionDetailsDialogComponent } from './promotion-details-dialog/promotion-details-dialog.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
@@ -21,6 +22,8 @@ import { CampaignDetailsService } from './campaign-details.service';
 import { CollaborationService } from '../collaboration/collaboration.service';
 import { PromoterTierBadgeComponent } from '../../common/components/promoter-tier-badge/promoter-tier-badge.component';
 import { MediaViewerOnlyDialogComponent } from './media-viewer-dialog/media-viewer-dialog.component';
+import { BulkInviteDialogComponent } from '../shared/bulk-invite-dialog/bulk-invite-dialog.component';
+import { PromoterTrustMetricsComponent } from '../../common/components/promoter-trust-metrics/promoter-trust-metrics.component';
 import { UserService } from '../../common/services/user.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -60,11 +63,13 @@ export enum CampaignStatus {
     MatProgressSpinnerModule,
     MatDialogModule,
     MatSnackBarModule,
+    MatSlideToggleModule,
     ShortNumberPipe,
     //CategoryPlaceholderPipe,
     MatProgressBarModule,
     TruncateIDPipe,
     PromoterTierBadgeComponent,
+    PromoterTrustMetricsComponent,
   ],
   templateUrl: './campaign-details.component.html',
   styleUrls: ['./campaign-details.component.scss']
@@ -104,8 +109,8 @@ export class CampaignDetailsComponent implements OnInit {
 
   readonly autoRenewEnabled = signal(false);
 
-  toggleAutoRenew(event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
+  toggleAutoRenew(event: MatSlideToggleChange): void {
+    const checked = event.checked;
     const campaign = this.campaign();
     if (!campaign) return;
     this.collaborationService.setAutoRenew(campaign._id, checked).subscribe({
@@ -243,6 +248,7 @@ export class CampaignDetailsComponent implements OnInit {
         if (response.success) {
             //console.log('campaign ',response)
             this.campaign.set(response.data);
+            this.autoRenewEnabled.set(response.data?.autoRenew?.enabled ?? false);
             this.isLoading.set(false);
         }
       },
@@ -332,25 +338,11 @@ export class CampaignDetailsComponent implements OnInit {
     }
   }
 
-  toggleCampaignStatus() {
-    if (!this.isOwner()) {
-      this.snackBar.open('Only the campaign owner can change campaign status.', 'Close', { duration: 3000 });
-      return;
-    }
+  openBulkInvite(): void {
     const campaign = this.campaign();
     if (!campaign) return;
-    
-    const newStatus = campaign.status === CampaignStatus.ACTIVE ? CampaignStatus.PAUSED : CampaignStatus.ACTIVE;
-    
-    // this.campaignService.updateCampaignStatus(campaign._id, newStatus).subscribe({
-    //   next: (updatedCampaign) => {
-    //     this.campaign.set(updatedCampaign);
-    //     this.snackBar.open(`Campaign ${newStatus} successfully`, 'Close', { duration: 3000 });
-    //   },
-    //   error: (err) => {
-    //     this.snackBar.open(err.message || 'Failed to update campaign status', 'Close', { duration: 3000 });
-    //   }
-    // });
+    const ref = this.dialog.open(BulkInviteDialogComponent, { width: '460px' });
+    ref.componentInstance.campaignId.set(campaign._id);
   }
 
   deleteCampaign() {

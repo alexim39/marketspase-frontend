@@ -38,6 +38,8 @@ import { CampaignGoalFormComponent } from './components/campaign-goal-form/campa
 import { CampaignBudgetFormComponent } from './components/campaign-budget-form/campaign-budget-form.component';
 import { CampaignScheduleFormComponent } from './components/campaign-schedule-form/campaign-schedule-form.component';
 import { CampaignSummaryComponent } from './components/campaign-summary/campaign-summary.component';
+import { TemplatePickerDialogComponent } from './template-picker-dialog/template-picker-dialog.component';
+import { SaveTemplateDialogComponent } from './save-template-dialog/save-template-dialog.component';
 import { MediaFile } from './media-file.model';
 
 const DEFAULT_CAMPAIGN_COST_PER_CLICK = 80;
@@ -361,7 +363,41 @@ export class CreateCampaignComponent implements OnInit {
   }
 
   loadTemplate(): void {
-    this.snackBar.open('Template loading coming soon', 'OK', { duration: 2000 });
+    const dialogRef = this.dialog.open(TemplatePickerDialogComponent, { width: '440px' });
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((template) => {
+      if (!template?.data) return;
+      const d = template.data;
+      if (d.title) this.contentForm?.get('title')?.setValue(d.title);
+      if (d.caption) this.contentForm?.get('caption')?.setValue(d.caption);
+      if (d.category) this.contentForm?.get('category')?.setValue(d.category);
+      if (d.link) this.contentForm?.get('link')?.setValue(d.link);
+      if (d.promotionGoal) this.goalForm?.get('campaignGoal')?.setValue(d.promotionGoal);
+      if (d.budget) this.budgetForm?.get('budget')?.setValue(d.budget);
+      if (d.targetAudience) this.budgetForm?.get('ageTarget')?.setValue(d.targetAudience);
+      if (d.ppcPrice) this.costPerClick.set(Number(d.ppcPrice));
+      this.snackBar.open(`Loaded template "${template.name}"`, 'OK', { duration: 2500 });
+    });
+  }
+
+  saveAsTemplate(): void {
+    const dialogRef = this.dialog.open(SaveTemplateDialogComponent, { width: '480px' });
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((name) => {
+      if (!name) return;
+      const data = {
+        title: this.contentForm?.get('title')?.value || '',
+        caption: this.contentForm?.get('caption')?.value || '',
+        category: this.contentForm?.get('category')?.value || 'other',
+        link: this.contentForm?.get('link')?.value || '',
+        promotionGoal: this.goalForm?.get('campaignGoal')?.value || 'awareness',
+        budget: this.budgetForm?.get('budget')?.value || 0,
+        targetAudience: this.budgetForm?.get('ageTarget')?.value || 'all',
+        ppcPrice: this.costPerClick(),
+      };
+      this.campaignService.saveAsTemplate({ name, data }).subscribe({
+        next: () => this.snackBar.open(`Template "${name}" saved`, 'OK', { duration: 2500 }),
+        error: () => this.snackBar.open('Failed to save template', 'Close', { duration: 2000 }),
+      });
+    });
   }
 
   onSaveAsDraft(): void {

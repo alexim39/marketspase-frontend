@@ -207,7 +207,6 @@
       @if (loadingConversations()) {
         <div class="rail-empty">
           <mat-spinner diameter="28"></mat-spinner>
-          <p>Loading conversations...</p>
         </div>
       } @else if (visibleConversations().length === 0) {
         <div class="rail-empty">
@@ -272,7 +271,6 @@
         @if (loadingMessages()) {
           <div class="conversation-empty">
             <mat-spinner diameter="32"></mat-spinner>
-            <p>Loading messages...</p>
           </div>
         } @else if (messages().length === 0) {
           <div class="conversation-empty">

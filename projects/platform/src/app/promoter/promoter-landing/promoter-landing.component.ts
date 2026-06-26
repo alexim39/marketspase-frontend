@@ -162,6 +162,12 @@ export class PromoterLandingComponent implements OnInit {
         break;
     }
 
+    // Sort by match score when available (higher = better match)
+    const scores = this.matchScores();
+    if (scores.size > 0) {
+      filtered = [...filtered].sort((a, b) => (scores.get(b._id) || 0) - (scores.get(a._id) || 0));
+    }
+
     return filtered;
   });
 
@@ -246,6 +252,23 @@ export class PromoterLandingComponent implements OnInit {
         this.promoterLandingService.clearCache();
         this.loadCampaigns(false, user._id);
         this.loadUserPromotions(user._id);
+        this.loadMatchingCampaigns();
+      });
+  }
+
+  // Matching campaigns — scored by category affinity
+  readonly matchScores = signal<Map<string, number>>(new Map());
+
+  private loadMatchingCampaigns(): void {
+    this.promoterLandingService.getMatchingCampaigns()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r: any) => {
+          const scores = new Map<string, number>();
+          (r?.data || []).forEach((c: any) => { if (c._id && c.matchScore > 0) scores.set(c._id, c.matchScore); });
+          this.matchScores.set(scores);
+        },
+        error: () => null,
       });
   }
 

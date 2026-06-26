@@ -306,6 +306,20 @@
   }
 }
 
+.settings-strip {
+  padding: 0.85rem 1rem;
+  background: var(--campaign-mobile-surface);
+  border-radius: 1rem;
+  --mdc-switch-selected-focus-state-layer-color: var(--primary-color);
+  --mdc-switch-selected-handle-color: var(--primary-color);
+  --mdc-switch-selected-hover-state-layer-color: var(--primary-color);
+  --mdc-switch-selected-pressed-state-layer-color: var(--primary-color);
+  --mdc-switch-selected-focus-handle-color: var(--primary-color);
+  --mdc-switch-selected-hover-handle-color: var(--primary-color);
+  --mdc-switch-selected-pressed-handle-color: var(--primary-color);
+  --mdc-switch-selected-track-color: rgba(var(--primary-rgb), 0.38);
+}
+
 .budget-card {
   display: grid;
   gap: 0.85rem;

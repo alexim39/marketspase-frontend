@@ -16,7 +16,7 @@ export class PromoterLandingService {
   public readonly api = this.apiService.getBaseUrl();
   private readonly promotionsEndpoint = 'api/v1/promotion';
   private readonly campaignsEndpoint = 'api/v1/campaign';
-  
+  private readonly userEndpoint = 'api/v1/user';
   // Cache implementation
   private cache = new Map<string, CacheEntry<any>>();
   private inFlightRequests = new Map<string, Observable<any>>();
@@ -61,6 +61,16 @@ export class PromoterLandingService {
 
     this.inFlightRequests.set(cacheKey, request$);
     return request$;
+  }
+
+  /**
+   * Get matching campaigns for a promoter based on category affinity.
+   * @returns An observable of scored campaigns sorted by matchScore.
+   */
+  getMatchingCampaigns(): Observable<any> {
+    return this.apiService.get<any>(`${this.userEndpoint}/matching-campaigns`, undefined, undefined, true).pipe(
+      catchError(() => of({ success: false, data: [] })),
+    );
   }
 
   /**
