@@ -8,11 +8,14 @@ import {
   DestroyRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
@@ -53,10 +56,13 @@ import { PromotionService } from '../services/promotion.service';
   ],
   imports: [
     CommonModule,
+    FormsModule,
     RouterModule,
     MatIconModule,
     MatButtonModule,
     MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatProgressSpinnerModule,
     MatDialogModule,
     ProductImageGalleryComponent,
@@ -93,6 +99,37 @@ export class PromoterProductDetailsComponent implements OnInit {
   selectedImageIndex = signal(0);
   relatedProducts = signal<Product[]>([]);
   loadingRelated = signal(false);
+  blurb = signal('');
+
+  landingUrl = computed(() => {
+    const code = this.product()?.promotion?.trackingCode;
+    return code ? `marketspase.com/promote/p/${code}` : '';
+  });
+
+  tierAdjustedCommission = computed(() => {
+    const p = this.product()?.promotion as any;
+    if (!p) return null;
+
+    const tierBonus = p.metadata?.tierBonus || 0;
+    const baseRate = p.metadata?.baseCommissionRate ?? p.commissionRate;
+    const tier = p.metadata?.promoterTier;
+
+    if (tierBonus > 0) {
+      return {
+        rate: p.commissionRate,
+        baseRate,
+        tierBonus,
+        tier
+      };
+    }
+
+    return {
+      rate: p.commissionRate,
+      baseRate: null,
+      tierBonus: 0,
+      tier: null
+    };
+  });
 
   
 
@@ -359,6 +396,14 @@ ngOnInit(): void {
   }
 
   setActiveTab(_: number): void {}
+
+  copyLandingUrl(): void {
+    const url = this.landingUrl();
+    if (!url) return;
+    navigator.clipboard.writeText('https://' + url).then(() => {
+      this.snackBar.open('Landing URL copied!', 'Close', { duration: 3000 });
+    });
+  }
 
   async retryLoadProduct(): Promise<void> {
     const params = this.route.snapshot.paramMap;

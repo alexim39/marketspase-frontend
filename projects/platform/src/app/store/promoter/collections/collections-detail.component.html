@@ -1,0 +1,55 @@
+<div class="collections-detail">
+  <header class="page-header">
+    <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+    <div>
+      <h1>{{ collection()?.name || 'Collection' }}</h1>
+      <p>{{ collection()?.description }}</p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-state"><mat-spinner diameter="34" /><span>Loading...</span></div>
+  } @else if (error()) {
+    <div class="error-state"><mat-icon>error_outline</mat-icon><p>{{ error() }}</p></div>
+  } @else if (collection(); as col) {
+    <div class="stats-bar">
+      <span><mat-icon>visibility</mat-icon> {{ col.viewCount || 0 }} views</span>
+      <span><mat-icon>share</mat-icon> {{ col.shareCount || 0 }} shares</span>
+      <span><mat-icon>inventory_2</mat-icon> {{ col.productCount || 0 }} products</span>
+      <button mat-stroked-button (click)="copyPublicUrl()">
+        <mat-icon>content_copy</mat-icon> Copy Public URL
+      </button>
+    </div>
+
+    @if (col.products?.length) {
+      <div class="product-grid">
+        @for (product of col.products; track product._id) {
+          <mat-card class="product-card" appearance="outlined">
+            <img
+              [src]="product.images?.[0]?.url || 'assets/images/product-placeholder.jpg'"
+              [alt]="product.name"
+              (error)="handleProductImageError($event)"
+            />
+            <mat-card-content>
+              <strong>{{ product.name }}</strong>
+              <span class="price">{{ product.price | currency:product.currency:'symbol':'1.0-2' }}</span>
+              <span class="store-name">{{ product.store?.name || 'Unknown Store' }}</span>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-icon-button color="warn" (click)="removeProduct(product)"
+                [disabled]="removingProductId() === product._id">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <mat-icon>inventory_2</mat-icon>
+        <h3>No products yet</h3>
+        <p>Add products to your collection from the product browser.</p>
+      </div>
+    }
+  }
+</div>

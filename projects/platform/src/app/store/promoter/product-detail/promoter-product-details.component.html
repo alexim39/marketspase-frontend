@@ -109,11 +109,54 @@
               </div>
             </div>
 
+            <!-- Tier-Adjusted Commission -->
+            @if (tierAdjustedCommission(); as c) {
+              <div class="tier-commission">
+                <mat-icon>monetization_on</mat-icon>
+                <span>
+                  Commission: {{ c.rate }}%
+                  @if (c.tierBonus > 0) {
+                    ({{ c.baseRate }}% base + {{ c.tierBonus }}% {{ c.tier }} bonus)
+                  }
+                </span>
+              </div>
+            }
+
             <!-- Action Buttons -->
             <app-product-actions
               (copyLink)="copyPromotionLink()"
               (shareWhatsApp)="generateWhatsAppMessage()"
             />
+
+            <!-- Share Preview -->
+            @if (landingUrl()) {
+              <div class="share-preview-card">
+                <h4><mat-icon>share</mat-icon> Share Preview</h4>
+                <div class="preview-content">
+                  <div class="preview-image">
+                    @if (product()?.images?.[0]?.url) {
+                      <img [src]="product()!.images[0].url" [alt]="product()?.name" />
+                    } @else {
+                      <mat-icon>image</mat-icon>
+                    }
+                  </div>
+                  <div class="preview-info">
+                    <p class="preview-title">{{ product()?.name }}</p>
+                    <p class="preview-price">{{ product()?.price | currencyUtils:user()?.wallets?.promoter?.currency }}</p>
+                    <p class="preview-reco">Recommended by {{ user()?.displayName || 'You' }}</p>
+                  </div>
+                </div>
+                <mat-form-field appearance="outline" class="blurb-field">
+                  <mat-label>Why I recommend this</mat-label>
+                  <textarea matInput [(ngModel)]="blurb" maxlength="200" rows="3" placeholder="Share your thoughts..."></textarea>
+                  <mat-hint align="end">{{ blurb().length }}/200</mat-hint>
+                </mat-form-field>
+                <button mat-stroked-button (click)="copyLandingUrl()">
+                  <mat-icon>content_copy</mat-icon>
+                  Copy Landing URL
+                </button>
+              </div>
+            }
           </div>
         </mat-card>
 

@@ -1,0 +1,137 @@
+<section class="promoter-discovery-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Promoter Discovery</p>
+      <h1>Discover Promoters</h1>
+      <p class="subtitle">
+        Find top-performing affiliates and invite them to promote your products. Browse by category and sort by performance metrics.
+      </p>
+    </div>
+  </header>
+
+  <section class="product-selector-bar">
+    <mat-form-field appearance="outline" class="product-selector">
+      <mat-label>Select a product to invite for</mat-label>
+      <mat-select [ngModel]="selectedProductId()" (ngModelChange)="selectedProductId.set($event)">
+        @for (p of availableProducts(); track p._id) {
+          <mat-option [value]="p._id">{{ p.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>Pick a product first, then click "Invite" on any promoter card</mat-hint>
+    </mat-form-field>
+  </section>
+
+  <section class="filter-bar">
+    <mat-form-field appearance="outline">
+      <mat-label>Category</mat-label>
+      <mat-select [ngModel]="selectedCategory()" (ngModelChange)="setCategory($event)">
+        <mat-option value="">All Categories</mat-option>
+        @for (cat of categories; track cat) {
+          <mat-option [value]="cat">{{ cat }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Sort By</mat-label>
+      <mat-select [ngModel]="sortBy()" (ngModelChange)="setSortBy($event)">
+        @for (opt of sortOptions; track opt.value) {
+          <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="sort-dir-toggle">
+      <button
+        type="button"
+        class="sort-dir-button"
+        [class.active]="sortDir() === 'desc'"
+        (click)="setSortDir('desc')">
+        <mat-icon>arrow_downward</mat-icon>
+        Desc
+      </button>
+      <button
+        type="button"
+        class="sort-dir-button"
+        [class.active]="sortDir() === 'asc'"
+        (click)="setSortDir('asc')">
+        <mat-icon>arrow_upward</mat-icon>
+        Asc
+      </button>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <div class="state-panel">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Loading promoters...</span>
+    </div>
+  } @else if (error()) {
+    <div class="state-panel error-state">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <button type="button" mat-stroked-button (click)="fetchPromoters()">Retry</button>
+    </div>
+  } @else if (promoters().length === 0) {
+    <div class="state-panel">
+      <mat-icon>person_search</mat-icon>
+      <span>No promoters found</span>
+      <p>Try adjusting your category filter or check back later for new promoters.</p>
+    </div>
+  } @else {
+    <section class="promoters-grid">
+      @for (promoter of promoters(); track promoter._id) {
+        <article class="promoter-card">
+          <div class="card-top">
+            <div class="promoter-avatar" [class]="tierClass(promoter.promoterTier)">
+              @if (promoter.avatar) {
+                <img [src]="promoter.avatar" [alt]="promoter.displayName" />
+              } @else {
+                <span>{{ initials(promoter.displayName) }}</span>
+              }
+            </div>
+            <div class="promoter-info">
+              <h2>{{ promoter.displayName }}</h2>
+              <span class="tier-badge" [class]="tierClass(promoter.promoterTier)">
+                {{ promoter.promoterTier }}
+              </span>
+            </div>
+          </div>
+
+          <div class="card-stats">
+            <div class="stat-item">
+              <span>Conversions</span>
+              <strong>{{ promoter.totalConversions }}</strong>
+            </div>
+            <div class="stat-item">
+              <span>Earnings Generated</span>
+              <strong>
+                &#8358;{{ promoter.totalEarningsGenerated?.toLocaleString?.('en-NG') || Number(promoter.totalEarningsGenerated || 0).toLocaleString('en-NG') }}
+              </strong>
+            </div>
+            <div class="stat-item">
+              <span>Conversion Rate</span>
+              <strong>{{ formatConversionRate(promoter.averageConversionRate) }}</strong>
+            </div>
+          </div>
+
+          <div class="card-top-category">
+            <mat-icon>category</mat-icon>
+            <span>{{ promoter.topCategory || 'General' }}</span>
+          </div>
+
+          <div class="card-actions">
+            <button
+              type="button"
+              mat-stroked-button
+              color="primary"
+              (click)="invitePromoter(promoter._id)">
+              <mat-icon>person_add</mat-icon>
+              Invite to Promote
+            </button>
+          </div>
+        </article>
+      }
+    </section>
+  }
+</section>

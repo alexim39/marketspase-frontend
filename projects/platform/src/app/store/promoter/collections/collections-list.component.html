@@ -1,0 +1,102 @@
+<div class="collections-list">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">My Collections</h1>
+      <p class="page-subtitle">Curate and share product collections with your audience</p>
+    </div>
+    <button
+      mat-raised-button
+      color="primary"
+      class="create-btn"
+      (click)="navigateToCreate()"
+    >
+      <mat-icon>add</mat-icon>
+      <span>Create New Collection</span>
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Loading collections...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-state">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button (click)="loadCollections()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </div>
+  }
+
+  @if (!loading() && !error() && collections().length === 0) {
+    <div class="empty-state">
+      <div class="empty-illustration">
+        <mat-icon>collections_bookmark</mat-icon>
+      </div>
+      <h3>No collections yet</h3>
+      <p>Create your first collection to start curating products for your audience.</p>
+      <button mat-raised-button color="primary" (click)="navigateToCreate()">
+        <mat-icon>add</mat-icon>
+        Create Collection
+      </button>
+    </div>
+  }
+
+  @if (!loading() && !error() && collections().length > 0) {
+    <div class="collections-grid">
+      @for (collection of collections(); track trackByCollectionId($index, collection)) {
+        <div
+          class="collection-card"
+          matRipple
+          (click)="navigateToDetail(collection)"
+        >
+          <div class="card-cover">
+            @if (collection.coverImage) {
+              <img
+                [src]="collection.coverImage"
+                [alt]="collection.name"
+                (error)="handleCoverError($event)"
+                class="cover-image"
+              />
+            } @else {
+              <div class="cover-placeholder">
+                <mat-icon>collections</mat-icon>
+              </div>
+            }
+          </div>
+
+          <div class="card-body">
+            <h3 class="collection-name">{{ collection.name }}</h3>
+            @if (collection.description) {
+              <p class="collection-description">{{ collection.description }}</p>
+            }
+
+            <div class="collection-stats">
+              <div class="stat">
+                <mat-icon>shopping_bag</mat-icon>
+                <span>{{ collection.productCount }} products</span>
+              </div>
+              <div class="stat">
+                <mat-icon>visibility</mat-icon>
+                <span>{{ collection.viewCount }}</span>
+              </div>
+              <div class="stat">
+                <mat-icon>share</mat-icon>
+                <span>{{ collection.shareCount }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-arrow">
+            <mat-icon>chevron_right</mat-icon>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

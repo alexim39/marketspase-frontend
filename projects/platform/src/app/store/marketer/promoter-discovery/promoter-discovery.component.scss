@@ -1,0 +1,311 @@
+@use '../../../../styles/variables' as vars;
+@use '../../../../styles/mixins' as mix;
+
+.promoter-discovery-page {
+  min-height: 100%;
+  padding: vars.$spacing-6;
+  background: vars.$background-color;
+  color: vars.$text-primary;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: vars.$spacing-4;
+  margin-bottom: vars.$spacing-5;
+
+  h1 {
+    margin: vars.$spacing-1 0 vars.$spacing-2;
+    font-size: vars.$font-size-4xl;
+    line-height: vars.$line-height-tight;
+    font-weight: vars.$font-weight-bold;
+    color: vars.$text-primary;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  color: vars.$primary-color;
+  font-size: vars.$font-size-xs;
+  font-weight: vars.$font-weight-bold;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 760px;
+  color: vars.$text-secondary;
+  line-height: vars.$line-height-relaxed;
+}
+
+.product-selector-bar {
+  margin-bottom: vars.$spacing-3;
+  .product-selector { width: 100%; max-width: 420px; }
+}
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: vars.$spacing-3;
+  margin-bottom: vars.$spacing-5;
+  flex-wrap: wrap;
+  padding: vars.$spacing-4;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: vars.$border-radius-lg;
+}
+
+.sort-dir-toggle {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border-color);
+  border-radius: vars.$border-radius;
+  overflow: hidden;
+}
+
+.sort-dir-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.55rem 0.85rem;
+  border: none;
+  background: var(--surface-color);
+  color: vars.$text-secondary;
+  font: inherit;
+  font-size: vars.$font-size-sm;
+  cursor: pointer;
+  transition: background-color vars.$transition-normal, color vars.$transition-normal;
+
+  .mat-icon {
+    font-size: 1.1rem;
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  &:hover {
+    background: rgba(var(--primary-rgb), 0.06);
+  }
+
+  &.active {
+    background: rgba(var(--primary-rgb), 0.12);
+    color: var(--primary-color);
+  }
+
+  &:not(:last-child) {
+    border-right: 1px solid var(--border-color);
+  }
+}
+
+.state-panel {
+  min-height: 280px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: vars.$spacing-3;
+  padding: vars.$spacing-8;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: vars.$border-radius-lg;
+  color: vars.$text-secondary;
+
+  mat-icon {
+    color: vars.$text-tertiary;
+    font-size: 2.4rem;
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+
+  p {
+    margin: 0;
+    max-width: 360px;
+  }
+}
+
+.error-state {
+  border-color: rgba(var(--error-rgb), 0.3);
+  color: var(--primary-color);
+
+  mat-icon {
+    color: var(--primary-color);
+  }
+}
+
+.promoters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: vars.$spacing-4;
+}
+
+.promoter-card {
+  display: grid;
+  gap: vars.$spacing-3;
+  padding: vars.$spacing-4;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: vars.$border-radius-lg;
+  transition: border-color vars.$transition-normal, box-shadow vars.$transition-normal, transform vars.$transition-normal;
+
+  &:hover {
+    border-color: rgba(var(--primary-rgb), 0.35);
+    box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.08);
+    transform: translateY(-2px);
+  }
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: vars.$spacing-3;
+}
+
+.promoter-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: vars.$font-size-lg;
+  font-weight: vars.$font-weight-bold;
+  color: var(--primary-color);
+  background: rgba(var(--primary-rgb), 0.12);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &.tier-gold {
+    box-shadow: 0 0 0 2px #f59e0b;
+    color: #b45309;
+    background: rgba(245, 158, 11, 0.12);
+  }
+
+  &.tier-silver {
+    box-shadow: 0 0 0 2px #94a3b8;
+    color: #475569;
+    background: rgba(148, 163, 184, 0.12);
+  }
+
+  &.tier-bronze {
+    box-shadow: 0 0 0 2px #b45309;
+    color: #92400e;
+    background: rgba(180, 83, 9, 0.1);
+  }
+}
+
+.promoter-info {
+  min-width: 0;
+
+  h2 {
+    margin: 0;
+    font-size: vars.$font-size-lg;
+    color: vars.$text-primary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.tier-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.2rem;
+  border-radius: vars.$border-radius-full;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: vars.$font-weight-bold;
+  text-transform: capitalize;
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary-color);
+
+  &.tier-gold {
+    background: rgba(245, 158, 11, 0.15);
+    color: #b45309;
+  }
+
+  &.tier-silver {
+    background: rgba(148, 163, 184, 0.15);
+    color: #475569;
+  }
+
+  &.tier-bronze {
+    background: rgba(180, 83, 9, 0.12);
+    color: #92400e;
+  }
+}
+
+.card-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: vars.$spacing-2;
+
+  .stat-item {
+    padding: vars.$spacing-3;
+    border-radius: vars.$border-radius-md;
+    background: vars.$divider-color;
+
+    span {
+      display: block;
+      color: vars.$text-secondary;
+      font-size: vars.$font-size-xs;
+      margin-bottom: 0.2rem;
+    }
+
+    strong {
+      color: vars.$text-primary;
+      font-size: vars.$font-size-base;
+    }
+  }
+}
+
+.card-top-category {
+  display: flex;
+  align-items: center;
+  gap: vars.$spacing-1;
+  padding: vars.$spacing-2 vars.$spacing-3;
+  border-radius: vars.$border-radius-md;
+  background: rgba(var(--primary-rgb), 0.04);
+  color: vars.$text-secondary;
+  font-size: vars.$font-size-sm;
+
+  mat-icon {
+    font-size: 1.1rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--primary-color);
+  }
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@include mix.tablet {
+  .promoters-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@include mix.mobile {
+  .promoter-discovery-page {
+    padding: vars.$spacing-4;
+  }
+
+  .promoters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-bar {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    display: grid;
+  }
+}

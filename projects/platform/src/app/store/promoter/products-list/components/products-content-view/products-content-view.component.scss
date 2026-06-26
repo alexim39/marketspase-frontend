@@ -212,6 +212,33 @@
         }
       }
       
+      .analytics-badge {
+        position: absolute;
+        top: 18px;
+        right: $spacing-4;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding: 2px $spacing-2;
+        border-radius: $border-radius-full;
+        font-size: 11px;
+        font-weight: $font-weight-semibold;
+        background: rgba($text-secondary, 0.12);
+        color: $text-secondary;
+        
+        &.high-perf {
+          background: rgba(var(--success-rgb), 0.12);
+          color: var(--success-color);
+        }
+        
+        mat-icon {
+          font-size: 12px;
+          width: 12px;
+          height: 12px;
+        }
+      }
+      
       .product-image {
         position: relative;
         height: 200px;

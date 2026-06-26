@@ -244,6 +244,70 @@
   min-height: 48px;
 }
 
+.referral-code-section {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+
+  .referral-field {
+    flex: 1;
+    margin-bottom: -1.25em;
+  }
+
+  button {
+    min-height: 48px;
+    white-space: nowrap;
+  }
+}
+
+.share-earn-card {
+  margin-top: 18px;
+  padding: 20px;
+  border-radius: 8px;
+  background: rgba(var(--primary-rgb), 0.06);
+  border: 1px solid rgba(var(--primary-rgb), 0.16);
+  text-align: center;
+
+  > mat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+  }
+
+  h3 {
+    margin: 0 0 6px;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin: 0 0 12px;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+  }
+
+  .referral-code-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    code {
+      padding: 6px 14px;
+      border-radius: 6px;
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
 .empty-cart {
   max-width: 620px;
   margin: 48px auto;

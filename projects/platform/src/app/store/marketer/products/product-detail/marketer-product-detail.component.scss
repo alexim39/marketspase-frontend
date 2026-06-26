@@ -1561,3 +1561,170 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+// Product Detail Tabs
+.product-detail-tabs {
+  background: transparent;
+
+  ::ng-deep .mat-mdc-tab-header {
+    border-bottom: 1px solid $border-color;
+    margin-bottom: $spacing-4;
+  }
+
+  ::ng-deep .mat-mdc-tab {
+    min-width: 120px;
+    font-weight: $font-weight-medium;
+  }
+}
+
+// Promoter Performance Card
+.promoter-performance-card {
+  background: $surface-color;
+  border-radius: $border-radius-lg;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  border: 1px solid $border-color;
+  overflow: hidden;
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-4 $spacing-6;
+    border-bottom: 1px solid $border-color;
+    background: linear-gradient(to right, rgba($background-color, 0.5), transparent);
+
+    @include mobile {
+      padding: $spacing-4;
+    }
+
+    .card-title {
+      @include heading-small;
+      margin: 0;
+      color: $text-primary;
+      font-size: $font-size-xl;
+      font-weight: $font-weight-semibold;
+    }
+  }
+
+  .card-content {
+    padding: $spacing-4;
+
+    .loading-state,
+    .empty-state {
+      @include flex-column-center;
+      min-height: 200px;
+      text-align: center;
+      color: $text-secondary;
+
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: $text-tertiary;
+        margin-bottom: $spacing-3;
+      }
+
+      p {
+        @include body-medium;
+        color: $text-secondary;
+        margin: 0;
+      }
+    }
+
+    .performance-table-wrapper {
+      overflow-x: auto;
+
+      .performance-table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th {
+          @include caption;
+          font-weight: $font-weight-semibold;
+          color: $text-secondary;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          padding: $spacing-3 $spacing-4;
+          background: rgba($background-color, 0.5);
+          border-bottom: 2px solid $border-color;
+          white-space: nowrap;
+        }
+
+        td {
+          @include body-small;
+          color: $text-primary;
+          padding: $spacing-3 $spacing-4;
+          border-bottom: 1px solid $border-color;
+          vertical-align: middle;
+        }
+
+        .promoter-cell {
+          display: flex;
+          align-items: center;
+          gap: $spacing-2;
+
+          .promoter-name {
+            font-weight: $font-weight-medium;
+          }
+
+          .suspicious-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            color: $warning-color;
+          }
+        }
+
+        .tier-badge {
+          @include caption;
+          padding: $spacing-1 $spacing-3;
+          border-radius: $border-radius-full;
+          font-weight: $font-weight-medium;
+          background: $background-color;
+          color: $text-secondary;
+
+          &.premium {
+            background: rgba(var(--primary-rgb), 0.1);
+            color: $primary-color;
+          }
+
+          &.gold {
+            background: rgba(var(--warning-rgb), 0.15);
+            color: $warning-color;
+          }
+
+          &.platinum {
+            background: rgba(var(--info-rgb), 0.1);
+            color: $info-color;
+          }
+        }
+
+        .deactivate-btn {
+          font-size: $font-size-xs;
+          padding: 0 $spacing-3;
+          height: 32px;
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            margin-right: 2px;
+          }
+        }
+
+        tr.suspicious-row {
+          border-left: 4px solid $error-color;
+          background: rgba(var(--error-rgb), 0.03);
+
+          &:hover {
+            background: rgba(var(--error-rgb), 0.06);
+          }
+        }
+
+        tr:hover:not(.suspicious-row) {
+          background: rgba($background-color, 0.6);
+        }
+      }
+    }
+  }
+}

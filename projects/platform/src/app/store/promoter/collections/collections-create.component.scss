@@ -1,0 +1,100 @@
+@import '../../../styles/mixins';
+@import '../../../styles/variables';
+
+.collections-create {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: $spacing-8;
+
+  @include mobile {
+    padding: $spacing-4;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-4;
+    margin-bottom: $spacing-8;
+
+    .back-btn {
+      margin-top: -$spacing-1;
+      color: $text-secondary;
+    }
+
+    .header-content {
+      .page-title {
+        @include heading-large;
+        margin: 0 0 $spacing-2 0;
+        color: $text-primary;
+        font-size: $font-size-2xl;
+        font-weight: $font-weight-bold;
+      }
+
+      .page-subtitle {
+        @include body-medium;
+        color: $text-secondary;
+        margin: 0;
+      }
+    }
+  }
+
+  .form-container {
+    .form-card {
+      background: var(--surface-color);
+      border-radius: $border-radius-lg;
+      border: 1px solid var(--border-color);
+      padding: $spacing-8;
+
+      @include mobile {
+        padding: $spacing-4;
+      }
+    }
+
+    .collection-form {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-4;
+
+      .full-width {
+        width: 100%;
+      }
+
+      ::ng-deep .mat-mdc-form-field-icon-prefix {
+        color: $text-tertiary;
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: $spacing-3;
+      margin-top: $spacing-4;
+      padding-top: $spacing-6;
+      border-top: 1px solid var(--border-color);
+
+      @include mobile {
+        flex-direction: column-reverse;
+        gap: $spacing-2;
+      }
+
+      button {
+        min-width: 140px;
+        height: 44px;
+        font-weight: $font-weight-medium;
+
+        mat-icon {
+          margin-right: $spacing-2;
+        }
+
+        mat-spinner {
+          display: inline-block;
+          margin-right: $spacing-2;
+        }
+
+        @include mobile {
+          min-width: 100%;
+        }
+      }
+    }
+  }
+}

@@ -88,6 +88,14 @@
             <span>{{ product.promotion.commissionRate }}%</span>
           </div>
 
+          <!-- Analytics Badge -->
+          @if (product.averageConversionRate > 0) {
+            <div class="analytics-badge" [class.high-perf]="product.averageConversionRate >= 5">
+              <mat-icon>insights</mat-icon>
+              <span>{{ product.averageConversionRate }}%</span>
+            </div>
+          }
+
           <!-- Product Image -->
           <div class="product-image">
             @if (product.images && product.images[0].url) {

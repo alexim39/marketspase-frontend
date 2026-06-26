@@ -1,0 +1,73 @@
+<div class="collections-create">
+  <div class="page-header">
+    <button mat-icon-button class="back-btn" (click)="cancel()" matTooltip="Back to collections">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-content">
+      <h1 class="page-title">Create New Collection</h1>
+      <p class="page-subtitle">Curate a set of products to share with your audience</p>
+    </div>
+  </div>
+
+  <div class="form-container">
+    <div class="form-card">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="collection-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Collection Name</mat-label>
+          <input matInput formControlName="name" placeholder="e.g. Summer Essentials" />
+          <mat-icon matPrefix>bookmark</mat-icon>
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <mat-error>
+              @if (form.get('name')?.errors?.['required']) {
+                Collection name is required
+              } @else if (form.get('name')?.errors?.['minlength']) {
+                Name must be at least 2 characters
+              }
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description (optional)</mat-label>
+          <textarea
+            matInput
+            formControlName="description"
+            placeholder="Describe what this collection is about..."
+            rows="4"
+          ></textarea>
+          <mat-icon matPrefix>description</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Cover Image URL (optional)</mat-label>
+          <input matInput formControlName="coverImage" placeholder="https://..." />
+          <mat-icon matPrefix>image</mat-icon>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            mat-stroked-button
+            (click)="cancel()"
+            [disabled]="submitting()"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            mat-raised-button
+            color="primary"
+            [disabled]="submitting()"
+          >
+            @if (submitting()) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              <mat-icon>check</mat-icon>
+            }
+            <span>Save Collection</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

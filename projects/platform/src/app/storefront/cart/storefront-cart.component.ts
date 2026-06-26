@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { firstValueFrom } from 'rxjs';
 import { CurrencyUtilsPipe } from '@shared/services';
+import { ApiService } from '@shared/services';
 import { UserService } from '../../common/services/user.service';
 import { PaystackService } from '../../common/services/paystack.service';
 import { StorefrontCartGroup, StorefrontCartItem, StorefrontCartService } from '../services/storefront-cart.service';
@@ -26,6 +27,7 @@ import { CurrencyQuote, PaymentCurrencyService } from '../../common/services/pay
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
+    FormsModule,
     MatButtonModule,
     MatCardModule,
     MatDividerModule,
@@ -49,6 +51,7 @@ export class StorefrontCartComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly apiService = inject(ApiService);
 
   readonly user = this.userService.user;
   readonly groups = this.cartService.groups;
@@ -62,6 +65,10 @@ export class StorefrontCartComponent implements OnInit {
   readonly selectedCheckoutCurrency = signal<string>('NGN');
   readonly supportedCheckoutCurrencies = signal<Array<{ code: string; name: string; symbol: string }>>([]);
   readonly checkoutQuote = signal<CurrencyQuote | null>(null);
+  readonly referralCode = signal('');
+  readonly referralApplied = signal(false);
+  readonly referralDiscount = signal<number | null>(null);
+  readonly shareReferralCode = signal<string | null>(null);
 
   readonly selectedGroup = computed(() => {
     const groups = this.groups();
@@ -106,15 +113,18 @@ export class StorefrontCartComponent implements OnInit {
 
   increaseQuantity(item: StorefrontCartItem): void {
     this.cartService.updateQuantity(item.id, item.quantity + 1);
+    this.cartService.saveCartSnapshot(this.user()?.email).subscribe();
   }
 
   decreaseQuantity(item: StorefrontCartItem): void {
     this.cartService.updateQuantity(item.id, item.quantity - 1);
+    this.cartService.saveCartSnapshot(this.user()?.email).subscribe();
   }
 
   removeItem(item: StorefrontCartItem): void {
     this.cartService.removeItem(item.id);
     this.resetSelectedStoreIfNeeded();
+    this.cartService.saveCartSnapshot(this.user()?.email).subscribe();
   }
 
   clearSelectedStore(): void {
@@ -122,6 +132,7 @@ export class StorefrontCartComponent implements OnInit {
     if (!group) return;
     this.cartService.clearStore(group.storeId);
     this.resetSelectedStoreIfNeeded();
+    this.cartService.saveCartSnapshot(this.user()?.email).subscribe();
   }
 
   async checkoutSelectedStore(): Promise<void> {
@@ -175,6 +186,10 @@ export class StorefrontCartComponent implements OnInit {
         orderPayload.customerId = currentUser._id;
       }
 
+      if (this.referralCode() && this.referralApplied()) {
+        orderPayload.referralCode = this.referralCode();
+      }
+
       const createResponse = await firstValueFrom(this.storeService.createStorefrontOrder(orderPayload));
 
       const order = createResponse?.data?.order;
@@ -222,6 +237,25 @@ export class StorefrontCartComponent implements OnInit {
         duration: 5000,
         panelClass: ['success-snackbar']
       });
+
+      const orderData = confirmResponse?.data?.order || order;
+      if (orderData?.referralCode) {
+        this.shareReferralCode.set(orderData.referralCode);
+      } else {
+        try {
+          const refResponse = await firstValueFrom(
+            this.apiService.post<any>('api/v1/stores/storefront/referrals/create', {
+              orderId: orderData._id,
+              customerEmail: customerEmail
+            }, undefined, true)
+          );
+          if (refResponse?.data?.code) {
+            this.shareReferralCode.set(refResponse.data.code);
+          }
+        } catch {
+          // Silently fail — referral code generation is optional
+        }
+      }
     } catch (error: any) {
       this.checkoutError.set(error?.error?.message || error?.message || 'Checkout failed. Please try again.');
     } finally {
@@ -244,6 +278,34 @@ export class StorefrontCartComponent implements OnInit {
 
   onCheckoutCurrencyChange(currencyCode: string): void {
     this.selectedCheckoutCurrency.set(currencyCode || this.selectedGroup()?.currency || 'NGN');
+  }
+
+  copyReferralCode(): void {
+    const code = this.shareReferralCode();
+    if (!code) return;
+    navigator.clipboard.writeText(code).then(() => {
+      this.snackBar.open('Copied!', 'Close', { duration: 2000 });
+    });
+  }
+
+  async applyReferral(): Promise<void> {
+    const code = this.referralCode();
+    if (!code || this.referralApplied()) return;
+
+    try {
+      const response = await firstValueFrom(
+        this.apiService.post<any>('api/v1/stores/storefront/referrals/validate', { code }, undefined, true)
+      );
+      if (response?.data?.valid) {
+        this.referralApplied.set(true);
+        this.referralDiscount.set(response.data.discount ?? null);
+        this.snackBar.open('Referral code applied!', 'Close', { duration: 3000 });
+      } else {
+        this.snackBar.open(response?.message || 'Invalid referral code.', 'Close', { duration: 3000 });
+      }
+    } catch (error: any) {
+      this.snackBar.open(error?.error?.message || 'Failed to validate referral code.', 'Close', { duration: 3000 });
+    }
   }
 
   private prefillCheckoutForm(): void {

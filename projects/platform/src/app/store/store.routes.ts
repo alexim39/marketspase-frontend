@@ -95,6 +95,28 @@ export const StoreRoutes: Routes = [
     },
 
         {
+        path: 'discover-promoters',
+        loadComponent: () => import('./marketer/promoter-discovery').then(c => c.PromoterDiscoveryIndexComponent),
+        title: "Discover Promoters - Find top affiliates for your products",
+    },
+
+        {
+        path: 'collections',
+        loadComponent: () => import('./promoter/collections').then(c => c.PromoterCollectionsIndexComponent),
+        title: "My Collections - Curated Product Collections",
+    },
+        {
+        path: 'collections/create',
+        loadComponent: () => import('./promoter/collections').then(c => c.PromoterCollectionsCreateIndexComponent),
+        title: "Create Collection",
+    },
+        {
+        path: 'collections/:id',
+        loadComponent: () => import('./promoter/collections').then(c => c.PromoterCollectionsDetailIndexComponent),
+        title: "Collection Details",
+    },
+
+        {
         path: 'contacts',
         loadChildren: () => import('./marketer/contacts/contacts.routes').then(r => r.ContactsRoutes),
     },
