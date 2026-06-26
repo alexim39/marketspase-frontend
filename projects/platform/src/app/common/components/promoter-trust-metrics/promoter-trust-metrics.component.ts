@@ -19,12 +19,7 @@ import { ApiService } from '@shared/services';
       </span>
     }
   `,
-  styles: [`
-    .trust-badges { display: inline-flex; gap: 0.3rem; align-items: center; cursor: help; }
-    .trust-chip { display: inline-flex; align-items: center; gap: 0.1rem; padding: 0.1rem 0.35rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600; background: rgba(var(--primary-rgb), 0.07); color: var(--text-secondary); }
-    .trust-chip mat-icon { font-size: 12px; width: 12px; height: 12px; }
-    .trust-high { background: rgba(var(--success-rgb), 0.12); color: var(--success-color); }
-  `],
+  styleUrls: ['./promoter-trust-metrics.component.scss'],
 })
 export class PromoterTrustMetricsComponent {
   private api = inject(ApiService);

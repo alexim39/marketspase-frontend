@@ -23,10 +23,7 @@ const TIER_CONFIG: Record<string, { label: string; icon: string; color: string }
       </span>
     }
   `,
-  styles: [`
-    .tier-badge { display: inline-flex; align-items: center; gap: 0.2rem; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.68rem; font-weight: 700; color: #fff; }
-    .tier-badge mat-icon { width: 14px; height: 14px; font-size: 14px; }
-  `],
+  styleUrls: ['./promoter-tier-badge.component.scss'],
 })
 export class PromoterTierBadgeComponent {
   private api = inject(ApiService);

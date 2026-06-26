@@ -43,19 +43,7 @@ const STEPS = [
       </div>
     }
   `,
-  styles: [`
-    .onboarding-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; }
-    .onboarding-sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 1001; background: var(--surface-color); border-radius: 24px 24px 0 0; padding: 1.5rem; max-width: 480px; margin: 0 auto; }
-    .onboarding-progress { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; }
-    .onboarding-progress mat-progress-bar { flex: 1; }
-    .onboarding-progress span { font-size: 0.8rem; color: var(--text-secondary); }
-    .onboarding-step { text-align: center; padding: 1rem 0; }
-    .step-icon { font-size: 48px; width: 48px; height: 48px; color: var(--primary-color); margin-bottom: 0.75rem; }
-    .onboarding-step h2 { margin: 0 0 0.5rem; font-size: 1.2rem; }
-    .onboarding-step p { color: var(--text-secondary); line-height: 1.5; max-width: 360px; margin: 0 auto; }
-    .onboarding-actions { display: flex; justify-content: space-between; gap: 0.75rem; margin-top: 1rem; }
-    .onboarding-skip { width: 100%; margin-top: 0.5rem; color: var(--text-secondary); }
-  `],
+  styleUrls: ['./onboarding-overlay.component.scss'],
 })
 export class OnboardingOverlayComponent {
   private api = inject(ApiService);
@@ -76,7 +64,7 @@ export class OnboardingOverlayComponent {
             this.visible.set(true);
           }
         },
-        error: () => null,
+        error: () => { this.visible.set(true); },
       });
   }
 
