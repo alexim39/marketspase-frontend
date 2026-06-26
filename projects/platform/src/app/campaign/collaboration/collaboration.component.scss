@@ -925,65 +925,6 @@
   background: rgba(var(--primary-rgb), 0.04);
 }
 
-@media (max-width: 1040px) {
-  .workspace-metrics,
-  .starter-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .workspace-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .thread-rail {
-    border-right: 0;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .thread-list {
-    max-height: none;
-  }
-
-  .conversation-panel {
-    min-height: 60vh;
-  }
-}
-
-@media (max-width: 768px) {
-  .workspace-metrics,
-  .starter-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-card,
-  .conversation-head {
-    flex-direction: column;
-  }
-
-  .hero-actions,
-  .starter-actions,
-  .conversation-actions,
-  .composer-actions {
-    width: 100%;
-  }
-  .composer-actions {
-    justify-content: flex-end;
-  }
-
-  .message-card {
-    max-width: 100%;
-  }
-
-  .message-row,
-  .message-row.mine {
-    justify-content: flex-start;
-  }
-
-  .message-card,
-  .message-row.mine .message-card {
-    max-width: calc(100% - 3rem);
-  }
-}
 
 /* Lightweight emoji popover (no external deps) */
 .simple-emoji-popover {

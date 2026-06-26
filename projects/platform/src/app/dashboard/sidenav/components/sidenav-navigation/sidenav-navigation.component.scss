@@ -202,26 +202,7 @@
   }
 }
 
-/* Fix for mobile responsiveness */
-@media (max-width: 768px) {
-  .nav-tree {
-    .nav-item {
-      .nav-children {
-        .nav-item {
-          margin-left: 8px;
-          
-          &.level-2 {
-            margin-left: 24px;
-          }
-          
-          &.level-3 {
-            margin-left: 40px;
-          }
-        }
-      }
-    }
-  }
-}
+
 
 /* Modal link styling */
 .modal-link {

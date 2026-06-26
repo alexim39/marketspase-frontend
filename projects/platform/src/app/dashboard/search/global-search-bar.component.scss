@@ -267,14 +267,4 @@ input::placeholder {
   }
 }
 
-@media (max-width: 768px) {
-  .search-field {
-    min-height: 46px;
-    border-radius: 16px;
-    margin-bottom: 5px;
-  }
 
-  .suggestions-panel {
-    inset: calc(100% + 0.45rem) 0 auto;
-  }
-}

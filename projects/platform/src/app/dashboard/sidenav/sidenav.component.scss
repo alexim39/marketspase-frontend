@@ -420,23 +420,7 @@ body {
   }
 }
 
-@media (max-width: 1180px) {
-  .desktop-header {
-    .header-title-group {
-      min-width: 180px;
-    }
-  }
-}
 
-@media (max-width: 768px) {
-  .mobile-header {
-    padding: 0 2.5rem;
-  }
-
-  .mobile-search-row {
-    padding: 0.65rem 0.75rem 0;
-  }
-}
 
 .avatar-sm {
   width: 36px;

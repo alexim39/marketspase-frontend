@@ -144,15 +144,6 @@
         max-width: 40%;
       }
 
-      @media (max-width: 768px) {
-        flex-direction: column-reverse;
-
-        .form-section, 
-        .preview-section {
-          max-width: 100%;
-          width: 100%;
-        }
-      }
     }
     
     // Form Section Components
@@ -1072,15 +1063,4 @@
   text-align: center;
 }
 
-@media (max-width: 768px) {
-  .source-toggle-group,
-  .product-selection-grid,
-  .challenge-grid {
-    grid-template-columns: 1fr;
-  }
 
-  .media-upload-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}

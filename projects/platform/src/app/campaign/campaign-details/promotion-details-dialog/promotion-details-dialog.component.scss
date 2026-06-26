@@ -241,28 +241,3 @@
   }
 }
 
-// Optional: Add media query for responsive design
-@media (max-width: 600px) {
-  .promotion-details-dialog .dialog-section {
-    .metrics-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .meta-list .meta-row {
-      flex-direction: column;
-
-      .meta-value {
-        text-align: left;
-      }
-    }
-  }
-
-  .proof-media-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 12px;
-  }
-  
-  .proof-media-item img {
-    height: 120px;
-  }
-}

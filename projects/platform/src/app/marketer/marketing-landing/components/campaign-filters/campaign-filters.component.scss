@@ -158,18 +158,3 @@
   }
 }
 
-@media (max-width: 768px) {
-  .quick-filters {
-    display: flex;
-    flex-wrap: wrap; /* Added to allow items to wrap */
-  }
-
-  .filter-controls {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .results-count {
-    text-align: center;
-  }
-}

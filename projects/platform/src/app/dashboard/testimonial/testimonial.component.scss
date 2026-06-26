@@ -361,69 +361,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1024px) {
-  .testimonials-container {
-    padding: $spacing-6;
-  }
 
-  .section-title {
-    font-size: $font-size-2xl;
-  }
-}
-
-@media (max-width: 768px) {
-  .testimonials-container {
-    padding: $spacing-4;
-  }
-
-  .section-title {
-    font-size: $font-size-xl;
-  }
-
-  .testimonial-carousel {
-    flex-direction: column;
-    gap: $spacing-4;
-  }
-
-  .nav-button {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
-
-  .card-content {
-    flex-direction: column;
-    text-align: center;
-    gap: $spacing-4;
-  }
-
-  .testimonial-message {
-    font-size: $font-size-base;
-  }
-
-  .nav-button--prev {
-    order: -1;
-    align-self: flex-start;
-  }
-
-  .nav-button--next {
-    order: 1;
-    align-self: flex-end;
-  }
-}
-
-@media (max-width: 480px) {
-  .testimonials-container {
-    padding: $spacing-4 $spacing-3;
-  }
-
-  .section-title {
-    font-size: $font-size-lg;
-  }
-
-  .testimonial-card {
-    padding: $spacing-6 $spacing-4;
-  }
-}
 
 /* Focus States for Accessibility */
 .nav-button:focus-visible,

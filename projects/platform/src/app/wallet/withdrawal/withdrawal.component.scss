@@ -266,11 +266,6 @@
       }
     }
 
-    @media (max-width: 768px) {
-      .hint {
-        margin: 1em 0;
-      }
-    }
   }
 
   .form-actions {
@@ -334,75 +329,6 @@ mat-spinner {
   --mdc-circular-progress-active-indicator-color: #{$primary-color};
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .withdrawal-container {
-    padding: 16px;
-  }
-
-  .withdrawal-content {
-    padding: 0;
-  }
-
-  .header-main h1 {
-    font-size: 24px;
-  }
-
-  .card-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16px;
-
-    button {
-      width: 100%;
-    }
-  }
-
-  .form-container {
-    gap: 16px;
-  }
-
-  .form-actions {
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
-    
-    mat-slide-toggle {
-      margin-top: 2.5em;
-    }
-    button {
-      width: 100%;
-    }
-  }
-
-  .balance-card {
-    padding: 16px;
-
-    .balance-amount {
-      .currency {
-        font-size: 24px;
-      }
-
-      .amount {
-        font-size: 22px;
-      }
-    }
-
-    .balance-details {
-      grid-template-columns: 1fr;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .header-main h1 {
-    font-size: 24px;
-  }
-
-  .balance-details {
-    grid-template-columns: 1fr !important;
-  }
-}
 
 .search-banks {
   background-color: #bbb; 

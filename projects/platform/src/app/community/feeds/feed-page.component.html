@@ -478,7 +478,7 @@
           <div class="comment-composer">
             @if (replyingTo(); as replyTarget) {
               <div class="reply-context">
-                <span>Replying to {{ replyTarget.user?.displayName || replyTarget.user?.username || 'Member' }}</span>
+                <span>Replying to {{ replyTarget.user.displayName || replyTarget.user.username || 'Member' }}</span>
                 <button type="button" (click)="cancelReply()" aria-label="Cancel reply">
                   <mat-icon>close</mat-icon>
                 </button>

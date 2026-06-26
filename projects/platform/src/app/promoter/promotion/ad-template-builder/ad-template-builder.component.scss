@@ -86,10 +86,6 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: $spacing-3;
-
-  @media (max-width: 880px) {
-    grid-template-columns: 1fr;
-  }
 }
 
 .placement-panel {
@@ -115,10 +111,6 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: $spacing-2;
-
-  @media (max-width: 880px) {
-    grid-template-columns: 1fr;
-  }
 }
 
 .placement-card {
@@ -173,11 +165,6 @@
   gap: $spacing-3;
   align-items: flex-start;
   justify-content: space-between;
-
-  @media (max-width: 880px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
 }
 
 .link-summary-title {
@@ -200,10 +187,6 @@
   display: flex;
   justify-content: flex-end;
   gap: $spacing-2;
-
-  @media (max-width: 880px) {
-    justify-content: space-between;
-  }
 }
 
 .media-row {
@@ -242,11 +225,6 @@
   gap: $spacing-3;
   align-items: flex-start;
   justify-content: space-between;
-
-  @media (max-width: 880px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
 }
 
 .copy-meta {
@@ -273,10 +251,6 @@
   flex-wrap: wrap;
   gap: $spacing-2;
   justify-content: flex-end;
-
-  @media (max-width: 880px) {
-    justify-content: flex-start;
-  }
 }
 
 .mono {

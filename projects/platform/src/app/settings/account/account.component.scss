@@ -47,12 +47,3 @@
   }
 }
 
-@media (max-width: 768px) {
-  .account-container {
-    padding: $spacing-3;
-  }
-  
-  ::ng-deep .mat-expansion-panel-header {
-    padding: 0 $spacing-4;
-  }
-}

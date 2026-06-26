@@ -106,10 +106,7 @@
 
 .form-field-half {
   flex: 1 1 calc(50% - 0.5rem);
-  
-  @include mobile {
-    flex: 1 1 100%;
-  }
+
 }
 
 .targeting-type-grid {
@@ -411,56 +408,6 @@
   }
 }
 
-// Mobile responsiveness
-@include mobile {
-  .targeting-container {
-    .card-header,
-    .card-content {
-      padding: 0.5rem;
-    }
-  }
-
-  .toggle-section {
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .targeting-options {
-    padding: 1rem;
-    margin-top: 1rem;
-  }
-
-  .map-container {
-    height: 250px;
-  }
-
-  .targeting-type-option,
-  .precision-option {
-    padding: 0.875rem;
-  }
-
-  .areas-grid .area-chip {
-    padding: 0.625rem 0.875rem;
-  }
-}
-
-// Enhanced responsive breakpoints
-@media (max-width: 360px) {
-  .targeting-container {
-    .card-header,
-    .card-content {
-      padding: 0.75rem;
-    }
-  }
-
-  .targeting-options {
-    padding: 0.75rem;
-  }
-
-  .targeting-type-option {
-    padding: 0.75rem !important;
-  }
-}
 
 // Touch device optimizations
 @media (hover: none) and (pointer: coarse) {

@@ -709,52 +709,7 @@ $comment-rail-width: 420px;
   }
 }
 
-@media (max-width: 1480px) {
-  .main-content {
-    padding-right: $spacing-4;
-    padding-left: $spacing-4;
-  }
-}
 
-@media (max-width: 1180px) {
-  .feed-container {
-    padding-left: 0;
-  }
-
-  .desktop-layout {
-    width: 100%;
-  }
-
-  .left-sidebar {
-    width: 100%;
-    padding: $spacing-4 $spacing-4 0;
-    position: static;
-    max-height: none;
-    overflow: visible;
-  }
-
-  .right-sidebar {
-    width: 100%;
-    padding: 0 $spacing-4 $spacing-8;
-    position: static;
-    max-height: none;
-    overflow: visible;
-  }
-}
-
-@media (max-width: 1100px) {
-  .main-content {
-    .feed-stats {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .forum-highlights {
-      .forum-highlight-grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-  }
-}
 
 // Desktop immersive feed: a TikTok-inspired stage with a persistent conversation rail.
 .feed-container {
@@ -1500,18 +1455,6 @@ $comment-rail-width: 420px;
 
   .feed-posts .posts-grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@media (max-width: 1180px) {
-  .right-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-4;
-  }
-
-  .comment-panel {
-    max-height: none;
   }
 }
 

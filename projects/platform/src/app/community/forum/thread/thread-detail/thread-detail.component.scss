@@ -528,59 +528,7 @@ mat-card-subtitle {
   }
 }
 
-/* Responsive design */
-@media (max-width: 600px) {
-  .thread-detail-container {
-    padding: $spacing-2;
 
-    .thread-card {
-      margin-bottom: $spacing-6;
-      
-      mat-card-header {
-        mat-card-title {
-          font-size: $font-size-xl;
-        }
-      }
-
-      mat-card-content {
-        .thread-content {
-          font-size: $font-size-sm;
-        }
-      }
-      
-      mat-card-actions {
-        padding: $spacing-2;
-        
-        button {
-          padding: $spacing-1 $spacing-2;
-          font-size: $font-size-xs;
-          
-          mat-icon {
-            margin-right: $spacing-5;
-            font-size: 16px;
-            width: 16px;
-            height: 16px;
-          }
-        }
-      }
-    }
-
-    .comment-section {
-      h3 {
-        font-size: $font-size-lg;
-      }
-      
-      .comment-form {
-        padding: $spacing-3;
-        
-        button[mat-raised-button] {
-          width: 100%;
-          justify-content: center;
-        }
-      }
-    }
-  }
-}
 
 /* Tablet responsive */
 @include tablet {
