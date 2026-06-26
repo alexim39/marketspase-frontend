@@ -7,8 +7,9 @@
     "types": []
   },
   "include": [
-    "src/**/*.ts"
-, "../shared-services/src/lib/help-dialog.component.ts"  ],
+    "src/**/*.ts",
+    "../shared-services/src/lib/help-dialog.component.ts"
+  ],
   "exclude": [
     "src/**/*.spec.ts"
   ]
