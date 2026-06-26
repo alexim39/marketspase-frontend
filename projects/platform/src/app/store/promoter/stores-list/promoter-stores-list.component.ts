@@ -1,4 +1,4 @@
-// promoter-stores-list.component.ts
+﻿// promoter-stores-list.component.ts
 import { Component, OnInit, inject, signal, computed, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -6,7 +6,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } fro
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DeviceService } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
 import { UserService } from '../../../common/services/user.service';
 
 // Child Components

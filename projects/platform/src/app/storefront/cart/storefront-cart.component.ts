@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -13,7 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { firstValueFrom } from 'rxjs';
 import { CurrencyUtilsPipe } from '@shared/services';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { UserService } from '../../common/services/user.service';
 import { PaystackService } from '../../common/services/paystack.service';
 import { StorefrontCartGroup, StorefrontCartItem, StorefrontCartService } from '../services/storefront-cart.service';

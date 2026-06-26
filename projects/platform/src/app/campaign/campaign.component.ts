@@ -1,6 +1,7 @@
-import { Component, Input, Signal, computed, inject } from '@angular/core';
+﻿import { Component, Input, Signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DeviceService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface } from '@shared/services';
 import { MarketerLandingComponent } from '../marketer/marketing-landing/marketer-landing.component';
 import { PromoterLandingComponent } from '../promoter/promoter-landing/promoter-landing.component';
 import { MarketerLandingMobileComponent } from '../marketer/marketing-landing/mobile/marketer-landing-mobile.component';

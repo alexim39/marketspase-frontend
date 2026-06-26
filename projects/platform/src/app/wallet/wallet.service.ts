@@ -1,7 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Observable, throwError, timer } from 'rxjs';
 import { retry, catchError, timeout, map } from 'rxjs/operators';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 
 export interface RecordPaymentPayload {
   userId: string;

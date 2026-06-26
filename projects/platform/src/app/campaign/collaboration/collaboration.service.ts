@@ -1,7 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiService, CampaignInterface, PromotionInterface } from '@shared/services';
+import { ApiService } from '@shared/services/api';
+import { CampaignInterface, PromotionInterface } from '@shared/services';
 
 export interface AnalyticsFilters {
   range?: string;

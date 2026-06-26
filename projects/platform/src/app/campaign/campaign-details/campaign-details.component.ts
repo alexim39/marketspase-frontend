@@ -1,4 +1,4 @@
-// campaign-details.component.ts
+﻿// campaign-details.component.ts
 import { Component, OnInit, inject, signal, computed, DestroyRef, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
@@ -11,7 +11,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { CampaignInterface, DeviceService, PromotionInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { CampaignInterface, PromotionInterface } from '@shared/services';
 
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';

@@ -1,8 +1,8 @@
-import { Injectable, inject, signal } from '@angular/core';
+﻿import { Injectable, inject, signal } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Subject, interval } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 
 export interface CollaborationMessageEvent {
   conversationId?: string;

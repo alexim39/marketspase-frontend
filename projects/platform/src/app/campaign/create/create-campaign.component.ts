@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, Signal, DestroyRef } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed, Signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -24,7 +24,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DeviceService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface } from '@shared/services';
 import { WalletFundingIndexComponent } from '../../wallet/funding';
 import { UserService } from '../../common/services/user.service';
 import {

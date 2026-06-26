@@ -1,4 +1,4 @@
-// store-header.component.ts
+﻿// store-header.component.ts
 import { 
   Component, Input, Output, EventEmitter, OnInit, OnDestroy, 
   HostListener, inject, signal, computed 
@@ -13,7 +13,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { LazyImageDirective } from '../../shared/directives/lazy-image.directive';
 import { Subject } from 'rxjs';
 import { MatDividerModule } from '@angular/material/divider';
-import { DeviceService } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
 
 export interface StoreStats {
   productCount: number;

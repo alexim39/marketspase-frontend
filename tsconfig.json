@@ -15,6 +15,12 @@
       "@shared/services": [
         "./projects/shared-services/src/public-api.ts"
       ],
+      "@shared/services/api": [
+        "./projects/shared-services/src/lib/api-service.ts"
+      ],
+      "@shared/services/device": [
+        "./projects/shared-services/src/lib/device.service.ts"
+      ],
       // Keep the dist one for build if needed (optional)
       "shared-services": [
         "./dist/shared-services"

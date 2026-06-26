@@ -1,8 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import type { Notification } from './notification.service';
 
 export type NotificationRealtimeEvent =

@@ -1,4 +1,4 @@
-// product-detail.component.ts
+﻿// product-detail.component.ts
 import { Component, signal, inject, OnInit, TemplateRef, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
@@ -16,7 +16,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTabsModule } from '@angular/material/tabs';
 import { take } from 'rxjs';
 
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { StoreService } from '../../../services/store.service';
 import { Product } from '../../../models';
 import { DialogService } from '../../../shared/services/dialog.service';

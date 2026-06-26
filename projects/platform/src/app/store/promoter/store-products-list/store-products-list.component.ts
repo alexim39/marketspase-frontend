@@ -1,4 +1,4 @@
-// store-products-list.component.ts
+﻿// store-products-list.component.ts
 import { Component, OnInit, inject, signal, computed, OnDestroy, Input, SimpleChanges, OnChanges } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -21,7 +21,9 @@ import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 
-import { ApiService, DeviceService, UserInterface, CurrencyUtilsPipe } from '@shared/services';
+import { ApiService } from '@shared/services/api';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface, CurrencyUtilsPipe } from '@shared/services';
 import { Product } from '../../models';
 import { HttpParams } from '@angular/common/http';
 import { PromotionService } from '../services/promotion.service';

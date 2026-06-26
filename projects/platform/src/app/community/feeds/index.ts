@@ -1,4 +1,4 @@
-import {
+﻿import {
   ChangeDetectionStrategy,
   Component,
   Signal,
@@ -10,7 +10,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../common/services/user.service';
-import { DeviceService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface } from '@shared/services';
 
 @Component({
   selector: 'feed-index',

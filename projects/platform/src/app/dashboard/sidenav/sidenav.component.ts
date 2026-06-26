@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef, effect } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -19,7 +19,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DashboardService } from '../dashboard.service';
 import { WalletFundingIndexComponent } from '../../wallet/funding';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { UserInterface, DeviceService, CurrencyUtilsPipe } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface, CurrencyUtilsPipe } from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotificationService } from '../notification/notification.service';
 import { map } from 'rxjs/internal/operators/map';

@@ -1,6 +1,6 @@
-// notification-banner.service.ts
+﻿// notification-banner.service.ts
 import { inject, Injectable, signal } from '@angular/core';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { Router } from '@angular/router';
 import { DismissalResponse, NotificationMessage, NotificationResponse } from './general-msg-notifier/notification-message.model';
 import { Observable } from 'rxjs';

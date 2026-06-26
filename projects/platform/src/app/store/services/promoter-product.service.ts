@@ -1,10 +1,10 @@
-// services/promoter-product.service.ts
+﻿// services/promoter-product.service.ts
 import { inject, Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { ProductFilter } from '../promoter/models/promoter-product.model';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { PaginatedResponse } from '../promoter/products-list/models/filter-state.model';
 import { Product } from '../models';
 

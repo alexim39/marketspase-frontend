@@ -1,6 +1,6 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { DeviceService } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
 import { CampaignMetricsComponent } from './campaign-metrics.component';
 import { CampaignMetricsMobileComponent } from './mobile/campaign-metrics-mobile.component';
 

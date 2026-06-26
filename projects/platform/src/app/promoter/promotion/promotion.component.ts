@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, Signal, DestroyRef } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed, Signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -8,7 +8,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DeviceService, PromotionInterface, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { PromotionInterface, UserInterface } from '@shared/services';
 import { PromoterService } from '../../promoter/promoter.service';
 import { UserService } from '../../common/services/user.service';
 

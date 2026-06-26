@@ -1,8 +1,8 @@
-import { Component, input, effect, inject, signal } from '@angular/core';
+﻿import { Component, input, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 
 @Component({
   selector: 'promoter-trust-metrics',

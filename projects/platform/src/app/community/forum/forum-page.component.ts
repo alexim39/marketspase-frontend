@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, computed } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, inject, computed } from '@angular/core';
 import { ForumService, Thread, PinnedThread, TrendingThread, HotTopic, RecentActivityThread } from './forum.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -15,7 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { finalize, Subject, takeUntil, forkJoin, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
-import { DeviceService } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
 import { FormControl } from '@angular/forms';
 import { UserService } from '../../common/services/user.service';
 

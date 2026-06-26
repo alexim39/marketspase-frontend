@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, Inject, Optional, Signal, DestroyRef } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed, Inject, Optional, Signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -24,7 +24,8 @@ import { DialogActionsComponent } from './components/dialog-actions/dialog-actio
 import { UserService } from '../../common/services/user.service';
 import { PaymentResult, PaymentRequest, PaystackService } from '../../common/services/paystack.service';
 import { RecordPaymentPayload, WalletService } from '../wallet.service';
-import { CurrencyUtilsPipe, DeviceService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
 import {
   CurrencyQuote,
   PaymentCurrencyConfig,

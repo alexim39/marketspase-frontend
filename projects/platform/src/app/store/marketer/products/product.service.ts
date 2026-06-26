@@ -1,7 +1,7 @@
-// src/app/services/product.service.ts
+﻿// src/app/services/product.service.ts
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { HttpParams } from '@angular/common/http';
 
 export interface CreateProductRequest {

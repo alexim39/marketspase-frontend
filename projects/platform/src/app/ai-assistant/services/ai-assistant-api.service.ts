@@ -1,9 +1,10 @@
-import { inject, Injectable } from '@angular/core';
+﻿import { inject, Injectable } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Observable, throwError } from 'rxjs';
 import { filter, map, switchMap, take, timeout } from 'rxjs/operators';
 import { WhatsAppConnection, SubscriptionPlan, NotificationPreferences, BusinessInfo } from '../pages/settings/models/settings.model';
-import { ApiService, ApiResponse } from '@shared/services';
+import { ApiService } from '@shared/services/api';
+import { ApiResponse } from '@shared/services';
 import { UserService } from '../../common/services/user.service';
 
 @Injectable()

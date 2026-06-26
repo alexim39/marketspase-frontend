@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DeviceService } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
 import { PublicCampaignDesktopComponent } from './public-campaign-desktop.component';
 import { PublicCampaignMobileComponent } from './public-campaign-mobile.component';
 

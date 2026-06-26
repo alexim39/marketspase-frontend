@@ -1,9 +1,9 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { CommentComponent } from '../../../comment/comment.component';
 import { ForumMediaItem, ForumService } from '../../../forum.service';
 import { SanitizeHtmlPipe } from '../../../../../common/pipes/sanitize-html.pipe';

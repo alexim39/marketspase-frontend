@@ -1,4 +1,4 @@
-import { 
+﻿import { 
   Component, OnInit, OnDestroy, ChangeDetectionStrategy, 
   ChangeDetectorRef, inject, 
 } from '@angular/core';
@@ -23,7 +23,7 @@ import { CommentComponent } from '../../comment/comment.component';
 import { timeAgo as timeAgoUtil } from '../../../../common/utils/time.util';
 import { SanitizeHtmlPipe } from '../../../../common/pipes/sanitize-html.pipe';
 import { UserService } from '../../../../common/services/user.service';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 
 @Component({
   selector: 'app-thread-detail',

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   DestroyRef,
   Input,
@@ -20,7 +20,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { DeviceService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface } from '@shared/services';
 
 import { CATEGORIES } from '../../../common/utils/categories';
 import { AdPreferencesPayload, SettingsService } from '../../system/system.service';

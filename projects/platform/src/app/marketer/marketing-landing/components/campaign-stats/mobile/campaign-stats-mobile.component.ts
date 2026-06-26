@@ -1,8 +1,9 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, computed, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
-import { CurrencyUtilsPipe, DeviceService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
 
 interface CampaignStats {
   totalCampaigns: number;

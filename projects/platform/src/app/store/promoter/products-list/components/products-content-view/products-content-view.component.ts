@@ -1,4 +1,4 @@
-// components/products-content-view/products-content-view.component.ts
+﻿// components/products-content-view/products-content-view.component.ts
 import { Component, Input, Output, EventEmitter, signal, computed, inject, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -14,7 +14,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 
 import { ViewMode } from '../../models/filter-state.model';
-import { CurrencyUtilsPipe, DeviceService, UserInterface, TruncatePipe } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { CurrencyUtilsPipe, UserInterface, TruncatePipe } from '@shared/services';
 import { Product } from '../../../../models';
 import { LoadingStateComponent } from '../loading-state/loading-state.component';
 import { LoadingStateMobileComponent } from '../loading-state/mobile/loading-state-mobile.component';

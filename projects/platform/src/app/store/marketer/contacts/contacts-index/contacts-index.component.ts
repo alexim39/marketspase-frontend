@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal, computed } from "@angular/core";
+﻿import { Component, DestroyRef, inject, signal, computed } from "@angular/core";
 import { CommonModule, DatePipe } from "@angular/common";
 import { ReactiveFormsModule, FormBuilder } from "@angular/forms";
 import { RouterModule } from "@angular/router";
@@ -21,7 +21,7 @@ import {
   MatDialog,
   MatDialogRef,
 } from "@angular/material/dialog";
-import { ApiService } from "@shared/services";
+import { ApiService } from '@shared/services/api';
 
 import {
   ContactService,

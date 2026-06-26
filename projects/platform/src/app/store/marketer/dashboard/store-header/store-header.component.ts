@@ -1,4 +1,4 @@
-// components/store-header/store-header.component.ts
+﻿// components/store-header/store-header.component.ts
 import { Component, input, output, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -14,7 +14,8 @@ import { Store } from '../../../models/store.model';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DialogService } from '../../../shared';
-import { DeviceService, UserInterface, TruncatePipe } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface, TruncatePipe } from '@shared/services';
 import { take } from 'rxjs/internal/operators/take';
 import { StoreService } from '../../../services/store.service';
 

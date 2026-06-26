@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
@@ -17,7 +17,8 @@ import {
 } from '@angular/router';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DeviceService, LoadingService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { LoadingService, UserInterface } from '@shared/services';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { UserService } from '../common/services/user.service';

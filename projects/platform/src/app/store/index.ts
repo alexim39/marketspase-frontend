@@ -1,8 +1,9 @@
-import { Component, inject, computed, Signal, effect } from '@angular/core';
+﻿import { Component, inject, computed, Signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UserService } from '../common/services/user.service';
-import { DeviceService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface } from '@shared/services';
 import { MarketerStoreDashboardComponent } from './marketer/dashboard/store-dashboard/store-dashboard.component';
 import { MarketerStoreDashboardMobileComponent } from './marketer/dashboard/store-dashboard/mobile/store-dashboard-mobile.component';
 import { StorefrontAnalyticsWidgetComponent } from './marketer/dashboard/storefront-analytics-widget.component';

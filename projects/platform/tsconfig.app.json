@@ -8,6 +8,8 @@
   },
   "include": [
     "src/**/*.ts",
+    "../shared-services/src/lib/api-service.ts",
+    "../shared-services/src/lib/device.service.ts",
     "../shared-services/src/lib/help-dialog.component.ts"
   ],
   "exclude": [

@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DeviceService } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
 import { MarketerPromotedProductsAnalyticsComponent } from './marketer-promoted-products-analytics.component';
 import { MarketerPromotedProductsAnalyticsMobileComponent } from './mobile/marketer-promoted-products-analytics-mobile.component';
 

@@ -1,4 +1,4 @@
-// product-details.component.ts
+﻿// product-details.component.ts
 import { 
   Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, ElementRef, AfterViewInit 
 } from '@angular/core';
@@ -21,7 +21,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 
 // Shared Components/Directives/Pipes
-import { CurrencyUtilsPipe, DeviceService, TruncatePipe } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { CurrencyUtilsPipe, TruncatePipe } from '@shared/services';
 
 // Services
 import { StorefrontService } from '../../services/storefront.service';

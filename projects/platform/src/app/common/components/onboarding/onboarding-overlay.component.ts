@@ -1,9 +1,9 @@
-import { Component, signal, inject, DestroyRef, output } from '@angular/core';
+﻿import { Component, signal, inject, DestroyRef, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 const STEPS = [

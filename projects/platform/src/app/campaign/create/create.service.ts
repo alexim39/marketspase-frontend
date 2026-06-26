@@ -1,7 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+﻿import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpEvent } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs'; 
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 
 export interface CampaignMediaAsset {
   mediaUrl: string;

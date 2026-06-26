@@ -1,4 +1,4 @@
-// promoter-products-list.component.ts
+﻿// promoter-products-list.component.ts
 import { Component, OnInit, inject, signal, computed, OnDestroy, Signal, Input, effect } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
@@ -6,7 +6,9 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } fro
 
 import { PromoterProductService } from '../../services/promoter-product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ApiService, DeviceService, UserInterface } from '@shared/services';
+import { ApiService } from '@shared/services/api';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface } from '@shared/services';
 import { PromotionService } from '../services/promotion.service';
 
 // Child Components

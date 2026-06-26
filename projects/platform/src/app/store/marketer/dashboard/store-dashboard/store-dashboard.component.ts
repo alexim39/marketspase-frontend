@@ -1,4 +1,4 @@
-// components/store-dashboard/store-dashboard.component.ts - FIXED VERSION
+﻿// components/store-dashboard/store-dashboard.component.ts - FIXED VERSION
 import { Component, inject, signal, computed, OnInit, OnDestroy, effect, WritableSignal, Signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -16,7 +16,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject, takeUntil, interval, Subscription } from 'rxjs';
 
 import { StoreService } from '../../../services/store.service';
-import { DeviceService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface } from '@shared/services';
 import { Store} from '../../../models/store.model';
 //import { ProductManagementComponent } from '../product-management/product-management.component';
 //import { StoreAnalyticsComponent } from '../store-analytics/store-analytics.component';

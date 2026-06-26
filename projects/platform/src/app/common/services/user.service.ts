@@ -1,6 +1,7 @@
-import { inject, Injectable, Signal, signal } from '@angular/core';
+﻿import { inject, Injectable, Signal, signal } from '@angular/core';
 import { catchError, Observable, tap, throwError } from 'rxjs'; // Import BehaviorSubject and of for reactive state
-import { ApiService, UserInterface } from '@shared/services';
+import { ApiService } from '@shared/services/api';
+import { UserInterface } from '@shared/services';
 
 
 @Injectable({ providedIn: 'root' })

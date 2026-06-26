@@ -1,8 +1,8 @@
-import { Component, input, signal, effect, inject } from '@angular/core';
+﻿import { Component, input, signal, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 
 const TIER_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
   gold: { label: 'Gold', icon: 'workspace_premium', color: '#f59e0b' },

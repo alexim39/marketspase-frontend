@@ -1,7 +1,7 @@
-import { HttpParams } from '@angular/common/http';
+﻿import { HttpParams } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 
 export type LeaderboardMetric = 'streak' | 'points' | 'blended';
 export type LeaderboardTimeframe = 'daily' | 'weekly' | 'monthly';
