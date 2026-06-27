@@ -37,6 +37,7 @@ import {
   getCampaignUniquePromoterCount,
 } from '../../common/utils/campaign-performance.util';
 import { CampaignTopUpDialogComponent } from '../shared/campaign-top-up-dialog.component';
+import { WalletBalanceCardComponent } from '../shared/wallet-balance-card.component';
 
 export enum CampaignStatus {
   PENDING = 'pending',
@@ -71,6 +72,7 @@ export enum CampaignStatus {
     TruncateIDPipe,
     PromoterTierBadgeComponent,
     PromoterTrustMetricsComponent,
+    WalletBalanceCardComponent,
   ],
   templateUrl: './campaign-details.component.html',
   styleUrls: ['./campaign-details.component.scss']
@@ -421,6 +423,15 @@ export class CampaignDetailsComponent implements OnInit {
     }
 
     return Number(promotion.payoutAmount ?? 0);
+  }
+
+  getPromotionCpcInfo(promotion: PromotionInterface): { base: number; adjusted: number; tier: string | null; bonus: number } {
+    const baseCpc = Number(promotion.costPerClick ?? this.campaign()?.costPerClick ?? 0);
+    const snapshot = promotion.payoutSnapshot;
+    const tierBonus = Number(snapshot?.tierBonus ?? 0);
+    const promoterTier = snapshot?.promoterTier || null;
+    const adjustedCpc = tierBonus > 0 ? baseCpc * (1 + tierBonus / 100) : baseCpc;
+    return { base: baseCpc, adjusted: adjustedCpc, tier: promoterTier, bonus: tierBonus };
   }
 
   getPromotionLastActivity(promotion: PromotionInterface): Date | string | undefined {

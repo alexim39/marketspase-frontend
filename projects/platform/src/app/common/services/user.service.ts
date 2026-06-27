@@ -1,12 +1,14 @@
 ﻿import { inject, Injectable, Signal, signal } from '@angular/core';
-import { catchError, Observable, tap, throwError } from 'rxjs'; // Import BehaviorSubject and of for reactive state
+import { catchError, Observable, tap, throwError } from 'rxjs';
 import { ApiService } from '@shared/services/api';
 import { UserInterface } from '@shared/services';
+import { PushNotificationService } from './push-notification.service';
 
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private apiService: ApiService = inject(ApiService);
+  private pushService = inject(PushNotificationService);
   private readonly userStorageKey = 'marketspase.currentUser';
   
   // REPLACED: BehaviorSubject is replaced with a private signal for the user data.
@@ -75,6 +77,7 @@ export class UserService {
 
     if (persist && user) {
       this.storeUser(user);
+      this.pushService.requestPermission();
     }
   }
   

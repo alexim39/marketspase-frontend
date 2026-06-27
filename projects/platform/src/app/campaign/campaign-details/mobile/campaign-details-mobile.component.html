@@ -120,6 +120,12 @@
         }
       </section>
 
+      @if (user(); as currentUser) {
+        <section class="wallet-strip">
+          <wallet-balance-card [user]="currentUser" />
+        </section>
+      }
+
       @if (isOwner()) {
         <section class="settings-strip">
           <mat-slide-toggle [checked]="autoRenewEnabled()" (change)="toggleAutoRenew($event)" color="primary">
@@ -281,6 +287,17 @@
                   <div>
                     <span>Spend</span>
                     <strong>{{ formatCurrency(getPromotionSpend(promotion), campaign.currency) }}</strong>
+                  </div>
+                  <div class="cpc-metric">
+                    <span>CPC</span>
+                    @let cpcInfo = getPromotionCpcInfo(promotion);
+                    @if (cpcInfo.bonus > 0) {
+                      <strong class="text-success">{{ formatCurrency(cpcInfo.adjusted, campaign.currency) }}
+                        <span class="tier-chip">{{cpcInfo.tier}} +{{cpcInfo.bonus}}%</span>
+                      </strong>
+                    } @else {
+                      <strong>{{ formatCurrency(cpcInfo.base, campaign.currency) }}</strong>
+                    }
                   </div>
                 </div>
 

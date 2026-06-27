@@ -1,0 +1,416 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+$success-rgb: var(--success-rgb);
+$warning-rgb: var(--warning-rgb);
+$error-rgb: var(--error-rgb);
+$info-rgb: var(--info-rgb);
+
+.analytics-dashboard {
+  display: grid;
+  gap: $spacing-5;
+  padding: $spacing-5;
+  min-height: 100%;
+  background: $background-color;
+  color: $text-primary;
+  transition: background-color $transition-normal, color $transition-normal;
+}
+
+/* ── Header ── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-4;
+  flex-wrap: wrap;
+}
+
+.header-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  color: $primary-color;
+  font-size: $font-size-xs;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: $font-weight-bold;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  line-height: $line-height-tight;
+  max-width: 680px;
+}
+
+/* ── Period Selector ── */
+.period-selector {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background: $divider-color;
+  padding: 4px;
+  border-radius: $border-radius;
+}
+
+.segment {
+  padding: 0.5rem 0.9rem;
+  border: none;
+  border-radius: $border-radius-sm;
+  background: transparent;
+  color: $text-secondary;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: all $transition-fast;
+  white-space: nowrap;
+
+  &:hover {
+    color: $text-primary;
+    background: rgba($primary-rgb, 0.1);
+  }
+
+  &.active {
+    background: $primary-color;
+    color: $white;
+    box-shadow: $shadow-sm;
+
+    &:hover {
+      background: $primary-dark;
+    }
+  }
+}
+
+/* ── Wallet ── */
+.wallet-overview {
+  padding: $spacing-5;
+  border-radius: $border-radius-lg;
+  background: linear-gradient(135deg, rgba($success-rgb, 0.08), rgba($primary-rgb, 0.04));
+  border: $border-width solid rgba($success-rgb, 0.15);
+  box-shadow: $shadow;
+  transition: background-color $transition-normal, border-color $transition-normal;
+
+  h3 {
+    margin: 0 0 $spacing-3;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+  }
+}
+
+.wallet-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $spacing-4;
+}
+
+.wallet-item {
+  display: grid;
+  gap: 0.35rem;
+
+  .label {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    font-weight: $font-weight-semibold;
+  }
+
+  strong {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+  }
+}
+
+/* ── Section Header ── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-3;
+
+  h3 {
+    margin: 0;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+  }
+}
+
+.period-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: $border-radius-full;
+  background: rgba($primary-rgb, 0.1);
+  color: $primary-color;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+}
+
+/* ── Stats Grid ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: $spacing-3;
+
+  &.storefront-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.stat-card {
+  display: grid;
+  gap: 0.4rem;
+  padding: $spacing-4;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius-lg;
+  background: $surface-color;
+  box-shadow: $shadow;
+  transition: background-color $transition-normal,
+              border-color $transition-normal,
+              box-shadow $transition-fast,
+              transform $transition-fast;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+
+  .label {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    font-weight: $font-weight-semibold;
+  }
+
+  strong {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+  }
+}
+
+/* ── Top Sections ── */
+.top-sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $spacing-4;
+}
+
+.top-panel {
+  display: grid;
+  gap: 0;
+  padding: $spacing-4;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius-lg;
+  background: $surface-color;
+  box-shadow: $shadow;
+  transition: background-color $transition-normal, border-color $transition-normal;
+
+  h3 {
+    margin: 0;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+  }
+
+  .panel-sub {
+    margin: 0.25rem 0 $spacing-3;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+}
+
+.top-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-3;
+  padding: 0.7rem 0.85rem;
+  border-radius: $border-radius-md;
+  background: $background-color;
+  border: $border-width solid transparent;
+  transition: background-color $transition-fast, border-color $transition-fast;
+
+  &:hover {
+    background: $divider-color;
+    border-color: $border-color;
+  }
+}
+
+.top-row-info {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  min-width: 0;
+}
+
+.top-name {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: $border-radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  background: $divider-color;
+  color: $text-secondary;
+  text-transform: capitalize;
+  white-space: nowrap;
+
+  &.active-status {
+    background: rgba($success-rgb, 0.12);
+    color: $success-color;
+  }
+}
+
+.top-row-metrics {
+  flex-shrink: 0;
+
+  small {
+    font-size: $font-size-xs;
+    color: $text-secondary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+/* ── Loading / Error ── */
+.loading-state {
+  display: grid;
+  gap: $spacing-3;
+  justify-items: center;
+  padding: $spacing-12 $spacing-5;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+}
+
+.error-state {
+  display: grid;
+  gap: $spacing-3;
+  justify-items: center;
+  padding: $spacing-10 $spacing-5;
+  color: $error-color;
+  font-size: $font-size-sm;
+}
+
+.retry-btn {
+  padding: 0.5rem 1.25rem;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius;
+  background: $surface-color;
+  color: $text-primary;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: $primary-color;
+    color: $primary-color;
+  }
+}
+
+/* ── Period Footer ── */
+.period-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: $spacing-2;
+
+  small {
+    color: $text-tertiary;
+    font-size: $font-size-xs;
+  }
+}
+
+/* ── Dark Mode ── */
+[data-theme="dark"] {
+  .segment.active {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .wallet-overview {
+    background: linear-gradient(135deg, rgba($success-rgb, 0.12), rgba($primary-rgb, 0.08));
+    border-color: rgba($success-rgb, 0.2);
+  }
+}
+
+/* ── Responsive ── */
+@include tablet {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .top-sections {
+    grid-template-columns: 1fr;
+  }
+
+  .wallet-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@include mobile {
+  .analytics-dashboard {
+    padding: $spacing-4;
+    gap: $spacing-4;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .period-selector {
+    justify-content: center;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .top-sections {
+    grid-template-columns: 1fr;
+  }
+
+  .wallet-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wallet-item strong {
+    font-size: $font-size-xl;
+  }
+}
+
+/* ── Accessibility ── */
+.segment:focus-visible,
+.retry-btn:focus-visible {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-card {
+    transition: none;
+  }
+}

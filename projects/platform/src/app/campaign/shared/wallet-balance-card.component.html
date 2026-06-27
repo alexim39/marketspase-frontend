@@ -1,0 +1,35 @@
+<div class="wallet-balance-card">
+  @if (wallet()) {
+    <div class="balance-row available">
+      <mat-icon aria-hidden="true">account_balance_wallet</mat-icon>
+      <div class="balance-info">
+        <span class="balance-label">Available</span>
+        <span class="balance-value success">{{ availableBalance() | currencyUtils:currency() }}</span>
+      </div>
+    </div>
+    <div class="balance-row reserved">
+      <mat-icon aria-hidden="true">lock_clock</mat-icon>
+      <div class="balance-info">
+        <span class="balance-label">
+          Reserved
+          @if (reservedRelativeTime(); as relativeTime) {
+            <span class="reserved-time">&middot; {{ relativeTime }}</span>
+          }
+        </span>
+        <span class="balance-value warning">{{ reservedBalance() | currencyUtils:currency() }}</span>
+      </div>
+    </div>
+    <div class="balance-row total">
+      <mat-icon aria-hidden="true">equalizer</mat-icon>
+      <div class="balance-info">
+        <span class="balance-label">Total</span>
+        <span class="balance-value">{{ totalBalance() | currencyUtils:currency() }}</span>
+      </div>
+    </div>
+  } @else {
+    <div class="balance-row empty">
+      <mat-icon aria-hidden="true">wallet</mat-icon>
+      <span>Wallet unavailable</span>
+    </div>
+  }
+</div>

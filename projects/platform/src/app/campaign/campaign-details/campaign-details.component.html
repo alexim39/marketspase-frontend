@@ -309,6 +309,13 @@
         </div>
       </div>
 
+      <!-- Promoter Wallet -->
+      @if (user(); as currentUser) {
+        <div class="wallet-section">
+          <wallet-balance-card [user]="currentUser" />
+        </div>
+      }
+
       <!-- Performance Metrics -->
       <div class="metrics-section">
         <h3 class="section-title">Performance Metrics</h3>
@@ -404,6 +411,7 @@
                 <th>Status</th>
                 <th>Tracked Clicks</th>
                 <th>Billable</th>
+                <th>CPC</th>
                 <th>Spend</th>
                 <th>Last Activity</th>
                 <th>Actions</th>
@@ -435,6 +443,16 @@
                 </td>
                 <td>{{getPromotionTrackedClicks(promotion) | shortNumber}}</td>
                 <td>{{getPromotionBillableClicks(promotion) | shortNumber}}</td>
+                <td class="cpc-cell">
+                  @let cpcInfo = getPromotionCpcInfo(promotion);
+                  <span class="cpc-base">{{formatCurrency(cpcInfo.base, campaign.currency)}}</span>
+                  @if (cpcInfo.bonus > 0) {
+                    <span class="cpc-tier text-success">
+                      {{formatCurrency(cpcInfo.adjusted, campaign.currency)}}
+                      <span class="tier-badge-inline">{{cpcInfo.tier}} +{{cpcInfo.bonus}}%</span>
+                    </span>
+                  }
+                </td>
                 <td>{{formatCurrency(getPromotionSpend(promotion), campaign.currency)}}</td>
                 <td>{{getPromotionLastActivity(promotion) ? (getPromotionLastActivity(promotion) | date:'short') : 'No activity yet'}}</td>
                 <td>

@@ -61,6 +61,11 @@ export const dashboardRoutes: Routes = [
 
             },
             {
+                path: 'analytics',
+                loadComponent: () => import('./analytics/unified-analytics.component').then(c => c.UnifiedAnalyticsComponent),
+                title: 'Analytics — Unified Dashboard',
+            },
+            {
                 path: 'leaderboard',
                 loadComponent: () => import('./leaderboard').then(c => c.LeaderboardIndexComponent),
             },

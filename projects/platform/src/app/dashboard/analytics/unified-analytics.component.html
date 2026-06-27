@@ -1,0 +1,161 @@
+<div class="analytics-dashboard">
+  <header class="page-header">
+    <div class="header-copy">
+      <p class="eyebrow">Analytics</p>
+      <h1>Unified view of your campaigns, storefront, and wallet performance.</h1>
+    </div>
+    <div class="period-selector">
+      <button
+        type="button"
+        class="segment"
+        [class.active]="days() === 7"
+        (click)="selectDays(7)"
+      >7D</button>
+      <button
+        type="button"
+        class="segment"
+        [class.active]="days() === 30"
+        (click)="selectDays(30)"
+      >30D</button>
+      <button
+        type="button"
+        class="segment"
+        [class.active]="days() === 90"
+        (click)="selectDays(90)"
+      >90D</button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40" />
+      <p>Crunching your numbers…</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <p>{{ error() }}</p>
+      <button type="button" class="retry-btn" (click)="load()">Retry</button>
+    </div>
+  } @else if (data(); as d) {
+    <!-- Wallet Overview -->
+    <div class="wallet-overview">
+      <h3>Wallet</h3>
+      <div class="wallet-grid">
+        <div class="wallet-item">
+          <span class="label">Available</span>
+          <strong>&#8358;{{ formatCurrency(d.wallet.available) }}</strong>
+        </div>
+        <div class="wallet-item">
+          <span class="label">Reserved</span>
+          <strong>&#8358;{{ formatCurrency(d.wallet.reserved) }}</strong>
+        </div>
+        <div class="wallet-item">
+          <span class="label">Total</span>
+          <strong>&#8358;{{ formatCurrency(d.wallet.total) }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Campaign Stats -->
+    <div class="section-header">
+      <h3>Campaigns</h3>
+      <span class="period-badge">{{ d.period.days }} days</span>
+    </div>
+    <div class="stats-grid">
+      <article class="stat-card">
+        <span class="label">Active / Total</span>
+        <strong>{{ d.campaigns.active }} / {{ d.campaigns.total }}</strong>
+      </article>
+      <article class="stat-card">
+        <span class="label">Budget</span>
+        <strong>&#8358;{{ formatCurrency(d.campaigns.totalBudget) }}</strong>
+      </article>
+      <article class="stat-card">
+        <span class="label">Spent</span>
+        <strong>&#8358;{{ formatCurrency(d.campaigns.totalSpent) }}</strong>
+      </article>
+      <article class="stat-card">
+        <span class="label">Billable Clicks</span>
+        <strong>{{ format(d.campaigns.billableClicks) }}</strong>
+      </article>
+      <article class="stat-card">
+        <span class="label">Total Clicks</span>
+        <strong>{{ format(d.campaigns.totalClicks) }}</strong>
+      </article>
+      <article class="stat-card">
+        <span class="label">Payouts</span>
+        <strong>&#8358;{{ formatCurrency(d.campaigns.totalPayouts) }}</strong>
+      </article>
+    </div>
+
+    <!-- Storefront Stats -->
+    <div class="section-header">
+      <h3>Storefront</h3>
+    </div>
+    <div class="stats-grid storefront-grid">
+      <article class="stat-card">
+        <span class="label">Orders</span>
+        <strong>{{ d.storefront.totalOrders }}</strong>
+      </article>
+      <article class="stat-card">
+        <span class="label">Revenue</span>
+        <strong>&#8358;{{ formatCurrency(d.storefront.totalRevenue) }}</strong>
+      </article>
+      <article class="stat-card">
+        <span class="label">Commission</span>
+        <strong>&#8358;{{ formatCurrency(d.storefront.totalCommission) }}</strong>
+      </article>
+      <article class="stat-card">
+        <span class="label">Avg Order</span>
+        <strong>&#8358;{{ formatCurrency(d.storefront.averageOrderValue) }}</strong>
+      </article>
+    </div>
+
+    <!-- Two-column: Top Campaigns + Top Products -->
+    <div class="top-sections">
+      @if (d.topCampaigns.length) {
+        <div class="top-panel">
+          <h3>Top Campaigns</h3>
+          <p class="panel-sub">By billable clicks</p>
+          <div class="top-list">
+            @for (c of d.topCampaigns; track c._id) {
+              <div class="top-row">
+                <div class="top-row-info">
+                  <span class="top-name">{{ c.title }}</span>
+                  <span class="top-status" [class.active-status]="c.status === 'active'">{{ c.status }}</span>
+                </div>
+                <div class="top-row-metrics">
+                  <small>{{ c.billableClicks }} clicks</small>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (d.topProducts.length) {
+        <div class="top-panel">
+          <h3>Top Products</h3>
+          <p class="panel-sub">By units sold</p>
+          <div class="top-list">
+            @for (p of d.topProducts; track p.name) {
+              <div class="top-row">
+                <div class="top-row-info">
+                  <span class="top-name">{{ p.name }}</span>
+                </div>
+                <div class="top-row-metrics">
+                  <small>{{ p.totalSold }} sold</small>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Period Info -->
+    <div class="period-footer">
+      <small>Showing data from {{ d.period.from | date:'mediumDate' }} to {{ d.period.to | date:'mediumDate' }}</small>
+    </div>
+  }
+</div>

@@ -23,6 +23,13 @@ export function getMarketerNavigation(
     },
 
     {
+      icon: 'insights',
+      label: 'Analytics',
+      route: '/dashboard/analytics',
+      expanded: false
+    },
+
+    {
       icon: 'account_box',
       label: 'Profile',
       route: '/dashboard/profile',

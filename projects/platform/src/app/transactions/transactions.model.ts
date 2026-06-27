@@ -13,6 +13,7 @@ export interface Transaction {
   description?: string;
   status: 'pending' | 'successful' | 'failed' | 'processing' | 'completed' | string;
   createdAt: string;
+  reservedUntil?: string | Date;
   amountPayable?: number;
 }
 

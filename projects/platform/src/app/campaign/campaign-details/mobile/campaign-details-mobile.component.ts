@@ -10,6 +10,7 @@ import { PromotionInterface } from '@shared/services';
 import { ShortNumberPipe } from '../../../common/pipes/short-number.pipe';
 import { PromoterTierBadgeComponent } from '../../../common/components/promoter-tier-badge/promoter-tier-badge.component';
 import { PromoterTrustMetricsComponent } from '../../../common/components/promoter-trust-metrics/promoter-trust-metrics.component';
+import { WalletBalanceCardComponent } from '../../shared/wallet-balance-card.component';
 import { CampaignDetailsComponent } from '../campaign-details.component';
 import { CampaignDetailsService } from '../campaign-details.service';
 
@@ -42,6 +43,7 @@ interface MobileCampaignInfoItem {
     ShortNumberPipe,
     PromoterTierBadgeComponent,
     PromoterTrustMetricsComponent,
+    WalletBalanceCardComponent,
   ],
   templateUrl: './campaign-details-mobile.component.html',
   styleUrls: ['./campaign-details-mobile.component.scss'],
