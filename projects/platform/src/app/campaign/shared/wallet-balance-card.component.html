@@ -4,7 +4,7 @@
       <mat-icon aria-hidden="true">account_balance_wallet</mat-icon>
       <div class="balance-info">
         <span class="balance-label">Available</span>
-        <span class="balance-value success">{{ availableBalance() | currencyUtils:currency() }}</span>
+        <span class="balance-value success">{{ formatAmount(availableBalance()) }}</span>
       </div>
     </div>
     <div class="balance-row reserved">
@@ -16,14 +16,14 @@
             <span class="reserved-time">&middot; {{ relativeTime }}</span>
           }
         </span>
-        <span class="balance-value warning">{{ reservedBalance() | currencyUtils:currency() }}</span>
+        <span class="balance-value warning">{{ formatAmount(reservedBalance()) }}</span>
       </div>
     </div>
     <div class="balance-row total">
       <mat-icon aria-hidden="true">equalizer</mat-icon>
       <div class="balance-info">
         <span class="balance-label">Total</span>
-        <span class="balance-value">{{ totalBalance() | currencyUtils:currency() }}</span>
+        <span class="balance-value">{{ formatAmount(totalBalance()) }}</span>
       </div>
     </div>
   } @else {

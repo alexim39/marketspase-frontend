@@ -26,6 +26,7 @@ import { MediaViewerOnlyDialogComponent } from './media-viewer-dialog/media-view
 import { BulkInviteDialogComponent } from '../shared/bulk-invite-dialog/bulk-invite-dialog.component';
 import { PromoterTrustMetricsComponent } from '../../common/components/promoter-trust-metrics/promoter-trust-metrics.component';
 import { UserService } from '../../common/services/user.service';
+import { CurrencyService } from '../../common/services/currency.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   getCampaignBillableClicks,
@@ -97,6 +98,7 @@ export class CampaignDetailsComponent implements OnInit {
   public readonly api = this.campaignDetailsService.api;
 
   private userService = inject(UserService);
+  private currencyService = inject(CurrencyService);
   public user = this.userService.user;
 
   // Ownership check — only the campaign owner should see management controls
@@ -372,10 +374,7 @@ export class CampaignDetailsComponent implements OnInit {
 
   formatCurrency(amount: number | undefined, currency?: string): string {
     if (amount === undefined || amount === null) return 'N/A';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency || this.campaign()?.currency || 'NGN'
-    }).format(amount);
+    return this.currencyService.format(amount, ((currency || this.campaign()?.currency || 'NGN') as string).toUpperCase());
   }
 
   getProgressColor(percentage: number): string {

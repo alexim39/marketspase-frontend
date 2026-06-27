@@ -1,16 +1,18 @@
 import { Component, Input, computed, inject, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { UserInterface, CurrencyUtilsPipe } from '@shared/services';
+import { UserInterface } from '@shared/services';
+import { CurrencyService } from '../../common/services/currency.service';
 
 @Component({
   selector: 'wallet-balance-card',
   standalone: true,
-  imports: [CommonModule, MatIconModule, CurrencyUtilsPipe],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './wallet-balance-card.component.html',
   styleUrls: ['./wallet-balance-card.component.scss'],
 })
 export class WalletBalanceCardComponent implements OnDestroy {
+  private currencyService = inject(CurrencyService);
   @Input({ required: true }) user: UserInterface | null = null;
 
   private countdownInterval: ReturnType<typeof setInterval> | null = null;
@@ -78,6 +80,10 @@ export class WalletBalanceCardComponent implements OnDestroy {
 
     return `releasing in ~${minutes}m`;
   });
+
+  protected formatAmount(amount: number): string {
+    return this.currencyService.format(amount, this.currency());
+  }
 
   constructor() {
     this.countdownInterval = setInterval(() => {

@@ -213,6 +213,10 @@
         }
       }
     }
+
+    .preferences-row {
+      display: flex; gap: 0.5rem; margin-top: 12px; padding: 0 4px;
+    }
   }
 
   .empty-cart-message {

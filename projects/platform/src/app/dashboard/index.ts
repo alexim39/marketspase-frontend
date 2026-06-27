@@ -26,6 +26,7 @@ import { DailyCheckInIndexComponent } from './daily-check-in';
 import { DailyCheckInService } from './daily-check-in/daily-check-in.service';
 import { DashboardComponent } from './sidenav/sidenav.component';
 import { OnboardingOverlayComponent } from '../common/components/onboarding/onboarding-overlay.component';
+import { MarketAiChatComponent } from '../common/components/marketai-chat/marketai-chat.component';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -43,6 +44,7 @@ interface AuthState {
     DailyCheckInIndexComponent,
     MatProgressBarModule,
     OnboardingOverlayComponent,
+    MarketAiChatComponent,
   ],
   templateUrl: './index.html',
   styleUrls: ['./index.scss'],

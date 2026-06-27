@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
 import { NavigationItem } from '../../navigation';
 import { filter } from 'rxjs';
+import { TranslatePipe } from '../../../../common/i18n/translate.pipe';
 @Component({
   selector: 'app-sidenav-navigation',
   standalone: true,
@@ -14,7 +15,8 @@ import { filter } from 'rxjs';
     RouterModule,
     MatIconModule,
     MatButtonModule,
-    MatBadgeModule
+    MatBadgeModule,
+    TranslatePipe
   ],
   templateUrl: `./sidenav-navigation.component.html`,
   styleUrls: [`./sidenav-navigation.component.scss`]

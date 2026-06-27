@@ -22,12 +22,6 @@ export function getMarketerNavigation(
       expanded: false
     },
 
-    {
-      icon: 'insights',
-      label: 'Analytics',
-      route: '/dashboard/analytics',
-      expanded: false
-    },
 
     {
       icon: 'account_box',
@@ -83,6 +77,13 @@ export function getMarketerNavigation(
         //   ]
         // }
       ]
+    },
+
+    {
+      icon: 'insights',
+      label: 'Analytics',
+      route: '/dashboard/analytics',
+      expanded: false
     },
 
     {

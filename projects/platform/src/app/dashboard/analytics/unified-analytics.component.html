@@ -1,161 +1,124 @@
-<div class="analytics-dashboard">
-  <header class="page-header">
-    <div class="header-copy">
-      <p class="eyebrow">Analytics</p>
-      <h1>Unified view of your campaigns, storefront, and wallet performance.</h1>
+<div class="analytics-page">
+  <!-- Hero Banner -->
+  <header class="hero">
+    <div class="hero-content">
+      <p class="eyebrow">Performance Overview</p>
+      <h1>Analytics</h1>
+      <p class="subtitle">Campaigns, storefront, and wallet — one view.</p>
     </div>
-    <div class="period-selector">
-      <button
-        type="button"
-        class="segment"
-        [class.active]="days() === 7"
-        (click)="selectDays(7)"
-      >7D</button>
-      <button
-        type="button"
-        class="segment"
-        [class.active]="days() === 30"
-        (click)="selectDays(30)"
-      >30D</button>
-      <button
-        type="button"
-        class="segment"
-        [class.active]="days() === 90"
-        (click)="selectDays(90)"
-      >90D</button>
-    </div>
+    <nav class="period-bar">
+      <button [class.active]="days()===7" (click)="selectDays(7)">7 days</button>
+      <button [class.active]="days()===30" (click)="selectDays(30)">30 days</button>
+      <button [class.active]="days()===90" (click)="selectDays(90)">90 days</button>
+    </nav>
   </header>
 
   @if (loading()) {
-    <div class="loading-state">
-      <mat-spinner diameter="40" />
-      <p>Crunching your numbers…</p>
+    <div class="loading-skeleton">
+      @for (i of [1,2,3,4,5,6]; track i) { <div class="skeleton-card"><div class="shimmer"></div></div> }
     </div>
   } @else if (error()) {
-    <div class="error-state">
-      <p>{{ error() }}</p>
-      <button type="button" class="retry-btn" (click)="load()">Retry</button>
-    </div>
+    <div class="error-banner"><mat-icon>error_outline</mat-icon><div><strong>Could not load analytics</strong><p>{{ error() }}</p></div><button (click)="load()">Retry</button></div>
   } @else if (data(); as d) {
-    <!-- Wallet Overview -->
-    <div class="wallet-overview">
-      <h3>Wallet</h3>
-      <div class="wallet-grid">
-        <div class="wallet-item">
-          <span class="label">Available</span>
-          <strong>&#8358;{{ formatCurrency(d.wallet.available) }}</strong>
+    <!-- Key Metrics Row -->
+    <section class="kpi-row">
+      <article class="kpi-card accent-blue">
+        <div class="kpi-icon"><mat-icon>campaign</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Active Campaigns</span>
+          <strong class="kpi-value">{{ d.campaigns.active }}<small> / {{ d.campaigns.total }}</small></strong>
+          <span class="kpi-meta">{{ format(d.campaigns.billableClicks) }} billable clicks</span>
         </div>
-        <div class="wallet-item">
-          <span class="label">Reserved</span>
-          <strong>&#8358;{{ formatCurrency(d.wallet.reserved) }}</strong>
+      </article>
+      <article class="kpi-card accent-green">
+        <div class="kpi-icon"><mat-icon>shopping_bag</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Storefront Revenue</span>
+          <strong class="kpi-value">₦{{ formatCurrency(d.storefront.totalRevenue) }}</strong>
+          <span class="kpi-meta">{{ d.storefront.totalOrders }} orders &middot; ₦{{ formatCurrency(d.storefront.averageOrderValue) }} avg</span>
         </div>
-        <div class="wallet-item">
-          <span class="label">Total</span>
-          <strong>&#8358;{{ formatCurrency(d.wallet.total) }}</strong>
+      </article>
+      <article class="kpi-card accent-purple">
+        <div class="kpi-icon"><mat-icon>account_balance_wallet</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Wallet Balance</span>
+          <strong class="kpi-value">₦{{ formatCurrency(d.wallet.total) }}</strong>
+          <span class="kpi-meta">₦{{ formatCurrency(d.wallet.available) }} available &middot; ₦{{ formatCurrency(d.wallet.reserved) }} reserved</span>
+        </div>
+      </article>
+      <article class="kpi-card accent-amber">
+        <div class="kpi-icon"><mat-icon>payments</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Total Spent</span>
+          <strong class="kpi-value">₦{{ formatCurrency(d.campaigns.totalSpent) }}</strong>
+          <span class="kpi-meta">₦{{ formatCurrency(d.campaigns.totalPayouts) }} paid to promoters</span>
+        </div>
+      </article>
+    </section>
+
+    <!-- Campaign Performance -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Campaign Performance</h2>
+        <span class="badge">{{ d.period.days }}d</span>
+      </div>
+      <div class="campaign-metrics">
+        <div class="metric-row">
+          <span>Budget</span>
+          <div class="metric-bar"><div class="fill spent" [style.width.%]="d.campaigns.totalBudget ? (d.campaigns.totalSpent / d.campaigns.totalBudget * 100) : 0"></div></div>
+          <strong>₦{{ formatCurrency(d.campaigns.totalSpent) }} <small>/ ₦{{ formatCurrency(d.campaigns.totalBudget) }}</small></strong>
+        </div>
+        <div class="metric-row">
+          <span>Click Quality</span>
+          <div class="metric-bar"><div class="fill quality" [style.width.%]="d.campaigns.totalClicks ? (d.campaigns.billableClicks / d.campaigns.totalClicks * 100) : 0"></div></div>
+          <strong>{{ d.campaigns.billableClicks }} <small>/ {{ d.campaigns.totalClicks }}</small><small class="pct">{{ d.campaigns.totalClicks ? ((d.campaigns.billableClicks / d.campaigns.totalClicks) * 100 | number:'1.0-0') : 0 }}%</small></strong>
+        </div>
+        <div class="metric-stats">
+          <div><strong>{{ format(d.campaigns.totalClicks) }}</strong><span>Total Clicks</span></div>
+          <div><strong>{{ format(d.campaigns.billableClicks) }}</strong><span>Billable</span></div>
+          <div><strong>₦{{ formatCurrency(d.campaigns.totalPayouts) }}</strong><span>Payouts</span></div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Campaign Stats -->
-    <div class="section-header">
-      <h3>Campaigns</h3>
-      <span class="period-badge">{{ d.period.days }} days</span>
-    </div>
-    <div class="stats-grid">
-      <article class="stat-card">
-        <span class="label">Active / Total</span>
-        <strong>{{ d.campaigns.active }} / {{ d.campaigns.total }}</strong>
-      </article>
-      <article class="stat-card">
-        <span class="label">Budget</span>
-        <strong>&#8358;{{ formatCurrency(d.campaigns.totalBudget) }}</strong>
-      </article>
-      <article class="stat-card">
-        <span class="label">Spent</span>
-        <strong>&#8358;{{ formatCurrency(d.campaigns.totalSpent) }}</strong>
-      </article>
-      <article class="stat-card">
-        <span class="label">Billable Clicks</span>
-        <strong>{{ format(d.campaigns.billableClicks) }}</strong>
-      </article>
-      <article class="stat-card">
-        <span class="label">Total Clicks</span>
-        <strong>{{ format(d.campaigns.totalClicks) }}</strong>
-      </article>
-      <article class="stat-card">
-        <span class="label">Payouts</span>
-        <strong>&#8358;{{ formatCurrency(d.campaigns.totalPayouts) }}</strong>
-      </article>
-    </div>
-
-    <!-- Storefront Stats -->
-    <div class="section-header">
-      <h3>Storefront</h3>
-    </div>
-    <div class="stats-grid storefront-grid">
-      <article class="stat-card">
-        <span class="label">Orders</span>
-        <strong>{{ d.storefront.totalOrders }}</strong>
-      </article>
-      <article class="stat-card">
-        <span class="label">Revenue</span>
-        <strong>&#8358;{{ formatCurrency(d.storefront.totalRevenue) }}</strong>
-      </article>
-      <article class="stat-card">
-        <span class="label">Commission</span>
-        <strong>&#8358;{{ formatCurrency(d.storefront.totalCommission) }}</strong>
-      </article>
-      <article class="stat-card">
-        <span class="label">Avg Order</span>
-        <strong>&#8358;{{ formatCurrency(d.storefront.averageOrderValue) }}</strong>
-      </article>
-    </div>
-
-    <!-- Two-column: Top Campaigns + Top Products -->
-    <div class="top-sections">
+    <!-- Top Performers - Two Column -->
+    <div class="two-col">
       @if (d.topCampaigns.length) {
-        <div class="top-panel">
-          <h3>Top Campaigns</h3>
-          <p class="panel-sub">By billable clicks</p>
-          <div class="top-list">
-            @for (c of d.topCampaigns; track c._id) {
-              <div class="top-row">
-                <div class="top-row-info">
-                  <span class="top-name">{{ c.title }}</span>
-                  <span class="top-status" [class.active-status]="c.status === 'active'">{{ c.status }}</span>
+        <section class="panel">
+          <div class="panel-header"><h2>Top Campaigns</h2><span class="badge muted">by clicks</span></div>
+          <div class="rank-list">
+            @for (c of d.topCampaigns; track c._id; let i = $index) {
+              <div class="rank-row">
+                <span class="rank-pos">{{ i + 1 }}</span>
+                <div class="rank-info">
+                  <span class="rank-name">{{ c.title }}</span>
+                  <span class="rank-detail">{{ c.billableClicks }} clicks &middot; {{ c.status }}</span>
                 </div>
-                <div class="top-row-metrics">
-                  <small>{{ c.billableClicks }} clicks</small>
-                </div>
+                <div class="rank-bar"><div class="inner" [style.width.%]="d.topCampaigns[0].billableClicks ? (c.billableClicks / d.topCampaigns[0].billableClicks * 100) : 0"></div></div>
               </div>
             }
           </div>
-        </div>
+        </section>
       }
-
       @if (d.topProducts.length) {
-        <div class="top-panel">
-          <h3>Top Products</h3>
-          <p class="panel-sub">By units sold</p>
-          <div class="top-list">
-            @for (p of d.topProducts; track p.name) {
-              <div class="top-row">
-                <div class="top-row-info">
-                  <span class="top-name">{{ p.name }}</span>
+        <section class="panel">
+          <div class="panel-header"><h2>Top Products</h2><span class="badge muted">by units</span></div>
+          <div class="rank-list">
+            @for (p of d.topProducts; track p.name; let i = $index) {
+              <div class="rank-row">
+                <span class="rank-pos">{{ i + 1 }}</span>
+                <div class="rank-info">
+                  <span class="rank-name">{{ p.name }}</span>
+                  <span class="rank-detail">{{ p.totalSold }} sold &middot; ₦{{ formatCurrency(p.revenue) }}</span>
                 </div>
-                <div class="top-row-metrics">
-                  <small>{{ p.totalSold }} sold</small>
-                </div>
+                <div class="rank-bar"><div class="inner" [style.width.%]="d.topProducts[0].totalSold ? (p.totalSold / d.topProducts[0].totalSold * 100) : 0"></div></div>
               </div>
             }
           </div>
-        </div>
+        </section>
       }
     </div>
 
-    <!-- Period Info -->
-    <div class="period-footer">
-      <small>Showing data from {{ d.period.from | date:'mediumDate' }} to {{ d.period.to | date:'mediumDate' }}</small>
-    </div>
+    <footer class="period-note">{{ d.period.from | date:'MMM d' }} – {{ d.period.to | date:'MMM d, y' }}</footer>
   }
 </div>

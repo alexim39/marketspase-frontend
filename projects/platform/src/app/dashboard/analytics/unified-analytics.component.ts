@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 import { ApiService } from '@shared/services/api';
 import { UserService } from '../../common/services/user.service';
 
@@ -25,7 +26,7 @@ interface UnifiedData {
 @Component({
   selector: 'app-unified-analytics',
   standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule],
+  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule],
   templateUrl: './unified-analytics.component.html',
   styleUrls: ['./unified-analytics.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

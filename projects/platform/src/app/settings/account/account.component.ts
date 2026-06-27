@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
 import { UserService } from '../../common/services/user.service';
 import { MatCardModule } from '@angular/material/card';
 import { UserInterface } from '@shared/services';
+import { LanguageSettingComponent } from '../components/language-setting/language-setting.component';
 
 @Component({
   selector: 'async-account',
@@ -23,12 +24,15 @@ import { UserInterface } from '@shared/services';
     MatIconModule,
     MatButtonModule,
     RouterModule,
-    MatCardModule
+    MatCardModule,
+    LanguageSettingComponent,
   ],
   template: `
     <div class="account-container">
       <mat-card class="settings-card">
         <mat-accordion>
+          <app-language-setting />
+
           <mat-expansion-panel [expanded]="true">
             <mat-expansion-panel-header>
               <mat-panel-title>

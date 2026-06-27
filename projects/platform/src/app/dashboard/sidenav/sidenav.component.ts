@@ -24,6 +24,8 @@ import { UserInterface, CurrencyUtilsPipe } from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotificationService } from '../notification/notification.service';
 import { map } from 'rxjs/internal/operators/map';
+import { LocaleService } from '../../common/i18n/locale.service';
+import { CurrencyService } from '../../common/services/currency.service';
 
 // Import new components
 import { UserProfileCardComponent } from './components/user-profile-card/user-profile-card.component';
@@ -89,6 +91,8 @@ export class DashboardComponent implements OnInit {
   private switchUserRoleService = inject(SwitchUserRoleService); // Event used to trigger user role switcher method
   private readonly deviceService = inject(DeviceService);
   private readonly destroyRef = inject(DestroyRef);
+  private locale = inject(LocaleService);
+  private currencyService = inject(CurrencyService);
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('notificationMenu') notificationMenu!: TemplateRef<any>;
@@ -138,21 +142,28 @@ export class DashboardComponent implements OnInit {
     const pendingCampaigns = this.pendingCampaignsCount || 0;
     const pendingPromotions = this.pendingPromotionsCount || 0;
     const activeCampaigns = this.activeCampaignsCount || 0;
+    const t = (key: string) => this.locale.translate(key);
 
+    let items: NavigationItem[];
     if (userRole === 'marketer') {
-      return getMarketerNavigation(pendingCampaigns, activeCampaigns, this.unreadMessagesCount());
+      items = getMarketerNavigation(pendingCampaigns, activeCampaigns, this.unreadMessagesCount());
+    } else if (userRole === 'promoter') {
+      items = getPromoterNavigation(pendingPromotions, this.unreadMessagesCount());
+    } else if (userRole === 'marketing_rep') {
+      items = MARKETING_REP_NAVIGATION;
+    } else {
+      items = ADMIN_NAVIGATION;
     }
-
-    if (userRole === 'promoter') {
-      return getPromoterNavigation(pendingPromotions, this.unreadMessagesCount());
-    }
-
-    if (userRole === 'marketing_rep') {
-      return MARKETING_REP_NAVIGATION;
-    }
-
-    return ADMIN_NAVIGATION;
+    return this.translateNavigationLabels(items, t);
   });
+
+  private translateNavigationLabels(items: NavigationItem[], t: (key: string) => string): NavigationItem[] {
+    return items.map(item => ({
+      ...item,
+      label: t(item.label),
+      children: item.children ? this.translateNavigationLabels(item.children, t) : undefined,
+    }));
+  }
 
   public ngOnInit(): void {
     this.calculateActiveCampaigns();
@@ -192,7 +203,11 @@ export class DashboardComponent implements OnInit {
         formattedRole = 'User';
     }
 
-    return `${formattedRole} Dashboard`;
+    return this.locale.translate(`${formattedRole} Dashboard`);
+  }
+
+  public formatWalletBalance(amount: number | undefined, currency?: string): string {
+    return this.currencyService.format(amount ?? 0, ((currency ?? 'NGN') as string).toUpperCase());
   }
 
   public createCampaign(): void {

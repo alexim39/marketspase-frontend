@@ -39,6 +39,10 @@ export interface UserInterface {
   ratingCount: number;
   authenticationMethod: string;
   updatedAt?: Date;
+  preferredCurrency?: string;
+  preferredLocale?: string;
+  regionalCountry?: string;
+  promoterTier?: string;
   personalInfo: {
     address: {
       street: string;

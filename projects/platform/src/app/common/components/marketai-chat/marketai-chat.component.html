@@ -1,0 +1,27 @@
+<button class="trigger-btn" [class.active]="open()" (click)="toggle()" matTooltip="MarketAI Assistant">
+  @if (open()) { <mat-icon>close</mat-icon> } @else { <mat-icon>smart_toy</mat-icon> }
+</button>
+
+@if (open()) {
+  <div class="chat-panel">
+    <header class="panel-header">
+      <mat-icon>smart_toy</mat-icon>
+      <div><strong>MarketAI</strong><small>MarketSpase Assistant</small></div>
+      <button mat-icon-button (click)="open.set(false)"><mat-icon>close</mat-icon></button>
+    </header>
+    <div class="panel-body" #chatBody>
+      @for (m of messages(); track $index) {
+        <div class="message" [class.user]="m.role === 'user'" [class.assistant]="m.role === 'assistant'">
+          <div class="bubble">{{ m.content }}</div>
+        </div>
+      }
+      @if (loading()) {
+        <div class="message assistant"><div class="bubble typing"><span></span><span></span><span></span></div></div>
+      }
+    </div>
+    <footer class="panel-input">
+      <input type="text" [ngModel]="inputText()" (ngModelChange)="inputText.set($event)" (keydown.enter)="send()" placeholder="Ask about campaigns, wallet, promotions..." [disabled]="loading()" />
+      <button mat-icon-button (click)="send()" [disabled]="!inputText().trim() || loading()"><mat-icon>send</mat-icon></button>
+    </footer>
+  </div>
+}

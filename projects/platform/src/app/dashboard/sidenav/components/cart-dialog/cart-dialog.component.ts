@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, Signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, Signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -9,6 +9,9 @@ import { MatRippleModule } from '@angular/material/core';
 import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
 import { CampaignsSummaryCardComponent } from '../campaigns-summary-card/campaigns-summary-card.component';
 import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promotions-summary-card.component';
+import { CurrencySelectorComponent } from '../../../../common/components/currency-selector/currency-selector.component';
+import { LanguageSwitcherComponent } from '../../../../common/components/language-switcher/language-switcher.component';
+import { CurrencyService } from '../../../../common/services/currency.service';
 
 @Component({
   selector: 'app-cart-dialog',
@@ -23,6 +26,8 @@ import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promo
     MatRippleModule,
     CampaignsSummaryCardComponent,
     PromotionsSummaryCardComponent,
+    CurrencySelectorComponent,
+    LanguageSwitcherComponent,
     CurrencyUtilsPipe
   ],
   templateUrl: './cart-dialog.component.html',
@@ -41,6 +46,12 @@ export class CartDialogComponent {
   @Output() viewAllPromotions = new EventEmitter<void>();
   @Output() viewWithdrawal = new EventEmitter<void>();
   @Output() switchUser = new EventEmitter<string>();
+
+  private currencyService = inject(CurrencyService);
+
+  formatMoney(amount: number, currency?: string): string {
+    return this.currencyService.format(amount || 0, ((currency || 'NGN') as string).toUpperCase());
+  }
 
 
 
