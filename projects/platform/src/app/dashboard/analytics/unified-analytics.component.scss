@@ -1,5 +1,12 @@
+:host {
+  display: block;
+  min-height: 100%;
+  background: var(--background-color);
+}
+
 .analytics-page {
   max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 3rem; color: var(--text-primary);
+  background: var(--background-color);
 }
 
 .hero { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
@@ -29,9 +36,9 @@
 .kpi-icon { width: 2.6rem; height: 2.6rem; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .kpi-icon mat-icon { font-size: 1.3rem; width: 1.3rem; height: 1.3rem; color: #fff; }
 .accent-blue .kpi-icon { background: #3b82f6; }
-.accent-green .kpi-icon { background: #10b981; }
+.accent-green .kpi-icon { background: var(--success-color); }
 .accent-purple .kpi-icon { background: #8b5cf6; }
-.accent-amber .kpi-icon { background: #f59e0b; }
+.accent-amber .kpi-icon { background: var(--warning-color); }
 .kpi-body { flex: 1; min-width: 0; }
 .kpi-label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
 .kpi-value { display: block; font-size: 1.3rem; font-weight: 800; margin-top: 0.1rem; }
