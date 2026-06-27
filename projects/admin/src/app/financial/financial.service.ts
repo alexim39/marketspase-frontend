@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, interval, map, switchMap } from 'rxjs';
+import { Observable, interval, map, switchMap, timeout, catchError, of } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
-import { ApiService } from '../../../../shared-services/src/public-api';
+import { ApiService } from '@shared/services/api';
 
 export interface Transaction {
   id: string;
@@ -300,7 +300,26 @@ export class FinancialService {
 
     return this.apiService
       .get<{ success: boolean; data: FinancialStats }>(`${this.baseUrl}/stats`, params)
-      .pipe(map((response) => response.data));
+      .pipe(
+        timeout(15000),
+        map((response) => response.data),
+        catchError(() => of({
+          year: new Date().getFullYear(), baseCurrency: 'NGN',
+          totalCashIn: 0, totalCashOut: 0, netCashFlow: 0,
+          walletFunding: 0, storefrontVolume: 0, platformRevenue: 0,
+          campaignSpend: 0, promoterPayouts: 0, walletRefunds: 0,
+          totalTransactions: 0, successfulTransactions: 0,
+          totalWithdrawalCount: 0, totalWithdrawalAmount: 0,
+          successfulWithdrawalCount: 0, successfulWithdrawals: 0,
+          processingWithdrawalCount: 0, processingWithdrawals: 0,
+          pendingApprovalCount: 0, pendingApprovals: 0,
+          failedWithdrawalCount: 0, failedWithdrawals: 0,
+          activeBalance: 0, reservedBalance: 0,
+          marketerAvailable: 0, marketerReserved: 0,
+          promoterAvailable: 0, promoterReserved: 0,
+          paidOrders: 0, totalOrders: 0, averageOrderValue: 0,
+        } as FinancialStats)),
+      );
   }
 
   getFinancialAnalytics(params?: {
@@ -358,7 +377,11 @@ export class FinancialService {
         `${this.baseUrl}/withdrawals`,
         httpParams,
       )
-      .pipe(map((response) => response.data));
+      .pipe(
+        timeout(15000),
+        map((response) => response.data),
+        catchError(() => of({ requests: [], total: 0, page: 1, limit: 50 })),
+      );
   }
 
   getWithdrawalById(withdrawalId: string): Observable<WithdrawalRequest> {
