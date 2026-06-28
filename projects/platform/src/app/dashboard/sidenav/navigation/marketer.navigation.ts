@@ -103,8 +103,8 @@ export function getMarketerNavigation(
       expanded: false,
       children: [
         { icon: 'support_agent', label: 'Support Assistant', route: '/dashboard/assistant/customer/overview' },
-        // { icon: 'dynamic_feed', label: 'Social Media Management', route: '/dashboard/assistant/social/overview' },
-        // { icon: 'analytics', label: 'Business Insights', route: '/dashboard/assistant/insights' },
+        { icon: 'dynamic_feed', label: 'Social Media Management', route: '/dashboard/assistant/social/overview' },
+        { icon: 'analytics', label: 'Business Insights', route: '/dashboard/assistant/insights' },
         // { icon: 'settings', label: 'Settings', route: '/dashboard/assistant/settings' }
       ]
     },

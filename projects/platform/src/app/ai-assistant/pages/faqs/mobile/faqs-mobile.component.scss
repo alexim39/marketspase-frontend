@@ -1,4 +1,4 @@
-@use '../../../../../styles/variables' as vars;
+@use '../../../../../styles/variables' as *;
 @use '../../../../../styles/mixins' as mixins;
 
 :host {
@@ -37,7 +37,7 @@
   padding: 18px;
 
   span {
-    color: #0f766e;
+    color: $primary-color;
     display: block;
     font-size: 0.72rem;
     font-weight: 850;
@@ -74,9 +74,9 @@
 }
 
 .hero-action {
-  background: color-mix(in srgb, #0f766e, var(--surface-color) 88%);
+  background: color-mix(in srgb, $primary-color, var(--surface-color) 88%);
   border-radius: 16px;
-  color: #0f766e;
+  color: $primary-color;
 }
 
 .training-card {
@@ -94,7 +94,7 @@
   align-items: center;
   background:
     radial-gradient(circle at center, var(--surface-color) 57%, transparent 58%),
-    conic-gradient(#0f766e var(--score), var(--border-color) 0);
+    conic-gradient($primary-color var(--score), var(--border-color) 0);
   border-radius: 999px;
   display: grid;
   height: 88px;
@@ -170,7 +170,7 @@
   }
 
   button {
-    background: #0f766e;
+    background: $primary-color;
     border-radius: 16px;
     color: var(--on-primary-color);
   }
@@ -200,8 +200,8 @@
     padding: 0 14px;
 
     &.active {
-      background: #0f766e;
-      border-color: #0f766e;
+      background: $primary-color;
+      border-color: $primary-color;
       color: var(--on-primary-color);
     }
   }
@@ -223,7 +223,7 @@
   button {
     background: transparent;
     border: 0;
-    color: #0f766e;
+    color: $primary-color;
     font: inherit;
     font-weight: 850;
     min-height: 40px;
@@ -257,14 +257,14 @@
   }
 
   mat-icon {
-    color: #0f766e;
+    color: $primary-color;
     font-size: 40px;
     height: 40px;
     width: 40px;
   }
 
   button {
-    background: #0f766e;
+    background: $primary-color;
     border: 0;
     border-radius: 14px;
     color: var(--on-primary-color);
@@ -309,9 +309,9 @@
 }
 
 .category-pill {
-  background: color-mix(in srgb, #0f766e, var(--surface-color) 88%);
+  background: color-mix(in srgb, $primary-color, var(--surface-color) 88%);
   border-radius: 999px;
-  color: #0f766e;
+  color: $primary-color;
   font-size: 0.76rem;
   font-weight: 850;
   max-width: 66%;
@@ -331,8 +331,8 @@
     color: var(--text-secondary);
 
     &.danger {
-      background: color-mix(in srgb, #ef4444, var(--surface-color) 88%);
-      color: #b91c1c;
+      background: color-mix(in srgb, $error-color, var(--surface-color) 88%);
+      color: $error-color;
     }
   }
 }
@@ -356,14 +356,14 @@
   background: var(--surface-color);
   border: 1px solid var(--border-color);
   border-radius: 16px;
-  color: #0f766e;
+  color: $primary-color;
   font: inherit;
   font-weight: 850;
   min-height: 52px;
 }
 
 .fab {
-  background: #0f766e;
+  background: $primary-color;
   border-radius: 18px;
   bottom: 22px;
   box-shadow: 0 14px 30px rgba(15, 118, 110, 0.32);
@@ -468,7 +468,7 @@
 }
 
 .primary-sheet-action {
-  background: #0f766e;
+  background: $primary-color;
   color: var(--on-primary-color);
   width: 100%;
 
@@ -488,12 +488,12 @@
   }
 
   .primary {
-    background: #0f766e;
+    background: $primary-color;
     color: var(--on-primary-color);
   }
 
   .danger {
-    background: #dc2626;
+    background: $error-color;
     color: var(--on-primary-color);
   }
 }
@@ -521,9 +521,9 @@
     padding: 0 14px;
 
     &.active {
-      background: color-mix(in srgb, #0f766e, var(--surface-color) 88%);
-      border-color: #5eead4;
-      color: #0f766e;
+      background: color-mix(in srgb, $primary-color, var(--surface-color) 88%);
+      border-color: color-mix(in srgb, $primary-color, var(--surface-color) 74%);
+      color: $primary-color;
     }
   }
 }

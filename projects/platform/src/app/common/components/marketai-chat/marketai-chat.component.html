@@ -1,3 +1,4 @@
+@if (!hidden()) {
 <button class="trigger-btn" [class.active]="open()" (click)="toggle()" matTooltip="MarketAI Assistant">
   @if (open()) { <mat-icon>close</mat-icon> } @else { <mat-icon>smart_toy</mat-icon> }
 </button>
@@ -33,4 +34,5 @@
       </div>
     </div>
   </div>
+}
 }

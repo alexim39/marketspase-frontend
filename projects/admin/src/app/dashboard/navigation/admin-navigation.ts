@@ -74,6 +74,7 @@ export const ADMIN_MENU_ITEMS: MenuItem[] = [
       { id: 'all-transfers', title: 'Transfers', icon: 'swap_horiz', route: '/dashboard/financial/transfers' },
       { id: 'refund-requests', title: 'Refund Requests', icon: 'currency_exchange', route: '/dashboard/financial/refunds' },
       { id: 'fund-recovery', title: 'Fund Recovery', icon: 'playlist_remove', route: '/dashboard/financial/recovery' },
+      { id: 'sms-management', title: 'SMS Management', icon: 'sms', route: '/dashboard/sms-management' },
     ],
   },
   {

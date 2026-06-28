@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -46,6 +46,16 @@ type CollaborationMobileView = 'list' | 'chat';
 })
 export class CampaignCollaborationMobileComponent extends CampaignCollaborationComponent {
   protected readonly activeView = signal<CollaborationMobileView>('list');
+
+  constructor() {
+    super();
+    effect(() => {
+      if (this.shouldAutoJoinChat()) {
+        this.activeView.set('chat');
+        this.shouldAutoJoinChat.set(false);
+      }
+    });
+  }
 
   protected readonly latestThreads = computed(() => this.visibleConversations().slice(0, 6));
   protected readonly starterCampaignPreview = computed(() => this.starterCampaigns().slice(0, 4));

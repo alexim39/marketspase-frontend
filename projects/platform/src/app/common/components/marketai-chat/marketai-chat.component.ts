@@ -7,8 +7,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApiService } from '@shared/services';
 import { UserService } from '../../services/user.service';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 
 interface ChatMessage { role: 'user' | 'assistant'; content: string; }
+
+import { DeviceService } from '@shared/services/device';
+
+const ALWAYS_HIDDEN = ['messages', 'campaigns/create', 'campaigns/edit', 'stores/support'];
+const MOBILE_HIDDEN = ['/home'];
 
 @Component({
   selector: 'app-marketai-chat',
@@ -20,7 +27,10 @@ interface ChatMessage { role: 'user' | 'assistant'; content: string; }
 export class MarketAiChatComponent {
   private api = inject(ApiService);
   private userService = inject(UserService);
+  private router = inject(Router);
+  private deviceService = inject(DeviceService);
 
+  readonly hidden = signal(this.isHiddenRoute(this.router.url));
   readonly open = signal(false);
   readonly loading = signal(false);
   readonly messages = signal<ChatMessage[]>([
@@ -51,6 +61,12 @@ export class MarketAiChatComponent {
     return `marketai_usage_${new Date().toISOString().split('T')[0]}`;
   }
 
+  private isHiddenRoute(url: string): boolean {
+    if (ALWAYS_HIDDEN.some(r => url.includes(r))) return true;
+    if (this.deviceService.isMobile() && MOBILE_HIDDEN.some(r => url.includes(r))) return true;
+    return false;
+  }
+
   private loadDailyCount(): number {
     const key = this.storageKey();
     const stored = localStorage.getItem(key);
@@ -62,7 +78,9 @@ export class MarketAiChatComponent {
   }
 
   constructor() {
-    // Clean up old usage keys (older than 2 days)
+    this.router.events.pipe(filter((e: any) => e instanceof NavigationEnd)).subscribe(() => {
+      this.hidden.set(this.isHiddenRoute(this.router.url));
+    });
     const today = new Date().toISOString().split('T')[0];
     for (const key of Object.keys(localStorage)) {
       if (key.startsWith('marketai_usage_') && key !== this.storageKey()) {

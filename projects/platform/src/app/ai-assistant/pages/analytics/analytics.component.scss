@@ -1,31 +1,31 @@
-@use '../../../../styles/variables' as vars;
+@use '../../../../styles/variables' as *;
 @use '../../../../styles/mixins' as mix;
 
 .analytics-page {
   max-width: 1180px;
   margin: 0 auto;
-  padding: vars.$spacing-6;
+  padding: $spacing-6;
 
   @include mix.mobile {
-    padding: vars.$spacing-4;
+    padding: $spacing-4;
   }
 }
 
 .page-header {
   @include mix.flex-between;
-  gap: vars.$spacing-4;
-  margin-bottom: vars.$spacing-5;
+  gap: $spacing-4;
+  margin-bottom: $spacing-5;
 
   h1 {
     margin: 0;
-    color: vars.$text-primary;
-    font-size: vars.$font-size-3xl;
-    font-weight: vars.$font-weight-bold;
+    color: $text-primary;
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
   }
 
   .subtitle {
-    margin: vars.$spacing-1 0 0;
-    color: vars.$text-secondary;
+    margin: $spacing-1 0 0;
+    color: $text-secondary;
   }
 
   @include mix.mobile {
@@ -37,34 +37,34 @@
 .roi-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: vars.$spacing-4;
-  margin-bottom: vars.$spacing-5;
+  gap: $spacing-4;
+  margin-bottom: $spacing-5;
 
   > div {
-    padding: vars.$spacing-5;
-    border: 1px solid vars.$border-color;
-    border-radius: vars.$border-radius-md;
-    background: vars.$surface-color;
-    box-shadow: vars.$shadow-sm;
+    padding: $spacing-5;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-md;
+    background: $surface-color;
+    box-shadow: $shadow-sm;
   }
 
   span {
-    color: vars.$text-secondary;
-    font-size: vars.$font-size-sm;
+    color: $text-secondary;
+    font-size: $font-size-sm;
   }
 
   strong {
     display: block;
-    margin-top: vars.$spacing-2;
-    color: vars.$text-primary;
-    font-size: vars.$font-size-3xl;
-    font-weight: vars.$font-weight-bold;
+    margin-top: $spacing-2;
+    color: $text-primary;
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
   }
 
   p {
-    margin: vars.$spacing-2 0 0;
-    color: vars.$text-tertiary;
-    font-size: vars.$font-size-sm;
+    margin: $spacing-2 0 0;
+    color: $text-tertiary;
+    font-size: $font-size-sm;
   }
 
   @include mix.mobile {
@@ -75,8 +75,8 @@
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: vars.$spacing-4;
-  margin-bottom: vars.$spacing-5;
+  gap: $spacing-4;
+  margin-bottom: $spacing-5;
 
   @include mix.tablet {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -89,30 +89,30 @@
 
 .metric-card {
   display: flex;
-  gap: vars.$spacing-3;
-  padding: vars.$spacing-4;
-  border: 1px solid vars.$border-color;
-  background: vars.$surface-color;
-  color: vars.$text-primary;
-  box-shadow: vars.$shadow-sm;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  border: 1px solid $border-color;
+  background: $surface-color;
+  color: $text-primary;
+  box-shadow: $shadow-sm;
 
   p {
     margin: 0;
-    color: vars.$text-secondary;
-    font-size: vars.$font-size-sm;
+    color: $text-secondary;
+    font-size: $font-size-sm;
   }
 
   strong {
     display: block;
-    margin: vars.$spacing-1 0;
-    color: vars.$text-primary;
-    font-size: vars.$font-size-2xl;
-    font-weight: vars.$font-weight-bold;
+    margin: $spacing-1 0;
+    color: $text-primary;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
   }
 
   small {
-    color: vars.$text-tertiary;
-    font-size: vars.$font-size-xs;
+    color: $text-tertiary;
+    font-size: $font-size-xs;
   }
 }
 
@@ -120,34 +120,34 @@
   @include mix.flex-center;
   width: 2.5rem;
   height: 2.5rem;
-  border-radius: vars.$border-radius;
+  border-radius: $border-radius;
   flex-shrink: 0;
 
   mat-icon {
-    color: vars.$on-primary-color;
+    color: $on-primary-color;
   }
 
   &.messages {
-    background: vars.$info-color;
+    background: $info-color;
   }
 
   &.ai {
-    background: vars.$success-color;
+    background: $success-color;
   }
 
   &.human {
-    background: vars.$warning-color;
+    background: $warning-color;
   }
 
   &.speed {
-    background: vars.$primary-color;
+    background: $primary-color;
   }
 }
 
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: vars.$spacing-5;
+  gap: $spacing-5;
 
   .wide {
     grid-column: 1 / -1;
@@ -159,35 +159,35 @@
 }
 
 .chart-card {
-  padding: vars.$spacing-5;
-  border: 1px solid vars.$border-color;
-  background: vars.$surface-color;
-  color: vars.$text-primary;
-  box-shadow: vars.$shadow-sm;
+  padding: $spacing-5;
+  border: 1px solid $border-color;
+  background: $surface-color;
+  color: $text-primary;
+  box-shadow: $shadow-sm;
 }
 
 .chart-heading {
   @include mix.flex-between;
-  margin-bottom: vars.$spacing-5;
+  margin-bottom: $spacing-5;
 
   h2 {
     margin: 0;
-    color: vars.$text-primary;
-    font-size: vars.$font-size-xl;
-    font-weight: vars.$font-weight-semibold;
+    color: $text-primary;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
   }
 
   p {
-    margin: vars.$spacing-1 0 0;
-    color: vars.$text-secondary;
-    font-size: vars.$font-size-sm;
+    margin: $spacing-1 0 0;
+    color: $text-secondary;
+    font-size: $font-size-sm;
   }
 }
 
 .bar-chart {
   display: grid;
   grid-template-columns: repeat(7, minmax(44px, 1fr));
-  gap: vars.$spacing-3;
+  gap: $spacing-3;
   min-height: 14rem;
   align-items: end;
 }
@@ -199,16 +199,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  gap: vars.$spacing-2;
+  gap: $spacing-2;
 
   strong {
-    color: vars.$text-primary;
-    font-size: vars.$font-size-sm;
+    color: $text-primary;
+    font-size: $font-size-sm;
   }
 
   small {
-    color: vars.$text-tertiary;
-    font-size: vars.$font-size-xs;
+    color: $text-tertiary;
+    font-size: $font-size-xs;
   }
 }
 
@@ -218,39 +218,39 @@
   height: 10rem;
   align-items: flex-end;
   justify-content: center;
-  border-radius: vars.$border-radius;
-  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 52%);
+  border-radius: $border-radius;
+  background: color-mix(in srgb, $surface-color, $background-color 52%);
   overflow: hidden;
 }
 
 .bar {
   width: 70%;
   min-height: 0.5rem;
-  border-radius: vars.$border-radius vars.$border-radius 0 0;
-  background: vars.$gradient-primary;
+  border-radius: $border-radius $border-radius 0 0;
+  background: $gradient-primary;
 }
 
 .activity-bars,
 .trend-list {
   display: flex;
   flex-direction: column;
-  gap: vars.$spacing-4;
+  gap: $spacing-4;
 }
 
 .activity-label,
 .trend-row {
   @include mix.flex-between;
-  gap: vars.$spacing-3;
-  color: vars.$text-secondary;
-  font-size: vars.$font-size-sm;
+  gap: $spacing-3;
+  color: $text-secondary;
+  font-size: $font-size-sm;
 }
 
 .activity-track,
 .mini-track {
   flex: 1;
   height: 0.75rem;
-  border-radius: vars.$border-radius-full;
-  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 52%);
+  border-radius: $border-radius-full;
+  background: color-mix(in srgb, $surface-color, $background-color 52%);
   overflow: hidden;
 
   span {
@@ -258,29 +258,29 @@
     width: 0;
     height: 100%;
     min-width: 0.4rem;
-    border-radius: vars.$border-radius-full;
-    background: vars.$warning-color;
+    border-radius: $border-radius-full;
+    background: $warning-color;
 
     &.ai-bar {
-      background: vars.$success-color;
+      background: $success-color;
     }
   }
 }
 
 .mini-track span {
-  background: vars.$primary-color;
+  background: $primary-color;
 }
 
 .empty-chart,
 .loading-container {
   @include mix.flex-column-center;
-  gap: vars.$spacing-3;
+  gap: $spacing-3;
   min-height: 14rem;
-  color: vars.$text-secondary;
+  color: $text-secondary;
   text-align: center;
 
   mat-icon {
-    color: vars.$text-tertiary;
+    color: $text-tertiary;
     font-size: 2.5rem;
     width: 2.5rem;
     height: 2.5rem;

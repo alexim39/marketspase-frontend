@@ -1,47 +1,47 @@
-@use '../../../../styles/variables' as vars;
+@use '../../../../styles/variables' as *;
 @use '../../../../styles/mixins' as mix;
 
 .faqs-page {
-  padding: vars.$spacing-6;
+  padding: $spacing-6;
   max-width: 900px;
   margin: 0 auto;
 
   @include mix.mobile {
-    padding: vars.$spacing-4;
+    padding: $spacing-4;
   }
 }
 
 .page-header {
   @include mix.flex-between;
-  margin-bottom: vars.$spacing-6;
+  margin-bottom: $spacing-6;
 
   h1 {
     margin: 0;
-    font-size: vars.$font-size-3xl;
-    font-weight: vars.$font-weight-bold;
-    color: vars.$text-primary;
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
   }
 
   .subtitle {
-    margin: vars.$spacing-1 0 0;
-    color: vars.$text-secondary;
+    margin: $spacing-1 0 0;
+    color: $text-secondary;
   }
 
   .stat {
-    background: color-mix(in srgb, vars.$primary-color, transparent 90%);
-    color: vars.$primary-color;
-    padding: vars.$spacing-2 vars.$spacing-4;
-    border-radius: vars.$border-radius-full;
-    font-weight: vars.$font-weight-semibold;
-    font-size: vars.$font-size-sm;
+    background: color-mix(in srgb, $primary-color, transparent 90%);
+    color: $primary-color;
+    padding: $spacing-2 $spacing-4;
+    border-radius: $border-radius-full;
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-sm;
   }
 }
 
 // Filter Bar
 .filter-bar {
   @include mix.flex-center;
-  gap: vars.$spacing-4;
-  margin-bottom: vars.$spacing-6;
+  gap: $spacing-4;
+  margin-bottom: $spacing-6;
   flex-wrap: wrap;
 
   .search-field {
@@ -49,23 +49,23 @@
     min-width: 250px;
 
     mat-icon {
-      color: vars.$text-tertiary;
+      color: $text-tertiary;
     }
   }
 
   .category-chips {
     display: flex;
-    gap: vars.$spacing-2;
+    gap: $spacing-2;
     flex-wrap: wrap;
 
     button {
-      font-size: vars.$font-size-sm;
-      padding: vars.$spacing-1 vars.$spacing-3;
-      border-radius: vars.$border-radius-full;
+      font-size: $font-size-sm;
+      padding: $spacing-1 $spacing-3;
+      border-radius: $border-radius-full;
       
       &.active {
-        background: vars.$gradient-primary;
-        color: vars.$white;
+        background: $gradient-primary;
+        color: $white;
       }
     }
   }
@@ -74,16 +74,16 @@
 // Add FAQ Card
 .add-faq-card {
   @include mix.card-base;
-  margin-bottom: vars.$spacing-6;
+  margin-bottom: $spacing-6;
 
   mat-card-header {
     mat-card-title {
       @include mix.flex-center;
-      gap: vars.$spacing-2;
-      font-size: vars.$font-size-lg;
+      gap: $spacing-2;
+      font-size: $font-size-lg;
       
       mat-icon {
-        color: vars.$primary-color;
+        color: $primary-color;
       }
     }
   }
@@ -91,33 +91,33 @@
   .form-grid {
     display: flex;
     flex-direction: column;
-    gap: vars.$spacing-4;
-    padding: vars.$spacing-2 0;
+    gap: $spacing-4;
+    padding: $spacing-2 0;
   }
 
   .suggestion-note {
     display: flex;
-    gap: vars.$spacing-3;
-    padding: vars.$spacing-4;
-    border: 1px solid rgba(vars.$info-color, 0.18);
-    border-radius: vars.$border-radius;
-    background: rgba(vars.$info-color, 0.06);
+    gap: $spacing-3;
+    padding: $spacing-4;
+    border: 1px solid rgba($info-color, 0.18);
+    border-radius: $border-radius;
+    background: rgba($info-color, 0.06);
 
     mat-icon {
-      color: vars.$info-color;
+      color: $info-color;
       flex-shrink: 0;
     }
 
     strong {
       display: block;
-      color: vars.$text-primary;
-      font-size: vars.$font-size-sm;
+      color: $text-primary;
+      font-size: $font-size-sm;
     }
 
     p {
-      margin: vars.$spacing-1 0 0;
-      color: vars.$text-secondary;
-      font-size: vars.$font-size-sm;
+      margin: $spacing-1 0 0;
+      color: $text-secondary;
+      font-size: $font-size-sm;
       line-height: 1.5;
     }
   }
@@ -125,7 +125,7 @@
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: vars.$spacing-4;
+    gap: $spacing-4;
 
     @include mix.mobile {
       grid-template-columns: 1fr;
@@ -141,7 +141,7 @@
 .faqs-list {
   display: flex;
   flex-direction: column;
-  gap: vars.$spacing-4;
+  gap: $spacing-4;
 }
 
 .faq-card {
@@ -150,21 +150,21 @@
 
   .faq-header {
     @include mix.flex-between;
-    margin-bottom: vars.$spacing-3;
+    margin-bottom: $spacing-3;
 
     h4 {
       margin: 0;
-      font-size: vars.$font-size-lg;
-      font-weight: vars.$font-weight-semibold;
-      color: vars.$text-primary;
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
       flex: 1;
     }
 
     .faq-actions {
       @include mix.flex-center;
-      gap: vars.$spacing-1;
+      gap: $spacing-1;
       opacity: 0;
-      transition: opacity vars.$transition-fast;
+      transition: opacity $transition-fast;
     }
   }
 
@@ -173,64 +173,64 @@
   }
 
   .faq-answer {
-    margin: 0 0 vars.$spacing-3;
-    color: vars.$text-secondary;
+    margin: 0 0 $spacing-3;
+    color: $text-secondary;
     line-height: 1.6;
-    font-size: vars.$font-size-base;
+    font-size: $font-size-base;
   }
 
   .faq-meta {
     @include mix.flex-center;
-    gap: vars.$spacing-2;
+    gap: $spacing-2;
     flex-wrap: wrap;
 
     .category-badge {
-      background: color-mix(in srgb, vars.$primary-color, transparent 90%);
-      color: vars.$primary-color;
-      padding: vars.$spacing-1 vars.$spacing-2;
-      border-radius: vars.$border-radius;
-      font-size: vars.$font-size-xs;
-      font-weight: vars.$font-weight-medium;
+      background: color-mix(in srgb, $primary-color, transparent 90%);
+      color: $primary-color;
+      padding: $spacing-1 $spacing-2;
+      border-radius: $border-radius;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-medium;
     }
 
     .tag-badge {
-      background: vars.$gray-100;
-      color: vars.$text-secondary;
-      padding: vars.$spacing-1 vars.$spacing-2;
-      border-radius: vars.$border-radius-full;
-      font-size: vars.$font-size-xs;
+      background: color-mix(in srgb, $surface-color, $background-color 52%);
+      color: $text-secondary;
+      padding: $spacing-1 $spacing-2;
+      border-radius: $border-radius-full;
+      font-size: $font-size-xs;
     }
   }
 
   .edit-actions {
     @include mix.flex-center;
     justify-content: flex-end;
-    gap: vars.$spacing-3;
-    margin-top: vars.$spacing-3;
+    gap: $spacing-3;
+    margin-top: $spacing-3;
   }
 }
 
 .loading-container {
   @include mix.flex-column-center;
-  padding: vars.$spacing-16;
-  color: vars.$text-secondary;
-  gap: vars.$spacing-4;
+  padding: $spacing-16;
+  color: $text-secondary;
+  gap: $spacing-4;
 }
 
 .empty-state {
   @include mix.flex-column-center;
-  padding: vars.$spacing-16;
-  color: vars.$text-tertiary;
+  padding: $spacing-16;
+  color: $text-tertiary;
 
   mat-icon {
     font-size: 48px;
     width: 48px;
     height: 48px;
-    margin-bottom: vars.$spacing-3;
+    margin-bottom: $spacing-3;
   }
 
   p {
     margin: 0;
-    font-size: vars.$font-size-lg;
+    font-size: $font-size-lg;
   }
 }

@@ -105,7 +105,7 @@ export class AiAssistantSettingsAPiService {
   }
 
   getSubscriptionPlans(): Observable<SubscriptionPlan[]> {
-    return this.apiService.get<ApiResponse<SubscriptionPlan[]>>(`${this.baseUrl}/subscription/plans`)
+    return this.apiService.get<ApiResponse<SubscriptionPlan[]>>(`${this.baseUrl}/subscription/plans`, undefined, undefined, true)
       .pipe(map(res => res.data));
   }
 

@@ -86,5 +86,12 @@
 }
 
 @media (max-width: 480px) {
-  .chat-panel { width: calc(100vw - 1.5rem); right: 0.75rem; max-height: 70vh; bottom: 5rem; }
+  .trigger-btn {
+    width: 3rem; height: 3rem;
+    bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    right: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+
+  .chat-panel { width: calc(100vw - 1rem); right: 0.5rem; max-height: 65vh; bottom: calc(8.5rem + env(safe-area-inset-bottom, 0px)); }
 }

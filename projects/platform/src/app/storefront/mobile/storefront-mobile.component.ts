@@ -8,6 +8,7 @@ import { StorefrontComponent } from '../storefront.component';
 import { StorefrontService } from '../services/storefront.service';
 import { ShareService } from '../../store/services/share.service';
 import { StoreFooterComponent } from '../core/store-footer/store-footer.component';
+import { StorefrontChatComponent } from '../components/storefront-chat/storefront-chat.component';
 import { Product, Store } from '../../store/models';
 
 @Component({
@@ -20,7 +21,8 @@ import { Product, Store } from '../../store/models';
     MatIconModule,
     CurrencyUtilsPipe,
     TruncatePipe,
-    StoreFooterComponent
+    StoreFooterComponent,
+    StorefrontChatComponent,
   ],
   providers: [StorefrontService, ShareService],
   templateUrl: './storefront-mobile.component.html',

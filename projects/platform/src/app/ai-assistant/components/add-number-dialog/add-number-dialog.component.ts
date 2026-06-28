@@ -48,23 +48,7 @@ import { UserService } from '../../../common/services/user.service';
       </button>
     </mat-dialog-actions>
   `,
-  styles: [`
-    .source-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-    .profile-number {
-      background: #f5f5f5;
-      padding: 0.75rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-    .full-width {
-      width: 100%;
-    }
-  `]
+  styleUrls: ['./add-number-dialog.component.scss']
 })
 export class AddNumberDialogComponent {
   private dialogRef = inject(MatDialogRef<AddNumberDialogComponent>);

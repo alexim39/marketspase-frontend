@@ -448,7 +448,7 @@
   transition: background-color $transition-normal;
 
   // Default bubble (inbound from customer)
-  background: $surface-color;
+  background: rgba(var(--primary-rgb), 0.04);
   color: $text-primary;
 
   // AI-generated messages

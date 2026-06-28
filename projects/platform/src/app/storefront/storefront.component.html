@@ -194,4 +194,5 @@
     (brandToggle)="toggleBrandFilter($event)"
     (clearAll)="clearFilters()"
   />
+  <app-storefront-chat [storeLink]="store()?.storeLink || ''" [storeName]="store()?.name || ''" />
 </div>

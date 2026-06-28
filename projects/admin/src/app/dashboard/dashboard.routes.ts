@@ -69,6 +69,10 @@ export const dashboardRoutes: Routes = [
                 loadChildren: () => import('../financial/financial.routes').then(r => r.FinancialRoutes),
                 title: 'Financial Management - Admin Dashboard'
             }, 
+            {   path: 'sms-management',
+                loadComponent: () => import('../sms-management/sms-management.component').then(c => c.SmsManagementComponent),
+                title: 'SMS Management — Admin Dashboard',
+            },
             {   path: 'newsletters', 
                 loadComponent: () => import('../newsletter/newsletter.component').then(c => c.NewsletterManagementComponent),
                 title: 'Newsletters Management - Admin Dashboard'

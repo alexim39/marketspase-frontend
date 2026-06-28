@@ -173,7 +173,7 @@
 
         <app-typing-indicator [text]="typingIndicatorText()" />
 
-        <app-mention-dropdown [suggestions]="mentionSuggestions()" (select)="insertMention($event)" />
+        <app-mention-dropdown [suggestions]="mentionSuggestions()" (select)="insertMention($event)" (dismiss)="showMentionDropdown.set(false); mentionSuggestions.set([])" />
 
         <app-message-composer [(draftMessage)]="draftMessage" [(attachment)]="pendingAttachment" (send)="sendMessage()" (emojiClick)="openEmojiPicker($event)" (fileSelected)="onFileSelected($event)" />
       } @else {

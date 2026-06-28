@@ -38,6 +38,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { StorefrontCartService } from './services/storefront-cart.service';
 import { ShareService } from '../store/services/share.service';
 import { buildWhatsAppChatUrl } from '../common/utils/whatsapp.util';
+import { StorefrontChatComponent } from './components/storefront-chat/storefront-chat.component';
 
 @Component({
   selector: 'app-storefront',
@@ -59,6 +60,7 @@ import { buildWhatsAppChatUrl } from '../common/utils/whatsapp.util';
     FabContainerComponent,
     // Existing Components
     FilterSidebarComponent,
+    StorefrontChatComponent,
     MatIconModule
   ],
   providers: [StorefrontService, ShareService],

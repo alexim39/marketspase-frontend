@@ -463,8 +463,10 @@ export class ContactsIndexComponent {
   openBulkSms(): void {
     const ids = [...this.selectedIds()];
     if (!ids.length) { this.snackBar.open('Select customers to send SMS.', 'OK', { duration: 3000 }); return; }
-    const ref = this.dialog.open(BulkSmsDialogComponent, { width: '500px', maxWidth: '95vw', data: { customerIds: ids, count: ids.length } });
-    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.loadCustomers());
+    const selectedContacts = this.customers().filter(c => ids.includes(c._id));
+    const preview = selectedContacts.map(c => ({ name: c.displayName, phone: c.phone }));
+    const ref = this.dialog.open(BulkSmsDialogComponent, { width: '500px', maxWidth: '95vw', data: { customerIds: ids, count: ids.length, preview } });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => { this.loadCustomers(); this.selectedIds.set(new Set()); });
   }
 
   openSendEmail(customer: CustomerContact): void {

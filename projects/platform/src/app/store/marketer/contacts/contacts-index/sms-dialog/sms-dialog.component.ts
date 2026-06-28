@@ -19,7 +19,7 @@ const COST_PER_SMS = 10;
   standalone: true,
   imports: [CommonModule, FormsModule, MatDialogModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatProgressSpinnerModule, MatSnackBarModule],
   templateUrl: './sms-dialog.component.html',
-  styleUrl: './sms-dialog.component.scss',
+  styleUrls: ['./sms-dialog.component.scss'],
 })
 export class SmsDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<SmsDialogComponent>);

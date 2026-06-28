@@ -33,6 +33,7 @@ interface RouteOpenContext {
   campaignId: string | null;
   promotionId: string | null;
   targetUserId: string | null;
+  directChat: boolean;
 }
 
 interface RecentCollaborator {
@@ -102,6 +103,7 @@ export class CampaignCollaborationComponent {
   readonly activeSection = signal<'direct' | 'rooms'>('direct');
   readonly activityEvents = signal<any[]>([]);
   readonly loadingActivity = signal(false);
+  protected readonly shouldAutoJoinChat = signal(false);
   readonly mentionQuery = signal('');
   readonly mentionSuggestions = signal<Array<{ username: string; displayName: string }>>([]);
   readonly showMentionDropdown = signal(false);
@@ -256,6 +258,7 @@ export class CampaignCollaborationComponent {
     campaignId: null,
     promotionId: null,
     targetUserId: null,
+    directChat: false,
   };
 
   constructor() {
@@ -282,6 +285,7 @@ export class CampaignCollaborationComponent {
           campaignId: params.get('campaignId'),
           promotionId: params.get('promotionId'),
           targetUserId: params.get('targetUserId'),
+          directChat: params.get('directChat') === '1',
         };
         const section = params.get('section') || (this.route.snapshot.data as any)?.['section'];
         if (section === 'direct') {
@@ -473,6 +477,7 @@ export class CampaignCollaborationComponent {
       this.showMentionDropdown.set(true);
     } else {
       this.showMentionDropdown.set(false);
+      this.mentionSuggestions.set([]);
     }
   }
 
@@ -531,6 +536,7 @@ export class CampaignCollaborationComponent {
     this.draftMessage.set(newValue);
     this.showMentionDropdown.set(false);
     this.mentionQuery.set('');
+    this.mentionSuggestions.set([]);
   }
 
   sendMessage(): void {
@@ -1007,7 +1013,7 @@ export class CampaignCollaborationComponent {
     if (conversationId) {
       const matched = this.conversations().find((conversation) => conversation._id === conversationId);
       if (matched) {
-        this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null };
+        this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null, directChat: false };
         this.selectConversation(matched, false);
         return;
       }
@@ -1028,7 +1034,7 @@ export class CampaignCollaborationComponent {
         .subscribe({
           next: (response) => {
             this.resolvingEntry.set(false);
-            this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null };
+            this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null, directChat: false };
             this.upsertConversation(response.data, true);
           },
           error: () => {
@@ -1045,7 +1051,7 @@ export class CampaignCollaborationComponent {
         .subscribe({
           next: (response) => {
             this.resolvingEntry.set(false);
-            this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null };
+            this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null, directChat: false };
             this.upsertConversation(response.data, true);
           },
           error: () => {
@@ -1062,7 +1068,7 @@ export class CampaignCollaborationComponent {
         .subscribe({
           next: (response) => {
             this.resolvingEntry.set(false);
-            this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null };
+            this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null, directChat: false };
             this.upsertConversation(response.data, true);
           },
           error: () => {
@@ -1149,6 +1155,7 @@ export class CampaignCollaborationComponent {
     if (selectAfter) {
       const nextConversation = this.conversations().find((entry) => entry._id === conversation._id) || conversation;
       this.selectConversation(nextConversation);
+      this.shouldAutoJoinChat.set(true);
     }
   }
 

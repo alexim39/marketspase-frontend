@@ -158,7 +158,7 @@ export class PromotionCardComponent {
 
   openPromotionRoom(): void {
     this.router.navigate(['/dashboard/campaigns/collaboration'], {
-      queryParams: { promotionId: this.promotion._id }
+      queryParams: { promotionId: this.promotion._id, directChat: '1' }
     });
   }
 
@@ -169,6 +169,7 @@ export class PromotionCardComponent {
         promotionId: this.promotion._id,
         campaignId: this.promotion.campaign?._id || null,
         targetUserId: marketerId || null,
+        directChat: '1',
       }
     });
   }

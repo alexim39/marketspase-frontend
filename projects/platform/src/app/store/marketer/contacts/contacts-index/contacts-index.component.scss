@@ -101,6 +101,12 @@
   margin-bottom: vars.$spacing-3; color: vars.$text-secondary;
 }
 
+.select-all-checkbox {
+  display: inline-flex; align-items: center; gap: vars.$spacing-2;
+  cursor: pointer; font-size: vars.$font-size-sm; color: vars.$text-secondary;
+  input[type="checkbox"] { width: 16px; height: 16px; accent-color: vars.$primary-color-hex; cursor: pointer; }
+}
+
 .customer-list { display: grid; gap: vars.$spacing-3; }
 
 .customer-card {
@@ -112,6 +118,11 @@
   cursor: pointer;
   transition: border-color vars.$transition-normal, box-shadow vars.$transition-normal, transform vars.$transition-normal;
   &:hover { border-color: vars.$primary-color; box-shadow: vars.$shadow-md; transform: translateY(-1px); }
+}
+
+.customer-card-check {
+  position: absolute; top: vars.$spacing-4; left: vars.$spacing-4; z-index: 1;
+  input[type="checkbox"] { width: 18px; height: 18px; accent-color: vars.$primary-color-hex; cursor: pointer; }
 }
 
 .customer-card-top {
@@ -292,6 +303,9 @@
       min-height: 40px;
       min-width: 40px;
       padding: 0 0.6rem;
+    }
+    button:hover {
+      background: vars.$surface-color !important;
     }
   }
 

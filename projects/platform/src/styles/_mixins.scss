@@ -9,7 +9,7 @@
 // Replace SASS lighten($color, $amount) with this:
 // @include lighten-bg(var(--color), 10%);
 @mixin lighten-bg($color, $percentage) {
-  background-color: color-mix(in srgb, #{$color}, white #{$percentage});
+  background-color: color-mix(in srgb, #{$color} #{100 - $percentage}, transparent #{$percentage});
 }
 
 @mixin lighten-text($color, $percentage) {

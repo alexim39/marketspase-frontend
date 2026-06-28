@@ -10,7 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ContactService } from '../../contact.service';
 
-export interface BulkSmsDialogData { customerIds: string[]; count: number; }
+export interface BulkSmsDialogData { customerIds: string[]; count: number; preview?: Array<{ name: string; phone: string }>; }
 
 const COST_PER_SMS = 10;
 
