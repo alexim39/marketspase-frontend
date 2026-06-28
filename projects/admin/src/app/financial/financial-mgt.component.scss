@@ -52,6 +52,131 @@
 .stat-label { font-size: 0.75rem; color: var(--admin-text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
 .stat-note { font-size: 0.72rem; color: var(--admin-text-muted); }
 
+/* ──────────────── Clawback Section ──────────────── */
+.clawback-section {
+  @include admin.surface-frame();
+  padding: 1.25rem 1.5rem;
+}
+
+.clawback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+
+  h3 {
+    margin: 0 0 0.15rem;
+    font-size: 1rem;
+    color: var(--admin-text);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    mat-icon { font-size: 1.15rem; width: 1.15rem; height: 1.15rem; color: #f59e0b; }
+  }
+  p { margin: 0; font-size: 0.78rem; color: var(--admin-text-muted); }
+}
+
+.clawback-loading {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1.25rem 0;
+  text-align: center;
+  color: var(--admin-text-muted);
+  font-size: 0.82rem;
+}
+
+.clawback-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  color: #10b981;
+  font-size: 0.84rem;
+  mat-icon { font-size: 1.2rem; width: 1.2rem; height: 1.2rem; }
+}
+
+.clawback-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.clawback-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid rgba(245, 158, 11, 0.12);
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.04);
+  transition: background-color var(--admin-transition), border-color var(--admin-transition);
+
+  &:hover {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.22);
+  }
+}
+
+.clawback-icon {
+  font-size: 1.3rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  color: #f59e0b;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+.clawback-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.clawback-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.clawback-amount {
+  font-weight: 700;
+  color: #fca5a5;
+  font-size: 0.88rem;
+}
+
+.clawback-user {
+  font-weight: 600;
+  color: var(--admin-text);
+  font-size: 0.82rem;
+}
+
+.clawback-desc {
+  font-size: 0.76rem;
+  color: var(--admin-text-muted);
+  max-width: 360px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clawback-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.clawback-date {
+  font-size: 0.74rem;
+  color: var(--admin-text-muted);
+  white-space: nowrap;
+}
+
 /* ──────────────── Tabs ──────────────── */
 .management-section {
   @include admin.surface-frame();

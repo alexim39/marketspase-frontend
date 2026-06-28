@@ -852,12 +852,12 @@
 
               <ng-container matColumnDef="aov">
                 <th mat-header-cell *matHeaderCellDef>AOV</th>
-                <td mat-cell *matCellDef="let row">{{ row.averageOrderValue | currencyUtils:product?.currency }}</td>
+                <td mat-cell *matCellDef="let row">{{ row.averageOrderValue | currencyUtils:product.currency }}</td>
               </ng-container>
 
               <ng-container matColumnDef="revenue">
                 <th mat-header-cell *matHeaderCellDef>Revenue</th>
-                <td mat-cell *matCellDef="let row">{{ row.totalEarnings | currencyUtils:product?.currency }}</td>
+                <td mat-cell *matCellDef="let row">{{ row.totalEarnings | currencyUtils:product.currency }}</td>
               </ng-container>
 
               <ng-container matColumnDef="convRate">

@@ -178,7 +178,8 @@ export class CreateCampaignComponent implements OnInit {
     });
 
     this.goalForm = this.fb.group({
-      campaignGoal: ['awareness', Validators.required]
+      campaignGoal: ['awareness', Validators.required],
+      payoutModel: ['pay_per_click', Validators.required]
     });
     this.isGoalValid.set(this.goalForm.valid);
 
@@ -390,6 +391,7 @@ export class CreateCampaignComponent implements OnInit {
         category: this.contentForm?.get('category')?.value || 'other',
         link: this.contentForm?.get('link')?.value || '',
         promotionGoal: this.goalForm?.get('campaignGoal')?.value || 'awareness',
+        payoutModel: this.goalForm?.get('payoutModel')?.value || 'pay_per_click',
         budget: this.budgetForm?.get('budget')?.value || 0,
         targetAudience: this.budgetForm?.get('ageTarget')?.value || 'all',
         ppcPrice: this.costPerClick(),
@@ -528,6 +530,7 @@ export class CreateCampaignComponent implements OnInit {
       link: this.contentForm.get('link')?.value ?? '',
       category: this.contentForm.get('category')?.value ?? 'other',
       campaignGoal: this.goalForm.get('campaignGoal')?.value ?? 'awareness',
+      payoutModel: this.goalForm.get('payoutModel')?.value ?? 'pay_per_click',
       budget: this.budgetForm.get('budget')?.value ?? '',
       enableTarget: this.budgetForm.get('enableTarget')?.value ?? true,
       ageTarget: this.budgetForm.get('ageTarget')?.value ?? 'all',

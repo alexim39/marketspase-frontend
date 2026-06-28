@@ -23,5 +23,14 @@
       <input type="text" [ngModel]="inputText()" (ngModelChange)="inputText.set($event)" (keydown.enter)="send()" placeholder="Ask about campaigns, wallet, promotions..." [disabled]="loading()" />
       <button mat-icon-button (click)="send()" [disabled]="!inputText().trim() || loading()"><mat-icon>send</mat-icon></button>
     </footer>
+    <div class="usage-bar">
+      <div class="usage-text">
+        <span>Sent {{ sentCount() }}/{{ usageLimit() }} messages today</span>
+        <span>{{ usageRemaining() }}% remaining</span>
+      </div>
+      <div class="usage-track">
+        <div class="usage-fill" [style.width.%]="usageBarWidth()"></div>
+      </div>
+    </div>
   </div>
 }

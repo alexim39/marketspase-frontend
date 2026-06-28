@@ -345,6 +345,71 @@
       grid-template-columns: 1fr;
     }
 
+    .payout-model-grid {
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+    }
+
+    .payout-option-card {
+      padding: 0.9rem;
+      border-radius: 1rem;
+      &:hover { transform: none; box-shadow: none; }
+    }
+
+    .payout-card-header {
+      flex-wrap: wrap; gap: 0.5rem;
+    }
+
+    .payout-icon-wrap {
+      width: 2.4rem; height: 2.4rem;
+      border-radius: 10px;
+      mat-icon { font-size: 1.2rem; width: 1.2rem; height: 1.2rem; }
+    }
+
+    .payout-title-group {
+      flex: 1; min-width: 0;
+      h3 { font-size: 0.92rem; }
+    }
+
+    .payout-selected-indicator { flex-shrink: 0; }
+
+    .payout-description { font-size: 0.82rem; line-height: 1.4; }
+
+    .goal-grid {
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+    }
+
+    .goal-card {
+      padding: 0.9rem;
+      overflow: hidden;
+    }
+
+    .goal-card-header {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .goal-icon-wrap {
+      width: 2.4rem; height: 2.4rem;
+      border-radius: 10px;
+      mat-icon { font-size: 1.2rem; width: 1.2rem; height: 1.2rem; }
+    }
+
+    .goal-title-group {
+      flex: 1; min-width: 0;
+      h3 { font-size: 0.9rem; }
+      p { font-size: 0.7rem; }
+    }
+
+    .goal-selected-indicator { flex-shrink: 0; }
+
+    .goal-description { font-size: 0.8rem; line-height: 1.4; }
+
+    .goal-highlights { flex-wrap: wrap; }
+
+    .highlight-chip { font-size: 0.7rem; padding: 0.2rem 0.5rem; }
+
     .phone-frame {
       max-width: 100%;
     }

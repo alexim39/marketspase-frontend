@@ -67,6 +67,8 @@
             </a>
           </div>
         } @else {
+          <click-cap-indicator style="display:block; margin-bottom: 0.75rem;" />
+
           <div class="promotion-list">
             @for (promotion of filteredPromotions(); track promotion.trackingId) {
               <article class="promotion-card">

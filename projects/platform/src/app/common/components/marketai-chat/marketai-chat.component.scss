@@ -44,12 +44,45 @@
 @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
 
 .panel-input {
-  display: flex; align-items: center; gap: 0.3rem; padding: 0.6rem 0.75rem;
+  display: flex; align-items: center; gap: 0.3rem; padding: 0.6rem 0.75rem 0.3rem;
   border-top: 1px solid var(--border-color); flex-shrink: 0;
   input {
     flex: 1; border: none; outline: none; font-size: 0.85rem; background: transparent; color: var(--text-primary);
     &::placeholder { color: var(--text-secondary); }
   }
+}
+
+.usage-bar {
+  padding: 0.3rem 0.85rem 0.6rem;
+  flex-shrink: 0;
+}
+
+.usage-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+
+  span:last-child {
+    font-weight: 600;
+    color: var(--text-tertiary);
+  }
+}
+
+.usage-track {
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(var(--primary-rgb), 0.1);
+  overflow: hidden;
+}
+
+.usage-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--success-color);
+  min-width: 0;
+  transition: width 0.4s ease;
 }
 
 @media (max-width: 480px) {

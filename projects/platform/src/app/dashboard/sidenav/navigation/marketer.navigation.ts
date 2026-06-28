@@ -126,12 +126,11 @@ export function getMarketerNavigation(
           label: 'Group Chats',
           route: '/dashboard/messages/groups'
         },
-        {
-          icon: 'dynamic_feed',
-          label: 'Activity Feed',
-          //route: '/dashboard/messages/activity'
-          route: '/dashboard/messages'
-        },
+        // {
+        //   icon: 'dynamic_feed',
+        //   label: 'Activity Feed',
+        //   route: '/dashboard/messages'
+        // },
       ]
     },
 

@@ -23,7 +23,7 @@ import { CurrencyService, CURRENCY_SYMBOLS, CurrencyCode } from '../../services/
       }
     </mat-menu>
   `,
-  styles: [`.currency-btn { font-weight: 600; } .check { margin-left: auto; color: var(--primary-color); }`],
+  styleUrl: './currency-selector.component.scss',
 })
 export class CurrencySelectorComponent {
   readonly currencyService = inject(CurrencyService);

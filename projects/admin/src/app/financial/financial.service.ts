@@ -15,6 +15,7 @@ export interface Transaction {
   fee?: number;
   description: string;
   status: 'pending' | 'processing' | 'successful' | 'failed' | 'reversed' | 'cancelled' | 'approved' | 'rejected' | 'completed' | 'paid';
+  chargeStatus?: 'clawed_back' | 'billed' | 'refunded';
   createdAt: Date;
   processedAt?: Date | null;
   reference: string;

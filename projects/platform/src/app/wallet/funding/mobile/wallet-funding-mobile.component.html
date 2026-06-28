@@ -136,6 +136,12 @@
           <span>Your wallet receives {{ currencyQuote()?.baseAmount | currencyUtils:walletBaseCurrency() }}</span>
         </div>
       }
+      @if (exchangeRateText()) {
+        <div class="exchange-rate-note">
+          <mat-icon>currency_exchange</mat-icon>
+          <span>{{ exchangeRateText() }}</span>
+        </div>
+      }
     </section>
   }
 

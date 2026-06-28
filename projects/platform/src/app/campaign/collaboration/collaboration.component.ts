@@ -99,7 +99,7 @@ export class CampaignCollaborationComponent {
   readonly error = signal<string | null>(null);
   readonly typingUsers = signal<Map<string, string>>(new Map());
   readonly pinnedMessages = signal<CollaborationMessage[]>([]);
-  readonly activeSection = signal<'activity' | 'direct' | 'rooms'>('activity');
+  readonly activeSection = signal<'direct' | 'rooms'>('direct');
   readonly activityEvents = signal<any[]>([]);
   readonly loadingActivity = signal(false);
   readonly mentionQuery = signal('');
@@ -291,7 +291,7 @@ export class CampaignCollaborationComponent {
           this.kindFilter.set('campaign_room');
           this.activeSection.set('rooms');
         } else {
-          this.activeSection.set('activity');
+          this.activeSection.set('direct');
         }
         this.resolvePendingContext();
       });
@@ -398,7 +398,7 @@ export class CampaignCollaborationComponent {
     } else if (kind === 'campaign_room' || kind === 'promotion_room') {
       this.activeSection.set('rooms');
     } else {
-      this.activeSection.set('activity');
+      this.activeSection.set('direct');
     }
   }
 

@@ -36,6 +36,8 @@ export class FinancialMgtComponent implements OnInit, OnDestroy {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
+  readonly clawbackHistory = signal<Transaction[]>([]);
+  readonly clawbackLoading = signal(false);
   readonly transactions = signal<Transaction[]>([]);
   readonly withdrawalRequests = signal<WithdrawalRequest[]>([]);
   readonly financialStats = signal<FinancialStats>({
@@ -130,6 +132,18 @@ export class FinancialMgtComponent implements OnInit, OnDestroy {
       error: () => this.isLoading.set(false),
     });
     this.loadWithdrawals();
+    this.loadClawbacks();
+  }
+
+  loadClawbacks(): void {
+    this.clawbackLoading.set(true);
+    this.financialService.getTransactions({ limit: 5, category: 'promotion' }).subscribe({
+      next: (r) => {
+        this.clawbackHistory.set((r.transactions || []).filter(t => t.chargeStatus === 'clawed_back').slice(0, 5));
+        this.clawbackLoading.set(false);
+      },
+      error: () => this.clawbackLoading.set(false),
+    });
   }
 
   private startPolling(): void {

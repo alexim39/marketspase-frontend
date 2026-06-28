@@ -98,6 +98,8 @@
           <a class="primary-action" routerLink="/dashboard/stores/products">Browse products</a>
         </div>
       } @else {
+        <click-cap-indicator style="display:block; margin-bottom: 0.5rem;" />
+
         <div class="promotion-list">
           @for (promotion of filteredPromotions(); track trackPromotion($index, promotion)) {
             <article class="promotion-card">

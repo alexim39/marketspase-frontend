@@ -1,4 +1,4 @@
-import { Component, inject, signal, viewChild, ElementRef, afterNextRender } from '@angular/core';
+import { Component, inject, signal, viewChild, ElementRef, afterNextRender, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApiService } from '@shared/services';
+import { UserService } from '../../services/user.service';
 
 interface ChatMessage { role: 'user' | 'assistant'; content: string; }
 
@@ -18,6 +19,7 @@ interface ChatMessage { role: 'user' | 'assistant'; content: string; }
 })
 export class MarketAiChatComponent {
   private api = inject(ApiService);
+  private userService = inject(UserService);
 
   readonly open = signal(false);
   readonly loading = signal(false);
@@ -27,7 +29,48 @@ export class MarketAiChatComponent {
   readonly inputText = signal('');
   private chatBodyEl = viewChild<ElementRef>('chatBody');
 
-  constructor() { afterNextRender(() => this.scrollToBottom()); }
+  private readonly usageLimits: Record<string, number> = {
+    admin: 200,
+    marketer: 50,
+    marketing_rep: 50,
+    promoter: 10,
+  };
+
+  readonly usageLimit = computed(() => {
+    const role = this.userService.user()?.role;
+    return role ? (this.usageLimits[role] ?? 10) : 10;
+  });
+
+  readonly usageRemaining = computed(() => Math.max(0, this.usageLimit() - this.sentCount()));
+  readonly usagePercent = computed(() => this.usageLimit() ? (this.sentCount() / this.usageLimit()) * 100 : 0);
+  readonly usageBarWidth = computed(() => Math.min(100, Math.max(0, 100 - this.usagePercent())));
+
+  readonly sentCount = signal(this.loadDailyCount());
+
+  private storageKey(): string {
+    return `marketai_usage_${new Date().toISOString().split('T')[0]}`;
+  }
+
+  private loadDailyCount(): number {
+    const key = this.storageKey();
+    const stored = localStorage.getItem(key);
+    return stored ? parseInt(stored, 10) || 0 : 0;
+  }
+
+  private saveDailyCount(): void {
+    localStorage.setItem(this.storageKey(), String(this.sentCount()));
+  }
+
+  constructor() {
+    // Clean up old usage keys (older than 2 days)
+    const today = new Date().toISOString().split('T')[0];
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith('marketai_usage_') && key !== this.storageKey()) {
+        localStorage.removeItem(key);
+      }
+    }
+    afterNextRender(() => this.scrollToBottom());
+  }
 
   toggle(): void { this.open.update(v => !v); if (this.open()) setTimeout(() => this.scrollToBottom(), 100); }
 
@@ -37,6 +80,8 @@ export class MarketAiChatComponent {
     this.messages.update(m => [...m, { role: 'user', content: text }]);
     this.inputText.set('');
     this.loading.set(true);
+    this.sentCount.update(c => c + 1);
+    this.saveDailyCount();
     setTimeout(() => this.scrollToBottom(), 50);
 
     this.api.post<any>('api/v1/marketai/message', {
