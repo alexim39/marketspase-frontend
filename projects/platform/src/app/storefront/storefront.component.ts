@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { 
-  Subject, debounceTime, distinctUntilChanged, takeUntil, filter 
+  Subject, debounceTime, distinctUntilChanged, takeUntil, filter, firstValueFrom 
 } from 'rxjs';
 
 // Child Components
@@ -33,12 +33,13 @@ import { FilterSidebarComponent } from './components/filter-sidebar/filter-sideb
 import { ProductQuickViewComponent } from './components/product-quick-view/product-quick-view.component';
 
 // Models
-import { Product, ProductVariant, Store } from '../store/models';
+import { Product, ProductVariant, Service, Store } from '../store/models';
 import { MatIconModule } from '@angular/material/icon';
 import { StorefrontCartService } from './services/storefront-cart.service';
 import { ShareService } from '../store/services/share.service';
 import { buildWhatsAppChatUrl } from '../common/utils/whatsapp.util';
 import { StorefrontChatComponent } from './components/storefront-chat/storefront-chat.component';
+import { ServiceInquiryDialogComponent } from './components/service-inquiry-dialog/service-inquiry-dialog.component';
 
 @Component({
   selector: 'app-storefront',
@@ -61,7 +62,8 @@ import { StorefrontChatComponent } from './components/storefront-chat/storefront
     // Existing Components
     FilterSidebarComponent,
     StorefrontChatComponent,
-    MatIconModule
+    MatIconModule,
+    ServiceInquiryDialogComponent
   ],
   providers: [StorefrontService, ShareService],
   templateUrl: './storefront.component.html',
@@ -82,6 +84,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   // Signals (unchanged)
   store = signal<Store | null>(null);
   products = signal<Product[]>([]);
+  services = signal<Service[]>([]);
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
   viewMode = signal<'grid' | 'list' | 'compact'>('grid');
@@ -362,9 +365,13 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       this.store.set(storeResponse.data);
 
-      // Load store products
-      const productsResponse = await this.storeService.getStoreProducts(storeResponse.data._id ?? '').toPromise();
-      this.products.set(productsResponse?.data || []);
+      if (storeResponse.data.type === 'service') {
+        const servicesResponse = await firstValueFrom(this.storeService.getStoreServices(storeResponse.data._id ?? ''));
+        this.services.set(servicesResponse?.data || []);
+      } else {
+        const productsResponse = await firstValueFrom(this.storeService.getStoreProducts(storeResponse.data._id ?? ''));
+        this.products.set(productsResponse?.data || []);
+      }
 
       const favoriteStores = this.readSet('marketspase_favorite_stores_v1');
       this.isFavorited.set(favoriteStores.has(storeResponse.data._id ?? storeResponse.data.storeLink));
@@ -516,6 +523,37 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
       this.router.navigate(['/cart']);
     });
   }
+
+  inquireService(service: Service): void {
+    this.dialog.open(ServiceInquiryDialogComponent, {
+      width: '500px',
+      maxWidth: '95vw',
+      panelClass: 'inquiry-dialog',
+      data: {
+        service,
+        store: this.store(),
+      },
+    });
+  }
+
+  pricingTypeLabel(type: string): string {
+    const labels: Record<string, string> = { fixed: 'Fixed Price', hourly: 'Hourly', package: 'Package', quote: 'Custom Quote' };
+    return labels[type] || type;
+  }
+
+  responseTimeLabel(minutes: number): string {
+    if (minutes < 60) return `Typically responds within ${minutes} min`;
+    const hours = Math.round(minutes / 60);
+    return `Typically responds within ${hours} hr`;
+  }
+
+  getAllPackageFeatures(packages: any[]): string[] {
+    const features = new Set<string>();
+    for (const p of packages) { (p.includes || []).forEach((f: string) => features.add(f)); }
+    return Array.from(features);
+  }
+
+  readonly crossSellProducts = signal<any[]>([]);
 
   toggleWishlist(product: Product): void {
     const productId = product?._id ?? '';

@@ -17,6 +17,9 @@ export interface Store {
   description: string;
   logo: string;
   category: string;
+  type?: 'product' | 'service';
+  subscriptionTier?: 'free' | 'basic' | 'pro';
+  subscriptionExpiresAt?: string | Date;
   isVerified: boolean;
   verificationTier: 'basic' | 'premium';
   analytics: StoreAnalytics;

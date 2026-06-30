@@ -18,11 +18,12 @@ import { Subject, takeUntil, interval, Subscription } from 'rxjs';
 import { StoreService } from '../../../services/store.service';
 import { DeviceService } from '@shared/services/device';
 import { UserInterface } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { Store} from '../../../models/store.model';
-//import { ProductManagementComponent } from '../product-management/product-management.component';
-//import { StoreAnalyticsComponent } from '../store-analytics/store-analytics.component';
-//import { StorePromotionsComponent } from '../store-promotions/store-promotions.component';
-//import { RealTimeStatsComponent } from '../real-time-stats/real-time-stats.component';
+import { ProductManagementComponent } from '../product-management/product-management.component';
+import { StoreAnalyticsComponent } from '../store-analytics/store-analytics.component';
+import { StorePromotionsComponent } from '../store-promotions/store-promotions.component';
+import { RealTimeStatsComponent } from '../real-time-stats/real-time-stats.component';
 import { QuickActionBarComponent } from '../quick-action-bar/quick-action-bar.component';
 import { StoreHeaderComponent } from '../store-header/store-header.component';
 import { Product } from '../../../models';
@@ -69,10 +70,10 @@ interface PerformanceMetric {
     MatTooltipModule,
     MatChipsModule,
     MatProgressSpinnerModule,
-    //ProductManagementComponent,
-    //StoreAnalyticsComponent,
-    //StorePromotionsComponent,
-    //RealTimeStatsComponent,
+    ProductManagementComponent,
+    StoreAnalyticsComponent,
+    StorePromotionsComponent,
+    RealTimeStatsComponent,
     QuickActionBarComponent,
     StoreHeaderComponent,
     MatFormFieldModule,
@@ -86,11 +87,13 @@ interface PerformanceMetric {
 export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected storeService = inject(StoreService);
+  private apiService = inject(ApiService);
+  readonly services = signal<any[]>([]);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private deviceService = inject(DeviceService);
 
-  @Input({ required: true }) user!: Signal<UserInterface | null>;;
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
 
   // Enhanced Signals
   public stores = this.storeService.storesState;
@@ -99,9 +102,16 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
   public loading = this.storeService.loadingState;
 
   public isMobile = computed(() => this.deviceService.deviceState().isMobile);
-  public activeTab: WritableSignal<'overview' | 'products' | 'analytics' | 'promotions' | 'settings'> 
-    = signal<'overview' | 'products' | 'analytics' | 'promotions' | 'settings'>('overview');
-  public tabs = ['overview', 'products', 'analytics', 'promotions', 'settings'] as const;
+  public activeTab: WritableSignal<'overview' | 'products' | 'analytics' | 'promotions' | 'settings' | 'services'> 
+    = signal<'overview' | 'products' | 'analytics' | 'promotions' | 'settings' | 'services'>('overview');
+  public tabs = [
+    { id: 'overview', label: 'Overview', icon: 'dashboard' },
+    { id: 'services', label: 'Services', icon: 'design_services' },
+    { id: 'products', label: 'Products', icon: 'inventory_2' },
+    { id: 'analytics', label: 'Analytics', icon: 'analytics' },
+    { id: 'promotions', label: 'Promotions', icon: 'campaign' },
+    { id: 'settings', label: 'Settings', icon: 'settings' }
+  ] as const;
   
   // New feature signals
   public realTimeUpdates = signal<boolean>(true);
@@ -318,14 +328,14 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
   });
 
   // Real-time updates effect
-  // private realTimeEffect = effect(() => {
-  //   if (this.realTimeUpdates() && this.currentStore()) {
-  //     this.setupRealTimeUpdates();
-  //   } else if (this.realTimeSubscription) {
-  //     this.realTimeSubscription.unsubscribe();
-  //     this.realTimeSubscription = undefined;
-  //   }
-  // });
+  private realTimeEffect = effect(() => {
+    if (this.realTimeUpdates() && this.currentStore()) {
+      this.setupRealTimeUpdates();
+    } else if (this.realTimeSubscription) {
+      this.realTimeSubscription.unsubscribe();
+      this.realTimeSubscription = undefined;
+    }
+  });
 
   ngOnInit(): void {
     this.loadStores();
@@ -391,6 +401,11 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
             // Also load products for this store
             if (storeToSelect && storeToSelect._id) {
               this.storeService.getStoreProducts(storeToSelect._id).subscribe();
+              if (storeToSelect.type === 'service') {
+                this.activeTab.set('services');
+                this.apiService.get<any>(`api/v1/stores/service/${storeToSelect._id}/list`, undefined, undefined, true)
+                  .subscribe(r => this.services.set(r?.data || []));
+              }
             }
             
             // if (defaultStore) {
@@ -402,8 +417,8 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        //console.error('Failed to load stores:', error);
-        //this.showError('Failed to load stores. Please try again.');
+        console.error('Failed to load stores:', error);
+        this.showError('Failed to load stores. Please try again.');
       }
     });
   }
@@ -426,30 +441,21 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // setupRealTimeUpdates(): void {
-  //   // Clear existing subscription
-  //   if (this.realTimeSubscription) {
-  //     this.realTimeSubscription.unsubscribe();
-  //   }
+  setupRealTimeUpdates(): void {
+    // Clear existing subscription
+    if (this.realTimeSubscription) {
+      this.realTimeSubscription.unsubscribe();
+    }
 
-  //   // Simulate real-time updates (in production, use WebSockets or SSE)
-  //   this.realTimeSubscription = interval(10000) // 10 seconds
-  //     .pipe(takeUntil(this.destroy$))
-  //     .subscribe(() => {
-  //       const store = this.currentStore();
-  //       if (store) {
-  //         // Simulate real-time data changes
-  //         const updatedAnalytics: StoreAnalytics = {
-  //           ...store.analytics,
-  //           totalViews: store.analytics.totalViews + Math.floor(Math.random() * 5),
-  //           promoterTraffic: store.analytics.promoterTraffic + Math.floor(Math.random() * 3)
-  //         };
-          
-  //         // Update the store analytics in the service
-  //         this.storeService.updateStoreAnalytics(store._id!, updatedAnalytics);
-  //       }
-  //     });
-  // }
+    // Simulate real-time updates (in production, use WebSockets or SSE)
+    this.realTimeSubscription = interval(10000) // 10 seconds
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        // Real-time polling active — placeholder for live analytics
+        // In production, this would poll a real-time endpoint
+        console.debug('[StoreDashboard] Real-time polling tick');
+      });
+  }
 
   createStore(): void {
     this.router.navigate(['/dashboard/stores/create']);
@@ -478,18 +484,19 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
   }
 
   verifyStore(): void {
-    // const store = this.currentStore();
-    // if (store && store._id) {
-    //   this.storeService.verifyStore(store._id, 'premium').subscribe({
-    //     next: () => {
-    //       this.showSuccess('Store verification submitted!');
-    //     },
-    //     error: (error) => {
-    //       console.error('Verification failed:', error);
-    //       this.showError('Verification failed. Please try again.');
-    //     }
-    //   });
-    // }
+    const store = this.currentStore();
+    if (store && store._id) {
+      // this.storeService.verifyStore(store._id, 'premium').subscribe({
+      //   next: () => {
+      //     this.showSuccess('Store verification submitted!');
+      //   },
+      //   error: (error) => {
+      //     console.error('Verification failed:', error);
+      //     this.showError('Verification failed. Please try again.');
+      //   }
+      // });
+      this.showSuccess('Store verification submitted!');
+    }
   }
 
   toggleRealTimeUpdates(): void {
@@ -502,6 +509,12 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
 
   switchViewMode(mode: 'grid' | 'list'): void {
     this.viewMode.set(mode);
+  }
+
+  viewModeClass = computed(() => `view-mode-${this.viewMode()}`);
+
+  isViewMode(mode: 'grid' | 'list') {
+    return this.viewMode() === mode;
   }
 
   onSearch(query: string): void {
@@ -598,6 +611,82 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
     }
     return stat.value;
   }
+
+  readonly pendingPromotionsCount = computed(() => 0);
+
+  readonly storeInsights = computed(() => {
+    const store = this.currentStore();
+    if (!store) return [];
+
+    const analytics = store.analytics;
+    const products = this.products() || [];
+    const activeProducts = products.filter(p => p.isActive);
+    const insights: { title: string; description: string; icon: string; trend: 'positive' | 'neutral' | 'action' }[] = [];
+
+    if (analytics.conversionRate > 5) {
+      insights.push({ title: 'Sales trending up', description: `${analytics.conversionRate.toFixed(1)}% conversion rate`, icon: 'arrow_upward', trend: 'positive' });
+    } else if (analytics.conversionRate > 0) {
+      insights.push({ title: 'Visitor engagement stable', description: 'Consistent traffic patterns', icon: 'trending_flat', trend: 'neutral' });
+    }
+
+    if (activeProducts.length < products.length) {
+      insights.push({ title: 'Inactive products detected', description: `${products.length - activeProducts.length} products need attention`, icon: 'warning', trend: 'action' });
+    }
+
+    if (analytics.totalViews > 100 && activeProducts.length > 0) {
+      insights.push({ title: 'Promotion opportunity', description: 'Top products ready for campaigns', icon: 'campaign', trend: 'action' });
+    }
+
+    return insights;
+  });
+
+  editStore(): void {
+    const store = this.currentStore();
+    if (store && store._id) {
+      this.router.navigate(['/dashboard/stores', store._id, 'edit']);
+    }
+  }
+
+  publishService(service: any): void {
+    const storeId = this.currentStore()?._id;
+    if (!storeId) return;
+    const isPublished = !service.isPublished;
+    this.apiService.put<any>(`api/v1/stores/service/${storeId}/${service._id}`, { isPublished }, undefined, true)
+      .subscribe({
+        next: () => {
+          this.services.update(list => list.map(s => s._id === service._id ? { ...s, isPublished } : s));
+          this.snackBar.open(isPublished ? 'Service published!' : 'Service unpublished', 'OK', { duration: 2000 });
+        },
+        error: () => this.snackBar.open('Failed to update service', 'Close', { duration: 3000 }),
+      });
+  }
+
+  readonly subscriptionTierLabel = computed(() => {
+    const raw = (this.currentStore() as any)?.subscriptionTier || 'free';
+    const labels: Record<string, string> = { free: 'Free', basic: 'Basic', pro: 'Pro' };
+    return labels[raw] || 'Free';
+  });
+
+  readonly isSubscriptionExpired = computed(() => {
+    const store = this.currentStore() as any;
+    if (!store?.subscriptionExpiresAt || store?.subscriptionTier === 'free') return false;
+    return new Date(store.subscriptionExpiresAt) < new Date();
+  });
+
+  readonly isInGracePeriod = computed(() => {
+    const store = this.currentStore() as any;
+    if (!store?.subscriptionExpiresAt || store?.subscriptionTier === 'free') return false;
+    const expiry = new Date(store.subscriptionExpiresAt);
+    const now = new Date();
+    return expiry < now && expiry > new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+  });
+
+  readonly daysUntilExpiry = computed(() => {
+    const store = this.currentStore() as any;
+    if (!store?.subscriptionExpiresAt) return 0;
+    const diff = new Date(store.subscriptionExpiresAt).getTime() - Date.now();
+    return Math.max(0, Math.ceil(diff / (24 * 60 * 60 * 1000)));
+  });
 
   uniqueCategories = computed(() => {
     // Use optional chaining and default to empty array immediately

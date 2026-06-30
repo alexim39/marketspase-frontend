@@ -32,7 +32,7 @@
               Help & Resources
             </button>
             <mat-menu #helpMenu="matMenu" class="help-menu">
-              <button mat-menu-item routerLink="/dashboard/stores/guide">
+              <a mat-menu-item href="https://marketspase.com/help/stores" target="_blank">
                 <div class="menu-item-content">
                   <mat-icon class="menu-icon">menu_book</mat-icon>
                   <div class="menu-text">
@@ -40,8 +40,8 @@
                     <span class="menu-subtitle">Learn the basics</span>
                   </div>
                 </div>
-              </button>
-              <button mat-menu-item routerLink="/dashboard/stores/tutorials">
+              </a>
+              <a mat-menu-item href="https://marketspase.com/help/stores/tutorials" target="_blank">
                 <div class="menu-item-content">
                   <mat-icon class="menu-icon">ondemand_video</mat-icon>
                   <div class="menu-text">
@@ -49,7 +49,7 @@
                     <span class="menu-subtitle">Step-by-step videos</span>
                   </div>
                 </div>
-              </button>
+              </a>
               <button mat-menu-item routerLink="/dashboard/settings/support">
                 <div class="menu-item-content">
                   <mat-icon class="menu-icon">support</mat-icon>
@@ -87,6 +87,10 @@
           <div class="store-info">
             <div class="store-header-row">
               <h1 class="store-title">{{ store()?.name }}</h1>
+              <div class="store-type-badge" [class.service]="store()?.type === 'service'">
+                <mat-icon>{{ store()?.type === 'service' ? 'design_services' : 'inventory_2' }}</mat-icon>
+                <span>{{ store()?.type === 'service' ? 'Service Store' : 'Product Store' }}</span>
+              </div>
               <div class="store-status-container">
                 <div class="store-status" [class]="storeStatus()">
                   <mat-icon class="status-icon">{{ statusIcon() }}</mat-icon>
@@ -192,7 +196,7 @@
               
               <mat-divider/>
               
-              <!-- <button mat-menu-item (click)="onExportData()">
+               <button mat-menu-item (click)="onExportData()">
                 <mat-icon>download</mat-icon>
                 <span>Export Store Data</span>
               </button>
@@ -203,7 +207,6 @@
               </button>
               
               <mat-divider/>
-               -->
               <button mat-menu-item (click)="onDeleteStore(store()!)" class="delete-action">
                 <mat-icon style="color: red;">delete</mat-icon>
                 <span style="color: red;">Delete Store</span>

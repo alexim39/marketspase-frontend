@@ -6,13 +6,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatRippleModule } from '@angular/material/core';
-import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
+import { LanguageSwitcherComponent } from '../../../../common/components/language-switcher/language-switcher.component';
 import { CampaignsSummaryCardComponent } from '../campaigns-summary-card/campaigns-summary-card.component';
 import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promotions-summary-card.component';
 import { CurrencySelectorComponent } from '../../../../common/components/currency-selector/currency-selector.component';
-import { LanguageSwitcherComponent } from '../../../../common/components/language-switcher/language-switcher.component';
 import { CurrencyService } from '../../../../common/services/currency.service';
-
+import { UserInterface } from '@shared/services';
 @Component({
   selector: 'app-cart-dialog',
   standalone: true,
@@ -28,7 +27,6 @@ import { CurrencyService } from '../../../../common/services/currency.service';
     PromotionsSummaryCardComponent,
     CurrencySelectorComponent,
     LanguageSwitcherComponent,
-    CurrencyUtilsPipe
   ],
   templateUrl: './cart-dialog.component.html',
   styleUrls: ['./cart-dialog.component.scss']

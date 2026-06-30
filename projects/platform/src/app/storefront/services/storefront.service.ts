@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ApiService } from '@shared/services/api';
-import { Product, Store } from '../../store/models';
+import { Product, Service, Store } from '../../store/models';
 
 export interface StoreResponse {
   success: boolean;
@@ -357,6 +357,29 @@ export class StorefrontService {
 
   getStoreById(storeId: string): Observable<{ data: Store }> {
     return this.apiService.get<{ data: Store }>(`${this.apiUrl}/storefront/store/${storeId}`, undefined, undefined, true);
+  }
+
+  getStoreServices(storeId: string): Observable<{ success: boolean; data: Service[] }> {
+    return this.apiService.get<{ success: boolean; data: Service[] }>(
+      `api/v1/stores/service/${storeId}/list?published=true`,
+      undefined, undefined, true,
+    );
+  }
+
+  submitServiceInquiry(payload: {
+    serviceId: string;
+    customer: { name: string; phone: string; email?: string };
+    message?: string;
+    budget?: string;
+    timeline?: string;
+    trackingCode?: string;
+  }): Observable<{ success: boolean; data: any }> {
+    return this.apiService.post<{ success: boolean; data: any }>(
+      `${this.apiUrl}/service/inquiry`,
+      payload,
+      undefined,
+      true
+    );
   }
 
   createStorefrontOrder(payload: any): Observable<any> {

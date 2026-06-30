@@ -223,7 +223,7 @@ export class DashboardComponent implements OnInit {
   }
 
   public viewProducts(): void {
-    this.router.navigate(['/dashboard/stores/products']);
+    this.router.navigate(['/dashboard/stores/offerings']);
   }
 
   public viewMyPromotion(): void {

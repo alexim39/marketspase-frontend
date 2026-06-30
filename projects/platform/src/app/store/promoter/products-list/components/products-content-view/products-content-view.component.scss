@@ -350,6 +350,16 @@
               color: $text-secondary;
             }
           }
+
+          .service-type-badge {
+            font-size: $font-size-xs;
+            padding: 1px $spacing-1;
+            border-radius: $border-radius-sm;
+            width: fit-content;
+            background: rgba(var(--primary-rgb), 0.08);
+            color: $primary-color;
+            font-weight: $font-weight-semibold;
+          }
         }
       }
       

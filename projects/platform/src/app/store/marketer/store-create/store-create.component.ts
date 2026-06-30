@@ -52,6 +52,8 @@ export class StoreCreateComponent implements OnDestroy {
   loading = signal<boolean>(false);
   previewImage = signal<string | null>(null);
   isSubmitting = signal<boolean>(false);
+  storeType = signal<'product' | 'service' | null>(null);
+  showTypeSelector = signal<boolean>(true);
 
 
   private userService: UserService = inject(UserService);
@@ -138,6 +140,16 @@ export class StoreCreateComponent implements OnDestroy {
       .subscribe(value => {
         this.descriptionLength.set(value?.length || 0);
       });
+  }
+
+  selectStoreType(type: 'product' | 'service'): void {
+    this.storeType.set(type);
+    this.showTypeSelector.set(false);
+  }
+
+  goBackToTypeSelector(): void {
+    this.showTypeSelector.set(true);
+    this.storeType.set(null);
   }
 
   onFileSelected(event: Event): void {
@@ -238,6 +250,7 @@ export class StoreCreateComponent implements OnDestroy {
         whatsappNumber: this.formatPhoneNumber(this.storeForm.value.whatsappNumber),
         logo: this.storeForm.value.logo,
         userId: this.user()?._id || '',
+        type: this.storeType() || 'product',
         settings: {
           notifications: {
             lowStock: true,
@@ -268,8 +281,11 @@ export class StoreCreateComponent implements OnDestroy {
       ).subscribe({
         next: (store) => {
           this.snackBar.open('Store created successfully!', 'OK', { duration: 3000 });
-          this.router.navigate(['/dashboard/stores']);
-          // this.router.navigate(['/dashboard/stores', store._id]);
+          if (this.storeType() === 'service') {
+            this.router.navigate(['/dashboard/stores/services/subscribe', store._id]);
+          } else {
+            this.router.navigate(['/dashboard/stores']);
+          }
         },
         error: (error) => {
           console.error('Store creation failed:', error);

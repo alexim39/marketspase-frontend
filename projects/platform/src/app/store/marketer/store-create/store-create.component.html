@@ -9,8 +9,53 @@
       <div class="header-content">
         <h1>Create New Store</h1>
         <p>Set up your virtual store to start selling and promoting products</p>
+        @if (storeType()) {
+          <div class="store-type-badge">
+            <span class="badge-label">Store Type:</span>
+            <span class="badge-value">{{ storeType() === 'product' ? '📦 Product Store' : '🛠️ Service Store' }}</span>
+            <button mat-button type="button" class="change-type-btn" (click)="goBackToTypeSelector()">Change</button>
+          </div>
+        }
       </div>
     </div>
+
+    <!-- Store Type Selector -->
+    @if (showTypeSelector()) {
+      <div class="store-type-selector">
+        <h2 class="type-selector-title">Choose Your Store Type</h2>
+        <p class="type-selector-subtitle">Select the type of store you want to create</p>
+        <div class="type-cards">
+          <div class="type-card" [class.selected]="storeType() === 'product'" (click)="selectStoreType('product')" (keydown.enter)="selectStoreType('product')" tabindex="0">
+            <div class="type-card-icon">📦</div>
+            <h3 class="type-card-title">Product Store</h3>
+            <p class="type-card-description">Sell physical or digital products. Customers buy directly.</p>
+            <ul class="type-card-features">
+              <li>Product catalog</li>
+              <li>Inventory management</li>
+              <li>Affiliate sales</li>
+              <li>Cart & checkout</li>
+            </ul>
+            <button mat-raised-button type="button" class="type-card-select-btn" [class.primary-bg]="storeType() === 'product'">
+              {{ storeType() === 'product' ? 'Selected' : 'Select' }}
+            </button>
+          </div>
+          <div class="type-card" [class.selected]="storeType() === 'service'" (click)="selectStoreType('service')" (keydown.enter)="selectStoreType('service')" tabindex="0">
+            <div class="type-card-icon">🛠️</div>
+            <h3 class="type-card-title">Service Store</h3>
+            <p class="type-card-description">Offer skills and expertise. Bookings and inquiries.</p>
+            <ul class="type-card-features">
+              <li>Service packages</li>
+              <li>Inquiries/leads</li>
+              <li>Bookings</li>
+              <li>Lead commissions</li>
+            </ul>
+            <button mat-raised-button type="button" class="type-card-select-btn" [class.primary-bg]="storeType() === 'service'">
+              {{ storeType() === 'service' ? 'Selected' : 'Select' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
 
     <!-- Progress Bar -->
     @if (isSubmitting()) {
@@ -31,6 +76,7 @@
     }
 
     <!-- Main Form -->
+    @if (!showTypeSelector()) {
     <form [formGroup]="storeForm" (ngSubmit)="onSubmit()" class="store-form" [class.form-loading]="isSubmitting()">
       <div class="form-grid">
         <!-- Left Column -->
@@ -212,6 +258,7 @@
         </div>
       </div>
     </form>
+    }
 
     <!-- Help Section -->
     <mat-card class="help-section">

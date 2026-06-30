@@ -1,8 +1,8 @@
 ﻿// promoter-products-list.component.ts
-import { Component, OnInit, inject, signal, computed, OnDestroy, Signal, Input, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, OnDestroy, Signal } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { PromoterProductService } from '../../services/promoter-product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';

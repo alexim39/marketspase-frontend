@@ -16,7 +16,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DialogService } from '../../../shared';
 import { DeviceService } from '@shared/services/device';
 import { UserInterface, TruncatePipe } from '@shared/services';
-import { take } from 'rxjs/internal/operators/take';
+import { take, firstValueFrom } from 'rxjs';
 import { StoreService } from '../../../services/store.service';
 
 @Component({
@@ -83,7 +83,7 @@ export class StoreHeaderComponent {
       views: store.analytics.totalViews,
       sales: store.analytics.totalSales,
       conversion: store.analytics.conversionRate,
-      revenue: 0 //store.analytics.salesData.totalRevenue
+      revenue: store.analytics?.totalSales ?? 0
     };
   });
 
@@ -146,7 +146,7 @@ export class StoreHeaderComponent {
 
     this.storeService.setLoading(true);
 
-    const confirmed = await this.dialogService.confirmDelete(store.name, 'store').pipe(take(1)).toPromise();
+    const confirmed = await firstValueFrom(this.dialogService.confirmDelete(store.name, 'store').pipe(take(1)));
 
     if (confirmed) {
       try {

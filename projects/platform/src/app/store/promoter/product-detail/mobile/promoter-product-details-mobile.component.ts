@@ -72,7 +72,7 @@ export class PromoterProductDetailsMobileComponent extends PromoterProductDetail
   }
 
   goBack(): void {
-    void this.mobileRouter.navigate(['/dashboard/stores/products']);
+    void this.mobileRouter.navigate(['/dashboard/stores/offerings']);
   }
 
   imageAlt(product: Product): string {

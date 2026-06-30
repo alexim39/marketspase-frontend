@@ -1,6 +1,7 @@
 // models/index.ts
 export * from './store.model';
 export * from './product.model';
+export * from './service.model';
 export * from './store-promotion.model';
 export * from './performance-metric.model';
 

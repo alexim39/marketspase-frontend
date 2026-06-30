@@ -8,6 +8,7 @@ export interface CreateStoreRequest {
   logo?: File;
   settings?: Partial<StoreSettings>;
   userId: string;
+  type?: 'product' | 'service';
 }
 
 export interface UpdateStoreRequest {

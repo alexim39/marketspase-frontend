@@ -85,7 +85,11 @@
           <!-- Commission Badge -->
           <div class="commission-badge" [class]="getPerformanceColor(product.promotion.commissionRate)">
             <mat-icon>trending_up</mat-icon>
-            <span>{{ product.promotion.commissionRate }}%</span>
+            @if ($any(product).type === 'service') {
+              <span>{{ $any(product).service?.commissionType === 'per_lead' ? '₦' + ($any(product).service?.leadCommission | number:'1.0-0') + '/lead' : '₦' + ($any(product).service?.bookingCommission | number:'1.0-0') + '/booking' }}</span>
+            } @else {
+              <span>{{ product.promotion.commissionRate }}%</span>
+            }
           </div>
 
           <!-- Analytics Badge -->
@@ -153,9 +157,13 @@
             }
             <div class="store-details">
               <span class="store-name">{{ product.store.name | truncate:20 | titlecase }}</span>
-              <span class="store-tier" [class]="getStoreBadgeClass(product.store.verificationTier || 'basic')">
-                {{ product.store.verificationTier === 'premium' ? 'Premium' : 'Basic' }}
-              </span>
+              @if ($any(product).type === 'service') {
+                <span class="service-type-badge">Service</span>
+              } @else {
+                <span class="store-tier" [class]="getStoreBadgeClass(product.store.verificationTier || 'basic')">
+                  {{ product.store.verificationTier === 'premium' ? 'Premium' : 'Basic' }}
+                </span>
+              }
             </div>
           </div>
 
