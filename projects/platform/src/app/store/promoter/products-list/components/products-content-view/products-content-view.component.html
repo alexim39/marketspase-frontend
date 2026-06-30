@@ -93,7 +93,7 @@
           </div>
 
           <!-- Analytics Badge -->
-          @if (getAvgConversionRate(product) > 0) {
+          @if ($any(product).type !== 'service' && getAvgConversionRate(product) > 0) {
             <div class="analytics-badge" [class.high-perf]="getAvgConversionRate(product) >= 5">
               <mat-icon>insights</mat-icon>
               <span>{{ getAvgConversionRate(product) }}%</span>
@@ -186,6 +186,7 @@
               </div>
 
               <div class="performance-stats">
+                @if ($any(product).type !== 'service') {
                 <div class="stat" matTooltip="Views">
                   <mat-icon>visibility</mat-icon>
                   <span>{{ product.viewCount | number }}</span>
@@ -198,10 +199,17 @@
                   <mat-icon>shopping_cart</mat-icon>
                   <span>{{ product.promotion.conversions | number }}</span>
                 </div>
+                } @else {
+                <div class="stat">
+                  <mat-icon>build</mat-icon>
+                  <span>Service</span>
+                </div>
+                }
               </div>
             </div>
 
             <!-- Performance Bar -->
+            @if ($any(product).type !== 'service') {
             <div class="performance-bar">
               <div class="bar-label">
                 <span>Conversion Rate</span>
@@ -213,6 +221,7 @@
                 [color]="getPerformanceColor(product.promotion.commissionRate)"
               />
             </div>
+            }
 
             <!-- Tags -->
             @if (product.tags && product.tags.length > 0) {
@@ -227,20 +236,26 @@
           <!-- Actions -->
           <mat-card-actions>
             <div class="primary-actions">
+              @if ($any(product).type !== 'service') {
               <button mat-button color="primary" (click)="viewProduct.emit(product)" class="details-btn">
                 <mat-icon>visibility</mat-icon>
                 Details
               </button>
+              }
 
-              <button
-                mat-raised-button
-                color="primary"
-                (click)="onBuyProduct(product)"
-                class="buy-btn"
-              >
-                <mat-icon>shopping_bag</mat-icon>
-                Buy
-              </button>
+              @if ($any(product).type === 'service') {
+                <button mat-raised-button color="primary"
+                  (click)="inquireNow(product)" class="buy-btn">
+                  <mat-icon>{{ $any(product).service?.commissionType === 'per_lead' ? 'question_answer' : 'event' }}</mat-icon>
+                  {{ $any(product).service?.commissionType === 'per_lead' ? 'Inquire' : 'Book' }}
+                </button>
+              } @else {
+                <button mat-raised-button color="primary"
+                  (click)="onBuyProduct(product)" class="buy-btn">
+                  <mat-icon>shopping_bag</mat-icon>
+                  Buy
+                </button>
+              }
             </div>
 
             <div class="secondary-actions">

@@ -206,6 +206,7 @@ export interface Product {
     uniqueId?: string;
     affiliateUrl?: string;
     promotionUrl?: string;
+    publicUrl?: string;
     shareUrl?: string;
     commissionPerSale?: number;
     amountReceivable?: number;

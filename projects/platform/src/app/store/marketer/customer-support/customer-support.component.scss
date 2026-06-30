@@ -644,3 +644,71 @@
     align-items: flex-start;
   }
 }
+
+// Activity Log
+.activity-log {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.activity-entry {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  background: rgba(var(--primary-rgb), 0.03);
+  border: 1px solid vars.$border-color;
+
+  &.sms {
+    background: rgba(var(--success-rgb), 0.04);
+    border-color: rgba(var(--success-rgb), 0.15);
+    mat-icon { color: var(--success-color); }
+  }
+  &.email {
+    background: rgba(var(--primary-rgb), 0.04);
+    mat-icon { color: vars.$primary-color; }
+  }
+  &.note {
+    background: rgba(var(--warning-rgb), 0.04);
+    border-color: rgba(var(--warning-rgb), 0.15);
+    mat-icon { color: var(--warning-color); }
+  }
+
+  mat-icon {
+    font-size: 1rem; width: 1rem; height: 1rem;
+    flex-shrink: 0; margin-top: 2px;
+    color: vars.$text-tertiary;
+  }
+
+  .activity-meta {
+    font-size: 0.65rem;
+    color: vars.$text-tertiary;
+    display: block;
+  }
+
+  .activity-msg {
+    color: vars.$text-secondary;
+    display: block;
+    margin-top: 0.1rem;
+  }
+}
+
+.last-contact {
+  color: vars.$primary-color !important;
+  font-weight: 500;
+}
+
+.mini-empty-state {
+  font-size: 0.78rem;
+  color: vars.$text-tertiary;
+  padding: 0.75rem 0;
+}
+
+// Selection toolbar — bulk SMS button
+.selection-actions {
+  flex-wrap: wrap;
+}

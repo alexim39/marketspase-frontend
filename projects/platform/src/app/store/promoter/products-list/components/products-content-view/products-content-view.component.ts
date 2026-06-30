@@ -66,6 +66,8 @@ export class ProductsContentViewComponent implements OnChanges {
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
 
+  private router = inject(Router);
+
   private deviceService = inject(DeviceService);
   deviceType = computed(() => this.deviceService.type())
 
@@ -125,6 +127,12 @@ export class ProductsContentViewComponent implements OnChanges {
 
   onBuyProduct(product: Product): void {
     this.buyProduct.emit(product);
+  }
+
+  inquireNow(product: Product): void {
+    const p = product as any;
+    const storeName = (p.store?.name || 'store').toLowerCase().replace(/\s+/g, '-');
+    this.router.navigate(['/store', storeName, 'inquiry', p._id]);
   }
 
   onShareWhatsApp(product: Product): void {

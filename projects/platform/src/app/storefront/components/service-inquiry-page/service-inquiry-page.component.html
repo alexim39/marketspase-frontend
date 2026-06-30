@@ -1,0 +1,213 @@
+<!-- service-inquiry-page.component.html -->
+<div class="inquiry-root">
+  @if (loading()) {
+    <div class="inquiry-loading">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <div class="loading-content">
+        <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+        <p>Loading service details...</p>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="inquiry-error">
+      <mat-icon>error_outline</mat-icon>
+      <h2>{{ error() }}</h2>
+      <a mat-stroked-button [routerLink]="['/store', storeLink]">Back to Store</a>
+    </div>
+  } @else if (submitted()) {
+    <div class="inquiry-success">
+      <div class="success-card">
+        <div class="success-icon">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <h1>Inquiry Sent!</h1>
+        <p>Your inquiry has been sent to <strong>{{ providerName }}</strong>. They typically respond {{ averageResponseTime || 'soon' }}.</p>
+        @if (averageResponseTime) {
+          <p class="response-note">Keep an eye on your phone and email for their response.</p>
+        }
+        <div class="success-actions">
+          <a mat-raised-button color="primary" [routerLink]="['/store', storeLink]">
+            <mat-icon>store</mat-icon> Back to Store
+          </a>
+          <button mat-stroked-button (click)="submitted.set(false); inquiryForm.reset(); selectedPackage = null">
+            <mat-icon>refresh</mat-icon> New Inquiry
+          </button>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="inquiry-layout">
+      <!-- Sidebar / Service Summary -->
+      <aside class="inquiry-sidebar">
+        <div class="sidebar-card">
+          @if (serviceImage) {
+            <div class="service-hero">
+              <img [src]="serviceImage" [alt]="serviceName" />
+            </div>
+          }
+
+          <div class="service-info">
+            <h1 class="service-title">{{ serviceName }}</h1>
+
+            <div class="service-badges">
+              @if (pricingType === 'package') {
+                <span class="badge">Package</span>
+              } @else if (pricingType === 'hourly') {
+                <span class="badge">Hourly</span>
+              } @else if (pricingType === 'fixed') {
+                <span class="badge">Fixed Price</span>
+              } @else {
+                <span class="badge">Custom Quote</span>
+              }
+
+              @if (availability === 'available') {
+                <span class="badge avail">Available</span>
+              } @else if (availability === 'busy') {
+                <span class="badge busy">Few Slots</span>
+              }
+            </div>
+
+            @if (servicePrice && pricingType !== 'package') {
+              <div class="service-price">₦{{ servicePrice | number:'1.0-0' }}</div>
+            }
+
+            @if (serviceDescription) {
+              <p class="service-desc">{{ serviceDescription }}</p>
+            }
+
+            @if (averageRating) {
+              <div class="service-rating">
+                <span class="stars">⭐ {{ averageRating }}</span>
+                <span class="count">({{ ratingCount }})</span>
+              </div>
+            }
+
+            @if (averageResponseTime) {
+              <div class="service-response">
+                <mat-icon>schedule</mat-icon>
+                <span>Typically responds {{ averageResponseTime }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Package Picker -->
+          @if (packages.length > 1) {
+            <div class="package-picker">
+              <h3>Select a Package</h3>
+              <div class="package-list">
+                @for (pkg of packages; track pkg.name) {
+                  <button class="package-option" [class.selected]="selectedPackage?.name === pkg.name"
+                    (click)="selectPackage(pkg)">
+                    <div class="pkg-name">{{ pkg.name }}</div>
+                    <div class="pkg-price">₦{{ pkg.price | number:'1.0-0' }}</div>
+                    @if (pkg.description) {
+                      <div class="pkg-desc">{{ pkg.description }}</div>
+                    }
+                    @if (pkg.includes?.length) {
+                      <div class="pkg-includes">
+                        @for (item of pkg.includes; track item) {
+                          <span class="include-chip">{{ item }}</span>
+                        }
+                      </div>
+                    }
+                    @if (selectedPackage?.name === pkg.name) {
+                      <mat-icon class="check-icon">check_circle</mat-icon>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <a class="back-link" [routerLink]="['/store', storeLink]">
+            <mat-icon>arrow_back</mat-icon> Back to {{ storeName || 'Store' }}
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main Form -->
+      <main class="inquiry-main">
+        <div class="form-card">
+          <div class="form-header">
+            <h2>Send an Inquiry</h2>
+            <p>Fill in your details and the provider will get back to you.</p>
+          </div>
+
+          @if (submitting()) {
+            <mat-progress-bar mode="indeterminate" class="submit-bar"></mat-progress-bar>
+          }
+
+          @if (selectedPackage) {
+            <div class="selected-package-info">
+              <mat-icon>package</mat-icon>
+              <span>Selected: <strong>{{ selectedPackage.name }}</strong> — ₦{{ selectedPackage.price | number:'1.0-0' }}</span>
+              <button mat-icon-button class="clear-pkg" (click)="selectedPackage = null" matTooltip="Clear selection">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+
+          <form [formGroup]="inquiryForm" (ngSubmit)="submit()" class="inquiry-form">
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Your Name *</mat-label>
+                <input matInput formControlName="name" placeholder="John Doe" autocomplete="name">
+                @if (name?.invalid && name?.touched) { <mat-error>Name is required</mat-error> }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Phone Number *</mat-label>
+                <input matInput formControlName="phone" placeholder="08012345678" autocomplete="tel">
+                <mat-icon matPrefix>phone</mat-icon>
+                @if (phone?.invalid && phone?.touched) { <mat-error>Valid Nigerian number required</mat-error> }
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" placeholder="you@example.com" type="email" autocomplete="email">
+              <mat-icon matPrefix>mail</mat-icon>
+            </mat-form-field>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Budget (₦)</mat-label>
+                <input matInput formControlName="budget" placeholder="e.g., 50000" type="number">
+                <mat-icon matPrefix>payments</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Timeline</mat-label>
+                <input matInput formControlName="timeline" placeholder="e.g., 1 week">
+                <mat-icon matPrefix>event</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Message</mat-label>
+              <textarea matInput formControlName="message" rows="5"
+                placeholder="Describe what you need, ask questions, or provide any details..."
+                maxlength="1000"></textarea>
+              <mat-hint align="end">{{ (message?.value?.length || 0) }}/1000</mat-hint>
+              <mat-icon matPrefix>chat</mat-icon>
+            </mat-form-field>
+
+            <div class="form-actions">
+              <button mat-stroked-button type="button" (click)="goBack()">Cancel</button>
+              <button mat-flat-button color="primary" type="submit" [disabled]="inquiryForm.invalid || submitting()"
+                class="submit-btn">
+                <mat-icon>send</mat-icon>
+                {{ submitting() ? 'Sending...' : 'Submit Inquiry' }}
+              </button>
+            </div>
+          </form>
+
+          <div class="form-footer">
+            <mat-icon>info</mat-icon>
+            <span>Your contact details will only be shared with <strong>{{ providerName || 'the service provider' }}</strong>.</span>
+          </div>
+        </div>
+      </main>
+    </div>
+  }
+</div>

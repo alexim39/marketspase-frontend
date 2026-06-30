@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { CurrencyUtilsPipe, TruncatePipe } from '@shared/services';
 import { StorefrontComponent } from '../storefront.component';
 import { StorefrontService } from '../services/storefront.service';
@@ -19,6 +20,7 @@ import { Product, Store } from '../../store/models';
     RouterModule,
     ReactiveFormsModule,
     MatIconModule,
+    MatButtonModule,
     CurrencyUtilsPipe,
     TruncatePipe,
     StoreFooterComponent,

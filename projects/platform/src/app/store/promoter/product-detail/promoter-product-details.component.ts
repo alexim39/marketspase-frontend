@@ -102,8 +102,8 @@ export class PromoterProductDetailsComponent implements OnInit {
   blurb = signal('');
 
   landingUrl = computed(() => {
-    const code = this.product()?.promotion?.trackingCode;
-    return code ? `marketspase.com/promote/p/${code}` : '';
+    const p = this.product()?.promotion as any;
+    return p?.publicUrl || (p?.trackingCode ? `marketspase.com/promote/p/${p.trackingCode}` : '');
   });
 
   tierAdjustedCommission = computed(() => {
@@ -274,7 +274,7 @@ ngOnInit(): void {
     const shareData = {
       title: `Check out ${product.name}`,
       text: `${product.name} - $${product.price} | ${product.promotion.commissionRate}% commission`,
-      url: promotion.affiliateUrl
+      url: (promotion as any).publicUrl || promotion.affiliateUrl
     };
 
     this.shareService.share(shareData, platform);
@@ -300,7 +300,7 @@ ngOnInit(): void {
       `Commission: ${product.promotion.commissionRate}%\n\n` +
       `Category: ${product.category}\n` +
       `Store: ${product.store.name}\n\n` +
-      `Order here: ${promotion.affiliateUrl}`;
+      `Order here: ${(promotion as any).publicUrl || promotion.affiliateUrl}`;
 
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   }
@@ -316,8 +316,9 @@ ngOnInit(): void {
   // ------------------ HELPERS ------------------
 
   private async ensurePromotion(product: Product): Promise<{ trackingCode: string; uniqueId: string; affiliateUrl: string } | null> {
-    const existingUrl = product.promotion?.affiliateUrl || product.promotion?.promotionUrl;
-    const existingCode = product.promotion?.trackingCode;
+    const promo = product.promotion as any;
+    const existingUrl = promo?.publicUrl || promo?.affiliateUrl || promo?.promotionUrl;
+    const existingCode = promo?.trackingCode;
 
     if (existingUrl && existingCode) {
       return {
@@ -345,7 +346,7 @@ ngOnInit(): void {
 
       const data = response?.data;
       const trackingCode = data?.uniqueCode || data?.trackingCode;
-      const affiliateUrl = data?.affiliateUrl || data?.promotionUrl || this.promotionService.getTrackingLink(trackingCode, product._id ?? '');
+      const affiliateUrl = data?.publicUrl || data?.affiliateUrl || data?.promotionUrl || this.promotionService.getTrackingLink(trackingCode, product._id ?? '');
 
       this.product.update(current => current ? {
         ...current,
@@ -354,8 +355,9 @@ ngOnInit(): void {
           trackingCode,
           uniqueId: data?.uniqueId,
           affiliateUrl,
-          promotionUrl: affiliateUrl
-        }
+          promotionUrl: affiliateUrl,
+          publicUrl: data?.publicUrl || affiliateUrl,
+        } as any
       } : current);
 
       return {

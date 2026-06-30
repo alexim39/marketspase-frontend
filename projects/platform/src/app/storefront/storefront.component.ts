@@ -536,6 +536,13 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  navigateToInquiry(service: Service): void {
+    const link = this.store()?.storeLink;
+    if (link && service._id) {
+      this.router.navigate(['/store', link, 'inquiry', service._id]);
+    }
+  }
+
   pricingTypeLabel(type: string): string {
     const labels: Record<string, string> = { fixed: 'Fixed Price', hourly: 'Hourly', package: 'Package', quote: 'Custom Quote' };
     return labels[type] || type;

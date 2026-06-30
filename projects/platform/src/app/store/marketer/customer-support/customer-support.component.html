@@ -102,12 +102,16 @@
             <span>buyers selected</span>
           </div>
           <div class="selection-actions">
+            <button type="button" mat-stroked-button (click)="openBulkSms()">
+              <mat-icon>sms</mat-icon>
+              Send Bulk SMS
+            </button>
             <button type="button" mat-stroked-button (click)="copyRecipients('emails')">
               <mat-icon>mail</mat-icon>
               Copy emails
             </button>
             <button type="button" mat-stroked-button (click)="copyRecipients('phones')">
-              <mat-icon>sms</mat-icon>
+              <mat-icon>content_copy</mat-icon>
               Copy phones
             </button>
             <button type="button" mat-stroked-button (click)="exportSelectedCustomers()">
@@ -204,6 +208,9 @@
                   <div class="customer-meta">
                     <span [class.opted-out]="!customer.marketingOptIn">{{ customer.marketingOptIn ? 'Marketing ready' : 'Opted out' }}</span>
                     <span>Last order {{ customer.lastOrderAt ? (customer.lastOrderAt | date:'mediumDate') : 'not available' }}</span>
+                    @if (customer.lastContactedAt) {
+                      <span class="last-contact">Last contact {{ customer.lastContactedAt | date:'mediumDate' }} via {{ customer.lastContactChannel }}</span>
+                    }
                   </div>
                 </div>
               </article>
@@ -407,6 +414,26 @@
                 }
                 Save record
               </button>
+            </div>
+
+            <!-- Activity Log -->
+            <div class="detail-section">
+              <h4>Activity Log</h4>
+              @if (activeDetail()?.buyer?.activityLog?.length) {
+                <div class="activity-log">
+                  @for (entry of activeDetail()!.buyer!.activityLog!.slice(0, 15); track $index) {
+                    <div class="activity-entry" [class]="entry.type">
+                      <mat-icon>{{ entry.type === 'sms' ? 'sms' : entry.type === 'email' ? 'mail' : entry.type === 'note' ? 'edit_note' : 'label' }}</mat-icon>
+                      <div>
+                        <span class="activity-meta">{{ entry.createdAt | date:'medium' }}</span>
+                        <span class="activity-msg">{{ entry.message }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="mini-empty-state">No activity recorded for this buyer yet.</div>
+              }
             </div>
 
             <div class="detail-section">
