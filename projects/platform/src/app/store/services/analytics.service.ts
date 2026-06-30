@@ -5,9 +5,8 @@ import { Injectable, inject } from '@angular/core';
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api',
-  //apiUrl: 'https://api.yourdomain.com',
   apiKey: 'dev-key-123',
-  googleAnalyticsId: 'G-XXXXXXXXXX'
+  googleAnalyticsId: (typeof window !== 'undefined' && (window as any).__env?.GA4_MEASUREMENT_ID) || 'G-XXXXXXXXXX'
 };
 
 

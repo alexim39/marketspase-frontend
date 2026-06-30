@@ -122,6 +122,7 @@ export class ServiceInquiryPageComponent implements OnInit {
       message: (this.selectedPackage ? `[Package: ${this.selectedPackage.name}] ` : '') + (formValue.message?.trim() || ''),
       budget: formValue.budget?.trim() || undefined,
       timeline: formValue.timeline?.trim() || undefined,
+      trackingCode: this.route.snapshot.queryParamMap.get('ref') || undefined,
     }, undefined, true).subscribe({
       next: () => {
         this.submitting.set(false);

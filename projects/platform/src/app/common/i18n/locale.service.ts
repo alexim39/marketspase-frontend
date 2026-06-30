@@ -11,6 +11,23 @@ export class LocaleService {
   readonly currentLocale = signal<LocaleCode>('en');
   readonly isRTL = computed(() => false);
 
+  constructor() {
+    this.detectBrowserLocale();
+  }
+
+  private detectBrowserLocale(): void {
+    try {
+      const nav = navigator.language || (navigator as any).userLanguage || '';
+      const code = nav.split('-')[0].toLowerCase();
+      const supported: LocaleCode[] = ['en', 'fr', 'ha', 'yo'];
+      const match = supported.find(l => code === l);
+      if (match && match !== 'en') {
+        this.currentLocale.set(match);
+        document.documentElement.lang = match;
+      }
+    } catch {}
+  }
+
   translate(key: string): string {
     const locale = this.currentLocale();
     if (locale === 'en') return key;

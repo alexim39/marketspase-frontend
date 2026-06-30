@@ -27,6 +27,7 @@ import { FabContainerComponent } from './components/fab-container/fab-container.
 
 // Services
 import { StorefrontService } from './services/storefront.service';
+import { ApiService } from '@shared/services/api';
 
 // Components
 import { FilterSidebarComponent } from './components/filter-sidebar/filter-sidebar.component';
@@ -73,6 +74,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   private route = inject(ActivatedRoute);
   public router = inject(Router);
   private storeService = inject(StorefrontService);
+  private apiService = inject(ApiService);
   private cartService = inject(StorefrontCartService);
   private shareService = inject(ShareService);
   private snackBar = inject(MatSnackBar);
@@ -368,6 +370,13 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
       if (storeResponse.data.type === 'service') {
         const servicesResponse = await firstValueFrom(this.storeService.getStoreServices(storeResponse.data._id ?? ''));
         this.services.set(servicesResponse?.data || []);
+        // Track views per individual service
+        (servicesResponse?.data || []).forEach(svc => {
+          if (svc._id) {
+            this.apiService.post(`api/v1/stores/service/${svc._id}/view`, {}, undefined, true)
+              .subscribe({ error: () => {} });
+          }
+        });
       } else {
         const productsResponse = await firstValueFrom(this.storeService.getStoreProducts(storeResponse.data._id ?? ''));
         this.products.set(productsResponse?.data || []);

@@ -13,6 +13,7 @@ export const routes: Routes = [
     { path: 'feed/:postId', loadComponent: () => import('./community/feeds/public-feed-post').then(c => c.PublicFeedPostIndexComponent) },
     { path: 'ref/:username', loadComponent: () => import('./referral').then(c => c.ReferralCaptureIndexComponent) },
     { path: 'promote/:productId', loadComponent: () => import('./storefront/product-details/main').then(m => m.ProductDetailsIndexComponent) },
-    { path: 'c/:upi', loadComponent: () => import('./campaign/public-campaign').then(c => c.PublicCampaignIndexComponent) }
+    { path: 'c/:upi', loadComponent: () => import('./campaign/public-campaign').then(c => c.PublicCampaignIndexComponent) },
+    { path: '**', loadComponent: () => import('./shared/components/not-found/not-found.component').then(c => c.NotFoundComponent) },
 
 ];
