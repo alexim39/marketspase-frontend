@@ -370,6 +370,14 @@ export class CampaignDetailsComponent implements OnInit {
     });
   }
 
+  shareOnWhatsApp(): void {
+    const campaign = this.campaign() as any;
+    if (!campaign) return;
+    const link = campaign.publicUrl || `${window.location.origin}/c/${campaign.uni || ''}`;
+    const text = encodeURIComponent(`Check out this campaign on MarketSpase: ${campaign.title}\n${link}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  }
+
   deleteCampaign() {
     const campaign = this.campaign();
     if (!campaign) return;

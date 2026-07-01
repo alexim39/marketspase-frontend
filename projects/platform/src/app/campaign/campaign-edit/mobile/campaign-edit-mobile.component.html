@@ -43,6 +43,15 @@
       </button>
     </header>
 
+    <!-- AI Optimize banner -->
+    <div class="optimize-banner-mobile">
+      <button mat-stroked-button color="primary" (click)="openOptimizeContent()">
+        <mat-icon>auto_awesome</mat-icon>
+        AI Content Variations
+      </button>
+      <span>Let AI suggest alternative titles and captions for this campaign</span>
+    </div>
+
     <main class="mobile-content" [formGroup]="campaignForm">
       <section class="hero-card">
         <div class="hero-copy">

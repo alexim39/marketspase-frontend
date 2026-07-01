@@ -179,6 +179,10 @@ export class DashboardComponent implements OnInit {
       .subscribe((role) => {
         this.switchUser(role);
       });
+
+    // Poll smart invite count every 60s
+    interval(60000).pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.fetchSmartInviteCount());
   }
 
   private fetchSmartInviteCount(): void {
