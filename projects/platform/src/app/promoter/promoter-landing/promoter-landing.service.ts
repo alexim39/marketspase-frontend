@@ -289,13 +289,13 @@ export class PromoterLandingService {
    * Use this to pre-load common data on app initialization.
    */
   preCacheCommonData(userId: string): void {
-    // Pre-cache first page of active campaigns
     if (userId) {
-      this.getCampaignsByStatus('active', userId, { page: 1, limit: 20 })
-        .subscribe();
-      
-      this.getUserPromotions(userId)
-        .subscribe();
+      this.getCampaignsByStatus('active', userId, { page: 1, limit: 20 }).subscribe();
+      this.getUserPromotions(userId).subscribe();
     }
+  }
+
+  getRecommendedCampaigns(): Observable<any> {
+    return this.apiService.get<any>(`${this.campaignsEndpoint}/recommended`, undefined, undefined, true);
   }
 }

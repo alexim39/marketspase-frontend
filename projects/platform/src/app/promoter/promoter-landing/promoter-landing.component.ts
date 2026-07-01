@@ -94,6 +94,8 @@ export class PromoterLandingComponent implements OnInit {
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
   promotions = signal<PromotionInterface[]>([]);
+  recommendedCampaigns = signal<any[]>([]);
+  loadingRecommended = signal(false);
 
   //applyingCampaignId: string | null = null;
 
@@ -254,7 +256,27 @@ export class PromoterLandingComponent implements OnInit {
         this.loadCampaigns(false, user._id);
         this.loadUserPromotions(user._id);
         this.loadMatchingCampaigns();
+        this.loadRecommended();
       });
+  }
+
+  private loadRecommended(): void {
+    this.loadingRecommended.set(true);
+    this.promoterLandingService.getRecommendedCampaigns()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r: any) => { this.recommendedCampaigns.set(r?.data || []); this.loadingRecommended.set(false); },
+        error: () => this.loadingRecommended.set(false),
+      });
+  }
+
+  viewCampaign(id: string): void {
+    if (!id) return;
+    this.router.navigate(['/dashboard/campaigns', id]);
+  }
+
+  onRecImageError(event: Event): void {
+    (event.target as HTMLElement).style.display = 'none';
   }
 
   // Matching campaigns — scored by category affinity

@@ -37,6 +37,14 @@
             <mat-slide-toggle [checked]="autoRenewEnabled()" (change)="toggleAutoRenew($event)" class="auto-renew-toggle" color="primary">
               Auto-Renew
             </mat-slide-toggle>
+            <button class="btn btn-outline" mat-raised-button (click)="openSmartInvite()" matTooltip="AI-recommended promoters for this campaign">
+              <mat-icon>auto_awesome</mat-icon>
+              Smart Invite
+            </button>
+            <button class="btn btn-outline" mat-raised-button (click)="openOptimizeContent()" matTooltip="AI-generated A/B test variations">
+              <mat-icon>psychology</mat-icon>
+              Optimize
+            </button>
             <button class="btn btn-outline" mat-raised-button (click)="openBulkInvite()" matTooltip="Invite multiple promoters">
               <mat-icon>group_add</mat-icon>
               Bulk Invite

@@ -47,6 +47,7 @@ import { take } from 'rxjs/internal/operators/take';
 import { CountdownOverlayComponent } from '../../common/components/countdown-overlay/countdown-overlay.component';
 import { SwitchUserRoleService } from '../../common/services/switch-user-role.service';
 import { CollaborationService } from '../../campaign/collaboration/collaboration.service';
+import { ApiService } from '@shared/services/api';
 
 @Component({
   selector: 'app-dashboard',
@@ -93,6 +94,7 @@ export class DashboardComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private locale = inject(LocaleService);
   private currencyService = inject(CurrencyService);
+  private api = inject(ApiService);
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('notificationMenu') notificationMenu!: TemplateRef<any>;
@@ -126,6 +128,7 @@ export class DashboardComponent implements OnInit {
 
   activeCampaignsCount: number | undefined = 0;
   pendingCampaignsCount: number | undefined = 0;
+  smartInviteCount = 0;
   pendingPromotionsCount: number | undefined = 0;
   unreadMessagesCount = signal(0);
 
@@ -146,7 +149,7 @@ export class DashboardComponent implements OnInit {
 
     let items: NavigationItem[];
     if (userRole === 'marketer') {
-      items = getMarketerNavigation(pendingCampaigns, activeCampaigns, this.unreadMessagesCount());
+      items = getMarketerNavigation(pendingCampaigns, activeCampaigns, this.unreadMessagesCount(), this.smartInviteCount);
     } else if (userRole === 'promoter') {
       items = getPromoterNavigation(pendingPromotions, this.unreadMessagesCount());
     } else if (userRole === 'marketing_rep') {
@@ -169,12 +172,18 @@ export class DashboardComponent implements OnInit {
     this.calculateActiveCampaigns();
     this.calculatePendingCampaigns();
     this.calculatePendingPromotions();
+    this.fetchSmartInviteCount();
 
     this.switchUserRoleService.getSwitchRequest$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((role) => {
         this.switchUser(role);
       });
+  }
+
+  private fetchSmartInviteCount(): void {
+    this.api.get<any>('api/v1/campaign/smart-invite-count', undefined, undefined, true)
+      .subscribe({ next: r => { this.smartInviteCount = r?.data?.count || 0; }, error: () => {} });
   }
 
   public toggleSidenav(): void {

@@ -24,6 +24,8 @@ import { CollaborationService } from '../collaboration/collaboration.service';
 import { PromoterTierBadgeComponent } from '../../common/components/promoter-tier-badge/promoter-tier-badge.component';
 import { MediaViewerOnlyDialogComponent } from './media-viewer-dialog/media-viewer-dialog.component';
 import { BulkInviteDialogComponent } from '../shared/bulk-invite-dialog/bulk-invite-dialog.component';
+import { SmartInviteDialogComponent } from '../shared/smart-invite-dialog/smart-invite-dialog.component';
+import { OptimizeContentDialogComponent } from '../shared/optimize-content-dialog/optimize-content-dialog.component';
 import { PromoterTrustMetricsComponent } from '../../common/components/promoter-trust-metrics/promoter-trust-metrics.component';
 import { UserService } from '../../common/services/user.service';
 import { CurrencyService } from '../../common/services/currency.service';
@@ -348,6 +350,24 @@ export class CampaignDetailsComponent implements OnInit {
     if (!campaign) return;
     const ref = this.dialog.open(BulkInviteDialogComponent, { width: '460px' });
     ref.componentInstance.campaignId.set(campaign._id);
+  }
+
+  openSmartInvite(): void {
+    const campaign = this.campaign();
+    if (!campaign) return;
+    this.dialog.open(SmartInviteDialogComponent, {
+      width: '500px', maxWidth: '95vw',
+      data: { campaignId: campaign._id, campaignTitle: campaign.title || 'Campaign' },
+    });
+  }
+
+  openOptimizeContent(): void {
+    const campaign = this.campaign();
+    if (!campaign) return;
+    this.dialog.open(OptimizeContentDialogComponent, {
+      width: '520px', maxWidth: '95vw',
+      data: { campaignId: campaign._id, campaignTitle: campaign.title || 'Campaign' },
+    });
   }
 
   deleteCampaign() {

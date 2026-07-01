@@ -10,6 +10,11 @@ export const CampaignRoutes: Routes = [
         title: "Marketer, Promoter Dashboard - Manage all campaign and promotion",
     },
     {
+        path: 'builder',
+        loadComponent: () => import('./builder/index').then(c => c.AiCampaignBuilderIndexComponent),
+        title: "AI Campaign Builder - Create Campaign with AI",
+    },
+    {
         path: 'create',
         loadComponent: () => import('./create').then(c => c.CreateCampaignIndexComponent),
         title: "Campaign Creation - Create New Campaign",
@@ -39,7 +44,7 @@ export const CampaignRoutes: Routes = [
                 loadComponent: () => import('../promoter/promotion/compliance/promotion-compliance.component').then(c => c.PromotionComplianceComponent),
                 title: "Account Health - Promotion compliance and fraud status",
             },
-             {
+    {
                 path: ':id',
                 loadComponent: () => import('../promoter/promotion/promotion-details/promotion-detail.component').then(c => c.PromotionDetailComponent),
                 title: "Promotion Details - List all accepted promoter promotions",

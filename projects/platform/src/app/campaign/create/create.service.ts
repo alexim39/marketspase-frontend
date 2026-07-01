@@ -96,4 +96,8 @@ export class CampaignService {
     );
   }
 
+  suggestContentVariations(payload: { title: string; caption: string; category: string }): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/suggest/variations`, payload, undefined, true);
+  }
+
 }

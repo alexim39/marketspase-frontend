@@ -14,6 +14,15 @@
     <main class="main-content">
       <div class="container">
         <form [formGroup]="campaignForm" class="edit-form">
+          <!-- AI Optimize -->
+          <div class="optimize-banner">
+            <button mat-stroked-button color="primary" (click)="openOptimizeContent()">
+              <mat-icon>auto_awesome</mat-icon>
+              Get AI Content Variations
+            </button>
+            <span>Let AI suggest alternative titles and captions for this campaign</span>
+          </div>
+
           <!-- Basic Information -->
           <div class="form-card">
             <div class="card-header">

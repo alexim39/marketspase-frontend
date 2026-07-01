@@ -107,6 +107,7 @@ export class CreateCampaignComponent implements OnInit {
   scheduleForm!: FormGroup;
 
   isContentValid = signal(false);
+  optimizingSummary = signal(false);
   isGoalValid = signal(false);
   isBudgetValid = signal(false);
   isScheduleValid = signal(true);
@@ -117,7 +118,9 @@ export class CreateCampaignComponent implements OnInit {
 
   walletBalance = computed(() => this.user()?.wallets?.marketer?.balance ?? 0);
   budgetValue = signal<number>(0);
-  campaignHasMedia = computed(() => Boolean(this.selectedMedia()?.file));
+  campaignHasMedia = computed(() =>
+    Boolean(this.selectedMedia()?.file || this.selectedMedia()?.url)
+  );
 
   campaignIsReady = computed(() =>
     this.isContentValid() &&
@@ -166,6 +169,54 @@ export class CreateCampaignComponent implements OnInit {
       .subscribe((value) => {
         this.budgetValue.set(value || 0);
       });
+
+    // Pre-fill from AI builder if data was passed via router state
+    const aiData = history.state?.aiGenerated;
+    if (aiData) {
+      this.contentForm.patchValue({
+        title: aiData.title || '',
+        caption: aiData.caption || '',
+        link: aiData.link || '',
+        category: aiData.category || 'other',
+      });
+      this.goalForm.patchValue({
+        campaignGoal: aiData.campaignGoal || 'awareness',
+        payoutModel: aiData.payoutModel || 'pay_per_click',
+      });
+      this.budgetForm.patchValue({
+        budget: aiData.budget || 5000,
+        ageTarget: aiData.ageTarget || 'all',
+      });
+      this.budgetValue.set(aiData.budget || 5000);
+      this.scheduleForm.patchValue({
+        startDate: new Date(),
+        hasEndDate: false,
+      });
+      // Jump to step 5 (summary) — marketer reviews everything
+      this.currentStep.set(5);
+      if (aiData.mediaUrl) {
+        this.uploadedMediaAsset.set({
+          mediaUrl: aiData.mediaUrl,
+          mediaType: aiData.mediaType || 'image',
+          thumbnailUrl: aiData.mediaUrl,
+          mediaPublicId: aiData.mediaPublicId || '',
+        });
+        this.uploadedMediaKey.set(aiData.mediaUrl);
+        // Also set selectedMedia so the summary preview renders
+        this.selectedMedia.set({
+          file: null as any,
+          url: aiData.mediaUrl,
+          type: (aiData.mediaType === 'video' ? 'video' : 'image') as any,
+          size: 0,
+        });
+        this.isContentValid.set(true);
+      } else {
+        this.isContentValid.set(false); // Media still needs uploading
+      }
+      this.isGoalValid.set(true);
+      this.isBudgetValid.set(true);
+      this.isScheduleValid.set(true);
+    }
   }
 
   private initializeForms(): void {
@@ -256,6 +307,28 @@ export class CreateCampaignComponent implements OnInit {
 
   onScheduleValidityChange(isValid: boolean): void {
     this.isScheduleValid.set(isValid);
+  }
+
+  async optimizeFromSummary(): Promise<void> {
+    const title = this.contentForm.get('title')?.value?.trim();
+    const caption = this.contentForm.get('caption')?.value?.trim();
+    if (!title || !caption) return;
+    this.optimizingSummary.set(true);
+    try {
+      const resp = await this.campaignService.suggestContentVariations({
+        title, caption, category: this.contentForm.get('category')?.value || 'other',
+      }).toPromise();
+      const variations = resp?.data || [];
+      if (variations.length) {
+        // Auto-apply first variation
+        this.contentForm.patchValue({ title: variations[0].variantTitle, caption: variations[0].variantCaption });
+        this.snackBar.open('Applied AI-optimized title & caption!', 'OK', { duration: 3000 });
+      }
+    } catch (e: any) {
+      this.snackBar.open(e?.error?.message || 'AI optimization failed.', 'OK', { duration: 4000 });
+    } finally {
+      this.optimizingSummary.set(false);
+    }
   }
 
   async submitCampaign(): Promise<void> {
@@ -478,16 +551,15 @@ export class CreateCampaignComponent implements OnInit {
   }
 
   private async ensureUploadedMedia(): Promise<CampaignMediaAsset> {
+    // If media was already uploaded (e.g. from AI builder), return it directly
+    const existingAsset = this.uploadedMediaAsset();
+    if (existingAsset?.mediaUrl) {
+      return existingAsset;
+    }
+
     const selected = this.selectedMedia();
     if (!selected?.file) {
       throw new Error('Please add campaign media before continuing.');
-    }
-
-    const mediaKey = this.getMediaKey(selected);
-    const existingAsset = this.uploadedMediaAsset();
-
-    if (mediaKey && existingAsset && this.uploadedMediaKey() === mediaKey) {
-      return existingAsset;
     }
 
     this.submissionStage.set('uploading');
@@ -513,7 +585,7 @@ export class CreateCampaignComponent implements OnInit {
     }
 
     this.uploadedMediaAsset.set(uploadResponse.data);
-    this.uploadedMediaKey.set(mediaKey);
+    this.uploadedMediaKey.set(this.getMediaKey(selected));
     this.uploadProgress.set(100);
 
     return uploadResponse.data;

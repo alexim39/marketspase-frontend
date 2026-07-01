@@ -16,6 +16,8 @@ import { ScheduleFormComponent } from './components/schedule-form/schedule-form.
 import { RequirementsFormComponent } from './components/requirements-form/requirements-form.component';
 import { LoadingStateComponent } from './components/loading-state/loading-state.component';
 import { ErrorStateComponent } from './components/error-state/error-state.component';
+import { MatDialog } from '@angular/material/dialog';
+import { OptimizeContentDialogComponent } from '../shared/optimize-content-dialog/optimize-content-dialog.component';
 
 import { CampaignInterface } from '@shared/services';
 import { CampaignEditService } from './campaign-edit.service';
@@ -53,6 +55,19 @@ export class CampaignEditComponent implements OnInit {
   private router = inject(Router);
   private campaignEditService = inject(CampaignEditService);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+
+  openOptimizeContent(): void {
+    const campaign = this.campaign();
+    if (!campaign) return;
+    const ref = this.dialog.open(OptimizeContentDialogComponent, {
+      width: '520px', maxWidth: '95vw',
+      data: { campaignId: campaign._id, campaignTitle: campaign.title || 'Campaign' },
+    });
+    ref.afterClosed().subscribe((result) => {
+      if (result) this.loadCampaign();
+    });
+  }
 
   campaign = signal<CampaignInterface | null>(null);
   isLoading = signal(true);

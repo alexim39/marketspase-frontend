@@ -6,6 +6,12 @@
       <div class="status-badge" [class]="getStatusClass()">
         {{ getStatusLabel() }}
       </div>
+      @if ($any(campaign)?.aiSuggestedPromoters?.length) {
+        <div class="smart-badge">
+          <mat-icon>auto_awesome</mat-icon>
+          {{ $any(campaign).aiSuggestedPromoters.length }} matches
+        </div>
+      }
       <button class="mobile-menu-btn" [matMenuTriggerFor]="campaignMenu">
         <mat-icon>more_vert</mat-icon>
       </button>

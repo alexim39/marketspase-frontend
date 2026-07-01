@@ -3,7 +3,8 @@ import { NavigationItem } from './navigation.model';
 export function getMarketerNavigation(
   pendingCampaigns: number,
   activeCampaigns: number,
-  unreadMessagesCount: number = 0
+  unreadMessagesCount: number = 0,
+  smartInviteCount: number = 0
 ): NavigationItem[] {
   return [
      {
@@ -33,12 +34,12 @@ export function getMarketerNavigation(
     {
       icon: 'campaign',
       label: 'Campaigns',
-      badge: pendingCampaigns,
+      badge: pendingCampaigns + smartInviteCount || undefined,
       badgeColor: 'warn',
       expanded: false,
       children: [
         { icon: 'list_alt', label: 'My Campaigns', route: '/dashboard/campaigns' },
-        { icon: 'add_circle', label: 'Create Campaign', route: '/dashboard/campaigns/create' },
+        { icon: 'add_circle', label: 'Create Campaign', route: '/dashboard/campaigns/builder' },
         { icon: 'insights', label: 'Analytics', route: '/dashboard/campaigns/analytics' },
         { icon: 'bar_chart', label: 'Metrics', route: '/dashboard/campaigns/metrics' },
       ]

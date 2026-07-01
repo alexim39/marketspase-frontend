@@ -76,6 +76,14 @@
 
       @if (currentStep() === 5) {
         <app-campaign-summary [contentForm]="contentForm" [goalForm]="goalForm" [budgetForm]="budgetForm" [scheduleForm]="scheduleForm" [selectedMedia]="selectedMedia()" [costPerClick]="costPerClick()" />
+
+        <div class="optimize-row">
+          <button mat-stroked-button color="primary" (click)="optimizeFromSummary()" [disabled]="optimizingSummary()">
+            <mat-icon>{{ optimizingSummary() ? 'hourglass_empty' : 'auto_awesome' }}</mat-icon>
+            {{ optimizingSummary() ? 'Generating...' : 'Get AI Content Variations' }}
+          </button>
+          <span class="optimize-hint">Let AI suggest alternative titles and captions for your ad</span>
+        </div>
       }
 
       @if (isSubmitting()) {
