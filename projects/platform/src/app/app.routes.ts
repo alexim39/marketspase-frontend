@@ -5,7 +5,7 @@ export const routes: Routes = [
     { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.routes').then(r => r.dashboardRoutes) },
     { path: 'resources', loadChildren: () => import('./resources/resources.routes').then(r => r.RosourcesRoutes) }, 
     { path: 'legal', loadChildren: () => import('./legal/legal.routes').then(r => r.legalRoutes) },
-    { path: 'store/:storeLink/inquiry/:serviceId', loadComponent: () => import('./storefront/components/service-inquiry-page/service-inquiry-page.component').then(c => c.ServiceInquiryPageComponent) },
+    { path: 'store/:storeLink/inquiry/:serviceId', loadComponent: () => import('./storefront/components/service-inquiry-page/index').then(c => c.ServiceInquiryPageIndexComponent) },
     { path: 'track-order', loadComponent: () => import('./storefront/components/track-order/track-order.component').then(c => c.TrackOrderComponent) },
     { path: 'store/:storeLink', loadComponent: () => import('./storefront').then(c => c.StorefrontIndexComponent) },
     { path: 'cart', loadComponent: () => import('./storefront/cart').then(c => c.StorefrontCartIndexComponent) },
