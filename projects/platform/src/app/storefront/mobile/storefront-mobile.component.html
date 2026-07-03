@@ -244,6 +244,68 @@
       }
     </section>
 
+    <!-- Services Section (for service stores) -->
+    @if (store()?.type === 'service' && services().length > 0) {
+    <section class="services-section">
+      <div class="section-heading">
+        <div>
+          <span>{{ services().length }} service{{ services().length !== 1 ? 's' : '' }}</span>
+          <h2>Available Services</h2>
+        </div>
+      </div>
+
+      <div class="mobile-services-feed">
+        @for (service of services(); track service._id) {
+          <article class="mobile-service-card">
+            @if (service.media?.length || service.portfolio?.length) {
+              <div class="svc-thumb">
+                <img [src]="(service.media?.length ? service.media![0] : service.portfolio![0])?.url" [alt]="service.name" loading="lazy" />
+              </div>
+            }
+
+            <div class="svc-body">
+              <div class="svc-topline">
+                <span class="svc-pricing-badge">{{ pricingTypeLabel(service.pricingType) }}</span>
+                @if (service.availability === 'available') {
+                  <span class="svc-avail green">Available</span>
+                } @else if (service.availability === 'busy') {
+                  <span class="svc-avail amber">Few slots</span>
+                } @else {
+                  <span class="svc-avail gray">Away</span>
+                }
+              </div>
+
+              <h3 class="svc-name">{{ service.name }}</h3>
+              @if (service.description) {
+                <p class="svc-desc">{{ service.description | truncate:80 }}</p>
+              }
+
+              <div class="svc-price-row">
+                @if (service.pricingType === 'quote') {
+                  <strong>Contact for quote</strong>
+                } @else if (service.pricingType === 'package' && service.packages?.length) {
+                  <strong>₦{{ service.packages![0].price | number:'1.0-0' }}+</strong>
+                } @else if (service.price) {
+                  <strong>₦{{ service.price | number:'1.0-0' }}</strong>
+                }
+                @if (service.averageRating) {
+                  <span class="svc-rating"><mat-icon>star</mat-icon>{{ service.averageRating }}</span>
+                }
+              </div>
+
+              <div class="svc-actions">
+                <button mat-flat-button color="primary" (click)="navigateToInquiry(service)">
+                  <mat-icon>send</mat-icon>
+                  Inquire
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+    }
+
     <app-store-footer [store]="store()" (contactViaWhatsApp)="contactViaWhatsApp()" />
 
     <nav class="sticky-shopbar" aria-label="Store quick actions">
@@ -350,4 +412,5 @@
       </section>
     }
   }
+  <app-storefront-chat [storeLink]="store()?.storeLink || ''" [storeName]="store()?.name || ''" />
 </section>

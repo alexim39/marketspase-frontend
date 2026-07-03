@@ -1,0 +1,80 @@
+<div class="service-management">
+  <header class="page-header">
+    <button mat-icon-button routerLink="/dashboard/stores" matTooltip="Back to Stores"><mat-icon>arrow_back</mat-icon></button>
+    <div class="header-content">
+      <div>
+        <h1>{{ store()?.name || 'Services' }}</h1>
+        <span class="store-type-badge"><mat-icon>design_services</mat-icon> Service Store</span>
+      </div>
+      <div class="header-stats">
+        <div class="stat"><strong>{{ services().length }}</strong><span>Total</span></div>
+        <div class="stat published"><strong>{{ publishedCount }}</strong><span>Published</span></div>
+        <div class="stat draft"><strong>{{ draftCount }}</strong><span>Drafts</span></div>
+      </div>
+    </div>
+    <button mat-flat-button color="primary" [routerLink]="['/dashboard/stores/services/create', storeId()]">
+      <mat-icon>add_circle</mat-icon> Add Service
+    </button>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-state"><mat-spinner diameter="34" /><span>Loading services...</span></div>
+  } @else if (error()) {
+    <div class="error-state"><mat-icon>error_outline</mat-icon><p>{{ error() }}</p><button mat-stroked-button (click)="loadServices()">Retry</button></div>
+  } @else if (services().length === 0) {
+    <div class="empty-state">
+      <mat-icon>design_services</mat-icon>
+      <h2>No services yet</h2>
+      <p>Create your first service to start receiving inquiries and bookings.</p>
+      <button mat-flat-button color="primary" [routerLink]="['/dashboard/stores/services/create', storeId()]">Add Service</button>
+    </div>
+  } @else {
+    <div class="services-table-wrap">
+      <table class="services-table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Category</th>
+            <th>Pricing</th>
+            <th>Media</th>
+            <th>Inquiries</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of services(); track s._id) {
+            <tr>
+              <td class="service-name-cell">
+                <strong>{{ s.name }}</strong>
+                @if (s.description) { <span class="desc">{{ s.description | slice:0:80 }}{{ s.description.length > 80 ? '...' : '' }}</span> }
+              </td>
+              <td><span class="chip">{{ s.category || 'Uncategorized' }}</span></td>
+              <td class="pricing-cell">
+                <strong>{{ pricingSummary(s) }}</strong>
+                <span>{{ s.pricingType | titlecase }}</span>
+              </td>
+              <td>
+                @if (s.media?.length || s.portfolio?.length) {
+                  <span class="media-count">{{ (s.media?.length || 0) + (s.portfolio?.length || 0) }} files</span>
+                } @else { — }
+              </td>
+              <td>{{ s.inquiryCount || 0 }}</td>
+              <td>
+                <span class="status-badge" [class.published]="s.isPublished" [class.draft]="!s.isPublished">
+                  {{ s.isPublished ? 'Published' : 'Draft' }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button mat-icon-button [routerLink]="['/dashboard/stores/services/create', storeId()]" [queryParams]="{ serviceId: s._id }" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+                <button mat-icon-button (click)="togglePublish(s)" [matTooltip]="s.isPublished ? 'Unpublish' : 'Publish'">
+                  <mat-icon>{{ s.isPublished ? 'unpublished' : 'publish' }}</mat-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

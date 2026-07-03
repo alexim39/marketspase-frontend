@@ -1,6 +1,6 @@
-import { Directive, inject, signal, computed } from '@angular/core';
+﻿import { Directive, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 
 @Directive()
 export class PublicCampaignBase {

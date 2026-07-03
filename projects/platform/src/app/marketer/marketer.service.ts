@@ -1,7 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+﻿import { inject, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { HttpParams } from '@angular/common/http';
 
 export interface PaginationParams {

@@ -1,4 +1,6 @@
-import { computed, Injectable, signal } from '@angular/core';
+﻿import { computed, inject, Injectable, signal } from '@angular/core';
+import { Observable } from 'rxjs';
+import { ApiService } from '@shared/services/api';
 
 export interface StorefrontCartItem {
   id: string;
@@ -33,6 +35,7 @@ export interface StorefrontCartGroup {
 
 @Injectable({ providedIn: 'root' })
 export class StorefrontCartService {
+  private readonly apiService = inject(ApiService);
   private readonly storageKey = 'marketspase_storefront_cart_v1';
   private readonly _items = signal<StorefrontCartItem[]>(this.readItems());
 
@@ -82,6 +85,29 @@ export class StorefrontCartService {
 
   clearStore(storeId: string): void {
     this.setItems(this._items().filter(item => item.storeId !== storeId));
+  }
+
+  saveCartSnapshot(email?: string): Observable<any> {
+    const items = this._items();
+    return this.apiService.post('api/v1/stores/storefront/cart/snapshot', {
+      items: items.map(item => ({
+        productId: item.productId,
+        variantId: item.variantId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        storeId: item.storeId,
+        trackingCode: item.trackingCode,
+        uniqueId: item.uniqueId,
+        promoterId: item.promoterId
+      })),
+      email: email || '',
+      trackingCode: items[0]?.trackingCode || null,
+      uniqueId: items[0]?.uniqueId || null,
+      promoterId: items[0]?.promoterId || null,
+      currency: items[0]?.currency || 'NGN',
+      totalAmount: this.subtotal()
+    }, undefined, true);
   }
 
   private normalizeItem(item: Omit<StorefrontCartItem, 'id'>): Omit<StorefrontCartItem, 'id'> {

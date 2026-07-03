@@ -27,11 +27,6 @@
   gap: 10px;
   padding: 16px;
 
-  @media (max-width: 420px) {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
 }
 
 /* --- Active Alert Styles --- */
@@ -254,4 +249,37 @@
   // UPDATED: Use warning-color for snackbar action
   color: $warning-color;
   font-weight: bold;
+}
+
+// Recommended section
+.recommended-section {
+  margin-bottom: $spacing-6;
+
+  .section-heading {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: $spacing-3;
+    h3 { font-size: 1rem; font-weight: $font-weight-semibold; margin: 0; display: flex; align-items: center; gap: $spacing-2;
+      mat-icon { color: $primary-color; font-size: 1.2rem; width: 1.2rem; height: 1.2rem; } }
+    span { font-size: 0.72rem; color: $text-tertiary; background: rgba(var(--primary-rgb), 0.05); padding: 0.2rem 0.6rem; border-radius: 999px; }
+  }
+
+  .recommended-rail {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: $spacing-3;
+  }
+
+  .rec-card {
+    display: flex; flex-direction: column;
+    background: $surface-color; border: 1px solid $border-color; border-radius: $border-radius-md;
+    overflow: hidden; text-decoration: none; color: inherit;
+    transition: box-shadow $transition-fast;
+    &:hover { box-shadow: $shadow-md; }
+
+    img { width: 100%; height: 100px; object-fit: cover; background: rgba(var(--primary-rgb), 0.04); }
+    .rec-placeholder { width: 100%; height: 100px; background: rgba(var(--primary-rgb), 0.06); display: flex; align-items: center; justify-content: center;
+      mat-icon { font-size: 2rem; width: 2rem; height: 2rem; color: var(--primary-color); opacity: 0.4; } }
+    .rec-body { padding: $spacing-3;
+      strong { display: block; font-size: 0.82rem; font-weight: $font-weight-semibold; color: $text-primary; margin-bottom: 0.2rem; }
+      .rec-meta { font-size: 0.68rem; color: $primary-color; display: block; margin-bottom: 0.2rem; }
+      .rec-budget { font-size: 0.68rem; color: $text-tertiary; }
+    }
+  }
 }

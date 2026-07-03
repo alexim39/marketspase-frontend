@@ -1,0 +1,28 @@
+@import '../../../../styles/variables';
+
+:host {
+ // display: block;
+  color: $text-primary;
+  background: var(--background-color);
+}
+
+
+ .optimize-dialog { color: $text-primary;
+  background: var(--background-color); }
+    .dialog-header { display: flex; justify-content: space-between; align-items: center; padding: 0 24px;
+      h2 { margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.4rem;
+        mat-icon { color: var(--primary-color); } }
+    }
+    .subtitle { font-size: 0.8rem; color: var(--text-secondary); margin: 0 24px 0.5rem; }
+    .loading-state, .error-state, .empty-state { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 2rem 1rem; color: var(--text-secondary); }
+    .variation-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; }
+    .variant-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--primary-color); margin-bottom: 0.5rem; }
+    .variant-field { margin-bottom: 0.5rem;
+      label { display: block; font-size: 0.68rem; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; margin-bottom: 0.2rem; }
+      .variant-text { font-size: 0.85rem; color: var(--text-primary); margin: 0; line-height: 1.4; }
+      .caption { font-size: 0.82rem; color: var(--text-secondary); }
+    }
+    .rationale { display: flex; align-items: flex-start; gap: 0.4rem; padding: 0.5rem 0.6rem; background: rgba(var(--primary-rgb), 0.04); border-radius: 8px; margin-bottom: 0.75rem; font-size: 0.75rem; color: var(--text-secondary);
+      mat-icon { font-size: 1rem; width: 1rem; height: 1rem; color: var(--primary-color); flex-shrink: 0; margin-top: 1px; }
+    }
+    .apply-btn { font-size: 0.78rem; font-weight: 600; }

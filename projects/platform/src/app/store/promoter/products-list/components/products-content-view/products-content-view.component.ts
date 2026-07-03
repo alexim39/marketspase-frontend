@@ -1,4 +1,4 @@
-// components/products-content-view/products-content-view.component.ts
+﻿// components/products-content-view/products-content-view.component.ts
 import { Component, Input, Output, EventEmitter, signal, computed, inject, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -14,7 +14,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 
 import { ViewMode } from '../../models/filter-state.model';
-import { CurrencyUtilsPipe, DeviceService, UserInterface, TruncatePipe } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { CurrencyUtilsPipe, UserInterface, TruncatePipe } from '@shared/services';
 import { Product } from '../../../../models';
 import { LoadingStateComponent } from '../loading-state/loading-state.component';
 import { LoadingStateMobileComponent } from '../loading-state/mobile/loading-state-mobile.component';
@@ -65,6 +66,8 @@ export class ProductsContentViewComponent implements OnChanges {
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
 
+  private router = inject(Router);
+
   private deviceService = inject(DeviceService);
   deviceType = computed(() => this.deviceService.type())
 
@@ -103,6 +106,8 @@ export class ProductsContentViewComponent implements OnChanges {
     return (conversions / clickCount) * 100 | 0;
   }
 
+  getAvgConversionRate(product: any): number { return product.averageConversionRate ?? 0; }
+
   getStoreBadgeClass(tier: string): string {
     return tier === 'premium' ? 'premium-badge' : 'basic-badge';
   }
@@ -122,6 +127,12 @@ export class ProductsContentViewComponent implements OnChanges {
 
   onBuyProduct(product: Product): void {
     this.buyProduct.emit(product);
+  }
+
+  inquireNow(product: Product): void {
+    const p = product as any;
+    const storeName = (p.store?.name || 'store').toLowerCase().replace(/\s+/g, '-');
+    this.router.navigate(['/store', storeName, 'inquiry', p._id]);
   }
 
   onShareWhatsApp(product: Product): void {

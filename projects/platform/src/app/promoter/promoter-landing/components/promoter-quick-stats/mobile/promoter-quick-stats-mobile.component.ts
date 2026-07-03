@@ -1,9 +1,9 @@
-import { Component, Input, computed, inject } from '@angular/core';
+﻿import { Component, Input, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { DeviceService } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
 
 interface CampaignMetrics {
   pendingEarnings: number;

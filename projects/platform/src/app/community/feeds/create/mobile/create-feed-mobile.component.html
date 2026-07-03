@@ -201,11 +201,12 @@
     </div>
 
     @if (!isEditMode()) {
-      <button type="button" class="upload-drop" (click)="mediaInput.click()">
+      <div class="upload-drop" [class.drag-over]="isDragOver()"
+        (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" (click)="mediaInput.click()">
         <mat-icon>cloud_upload</mat-icon>
         <span>Add media</span>
-        <small>Images, or videos</small>
-      </button>
+        <small>Tap or drop images or videos</small>
+      </div>
       <input #mediaInput type="file" hidden multiple accept="image/*,video/*,.pdf" (change)="onMediaSelected($event)">
     }
 
@@ -320,6 +321,15 @@
 
   @if (!isFormValid()) {
     <p class="validation-copy">Complete the selected source and add at least a caption or media before publishing.</p>
+  }
+
+  @if (isSubmitting()) {
+    <section class="submission-sheet" role="status" aria-live="polite">
+      <span>Post setup in progress</span>
+      <h3>{{ submissionTitle() }}</h3>
+      <p>{{ submissionDescription() }}</p>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </section>
   }
 
   <div class="sticky-publish">

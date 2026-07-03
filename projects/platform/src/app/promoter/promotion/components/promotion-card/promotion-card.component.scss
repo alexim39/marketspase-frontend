@@ -277,12 +277,6 @@
       color: $text-secondary;
       cursor: pointer;
     }
-    // Responsive adjustments
-    @media (max-width: 768px) {
-      mat-icon {
-      font-size: 16px;
-      }
-    }
   }
 }
 
@@ -713,8 +707,4 @@
   }
 }
 
-@media (max-width: 420px) {
-  .metrics {
-    grid-template-columns: 1fr;
-  }
-}
+

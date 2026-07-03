@@ -9,11 +9,26 @@
     (save)="saveCampaign()"
   />
 
-  <!-- Main Content -->
-  @if (campaign() && campaignForm) {
-    <main class="main-content">
-      <div class="container">
-        <form [formGroup]="campaignForm" class="edit-form">
+  <!-- Loading/Error States -->
+  @if (isLoading()) {
+    <app-loading-state message="Loading campaign data..."/>
+  } @else if (error()) {
+    <app-error-state [error]="error()!" (retry)="loadCampaign()"/>
+  } @else {
+    <!-- Main Content -->
+    @if (campaign() && campaignForm) {
+      <main class="main-content">
+        <div class="container">
+          <form [formGroup]="campaignForm" class="edit-form">
+          <!-- AI Optimize -->
+          <div class="optimize-banner">
+            <button mat-stroked-button color="primary" (click)="openOptimizeContent()">
+              <mat-icon>auto_awesome</mat-icon>
+              Get AI Content Variations
+            </button>
+            <span>Let AI suggest alternative titles and captions for this campaign</span>
+          </div>
+
           <!-- Basic Information -->
           <div class="form-card">
             <div class="card-header">
@@ -106,18 +121,12 @@
         </form>
       </div>
     </main>
+    <footer class="form-footer">
+      <button mat-button (click)="cancelEdit()" [disabled]="isSaving()">Cancel</button>
+      <button mat-raised-button color="primary" (click)="saveCampaign()" [disabled]="!campaignForm.valid || isSaving()">
+        @if (isSaving()) { Saving... } @else { Save Changes }
+      </button>
+    </footer>
   }
-
-  <!-- Loading State -->
-  @if (isLoading()) {
-    <app-loading-state message="Loading campaign data..."/>
-  }
-
-  <!-- Error State -->
-  @if (error()) {
-    <app-error-state
-      [error]="error()!"
-      (retry)="loadCampaign()"
-    />
   }
 </div>

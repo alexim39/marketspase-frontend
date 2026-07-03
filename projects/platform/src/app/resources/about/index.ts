@@ -1,6 +1,6 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { DeviceService } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
 import { AboutComponent } from './about.component';
 import { AboutMobileComponent } from './mobile/about-mobile.component';
 

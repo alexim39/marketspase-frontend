@@ -118,7 +118,18 @@ export interface CampaignInterface {
   maxViewsPerPromoter?: number;
   payoutModel?: string;
 
-
+  aiSuggestedPromoters?: Array<{
+    promoterId: string;
+    promoterName: string;
+    avatar?: string;
+    score: number;
+    tier: string;
+    trustScore: number;
+    clicks: number;
+    uniqueCampaigns: number;
+    reason: string;
+    invited?: boolean;
+  }>;
 
   // ... existing fields ...
   targetLocations: TargetingArea[];

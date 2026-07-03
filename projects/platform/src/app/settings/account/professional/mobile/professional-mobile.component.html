@@ -1,0 +1,73 @@
+<form [formGroup]="professionalForm" class="mobile-form" (ngSubmit)="onSubmit()">
+  <!-- Job Title -->
+  <mat-form-field appearance="outline">
+    <mat-label>Job Title</mat-label>
+    <input matInput formControlName="jobTitle" placeholder="E.g. Software Engineer">
+  </mat-form-field>
+
+  <!-- Profile Headline -->
+  <mat-form-field appearance="outline">
+    <mat-label>Profile Headline</mat-label>
+    <input matInput formControlName="profileHeadline" placeholder="E.g. Growth marketer helping brands scale">
+  </mat-form-field>
+
+  <!-- Certificate -->
+  <mat-form-field appearance="outline">
+    <mat-label>Highest Qualification</mat-label>
+    <mat-select formControlName="certificate">
+      <mat-option value="high_school">High School</mat-option>
+      <mat-option value="bachelor">Bachelor's Degree</mat-option>
+      <mat-option value="master">Master's Degree</mat-option>
+      <mat-option value="doctorate">Doctorate</mat-option>
+      <mat-option value="professional">Professional Certification</mat-option>
+      <mat-option value="other">Other</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <!-- Brand -->
+  <mat-form-field appearance="outline">
+    <mat-label>Brand / Business Name</mat-label>
+    <input matInput formControlName="brandName" placeholder="E.g. MarketSpase Studio">
+  </mat-form-field>
+
+  <!-- Brand Summary -->
+  <mat-form-field appearance="outline">
+    <mat-label>Brand Summary</mat-label>
+    <textarea matInput formControlName="brandSummary" rows="3" maxlength="300"
+      placeholder="Brief description of your business or personal brand"></textarea>
+  </mat-form-field>
+
+  <!-- Skills -->
+  <mat-form-field appearance="outline">
+    <mat-label>Skills</mat-label>
+    <mat-chip-grid #skillGrid formControlName="skills">
+      @for (skill of skills(); track skill) {
+        <mat-chip-row (removed)="removeSkill(skill)">{{ skill }}<mat-icon matChipRemove>cancel</mat-icon></mat-chip-row>
+      }
+    </mat-chip-grid>
+    <input [matChipInputFor]="skillGrid" (matChipInputTokenEnd)="addSkill($event)" placeholder="Type a skill and press Enter..."/>
+  </mat-form-field>
+
+  <!-- Hobbies -->
+  <mat-form-field appearance="outline">
+    <mat-label>Hobbies</mat-label>
+    <mat-chip-grid #hobbyGrid formControlName="hobbies">
+      @for (hobby of hobbies(); track hobby) {
+        <mat-chip-row (removed)="removeHobby(hobby)">{{ hobby }}<mat-icon matChipRemove>cancel</mat-icon></mat-chip-row>
+      }
+    </mat-chip-grid>
+    <input [matChipInputFor]="hobbyGrid" (matChipInputTokenEnd)="addHobby($event)" placeholder="Type a hobby and press Enter..."/>
+  </mat-form-field>
+
+  <!-- Saving -->
+  @if (isLoading()) {
+    <div class="saving-bar"><mat-spinner diameter="18"></mat-spinner> Saving...</div>
+  }
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button mat-flat-button color="primary" type="submit" [disabled]="professionalForm.invalid || isLoading()">
+      Save Changes
+    </button>
+  </div>
+</form>

@@ -44,7 +44,7 @@
                   >
                     @for (p of promotions(); track p._id) {
                       <mat-option [value]="p._id">
-                        {{ p.campaign?.title || 'Promotion' }}
+                        {{ p.campaign.title || 'Promotion' }}
                       </mat-option>
                     }
                   </mat-select>
@@ -170,7 +170,7 @@
                   </div>
                 }
 
-                @if (platformGuidelines().tips?.length) {
+                @if (platformGuidelines().tips.length) {
                   <ul class="guidelines-list">
                     @for (tip of platformGuidelines().tips; track tip) {
                       <li>{{ tip }}</li>

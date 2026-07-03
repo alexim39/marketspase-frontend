@@ -12,6 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CurrencyUtilsPipe } from '@shared/services';
+import { ClickCapIndicatorComponent } from '../../../../common/components/click-cap-indicator/click-cap-indicator.component';
 import { UserService } from '../../../../common/services/user.service';
 import { StorefrontOrderService } from '../../../services/storefront-order.service';
 import { PromotionService } from '../../services/promotion.service';
@@ -32,7 +33,8 @@ import { PromotionService } from '../../services/promotion.service';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
-    CurrencyUtilsPipe
+    CurrencyUtilsPipe,
+    ClickCapIndicatorComponent
   ],
   providers: [PromotionService],
   templateUrl: './desktop-promoted-products.component.html',

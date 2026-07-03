@@ -1,12 +1,14 @@
-// promoter-products-list.component.ts
-import { Component, OnInit, inject, signal, computed, OnDestroy, Signal, Input, effect } from '@angular/core';
+﻿// promoter-products-list.component.ts
+import { Component, OnInit, inject, signal, computed, OnDestroy, Signal } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { PromoterProductService } from '../../services/promoter-product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ApiService, DeviceService, UserInterface } from '@shared/services';
+import { ApiService } from '@shared/services/api';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface } from '@shared/services';
 import { PromotionService } from '../services/promotion.service';
 
 // Child Components
@@ -175,10 +177,23 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
 
   // Product actions
   viewProductDetails(product: Product): void {
+    const p = product as any;
+    if (p.type === 'service') {
+      const storeName = (p.store?.name || 'store').toLowerCase().replace(/\s+/g, '-');
+      window.open(`/store/${storeName}`, '_blank');
+      return;
+    }
     this.router.navigate(['dashboard/stores/product', product._id]);
   }
 
   buyProduct(product: Product): void {
+    const p = product as any;
+    if (p.type === 'service') {
+      // Navigate to the store page for the service
+      const storeName = (p.store?.name || 'store').toLowerCase().replace(/\s+/g, '-');
+      window.open(`/store/${storeName}`, '_blank');
+      return;
+    }
     if (!product?._id) return;
     this.router.navigate(['/product', product._id], {
       queryParams: {
@@ -188,6 +203,12 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   }
 
   generateWhatsAppMessage(product: Product): void {
+    if ((product as any).type === 'service') {
+      const url = (product as any)?.promotion?.publicUrl || `${window.location.origin}/store/${(product.store?.name || 'store').toLowerCase().replace(/\s+/g, '-')}`;
+      const msg = encodeURIComponent(`*${product.name}*\n\n💼 ${(product as any).service?.commissionType === 'per_lead' ? 'Earn ₦' + (product as any).service?.leadCommission + ' per lead' : 'Earn ₦' + (product as any).service?.bookingCommission + ' per booking'}\n\nCheck it out: ${url}`);
+      window.open(`https://wa.me/?text=${msg}`, '_blank');
+      return;
+    }
     void this.shareGeneratedWhatsAppMessage(product);
     return;
 
@@ -262,6 +283,12 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   }
 
   shareToWhatsAppStatus(product: Product): void {
+    if ((product as any).type === 'service') {
+      const url = (product as any)?.promotion?.publicUrl || `${window.location.origin}/store/${(product.store?.name || 'store').toLowerCase().replace(/\s+/g, '-')}`;
+      const msg = encodeURIComponent(`Check out this service: ${product.name} — ${url}`);
+      window.open(`https://wa.me/?text=${msg}`, '_blank');
+      return;
+    }
     void this.shareGeneratedWhatsAppStatus(product);
   }
 
@@ -316,7 +343,7 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   }
 
   // Promotion methods moved from child component
-  async createPromotion(product: Product): Promise<{ trackingCode: string; uniqueId: string; affiliateUrl: string } | null> {
+  async createPromotion(product: Product): Promise<{ trackingCode: string; uniqueId: string; affiliateUrl: string; publicUrl?: string } | null> {
     try {
       const promoterId = this.user()?._id;
       if (!promoterId) {
@@ -331,11 +358,13 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
       let trackingCode: string;
       let uniqueId: string;
       let affiliateUrl: string;
+      let publicUrl: string | undefined;
 
       if (existingPromotion) {
         trackingCode = existingPromotion.uniqueCode;
         uniqueId = existingPromotion.uniqueId;
         affiliateUrl = existingPromotion.affiliateUrl || this.promotionService.getTrackingLink(trackingCode, product._id ?? '');
+        publicUrl = existingPromotion.publicUrl;
         snackBarRef.dismiss();
       } else {
         const response = await this.promotionService.createPromotion({
@@ -349,7 +378,8 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
 
         trackingCode = response.data.uniqueCode;
         uniqueId = response.data.uniqueId;
-        affiliateUrl = response.data.affiliateUrl || response.data.promotionUrl || this.promotionService.getTrackingLink(trackingCode, product._id ?? '');
+        publicUrl = response.data.publicUrl;
+        affiliateUrl = response.data.publicUrl || response.data.affiliateUrl || response.data.promotionUrl || this.promotionService.getTrackingLink(trackingCode, product._id ?? '');
 
         this.activePromotions.update(map => {
           map.set(product._id ?? '', {
@@ -365,7 +395,7 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
         this.snackBar.open('Promotion link created successfully!', 'Close', { duration: 3000 });
       }
 
-      return { trackingCode, uniqueId, affiliateUrl };
+      return { trackingCode, uniqueId, affiliateUrl, publicUrl };
     } catch (error) {
       console.error('Error creating promotion:', error);
       this.snackBar.open('Failed to create promotion link. Please try again.', 'Close', { duration: 5000 });
@@ -374,20 +404,47 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   }
 
   async onPromote(product: Product): Promise<void> {
+    if ((product as any).type === 'service') {
+      const url = (product as any)?.promotion?.publicUrl;
+      if (url) {
+        await navigator.clipboard.writeText(url);
+        this.snackBar.open('Promo link copied!', 'Close', { duration: 2000 });
+        return;
+      }
+      const storeName = (product.store?.name || 'store').toLowerCase().replace(/\s+/g, '-');
+      const storeUrl = `${window.location.origin}/store/${storeName}`;
+      await navigator.clipboard.writeText(storeUrl);
+      this.snackBar.open('Store link copied!', 'Close', { duration: 2000 });
+      return;
+    }
     const promotion = await this.createPromotion(product);
     if (promotion) {
-      await navigator.clipboard.writeText(promotion.affiliateUrl);
-      this.shareOnWhatsApp(product, promotion.trackingCode, promotion.affiliateUrl);
+      await navigator.clipboard.writeText(promotion.publicUrl || promotion.affiliateUrl);
+      this.shareOnWhatsApp(product, promotion.trackingCode, promotion.publicUrl || promotion.affiliateUrl);
     }
   }
 
   async copyProductUrl(product: Product): Promise<void> {
     try {
-      // Prefer copying the backend-computed affiliate URL already attached to the product payload.
-      // This avoids broken links when the API base URL or routing differs across environments.
-      const directAffiliateUrl = (product as any)?.promotion?.affiliateUrl || (product as any)?.promotion?.promotionUrl;
-      if (directAffiliateUrl) {
-        await navigator.clipboard.writeText(directAffiliateUrl);
+      // Services: prefer the friendly publicUrl, fallback to store URL
+      if ((product as any).type === 'service') {
+        const url = (product as any)?.promotion?.publicUrl;
+        if (url) {
+          await navigator.clipboard.writeText(url);
+          this.snackBar.open('Promo link copied! Share with your audience to earn.', 'Close', { duration: 3000 });
+          return;
+        }
+        const storeName = (product.store?.name || 'store').toLowerCase().replace(/\s+/g, '-');
+        const storeUrl = `${window.location.origin}/store/${storeName}`;
+        await navigator.clipboard.writeText(storeUrl);
+        this.snackBar.open('Store link copied! Share with your audience to earn.', 'Close', { duration: 3000 });
+        return;
+      }
+
+      // Prefer the friendly publicUrl, fallback to affiliateUrl
+      const directUrl = (product as any)?.promotion?.publicUrl || (product as any)?.promotion?.affiliateUrl || (product as any)?.promotion?.promotionUrl;
+      if (directUrl) {
+        await navigator.clipboard.writeText(directUrl);
         this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
         return;
       }
@@ -395,14 +452,13 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
       const existingPromotion = this.activePromotions().get(product._id ?? '');
 
       if (!existingPromotion) {
-        // Create promotion first if it doesn't exist
         const promotion = await this.createPromotion(product);
         if (!promotion) return;
         
-        await navigator.clipboard.writeText(promotion.affiliateUrl);
+        await navigator.clipboard.writeText(promotion.publicUrl || promotion.affiliateUrl);
         this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
       } else {
-        const trackingLink = existingPromotion.affiliateUrl || this.promotionService.getTrackingLink(existingPromotion.uniqueCode, product._id ?? '');
+        const trackingLink = existingPromotion.publicUrl || existingPromotion.affiliateUrl || this.promotionService.getTrackingLink(existingPromotion.uniqueCode, product._id ?? '');
         await navigator.clipboard.writeText(trackingLink);
         this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
       }
@@ -419,7 +475,7 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
       trackingCode,
       product.promotion.commissionRate,
       product.price,
-      affiliateUrl || existingPromotion?.affiliateUrl
+      affiliateUrl || existingPromotion?.publicUrl || existingPromotion?.affiliateUrl
     );
     
     window.open(`https://wa.me/?text=${message}`, '_blank');

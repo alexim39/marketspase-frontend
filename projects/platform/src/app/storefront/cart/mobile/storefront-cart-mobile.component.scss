@@ -588,6 +588,11 @@ button {
   color: $on-error-color;
 }
 
+.checkout-sheet {
+  overflow-y: auto;
+  max-height: 90dvh;
+}
+
 .sheet-handle {
   width: 48px;
   height: 5px;
@@ -601,6 +606,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  padding: 0 20px;
 
   span {
     color: $primary-color;
@@ -629,14 +635,31 @@ button {
 }
 
 .checkout-summary {
-  grid-template-columns: 1fr;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 20px;
+  margin: 0 20px;
+  border-radius: 14px;
+  border: 1px solid $border-color;
+  background: rgba(var(--primary-rgb), 0.03);
 
-  span {
-    display: block;
-    color: $text-secondary;
-    font-size: 12px;
-    font-weight: 900;
+  .currency-select {
+    width: 130px;
+    min-width: 0;
   }
+}
+
+.quote-box {
+  margin: 12px 20px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px dashed rgba(var(--primary-rgb), 0.2);
+  background: rgba(var(--primary-rgb), 0.03);
+  display: grid;
+  gap: 8px;
+}
 
   strong {
     display: block;
@@ -644,18 +667,6 @@ button {
     color: $text-primary;
     font-size: 20px;
   }
-
-  select {
-    width: 100%;
-    min-height: 48px;
-    padding: 0 12px;
-    border-radius: 14px;
-    border: 1px solid $border-color;
-    background: $surface-color;
-    color: $text-primary;
-    font-weight: 800;
-  }
-}
 
 .quote-box {
   grid-template-columns: 1fr 1fr;
@@ -679,6 +690,14 @@ button {
   display: grid;
   gap: 12px;
   margin-top: 14px;
+  padding: 0 20px 24px;
+  max-width: 100%;
+
+  input, select, mat-form-field {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 .field-grid {

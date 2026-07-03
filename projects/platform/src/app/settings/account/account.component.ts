@@ -23,12 +23,14 @@ import { UserInterface } from '@shared/services';
     MatIconModule,
     MatButtonModule,
     RouterModule,
-    MatCardModule
+    MatCardModule,
   ],
   template: `
     <div class="account-container">
       <mat-card class="settings-card">
         <mat-accordion>
+          <!-- <app-language-setting /> -->
+
           <mat-expansion-panel [expanded]="true">
             <mat-expansion-panel-header>
               <mat-panel-title>

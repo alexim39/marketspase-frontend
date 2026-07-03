@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     @if (suggestions().length > 0) {
-      <div class="mention-dropdown">
+      <div class="mention-dropdown" (click)="$event.stopPropagation()">
         @for (s of suggestions(); track s.username) {
           <button type="button" class="mention-item" (click)="select.emit(s)">
             <strong>@{{ s.username }}</strong>
@@ -29,4 +29,10 @@ import { CommonModule } from '@angular/common';
 export class MentionDropdownComponent {
   readonly suggestions = input.required<Array<{ username: string; displayName: string }>>();
   readonly select = output<{ username: string; displayName: string }>();
+  readonly dismiss = output();
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.dismiss.emit();
+  }
 }

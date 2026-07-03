@@ -423,40 +423,4 @@
   background: rgba(var(--primary-rgb), 0.04);
 }
 
-@media (max-width: 900px) {
-  .filter-grid {
-    grid-template-columns: 1fr;
-  }
 
-  .query-form {
-    grid-template-columns: 1fr;
-  }
-
-  .spotlight-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-@media (max-width: 768px) {
-  .search-page {
-    padding-inline: 0.75rem;
-  }
-
-  .hero-card,
-  .spotlight-card,
-  .result-top,
-  .result-footer,
-  .title-row {
-    flex-direction: column;
-  }
-
-  .metric-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .spotlight-visual {
-    width: 100%;
-    height: min(240px, 48vw);
-  }
-}

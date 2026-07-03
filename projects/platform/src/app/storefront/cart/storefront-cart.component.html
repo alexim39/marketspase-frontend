@@ -39,6 +39,19 @@
           <span>Order {{ checkoutSuccess()?.orderNumber }} is paid and awaiting delivery confirmation.</span>
         </div>
       }
+      @if (shareReferralCode()) {
+        <div class="share-earn-card">
+          <mat-icon>card_giftcard</mat-icon>
+          <h3>Share &amp; Earn</h3>
+          <p>Share your referral code with friends and earn rewards on their first purchase.</p>
+          <div class="referral-code-display">
+            <code>{{ shareReferralCode() }}</code>
+            <button mat-icon-button (click)="copyReferralCode()">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
     </section>
   } @else {
     <section class="cart-layout">
@@ -226,6 +239,16 @@
                     <span>{{ checkoutError() }}</span>
                   </div>
                 }
+
+                <div class="referral-code-section">
+                  <mat-form-field appearance="outline" class="referral-field">
+                    <mat-label>Referral code</mat-label>
+                    <input matInput [(ngModel)]="referralCode" placeholder="Have a code?" [ngModelOptions]="{standalone: true}" />
+                  </mat-form-field>
+                  <button mat-stroked-button type="button" (click)="applyReferral()" [disabled]="!referralCode() || referralApplied()">
+                    @if (referralApplied()) { Applied! } @else { Apply }
+                  </button>
+                </div>
 
                 <button mat-raised-button color="primary" type="submit" class="pay-button" [disabled]="checkoutLoading()">
                   @if (checkoutLoading()) {

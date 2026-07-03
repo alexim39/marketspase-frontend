@@ -34,6 +34,25 @@
               <mat-icon>edit</mat-icon>
               Edit Campaign
             </button>
+            <mat-slide-toggle [checked]="autoRenewEnabled()" (change)="toggleAutoRenew($event)" class="auto-renew-toggle" color="primary">
+              Auto-Renew
+            </mat-slide-toggle>
+            <button class="btn btn-outline" mat-raised-button (click)="openSmartInvite()" matTooltip="AI-recommended promoters for this campaign">
+              <mat-icon>auto_awesome</mat-icon>
+              Smart Invite
+            </button>
+            <button class="btn btn-outline" mat-raised-button (click)="openOptimizeContent()" matTooltip="AI-generated A/B test variations">
+              <mat-icon>psychology</mat-icon>
+              Optimize
+            </button>
+            <button class="btn btn-outline" mat-raised-button (click)="shareOnWhatsApp()" matTooltip="Share campaign on WhatsApp with tracking link">
+              <mat-icon>share</mat-icon>
+              Share
+            </button>
+            <button class="btn btn-outline" mat-raised-button (click)="openBulkInvite()" matTooltip="Invite multiple promoters">
+              <mat-icon>group_add</mat-icon>
+              Bulk Invite
+            </button>
           }
           <!-- <button class="btn btn-outline" mat-raised-button (click)="targetAudienceByLocation()">
             <mat-icon>edit_location</mat-icon>
@@ -302,6 +321,13 @@
         </div>
       </div>
 
+      <!-- Promoter Wallet -->
+      @if (user(); as currentUser) {
+        <div class="wallet-section">
+          <wallet-balance-card [user]="currentUser" />
+        </div>
+      }
+
       <!-- Performance Metrics -->
       <div class="metrics-section">
         <h3 class="section-title">Performance Metrics</h3>
@@ -397,6 +423,7 @@
                 <th>Status</th>
                 <th>Tracked Clicks</th>
                 <th>Billable</th>
+                <th>CPC</th>
                 <th>Spend</th>
                 <th>Last Activity</th>
                 <th>Actions</th>
@@ -410,6 +437,8 @@
                     <div class="avatar">{{getInitials(promotion.promoter.displayName)}}</div>
                     <div class="promoter-details">
                       <span class="promoter-name">{{promotion.promoter.displayName || 'Unknown'}}</span>
+                      <promoter-tier-badge [promoterId]="promotion.promoter._id" />
+                      <promoter-trust-metrics [promoterId]="promotion.promoter._id" />
                      @if (promotion.promoter.rating) {
                        <span class="promoter-rating">
                         <mat-icon>star</mat-icon>
@@ -426,6 +455,16 @@
                 </td>
                 <td>{{getPromotionTrackedClicks(promotion) | shortNumber}}</td>
                 <td>{{getPromotionBillableClicks(promotion) | shortNumber}}</td>
+                <td class="cpc-cell">
+                  @let cpcInfo = getPromotionCpcInfo(promotion);
+                  <span class="cpc-base">{{formatCurrency(cpcInfo.base, campaign.currency)}}</span>
+                  @if (cpcInfo.bonus > 0) {
+                    <span class="cpc-tier text-success">
+                      {{formatCurrency(cpcInfo.adjusted, campaign.currency)}}
+                      <span class="tier-badge-inline">{{cpcInfo.tier}} +{{cpcInfo.bonus}}%</span>
+                    </span>
+                  }
+                </td>
                 <td>{{formatCurrency(getPromotionSpend(promotion), campaign.currency)}}</td>
                 <td>{{getPromotionLastActivity(promotion) ? (getPromotionLastActivity(promotion) | date:'short') : 'No activity yet'}}</td>
                 <td>

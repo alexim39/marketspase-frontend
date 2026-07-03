@@ -166,33 +166,4 @@
   }
 }
 
-@media (max-width: 900px) {
-  .video-header,
-  .embedded-guide {
-    grid-template-columns: 1fr;
-  }
 
-  .video-icon {
-    width: 48px;
-    height: 48px;
-  }
-
-  .promo-button {
-    width: 100%;
-  }
-}
-
-@media (max-width: 600px) {
-  .video-card {
-    border-radius: 20px;
-  }
-
-  .video-header,
-  .video-playlist {
-    padding: vars.$spacing-4;
-  }
-
-  .embedded-guide {
-    padding: vars.$spacing-3;
-  }
-}

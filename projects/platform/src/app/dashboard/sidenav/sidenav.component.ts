@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef, effect } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -19,10 +19,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DashboardService } from '../dashboard.service';
 import { WalletFundingIndexComponent } from '../../wallet/funding';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { UserInterface, DeviceService, CurrencyUtilsPipe } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface, CurrencyUtilsPipe } from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotificationService } from '../notification/notification.service';
 import { map } from 'rxjs/internal/operators/map';
+import { LocaleService } from '../../common/i18n/locale.service';
+import { CurrencyService } from '../../common/services/currency.service';
 
 // Import new components
 import { UserProfileCardComponent } from './components/user-profile-card/user-profile-card.component';
@@ -44,6 +47,7 @@ import { take } from 'rxjs/internal/operators/take';
 import { CountdownOverlayComponent } from '../../common/components/countdown-overlay/countdown-overlay.component';
 import { SwitchUserRoleService } from '../../common/services/switch-user-role.service';
 import { CollaborationService } from '../../campaign/collaboration/collaboration.service';
+import { ApiService } from '@shared/services/api';
 
 @Component({
   selector: 'app-dashboard',
@@ -88,6 +92,9 @@ export class DashboardComponent implements OnInit {
   private switchUserRoleService = inject(SwitchUserRoleService); // Event used to trigger user role switcher method
   private readonly deviceService = inject(DeviceService);
   private readonly destroyRef = inject(DestroyRef);
+  private locale = inject(LocaleService);
+  private currencyService = inject(CurrencyService);
+  private api = inject(ApiService);
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('notificationMenu') notificationMenu!: TemplateRef<any>;
@@ -121,6 +128,7 @@ export class DashboardComponent implements OnInit {
 
   activeCampaignsCount: number | undefined = 0;
   pendingCampaignsCount: number | undefined = 0;
+  smartInviteCount = 0;
   pendingPromotionsCount: number | undefined = 0;
   unreadMessagesCount = signal(0);
 
@@ -137,32 +145,49 @@ export class DashboardComponent implements OnInit {
     const pendingCampaigns = this.pendingCampaignsCount || 0;
     const pendingPromotions = this.pendingPromotionsCount || 0;
     const activeCampaigns = this.activeCampaignsCount || 0;
+    const t = (key: string) => this.locale.translate(key);
 
+    let items: NavigationItem[];
     if (userRole === 'marketer') {
-      return getMarketerNavigation(pendingCampaigns, activeCampaigns, this.unreadMessagesCount());
+      items = getMarketerNavigation(pendingCampaigns, activeCampaigns, this.unreadMessagesCount(), this.smartInviteCount);
+    } else if (userRole === 'promoter') {
+      items = getPromoterNavigation(pendingPromotions, this.unreadMessagesCount());
+    } else if (userRole === 'marketing_rep') {
+      items = MARKETING_REP_NAVIGATION;
+    } else {
+      items = ADMIN_NAVIGATION;
     }
-
-    if (userRole === 'promoter') {
-      return getPromoterNavigation(pendingPromotions, this.unreadMessagesCount());
-    }
-
-    if (userRole === 'marketing_rep') {
-      return MARKETING_REP_NAVIGATION;
-    }
-
-    return ADMIN_NAVIGATION;
+    return this.translateNavigationLabels(items, t);
   });
+
+  private translateNavigationLabels(items: NavigationItem[], t: (key: string) => string): NavigationItem[] {
+    return items.map(item => ({
+      ...item,
+      label: t(item.label),
+      children: item.children ? this.translateNavigationLabels(item.children, t) : undefined,
+    }));
+  }
 
   public ngOnInit(): void {
     this.calculateActiveCampaigns();
     this.calculatePendingCampaigns();
     this.calculatePendingPromotions();
+    this.fetchSmartInviteCount();
 
     this.switchUserRoleService.getSwitchRequest$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((role) => {
         this.switchUser(role);
       });
+
+    // Poll smart invite count every 60s
+    interval(60000).pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.fetchSmartInviteCount());
+  }
+
+  private fetchSmartInviteCount(): void {
+    this.api.get<any>('api/v1/campaign/smart-invite-count', undefined, undefined, true)
+      .subscribe({ next: r => { this.smartInviteCount = r?.data?.count || 0; }, error: () => {} });
   }
 
   public toggleSidenav(): void {
@@ -191,7 +216,11 @@ export class DashboardComponent implements OnInit {
         formattedRole = 'User';
     }
 
-    return `${formattedRole} Dashboard`;
+    return this.locale.translate(`${formattedRole} Dashboard`);
+  }
+
+  public formatWalletBalance(amount: number | undefined, currency?: string): string {
+    return this.currencyService.format(amount ?? 0, ((currency ?? 'NGN') as string).toUpperCase());
   }
 
   public createCampaign(): void {
@@ -204,6 +233,10 @@ export class DashboardComponent implements OnInit {
 
   public viewPromotion(): void {
     this.router.navigate(['/dashboard/campaigns']);
+  }
+
+  public viewProducts(): void {
+    this.router.navigate(['/dashboard/stores/offerings']);
   }
 
   public viewMyPromotion(): void {

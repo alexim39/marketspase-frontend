@@ -148,13 +148,15 @@
                    (matChipInputTokenEnd)="addSkill($event)">
             </mat-chip-grid>
             @if (professionalForm.get('skills')?.hasError('required')) {
-              <mat-error>
-                At least one skill is required
-              </mat-error>
-              <small class="note">
-                Type your skill and tap the Enter on keyboard to input value
-              </small>
-            }      
+              <ng-container matError>
+                <mat-error>
+                  At least one skill is required
+                </mat-error>
+                <small class="note" style="display: block; margin-top: 4px;">
+                  Type your skill and tap the Enter on keyboard to input value
+                </small>
+              </ng-container>
+            }     
             <mat-hint>
               @if (skills().length === 0) {
                 Type your skill and tap the Enter on keyboard to input value
@@ -184,12 +186,14 @@
             </mat-chip-grid>
             
             @if (professionalForm.get('hobbies')?.hasError('required')) {
-              <mat-error>
-                At least one hobby is required
-              </mat-error>
-              <small class="note">
+              <ng-container matError>
+                <mat-error>
+                  At least one hobby is required
+                </mat-error>
+                <small class="note" style="display: block; margin-top: 4px;">
                 Type your hobby and tap the Enter on keyboard to input value
               </small>
+              </ng-container>
             }
             <mat-hint>
               @if (hobbies().length === 0) {

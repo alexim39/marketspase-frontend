@@ -1,4 +1,4 @@
-@use '../../../../styles/variables' as vars;
+@use '../../../../styles/variables' as *;
 @use '../../../../styles/mixins' as mix;
 
 .settings-page {
@@ -7,52 +7,52 @@
 }
 
 .page-header {
-  margin-bottom: vars.$spacing-6;
+  margin-bottom: $spacing-6;
 
   h2 {
     margin: 0;
-    font-size: vars.$font-size-2xl;
-    font-weight: vars.$font-weight-semibold;
-    color: vars.$text-primary;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
   }
 
   .subtitle {
-    margin: vars.$spacing-1 0 0;
-    color: vars.$text-secondary;
-    font-size: vars.$font-size-sm;
+    margin: $spacing-1 0 0;
+    color: $text-secondary;
+    font-size: $font-size-sm;
   }
 }
 
 // Settings Navigation
 .settings-nav {
   display: flex;
-  gap: vars.$spacing-1;
-  margin-bottom: vars.$spacing-6;
+  gap: $spacing-1;
+  margin-bottom: $spacing-6;
   overflow-x: auto;
-  padding-bottom: vars.$spacing-2;
+  padding-bottom: $spacing-2;
 
   button {
     display: flex;
     align-items: center;
-    gap: vars.$spacing-2;
-    padding: vars.$spacing-2 vars.$spacing-4;
-    border-radius: vars.$border-radius;
-    font-size: vars.$font-size-sm;
-    color: vars.$text-secondary;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-4;
+    border-radius: $border-radius;
+    font-size: $font-size-sm;
+    color: $text-secondary;
     white-space: nowrap;
 
     mat-icon {
-      font-size: vars.$font-size-lg;
+      font-size: $font-size-lg;
     }
 
     &:hover {
-      background: color-mix(in srgb, vars.$surface-color, vars.$background-color 48%);
-      color: vars.$text-primary;
+      background: color-mix(in srgb, $surface-color, $background-color 48%);
+      color: $text-primary;
     }
 
     &.active {
-      background: color-mix(in srgb, vars.$primary-color, vars.$surface-color 90%);
-      color: vars.$primary-color;
+      background: color-mix(in srgb, $primary-color, $surface-color 90%);
+      color: $primary-color;
     }
   }
 }
@@ -60,30 +60,30 @@
 .settings-content {
   display: flex;
   flex-direction: column;
-  gap: vars.$spacing-5;
+  gap: $spacing-5;
 }
 
 // Section Cards
 .settings-section {
   mat-card {
-    background: vars.$surface-color;
-    border: 1px solid vars.$border-color;
-    color: vars.$text-primary;
+    background: $surface-color;
+    border: 1px solid $border-color;
+    color: $text-primary;
   }
 
   mat-card-header {
     @include mix.flex-between;
-    margin-bottom: vars.$spacing-4;
+    margin-bottom: $spacing-4;
 
     mat-card-title {
       display: flex;
       align-items: center;
-      gap: vars.$spacing-2;
-      font-size: vars.$font-size-lg;
-      font-weight: vars.$font-weight-semibold;
+      gap: $spacing-2;
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
 
       mat-icon {
-        color: vars.$primary-color;
+        color: $primary-color;
       }
     }
   }
@@ -93,7 +93,7 @@
 .connection-list {
   display: flex;
   flex-direction: column;
-  gap: vars.$spacing-3;
+  gap: $spacing-3;
 }
 
 .connection-item {
@@ -101,16 +101,16 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: vars.$spacing-3;
-  padding: vars.$spacing-4;
-  border: 1px solid vars.$border-color;
-  border-radius: vars.$border-radius-md;
-  background: vars.$surface-color;
-  transition: all vars.$transition-fast;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  background: $surface-color;
+  transition: all $transition-fast;
 
   &:hover {
-    border-color: vars.$primary-color;
-    box-shadow: vars.$shadow-md;
+    border-color: $primary-color;
+    box-shadow: $shadow-md;
   }
 
   .connection-info {
@@ -120,14 +120,14 @@
     .phone-number {
       display: flex;
       align-items: center;
-      gap: vars.$spacing-2;
-      font-weight: vars.$font-weight-medium;
-      font-size: vars.$font-size-base;
-      color: vars.$text-primary;
+      gap: $spacing-2;
+      font-weight: $font-weight-medium;
+      font-size: $font-size-base;
+      color: $text-primary;
 
       mat-icon {
-        color: vars.$success-color;
-        font-size: vars.$font-size-lg;
+        color: $success-color;
+        font-size: $font-size-lg;
       }
     }
   }
@@ -135,27 +135,27 @@
   .status-row {
     display: flex;
     align-items: center;
-    gap: vars.$spacing-3;
-    margin-top: vars.$spacing-2;
+    gap: $spacing-3;
+    margin-top: $spacing-2;
 
     .status-badge {
       display: flex;
       align-items: center;
       gap: 4px;
-      padding: 4px vars.$spacing-2;
-      border-radius: vars.$border-radius-full;
-      font-size: vars.$font-size-xs;
-      font-weight: vars.$font-weight-medium;
+      padding: 4px $spacing-2;
+      border-radius: $border-radius-full;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-medium;
       text-transform: uppercase;
 
       &.connected {
-        background: color-mix(in srgb, vars.$success-color, vars.$surface-color 90%);
-        color: vars.$success-color;
+        background: color-mix(in srgb, $success-color, $surface-color 90%);
+        color: $success-color;
       }
 
       &.disconnected {
-        background: color-mix(in srgb, vars.$error-color, vars.$surface-color 90%);
-        color: vars.$error-color;
+        background: color-mix(in srgb, $error-color, $surface-color 90%);
+        color: $error-color;
       }
 
       mat-icon {
@@ -169,12 +169,12 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      font-size: vars.$font-size-xs;
-      color: vars.$text-secondary;
+      font-size: $font-size-xs;
+      color: $text-secondary;
 
       &.on {
-        color: vars.$primary-color;
-        font-weight: vars.$font-weight-medium;
+        color: $primary-color;
+        font-weight: $font-weight-medium;
       }
 
       mat-icon {
@@ -188,7 +188,7 @@
   .connection-actions {
     display: flex;
     align-items: center;
-    gap: vars.$spacing-2;
+    gap: $spacing-2;
   }
 }
 
@@ -196,26 +196,26 @@
 .empty-state {
   @include mix.flex-column-center;
   text-align: center;
-  padding: vars.$spacing-12;
-  color: vars.$text-tertiary;
+  padding: $spacing-12;
+  color: $text-tertiary;
 
   mat-icon {
     font-size: 3rem;
     width: 3rem;
     height: 3rem;
-    margin-bottom: vars.$spacing-4;
-    color: vars.$text-tertiary;
+    margin-bottom: $spacing-4;
+    color: $text-tertiary;
   }
 
   h4 {
-    margin: 0 0 vars.$spacing-2;
-    color: vars.$text-secondary;
-    font-weight: vars.$font-weight-medium;
+    margin: 0 0 $spacing-2;
+    color: $text-secondary;
+    font-weight: $font-weight-medium;
   }
 
   p {
-    margin: 0 0 vars.$spacing-6;
-    font-size: vars.$font-size-sm;
+    margin: 0 0 $spacing-6;
+    font-size: $font-size-sm;
   }
 }
 
@@ -224,7 +224,7 @@
 .notification-form {
   display: flex;
   flex-direction: column;
-  gap: vars.$spacing-4;
+  gap: $spacing-4;
 
   .full-width {
     width: 100%;
@@ -234,7 +234,7 @@
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: vars.$spacing-2;
+  margin-top: $spacing-2;
 }
 
 // Toggle Rows
@@ -242,29 +242,29 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: vars.$spacing-3 0;
+  padding: $spacing-3 0;
 
   .toggle-info {
     display: flex;
     align-items: center;
-    gap: vars.$spacing-3;
+    gap: $spacing-3;
 
     mat-icon {
-      color: vars.$primary-color;
-      font-size: vars.$font-size-xl;
+      color: $primary-color;
+      font-size: $font-size-xl;
     }
 
     .toggle-label {
       display: block;
-      font-weight: vars.$font-weight-medium;
-      color: vars.$text-primary;
-      font-size: vars.$font-size-sm;
+      font-weight: $font-weight-medium;
+      color: $text-primary;
+      font-size: $font-size-sm;
     }
 
     .toggle-desc {
-      margin: vars.$spacing-1 0 0;
-      font-size: vars.$font-size-xs;
-      color: vars.$text-secondary;
+      margin: $spacing-1 0 0;
+      font-size: $font-size-xs;
+      color: $text-secondary;
     }
   }
 }
@@ -272,38 +272,38 @@
 // Plans Section
 .plans-header {
   text-align: center;
-  margin-bottom: vars.$spacing-6;
+  margin-bottom: $spacing-6;
 
   h3 {
     margin: 0;
-    font-size: vars.$font-size-xl;
-    font-weight: vars.$font-weight-semibold;
-    color: vars.$text-primary;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
   }
 
   p {
-    margin: vars.$spacing-2 0 0;
-    color: vars.$text-secondary;
+    margin: $spacing-2 0 0;
+    color: $text-secondary;
   }
 }
 
 .plans-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: vars.$spacing-5;
-  margin-bottom: vars.$spacing-6;
+  gap: $spacing-5;
+  margin-bottom: $spacing-6;
 }
 
 .plan-card {
-  padding: vars.$spacing-6;
+  padding: $spacing-6;
   text-align: center;
   position: relative;
-  transition: all vars.$transition-normal;
+  transition: all $transition-normal;
   border: 2px solid transparent;
 
   &.popular {
-    border-color: vars.$primary-color;
-    box-shadow: 0 4px 20px rgba(vars.$primary-rgb, 0.2);
+    border-color: $primary-color;
+    box-shadow: 0 4px 20px rgba($primary-rgb, 0.2);
 
     &::before {
       content: '';
@@ -312,19 +312,19 @@
       left: 0;
       right: 0;
       height: 4px;
-      background: vars.$gradient-primary;
-      border-radius: vars.$border-radius-md vars.$border-radius-md 0 0;
+      background: $gradient-primary;
+      border-radius: $border-radius-md $border-radius-md 0 0;
     }
   }
 
   &.current {
-    border-color: vars.$success-color;
-    background: color-mix(in srgb, vars.$success-color, vars.$surface-color 97%);
+    border-color: $success-color;
+    background: color-mix(in srgb, $success-color, $surface-color 97%);
   }
 
   &:hover:not(.current) {
     transform: translateY(-4px);
-    box-shadow: vars.$shadow-xl;
+    box-shadow: $shadow-xl;
   }
 
   .popular-badge {
@@ -332,16 +332,16 @@
     top: -12px;
     left: 50%;
     transform: translateX(-50%);
-    background: vars.$gradient-primary;
-    color: vars.$on-primary-color;
-    padding: vars.$spacing-1 vars.$spacing-4;
-    border-radius: vars.$border-radius-full;
-    font-size: vars.$font-size-xs;
-    font-weight: vars.$font-weight-medium;
+    background: $gradient-primary;
+    color: $on-primary-color;
+    padding: $spacing-1 $spacing-4;
+    border-radius: $border-radius-full;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
     display: flex;
     align-items: center;
     gap: 4px;
-    box-shadow: vars.$shadow-md;
+    box-shadow: $shadow-md;
 
     mat-icon {
       font-size: 14px;
@@ -351,27 +351,27 @@
   }
 
   .plan-header {
-    margin-bottom: vars.$spacing-4;
+    margin-bottom: $spacing-4;
 
     .plan-icon {
       font-size: 3rem;
       width: 3rem;
       height: 3rem;
-      color: vars.$primary-color;
-      margin-bottom: vars.$spacing-2;
+      color: $primary-color;
+      margin-bottom: $spacing-2;
     }
 
     h3 {
-      margin: 0 0 vars.$spacing-2;
-      font-size: vars.$font-size-xl;
-      font-weight: vars.$font-weight-bold;
-      color: vars.$text-primary;
+      margin: 0 0 $spacing-2;
+      font-size: $font-size-xl;
+      font-weight: $font-weight-bold;
+      color: $text-primary;
     }
 
     .price {
-      font-size: vars.$font-size-2xl;
-      font-weight: vars.$font-weight-bold;
-      color: vars.$primary-color;
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      color: $primary-color;
     }
   }
 
@@ -379,19 +379,19 @@
     text-align: left;
     list-style: none;
     padding: 0;
-    margin: vars.$spacing-4 0;
+    margin: $spacing-4 0;
 
     li {
       display: flex;
       align-items: center;
-      gap: vars.$spacing-2;
-      font-size: vars.$font-size-sm;
-      padding: vars.$spacing-2 0;
-      color: vars.$text-secondary;
+      gap: $spacing-2;
+      font-size: $font-size-sm;
+      padding: $spacing-2 0;
+      color: $text-secondary;
 
       mat-icon {
-        color: vars.$success-color;
-        font-size: vars.$font-size-base;
+        color: $success-color;
+        font-size: $font-size-base;
       }
     }
   }
@@ -401,39 +401,39 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: vars.$spacing-2;
-      padding: vars.$spacing-2;
-      background: color-mix(in srgb, vars.$success-color, vars.$surface-color 90%);
-      color: vars.$success-color;
-      border-radius: vars.$border-radius;
-      font-weight: vars.$font-weight-medium;
+      gap: $spacing-2;
+      padding: $spacing-2;
+      background: color-mix(in srgb, $success-color, $surface-color 90%);
+      color: $success-color;
+      border-radius: $border-radius;
+      font-weight: $font-weight-medium;
 
       mat-icon {
-        font-size: vars.$font-size-lg;
+        font-size: $font-size-lg;
       }
     }
 
     .renewal-text {
-      font-size: vars.$font-size-xs;
-      color: vars.$text-tertiary;
-      margin-top: vars.$spacing-2;
+      font-size: $font-size-xs;
+      color: $text-tertiary;
+      margin-top: $spacing-2;
     }
 
     button {
       width: 100%;
-      padding: vars.$spacing-3;
-      font-size: vars.$font-size-base;
+      padding: $spacing-3;
+      font-size: $font-size-base;
 
       mat-spinner {
         display: inline-block;
-        margin-right: vars.$spacing-2;
+        margin-right: $spacing-2;
       }
     }
 
     .plan-note {
-      font-size: vars.$font-size-xs;
-      color: vars.$text-tertiary;
-      margin-top: vars.$spacing-2;
+      font-size: $font-size-xs;
+      color: $text-tertiary;
+      margin-top: $spacing-2;
     }
   }
 }
@@ -441,32 +441,32 @@
 .current-plan-info {
   .info-row {
     @include mix.flex-between;
-    padding: vars.$spacing-3 0;
-    border-bottom: 1px solid vars.$divider-color;
+    padding: $spacing-3 0;
+    border-bottom: 1px solid $divider-color;
 
     &:last-child {
       border-bottom: none;
     }
 
     span:first-child {
-      color: vars.$text-secondary;
-      font-size: vars.$font-size-sm;
+      color: $text-secondary;
+      font-size: $font-size-sm;
     }
 
     strong {
-      color: vars.$text-primary;
-      font-weight: vars.$font-weight-medium;
+      color: $text-primary;
+      font-weight: $font-weight-medium;
     }
 
     .status-badge {
-      padding: 2px vars.$spacing-3;
-      border-radius: vars.$border-radius-full;
-      font-size: vars.$font-size-xs;
-      font-weight: vars.$font-weight-medium;
+      padding: 2px $spacing-3;
+      border-radius: $border-radius-full;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-medium;
 
       &.active {
-        background: color-mix(in srgb, vars.$success-color, vars.$surface-color 90%);
-        color: vars.$success-color;
+        background: color-mix(in srgb, $success-color, $surface-color 90%);
+        color: $success-color;
       }
     }
   }
@@ -476,27 +476,27 @@
 .twilio-info {
   display: flex;
   align-items: center;
-  gap: vars.$spacing-3;
-  padding: vars.$spacing-4;
-  background: color-mix(in srgb, vars.$info-color, vars.$surface-color 94%);
-  border: 1px solid color-mix(in srgb, vars.$info-color, transparent 84%);
-  border-radius: vars.$border-radius;
-  margin-bottom: vars.$spacing-4;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  background: color-mix(in srgb, $info-color, $surface-color 94%);
+  border: 1px solid color-mix(in srgb, $info-color, transparent 84%);
+  border-radius: $border-radius;
+  margin-bottom: $spacing-4;
 
   mat-icon {
-    color: vars.$info-color;
+    color: $info-color;
     flex-shrink: 0;
   }
 
   p {
     margin: 0;
-    font-size: vars.$font-size-sm;
-    color: vars.$text-secondary;
+    font-size: $font-size-sm;
+    color: $text-secondary;
 
     a {
-      color: vars.$primary-color;
+      color: $primary-color;
       text-decoration: none;
-      font-weight: vars.$font-weight-medium;
+      font-weight: $font-weight-medium;
 
       &:hover {
         text-decoration: underline;
@@ -508,11 +508,11 @@
 // Responsive
 @include mix.mobile {
   .settings-nav {
-    gap: vars.$spacing-1;
+    gap: $spacing-1;
 
     button {
-      padding: vars.$spacing-2 vars.$spacing-3;
-      font-size: vars.$font-size-xs;
+      padding: $spacing-2 $spacing-3;
+      font-size: $font-size-xs;
 
       span {
         display: none;

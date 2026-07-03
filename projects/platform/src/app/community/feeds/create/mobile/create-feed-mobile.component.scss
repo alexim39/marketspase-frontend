@@ -381,6 +381,12 @@ textarea {
   }
 }
 
+.upload-drop.drag-over {
+  border-color: vars.$primary-color;
+  background: rgba(var(--primary-rgb), 0.12);
+  border-style: solid;
+}
+
 .media-tile {
   height: 164px;
   scroll-snap-align: start;

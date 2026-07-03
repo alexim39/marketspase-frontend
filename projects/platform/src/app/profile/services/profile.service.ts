@@ -1,7 +1,7 @@
-import { Injectable, inject, signal } from '@angular/core';
+﻿import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { FeedPost } from '../../community/feeds/feed.service';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 
 export interface ProfileSocialProfiles {
   website?: string;

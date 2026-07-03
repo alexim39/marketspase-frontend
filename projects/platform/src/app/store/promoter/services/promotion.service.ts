@@ -1,8 +1,8 @@
-// services/promotion-tracking.service.ts
+﻿// services/promotion-tracking.service.ts
 import { inject, Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { Router } from '@angular/router';
 import { Product } from '../../models';
 

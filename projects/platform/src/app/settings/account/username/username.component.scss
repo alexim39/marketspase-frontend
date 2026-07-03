@@ -284,55 +284,6 @@
   }
 }
 
-// Responsive adjustments
-@media (max-width: 768px) {
-  .username-card {
-    margin: 0;
-    border-radius: 0;
-
-    .username-form {
-      padding: 16px 2px;
-
-      .form-section {
-        .section-header {
-          flex-direction: column;
-          align-items: stretch;
-
-          &.section-header--stacked {
-            align-items: stretch;
-          }
-
-          .profile-count {
-            align-self: flex-start;
-          }
-        }
-
-        .social-grid {
-          grid-template-columns: 1fr;
-
-          .social-grid__full {
-            grid-column: auto;
-          }
-        }
-      }
-    }
-
-    .referral-stats {
-      grid-template-columns: 1fr !important;
-    }
-
-    .referral-link {
-      flex-direction: column;
-      align-items: flex-start !important;
-
-      .copy-button {
-        margin-left: 0 !important;
-        margin-top: 8px;
-        align-self: flex-end;
-      }
-    }
-  }
-}
 
 // Snackbar styles
 .snackbar-success {

@@ -944,3 +944,27 @@ a {
     font-size: $font-size-lg;
   }
 }
+
+.subscription-banner {
+  display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem;
+  margin: 0 0.5rem 1rem; border-radius: 12px;
+  background: rgba(var(--primary-rgb), 0.06); border: 1px solid var(--border-color);
+  .sub-info { display: flex; align-items: center; gap: 0.5rem; flex: 1;
+    mat-icon { font-size: 1.6rem; width: 1.6rem; height: 1.6rem; color: var(--primary-color); }
+    strong { display: block; font-size: 0.9rem; }
+    span { display: block; font-size: 0.72rem; color: var(--text-secondary); }
+  }
+  button { flex-shrink: 0; }
+  &.expired { border-color: var(--error-color); background: rgba(var(--error-rgb), 0.06);
+    .sub-info mat-icon, .sub-info strong { color: var(--error-color); }
+  }
+  &.grace { border-color: var(--warning-color); background: rgba(var(--warning-rgb), 0.06);
+    .sub-info mat-icon, .sub-info strong { color: var(--warning-color); }
+  }
+}
+
+.services-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.service-row { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 10px; gap: 0.75rem; }
+.service-info { flex: 1; min-width: 0; strong { display: block; font-size: 0.9rem; color: var(--text-primary); } span { font-size: 0.72rem; color: var(--text-secondary); } .service-meta { font-size: 0.68rem; color: var(--text-tertiary); margin-top: 0.1rem; } }
+.service-actions { display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; }
+.status-chip { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.68rem; font-weight: 700; background: rgba(var(--primary-rgb), 0.08); color: var(--text-secondary); &.active { background: rgba(var(--success-rgb), 0.12); color: var(--success-color); } }

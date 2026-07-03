@@ -1,8 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Observable, throwError } from 'rxjs';
 import { filter, map, switchMap, take, timeout } from 'rxjs/operators';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { UserService } from '../../common/services/user.service';
 
 export interface Conversation {

@@ -83,18 +83,27 @@
       }
     </nav>
 
-    <section class="mobile-form-shell">
-      @switch (activeSection()) {
-        @case ('personal') {
-          <async-personal-infor [user]="user" />
+    @if (isFormVisible()) {
+      <section class="mobile-form-shell">
+        <div class="form-header">
+          <button type="button" class="back-btn" (click)="closeForm()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <h2>{{ activeSectionLabel() }}</h2>
+        </div>
+
+        @switch (activeSection()) {
+          @case ('personal') {
+            <async-personal-infor-mobile [user]="user" />
+          }
+          @case ('professional') {
+            <async-professional-info-mobile [user]="user" />
+          }
+          @case ('identity') {
+            <async-username-info-mobile [user]="user" />
+          }
         }
-        @case ('professional') {
-          <async-professional-info [user]="user" />
-        }
-        @case ('identity') {
-          <async-username-info [user]="user" />
-        }
-      }
-    </section>
+      </section>
+    }
   }
 </main>

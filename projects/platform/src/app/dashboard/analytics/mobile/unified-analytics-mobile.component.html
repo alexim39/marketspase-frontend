@@ -1,0 +1,38 @@
+<header class="analytics-topbar">
+  <h1>Analytics</h1>
+  <button mat-stroked-button (click)="load()" [disabled]="loading()">
+    <mat-icon>refresh</mat-icon>
+  </button>
+</header>
+
+<div class="period-chips">
+  @for (d of [7, 30, 90]; track d) {
+    <button class="period-chip" [class.active]="days() === d" (click)="selectDays(d)">{{ d }}D</button>
+  }
+</div>
+
+@if (loading()) {
+  <div class="loading-state"><mat-spinner diameter="36"/><span>Loading analytics...</span></div>
+} @else if (error()) {
+  <div class="loading-state"><mat-icon>error_outline</mat-icon><span>{{ error() }}</span><button mat-stroked-button (click)="load()">Retry</button></div>
+} @else {
+  <div class="kpi-scroll">
+    <div class="kpi-card"><mat-icon>campaign</mat-icon><strong>{{ data()?.campaigns?.active || 0 }}</strong><span>Active Campaigns</span></div>
+    <div class="kpi-card"><mat-icon>touch_app</mat-icon><strong>{{ data()?.campaigns?.totalClicks || 0 | number }}</strong><span>Total Clicks</span></div>
+    <div class="kpi-card"><mat-icon>shopping_cart</mat-icon><strong>{{ data()?.storefront?.totalOrders || 0 }}</strong><span>Orders</span></div>
+    <div class="kpi-card"><mat-icon>payments</mat-icon><strong>₦{{ ((data()?.storefront?.totalRevenue || 0)/1000) | number:'1.0-0' }}k</strong><span>Revenue</span></div>
+    <div class="kpi-card"><mat-icon>account_balance_wallet</mat-icon><strong>₦{{ ((data()?.wallet?.available || 0)/1000) | number:'1.0-0' }}k</strong><span>Wallet</span></div>
+  </div>
+
+  @if (data()?.topCampaigns?.length) {
+    <div class="section">
+      <h2>Top Campaigns</h2>
+      @for (c of data()!.topCampaigns!.slice(0, 5); track c._id) {
+        <div class="list-item">
+          <div><strong>{{ c.title }}</strong><span>{{ c.billableClicks }} clicks</span></div>
+          <span>{{ c.spentBudget ? '₦'+((c.spentBudget/1000)|number:'1.0-0')+'k' : '—' }} / ₦{{ ((c.budget/1000)|number:'1.0-0') }}k</span>
+        </div>
+      }
+    </div>
+  }
+}

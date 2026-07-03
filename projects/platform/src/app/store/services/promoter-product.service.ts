@@ -1,10 +1,10 @@
-// services/promoter-product.service.ts
+﻿// services/promoter-product.service.ts
 import { inject, Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { ProductFilter } from '../promoter/models/promoter-product.model';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { PaginatedResponse } from '../promoter/products-list/models/filter-state.model';
 import { Product } from '../models';
 
@@ -94,5 +94,26 @@ export class PromoterProductService {
 
   getPromotionStats(productId: string): Observable<any> {
     return this.apiService.get(`${this.apiUrl}/${productId}/stats`, undefined, undefined, true);
+  }
+
+  getPromoterStoreServices(filters?: Partial<ProductFilter> & { page?: number; limit?: number }): Observable<PaginatedResponse<any>> {
+    let params = new HttpParams();
+    if (filters?.page) { params = params.set('page', filters.page.toString()); }
+    if (filters?.limit) { params = params.set('limit', filters.limit.toString()); }
+    if (filters?.categories?.length) { params = params.set('categories', filters.categories.join(',')); }
+    if (filters?.priceRange) {
+      params = params.set('minPrice', filters.priceRange.min.toString()).set('maxPrice', filters.priceRange.max.toString());
+    }
+    if (filters?.commissionRange) {
+      params = params.set('minCommission', filters.commissionRange.min.toString()).set('maxCommission', filters.commissionRange.max.toString());
+    }
+    if (filters?.searchQuery) { params = params.set('search', filters.searchQuery); }
+    if (filters?.sortBy) {
+      params = params.set('sortBy', filters.sortBy).set('sortDirection', filters.sortDirection || 'desc');
+    }
+    const svcUrl = this.apiUrl.replace('/product', '/service');
+    return this.apiService.get<PaginatedResponse<any>>(`${svcUrl}/list/promoter`, params, undefined, true).pipe(
+      catchError(error => { console.error('Error fetching promoter services:', error); throw error; })
+    );
   }
 }

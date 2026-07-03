@@ -19,15 +19,15 @@
       <div class="cart-summary">
           @if(currentUser.role === 'marketer') {
             <span class="items-count">You have {{ pendingCampaignsCount }} pending campaign(s)</span>
-            <span class="total-price">{{currentUser.wallets?.marketer?.balance || 0 | currencyUtils:currentUser.wallets?.marketer?.currency}}</span>
+            <span class="total-price">{{formatMoney(currentUser.wallets?.marketer?.balance || 0, currentUser.wallets?.marketer?.currency)}}</span>
           }
           @if(currentUser.role === 'promoter') {
             <span class="items-count">You have {{ pendingPromotionsCount }} pending promotion</span>
-            <span class="total-price">{{currentUser.wallets?.promoter?.balance || 0 | currencyUtils:currentUser.wallets?.promoter?.currency}}</span>
+            <span class="total-price">{{formatMoney(currentUser.wallets?.promoter?.balance || 0, currentUser.wallets?.promoter?.currency)}}</span>
           }
           @if(currentUser.role === 'marketing_rep') {
             <span class="items-count">You have {{ pendingPromotionsCount }} pending promotion</span>
-            <span class="total-price">{{currentUser.wallets?.promoter?.balance || 0 | currencyUtils:currentUser.wallets?.promoter?.currency}}</span>
+            <span class="total-price">{{formatMoney(currentUser.wallets?.promoter?.balance || 0, currentUser.wallets?.promoter?.currency)}}</span>
           }
         </div>
       </div>
@@ -92,10 +92,10 @@
               <span>Reserved Balance</span>
               <span class="amount">
                 @if (currentUser.role === 'promoter') {
-                  {{currentUser.wallets?.promoter?.reserved || 0 | currencyUtils:currentUser.wallets?.promoter?.currency}} 
+                  {{formatMoney(currentUser.wallets?.promoter?.reserved || 0, currentUser.wallets?.promoter?.currency)}} 
                 }
                 @if (currentUser.role === 'marketer') {
-                  {{currentUser.wallets?.marketer?.reserved || 0 | currencyUtils:currentUser.wallets?.marketer?.currency}} 
+                  {{formatMoney(currentUser.wallets?.marketer?.reserved || 0, currentUser.wallets?.marketer?.currency)}} 
                 }
               </span>
             </div>
@@ -166,6 +166,10 @@
               </mat-icon>
               <span>Toggle Theme</span>
             </button> -->
+            <div class="preferences-row">
+              <app-currency-selector />
+              <app-language-switcher />
+            </div>
           </div>
         </div>
       }

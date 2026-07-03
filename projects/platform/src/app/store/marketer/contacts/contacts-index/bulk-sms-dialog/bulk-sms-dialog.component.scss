@@ -1,35 +1,45 @@
 @use '../../../../../../styles/variables' as *;
 
+:host { display: block; }
 
-:host {
-  display: block;
-  min-height: 100vh;
-  background: var(--background-color) !important;
-  color: var(--text-primary) !important;
+.sms-dialog { width: 460px; max-width: 90vw; }
+
+.dialog-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.5rem 1.5rem 0;
+  h2 { margin: 0; font-size: 1.1rem; font-weight: 700; }
 }
 
-.sms-dialog {
-  min-width: 400px;
-  max-width: 520px;
-}
+mat-dialog-content { max-height: 55vh; overflow-y: auto; padding-top: 0.5rem; }
 
 .recipient-info {
-  margin-bottom: 16px;
-
-  strong { display: block; }
-
-  span {
-    color: var(--text-secondary);
-    font-size: 13px;
-  }
+  margin-bottom: 0.5rem; font-size: 0.85rem; color: $text-secondary;
+  strong { color: $text-primary; }
 }
+
+.preview-list {
+  margin-bottom: 0.75rem;
+  border: 1px solid $border-color; border-radius: $border-radius-md;
+  padding: 0.6rem 0.75rem; background: rgba(var(--primary-rgb), 0.03);
+}
+.preview-label { margin: 0 0 0.35rem; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: $text-secondary; }
+.preview-scroll { max-height: 100px; overflow-y: auto; }
+.preview-item {
+  display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
+  padding: 0.25rem 0; border-bottom: 1px solid rgba(var(--primary-rgb), 0.06); font-size: 0.8rem;
+  &:last-child { border-bottom: none; }
+}
+.preview-name { font-weight: 600; color: $text-primary; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.preview-phone { color: $text-secondary; white-space: nowrap; flex-shrink: 0; font-size: 0.75rem; }
 
 .full-width { width: 100%; }
 
-.cost-note {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-top: -8px;
-
-  strong { color: var(--text-primary); }
+.cost-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.5rem 0 0; border-top: 1px solid $border-color; margin-top: 0.25rem;
+  font-size: 0.82rem;
+  .cost-label { color: $text-secondary; }
+  .cost-value { font-weight: 700; color: $text-primary; }
 }
+
+mat-dialog-actions { padding: 0.5rem 1.5rem 0.75rem; gap: 0.5rem; }

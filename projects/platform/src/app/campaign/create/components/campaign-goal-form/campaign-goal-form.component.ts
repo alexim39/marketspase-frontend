@@ -7,6 +7,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 
 type CampaignGoal = 'awareness' | 'leads';
+type PayoutModel = 'pay_per_click' | 'cost_per_lead';
 
 interface GoalOption {
   value: CampaignGoal;
@@ -15,6 +16,13 @@ interface GoalOption {
   description: string;
   highlights: string[];
   footer: string;
+}
+
+interface PayoutModelOption {
+  value: PayoutModel;
+  title: string;
+  icon: string;
+  description: string;
 }
 
 @Component({
@@ -34,6 +42,21 @@ export class CampaignGoalFormComponent implements OnInit {
   @Output() validityChange = new EventEmitter<boolean>();
 
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly payoutModelOptions: PayoutModelOption[] = [
+    {
+      value: 'pay_per_click',
+      title: 'Pay Per Click (CPC)',
+      icon: 'ads_click',
+      description: 'Pay each time someone clicks your campaign link. Budget drains per click.'
+    },
+    {
+      value: 'cost_per_lead',
+      title: 'Cost Per Lead (CPL)',
+      icon: 'person_add',
+      description: 'Pay only when a qualified lead submits their contact info. More cost-effective for conversion campaigns.'
+    }
+  ];
 
   readonly goalOptions: GoalOption[] = [
     {
@@ -84,5 +107,15 @@ export class CampaignGoalFormComponent implements OnInit {
 
   isSelected(goal: CampaignGoal): boolean {
     return this.formGroup.get('campaignGoal')?.value === goal;
+  }
+
+  selectPayoutModel(model: PayoutModel): void {
+    this.formGroup.get('payoutModel')?.setValue(model);
+    this.formGroup.get('payoutModel')?.markAsTouched();
+    this.formGroup.get('payoutModel')?.markAsDirty();
+  }
+
+  isPayoutModelSelected(model: PayoutModel): boolean {
+    return this.formGroup.get('payoutModel')?.value === model;
   }
 }

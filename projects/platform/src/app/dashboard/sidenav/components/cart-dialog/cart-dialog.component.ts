@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, Signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, Signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -6,10 +6,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatRippleModule } from '@angular/material/core';
-import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
+import { LanguageSwitcherComponent } from '../../../../common/components/language-switcher/language-switcher.component';
 import { CampaignsSummaryCardComponent } from '../campaigns-summary-card/campaigns-summary-card.component';
 import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promotions-summary-card.component';
-
+import { CurrencySelectorComponent } from '../../../../common/components/currency-selector/currency-selector.component';
+import { CurrencyService } from '../../../../common/services/currency.service';
+import { UserInterface } from '@shared/services';
 @Component({
   selector: 'app-cart-dialog',
   standalone: true,
@@ -23,7 +25,8 @@ import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promo
     MatRippleModule,
     CampaignsSummaryCardComponent,
     PromotionsSummaryCardComponent,
-    CurrencyUtilsPipe
+    CurrencySelectorComponent,
+    LanguageSwitcherComponent,
   ],
   templateUrl: './cart-dialog.component.html',
   styleUrls: ['./cart-dialog.component.scss']
@@ -41,6 +44,12 @@ export class CartDialogComponent {
   @Output() viewAllPromotions = new EventEmitter<void>();
   @Output() viewWithdrawal = new EventEmitter<void>();
   @Output() switchUser = new EventEmitter<string>();
+
+  private currencyService = inject(CurrencyService);
+
+  formatMoney(amount: number, currency?: string): string {
+    return this.currencyService.format(amount || 0, ((currency || 'NGN') as string).toUpperCase());
+  }
 
 
 

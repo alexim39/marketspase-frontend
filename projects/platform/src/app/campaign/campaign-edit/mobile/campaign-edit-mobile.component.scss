@@ -402,3 +402,33 @@
     min-height: 48px;
   }
 }
+
+.optimize-banner-mobile {
+  display: grid;
+  gap: vars.$spacing-2;
+  padding: vars.$spacing-4;
+  border-radius: vars.$border-radius-xl;
+  background: color-mix(in srgb, #{vars.$surface-color}, vars.$primary-color 4%);
+  border: 1px solid vars.$border-color;
+  box-shadow: vars.$shadow-sm;
+  margin-bottom: vars.$spacing-4;
+
+  button {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.9rem 1rem;
+    border-radius: vars.$border-radius-full;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: none;
+  }
+
+  span {
+    display: block;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+    line-height: 1.6;
+  }
+}

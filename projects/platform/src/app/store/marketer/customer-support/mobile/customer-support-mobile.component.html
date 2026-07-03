@@ -94,6 +94,7 @@
         <strong>{{ selectedBuyerKeys().length }}</strong>
         <span>selected</span>
       </div>
+      <button type="button" (click)="openBulkSms()" class="primary">Bulk SMS</button>
       <button type="button" (click)="copyRecipients('emails')">Emails</button>
       <button type="button" (click)="copyRecipients('phones')">Phones</button>
       <button type="button" (click)="exportSelectedCustomers()">Export</button>
@@ -463,6 +464,25 @@
           Save customer record
         }
       </button>
+
+      <section class="detail-section">
+        <h4>Activity Log</h4>
+        @if (activeDetail()?.buyer?.activityLog?.length) {
+          <div class="activity-log">
+            @for (entry of activeDetail()!.buyer!.activityLog!.slice(0, 10); track $index) {
+              <div class="activity-entry" [class]="entry.type">
+                <mat-icon>{{ entry.type === 'sms' ? 'sms' : entry.type === 'email' ? 'mail' : 'label' }}</mat-icon>
+                <div>
+                  <span class="activity-meta">{{ entry.createdAt | date:'short' }}</span>
+                  <span class="activity-msg">{{ entry.message }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="mini-empty-state">No activity recorded yet.</div>
+        }
+      </section>
 
       <section class="detail-section">
         <h4>Linked stores</h4>

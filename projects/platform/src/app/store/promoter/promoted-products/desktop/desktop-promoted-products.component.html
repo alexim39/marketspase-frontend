@@ -61,12 +61,14 @@
           <div class="empty-state">
             <mat-icon>inventory_2</mat-icon>
             <h3>No promoted products yet</h3>
-            <p>Create affiliate links from Browse Products to start tracking performance here.</p>
-            <a mat-raised-button color="primary" routerLink="/dashboard/stores/products">
-              Browse Products
+            <p>Create affiliate links from Browse to Promote to start tracking performance here.</p>
+            <a mat-raised-button color="primary" routerLink="/dashboard/stores/offerings">
+              Browse to Promote
             </a>
           </div>
         } @else {
+          <click-cap-indicator style="display:block; margin-bottom: 0.75rem;" />
+
           <div class="promotion-list">
             @for (promotion of filteredPromotions(); track promotion.trackingId) {
               <article class="promotion-card">

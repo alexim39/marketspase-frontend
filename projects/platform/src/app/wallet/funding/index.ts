@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { DeviceService } from '@shared/services';
+﻿import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { DeviceService } from '@shared/services/device';
 import { WalletFundingComponent } from './funding.component';
 import { WalletFundingMobileComponent } from './mobile/wallet-funding-mobile.component';
 

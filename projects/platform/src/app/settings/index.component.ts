@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, inject, Input, OnInit, ViewChild, HostListener, signal, computed } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +13,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
-import { DeviceService, HelpDialogComponent, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { HelpDialogComponent, UserInterface } from '@shared/services';
 import { SettingsService } from './settings.service';
 import { UserService } from '../common/services/user.service';
 import { RecentActivityComponent } from './components/recent-activity/recent-activity.component';

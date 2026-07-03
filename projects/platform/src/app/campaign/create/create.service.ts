@@ -1,7 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+﻿import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpEvent } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs'; 
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 
 export interface CampaignMediaAsset {
   mediaUrl: string;
@@ -67,6 +67,18 @@ export class CampaignService {
     return this.apiService.get<CampaignPpcPricingConfigResponse>(`${this.apiUrl}/pricing/config`, undefined, undefined, true);
   }
 
+  getTemplates(): Observable<any> {
+    return this.apiService.get<any>(`${this.apiUrl}/templates`, undefined, undefined, true);
+  }
+
+  saveAsTemplate(data: Record<string, unknown>): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/templates`, data, undefined, true);
+  }
+
+  deleteTemplate(id: string): Observable<any> {
+    return this.apiService.delete<any>(`${this.apiUrl}/templates/${id}`, undefined, undefined, true);
+  }
+
   uploadMedia(file: File): Observable<HttpEvent<CampaignMediaUploadResponse>> {
     const formData = new FormData();
     formData.append('media', file);
@@ -82,6 +94,10 @@ export class CampaignService {
     ).pipe(
       catchError((error: HttpErrorResponse) => this.handleUploadError(error))
     );
+  }
+
+  suggestContentVariations(payload: { title: string; caption: string; category: string }): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/suggest/variations`, payload, undefined, true);
   }
 
 }

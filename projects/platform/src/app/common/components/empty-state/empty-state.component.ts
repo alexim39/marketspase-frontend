@@ -26,12 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
       }
     </div>
   `,
-  styles: [`
-    .empty-container { display: grid; place-items: center; gap: 0.5rem; padding: 2.5rem 1.5rem; text-align: center; color: var(--text-secondary); }
-    .empty-icon { font-size: 48px; width: 48px; height: 48px; color: var(--primary-color); opacity: 0.5; }
-    h3 { margin: 0; color: var(--text-primary); font-size: 1.05rem; }
-    p { margin: 0; max-width: 420px; }
-  `],
+  styleUrl: './empty-state.component.scss'
 })
 export class SharedEmptyStateComponent {
   readonly icon = input('inbox');

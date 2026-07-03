@@ -1,7 +1,8 @@
-import { DOCUMENT } from '@angular/common';
+﻿import { DOCUMENT } from '@angular/common';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, Subscription, catchError, finalize, of, tap } from 'rxjs';
-import { ApiService, UserInterface } from '@shared/services';
+import { ApiService } from '@shared/services/api';
+import { UserInterface } from '@shared/services';
 import { UserService } from '../../common/services/user.service';
 import { BadgeService } from '../../common/services/badge.service';
 import { GamificationService } from '../../common/services/gamification.service';

@@ -1,7 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiService, CampaignInterface, PromotionInterface } from '@shared/services';
+import { ApiService } from '@shared/services/api';
+import { CampaignInterface, PromotionInterface } from '@shared/services';
 
 export interface AnalyticsFilters {
   range?: string;
@@ -250,6 +251,21 @@ export interface DashboardConversation {
   isUnread: boolean;
   campaignId: string | null;
   promotionId: string | null;
+}
+
+export interface ActivityEvent {
+  type: 'message' | 'campaign_update';
+  id: string;
+  actor?: string;
+  actorAvatar?: string;
+  content?: string;
+  conversationTitle?: string;
+  conversationId?: string;
+  conversationType?: string;
+  title?: string;
+  status?: string;
+  isOwner?: boolean;
+  createdAt: string | Date;
 }
 
 export interface CollaborationConversation {
@@ -560,6 +576,16 @@ export class CollaborationService {
     );
   }
 
+  getActivityFeed(page: number = 1, limit: number = 15): Observable<{ success: boolean; data: { events: ActivityEvent[]; page: number; total: number } }> {
+    const params = new HttpParams().set('page', page.toString()).set('limit', limit.toString());
+    return this.apiService.get<{ success: boolean; data: { events: ActivityEvent[]; page: number; total: number } }>(
+      'api/v1/collaboration/activity-feed',
+      params,
+      undefined,
+      true
+    );
+  }
+
   openCampaignConversation(campaignId: string): Observable<{ success: boolean; data: CollaborationConversation }> {
     return this.apiService.post<{ success: boolean; data: CollaborationConversation }>(
       `api/v1/collaboration/conversations/campaign/${campaignId}`,
@@ -724,5 +750,13 @@ export class CollaborationService {
     });
 
     return params;
+  }
+
+  setAutoRenew(campaignId: string, enabled: boolean, maxTopUps?: number, topUpAmount?: number): Observable<any> {
+    return this.apiService.patch<any>(`api/v1/campaign/${campaignId}/auto-renew`, { enabled, maxTopUps, topUpAmount }, undefined, true);
+  }
+
+  getPerformanceBenchmarks(): Observable<any> {
+    return this.apiService.get<any>('api/v1/user/performance-benchmarks', undefined, undefined, true);
   }
 }

@@ -28,12 +28,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       }
     </div>
   `,
-  styles: [`
-    .loading-container { display: grid; place-items: center; padding: 2rem 1rem; }
-    .loading-spinner, .loading-bar { display: grid; gap: 0.75rem; justify-items: center; }
-    .loading-spinner p, .loading-bar p { color: var(--text-secondary); font-size: 0.88rem; margin: 0; }
-    .loading-skeleton { display: grid; gap: 1rem; width: 100%; }
-  `],
+  styleUrl: './loading-state.component.scss'
 })
 export class SharedLoadingStateComponent {
   readonly variant = input<'spinner' | 'bar' | 'skeleton'>('bar');

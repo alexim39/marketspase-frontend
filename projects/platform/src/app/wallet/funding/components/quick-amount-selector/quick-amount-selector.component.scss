@@ -29,10 +29,6 @@
     gap: 12px;
     animation: fadeInUp 0.6s ease-out;
 
-    @media (max-width: 767px) {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
 
     .quick-amount-btn {
       position: relative;
@@ -124,18 +120,6 @@
         letter-spacing: 0.5px;
       }
 
-      @media (max-width: 767px) {
-        padding: 16px 8px;
-        min-height: 80px;
-
-        .amount-value {
-          font-size: 16px;
-        }
-
-        .amount-label {
-          font-size: 11px;
-        }
-      }
     }
   }
 }

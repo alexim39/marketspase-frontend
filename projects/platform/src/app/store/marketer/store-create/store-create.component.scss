@@ -459,6 +459,143 @@
   }
 }
 
+.store-type-selector {
+  text-align: center;
+  margin-bottom: $spacing-8;
+
+  .type-selector-title {
+    @include heading-medium;
+    color: $text-primary;
+    margin: 0 0 $spacing-2 0;
+  }
+
+  .type-selector-subtitle {
+    @include body-medium;
+    color: $text-secondary;
+    margin: 0 0 $spacing-8 0;
+  }
+
+  .type-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-6;
+    max-width: 800px;
+    margin: 0 auto;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+      max-width: 400px;
+    }
+  }
+
+  .type-card {
+    @include card-base;
+    padding: $spacing-6;
+    text-align: center;
+    cursor: pointer;
+    transition: all $transition-normal;
+    border: 2px solid $border-color;
+
+    &:hover {
+      border-color: $primary-color;
+      transform: translateY(-2px);
+      box-shadow: $shadow-md;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary-color;
+      outline-offset: 2px;
+    }
+
+    &.selected {
+      border-color: $primary-color;
+      background: color-mix(in srgb, $primary-color 8%, transparent);
+
+      .type-card-select-btn {
+        background: $primary-color;
+        color: $white;
+      }
+    }
+
+    .type-card-icon {
+      font-size: 48px;
+      margin-bottom: $spacing-3;
+    }
+
+    .type-card-title {
+      @include heading-small;
+      color: $text-primary;
+      margin: 0 0 $spacing-2 0;
+    }
+
+    .type-card-description {
+      @include body-medium;
+      color: $text-secondary;
+      margin: 0 0 $spacing-4 0;
+    }
+
+    .type-card-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 $spacing-5 0;
+      text-align: left;
+      display: inline-block;
+
+      li {
+        @include body-small;
+        color: $text-secondary;
+        padding: $spacing-1 0;
+
+        &::before {
+          content: '•';
+          color: $primary-color;
+          font-weight: $font-weight-bold;
+          margin-right: $spacing-2;
+        }
+      }
+    }
+
+    .type-card-select-btn {
+      min-width: 140px;
+      transition: all $transition-normal;
+
+      &.primary-bg {
+        background: $primary-color;
+        color: $white;
+      }
+    }
+  }
+}
+
+.store-type-badge {
+  @include flex-center;
+  gap: $spacing-2;
+  margin-top: $spacing-2;
+
+  .badge-label {
+    @include caption;
+    color: $text-tertiary;
+  }
+
+  .badge-value {
+    @include body-small;
+    font-weight: $font-weight-semibold;
+    color: $primary-color;
+    background: color-mix(in srgb, $primary-color 10%, transparent);
+    padding: 2px $spacing-3;
+    border-radius: $border-radius-sm;
+  }
+
+  .change-type-btn {
+    font-size: $font-size-xs;
+    color: $primary-color;
+    text-decoration: underline;
+    padding: 0 $spacing-2;
+    min-width: auto;
+    line-height: 1;
+  }
+}
+
 .loading-card {
       .loading-content {
         display: flex;

@@ -1,7 +1,14 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Observable, throwError, timer } from 'rxjs';
 import { retry, catchError, timeout, map } from 'rxjs/operators';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
+
+export interface FundWalletPayload {
+  amount: number;
+  currency: string;
+  purpose?: string;
+  metadata?: Record<string, unknown>;
+}
 
 export interface RecordPaymentPayload {
   userId: string;
@@ -26,6 +33,19 @@ export class WalletService {
   private apiService: ApiService = inject(ApiService);
   private readonly maxRetries = 3;
   private readonly timeoutMs = 30000; // 30 seconds
+
+  /**
+   * Fund wallet through the international endpoint (supports multi-currency).
+   */
+  fundWallet(payload: FundWalletPayload): Observable<any> {
+    return this.apiService.post<any>(`api/v1/wallet/fund`, payload, undefined, true).pipe(
+      timeout(this.timeoutMs),
+      catchError(error => {
+        console.error('Fund wallet error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 
   /**
    * Records a successful payment transaction to the backend.

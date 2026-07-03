@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { ApiService, UserInterface } from '@shared/services';
+import { ApiService } from '@shared/services/api';
+import { UserInterface } from '@shared/services';
 import { UserService } from '../../common/services/user.service';
 
 export interface SignInInterface {

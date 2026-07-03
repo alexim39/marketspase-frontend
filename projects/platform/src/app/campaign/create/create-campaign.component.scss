@@ -4,17 +4,14 @@
 
 .campaign-creation-container {
   min-height: 100vh;
-  // UPDATED: Use background-color variable for dynamic theming
   background: $background-color;
   display: flex;
   flex-direction: column;
   font-family: 'Inter', sans-serif;
 
   .campaign-header {
-    // UPDATED: Use gradient-primary variable for dynamic theming
     background: $gradient-primary;
     color: white;
-    // UPDATED: Use primary-color with rgba for dynamic theming
     box-shadow: 0 4px 20px rgba(var(--primary-rgb), 0.3);
     position: sticky;
     top: 0;
@@ -63,6 +60,10 @@
           background-color: rgba(255, 255, 255, 0.1);
           border-color: rgba(255, 255, 255, 0.8);
         }
+      }
+
+      button {
+        margin-left: 0.5rem;
       }
     }
   }
@@ -148,6 +149,20 @@
     max-width: 860px;
     width: 100%;
 
+    .optimize-row {
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
+      padding: $spacing-4;
+      margin-top: $spacing-1;
+      background: rgba(var(--primary-rgb), 0.03);
+      border-radius: $border-radius-md;
+      border: 1px dashed rgba(var(--primary-rgb), 0.15);
+
+      button { flex-shrink: 0; font-weight: $font-weight-semibold; }
+      .optimize-hint { font-size: 0.78rem; color: $text-tertiary; }
+    }
+
     .submission-status {
       margin-top: 1rem;
       padding: 1rem 1.125rem;
@@ -211,31 +226,4 @@
     }
   }
 
-  @media (max-width: 600px) {
-    .campaign-header {
-      .header-title {
-        h1 {
-          font-size: 1.5rem;
-        }
-      }
-    }
-
-    .step-indicators {
-      padding: 0 10px;
-      .step-label {
-        display: none;
-      }
-    }
-
-    .form-content {
-      .action-buttons {
-        gap: 0.75rem;
-        flex-wrap: wrap;
-
-        button {
-          flex: 1 1 160px;
-        }
-      }
-    }
-  }
 }

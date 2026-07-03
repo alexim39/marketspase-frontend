@@ -11,7 +11,7 @@
             <div class="nav-item-header" [class.active]="isRouteActive(item.route)">
             <div class="nav-header-content">
                 <mat-icon class="nav-icon">{{item.icon}}</mat-icon>
-                <span class="nav-label">{{item.label}}</span>
+                <span class="nav-label">{{item.label | t}}</span>
             </div>
             @if (item.badge && item.badge > 0) {
                 <div class="nav-badge">
@@ -30,7 +30,7 @@
             <div class="nav-item-header">
             <div class="nav-header-content">
                 <mat-icon class="nav-icon">{{item.icon}}</mat-icon>
-                <span class="nav-label">{{item.label}}</span>
+                <span class="nav-label">{{item.label | t}}</span>
             </div>
             @if (item.badge && item.badge > 0) {
                 <div class="nav-badge">
@@ -49,7 +49,7 @@
             (click)="toggleItem(item)">
             <div class="nav-header-content">
             <mat-icon class="nav-icon">{{item.icon}}</mat-icon>
-            <span class="nav-label">{{item.label}}</span>
+            <span class="nav-label">{{item.label | t}}</span>
             </div>
             <div class="nav-header-actions">
             @if (item.badge && item.badge > 0) {
@@ -83,7 +83,7 @@
                     <div class="nav-item-header" [class.active]="isRouteActive(child.route)">
                         <div class="nav-header-content">
                         <mat-icon class="nav-icon">{{child.icon}}</mat-icon>
-                        <span class="nav-label">{{child.label}}</span>
+                        <span class="nav-label">{{child.label | t}}</span>
                         </div>
                         @if (child.badge && child.badge > 0) {
                         <div class="nav-badge">
@@ -102,7 +102,7 @@
                     <div class="nav-item-header">
                         <div class="nav-header-content">
                         <mat-icon class="nav-icon">{{child.icon}}</mat-icon>
-                        <span class="nav-label">{{child.label}}</span>
+                        <span class="nav-label">{{child.label | t}}</span>
                         </div>
                         @if (child.badge && child.badge > 0) {
                         <div class="nav-badge">
@@ -121,7 +121,7 @@
                     (click)="toggleItem(child)">
                     <div class="nav-header-content">
                         <mat-icon class="nav-icon">{{child.icon}}</mat-icon>
-                        <span class="nav-label">{{child.label}}</span>
+                        <span class="nav-label">{{child.label | t}}</span>
                     </div>
                     <div class="nav-header-actions">
                         @if (child.badge && child.badge > 0) {
@@ -155,7 +155,7 @@
                                 <div class="nav-item-header" [class.active]="isRouteActive(grandChild.route)">
                                 <div class="nav-header-content">
                                     <mat-icon class="nav-icon">{{grandChild.icon}}</mat-icon>
-                                    <span class="nav-label">{{grandChild.label}}</span>
+                                    <span class="nav-label">{{grandChild.label | t}}</span>
                                 </div>
                                 @if (grandChild.badge && grandChild.badge > 0) {
                                     <div class="nav-badge">
@@ -174,7 +174,7 @@
                                 <div class="nav-item-header">
                                 <div class="nav-header-content">
                                     <mat-icon class="nav-icon">{{grandChild.icon}}</mat-icon>
-                                    <span class="nav-label">{{grandChild.label}}</span>
+                                    <span class="nav-label">{{grandChild.label | t}}</span>
                                 </div>
                                 @if (grandChild.badge && grandChild.badge > 0) {
                                     <div class="nav-badge">

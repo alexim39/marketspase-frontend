@@ -540,8 +540,24 @@
                     width: 0.9rem;
                     height: 0.9rem;
                     color: #ffc107;
-                  }
-                }
+  }
+}
+
+.auto-renew-toggle {
+  margin-left: 0.5rem;
+  font-size: 0.82rem;
+  --mdc-switch-selected-focus-state-layer-color: var(--primary-color);
+  --mdc-switch-selected-handle-color: var(--primary-color);
+  --mdc-switch-selected-hover-state-layer-color: var(--primary-color);
+  --mdc-switch-selected-pressed-state-layer-color: var(--primary-color);
+  --mdc-switch-selected-focus-handle-color: var(--primary-color);
+  --mdc-switch-selected-hover-handle-color: var(--primary-color);
+  --mdc-switch-selected-pressed-handle-color: var(--primary-color);
+  --mdc-switch-selected-focus-track-color: rgba(var(--primary-rgb), 0.38);
+  --mdc-switch-selected-hover-track-color: rgba(var(--primary-rgb), 0.38);
+  --mdc-switch-selected-pressed-track-color: rgba(var(--primary-rgb), 0.38);
+  --mdc-switch-selected-track-color: rgba(var(--primary-rgb), 0.38);
+}
               }
             }
           }
@@ -1081,4 +1097,47 @@
       background-color: rgba(var(--primary-rgb), 0.1);
     }
   }
+}
+
+.wallet-section {
+  margin-bottom: 1.5rem;
+
+  wallet-balance-card {
+    display: block;
+  }
+}
+
+.cpc-cell {
+  .cpc-base {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    display: block;
+  }
+
+  .cpc-tier {
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+
+    .tier-badge-inline {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 8px;
+      background: rgba(var(--success-rgb), 0.12);
+      color: var(--success-color, #10b981);
+      white-space: nowrap;
+    }
+  }
+}
+
+.text-success {
+  color: var(--success-color, #10b981);
+}
+
+.text-warning {
+  color: var(--warning-color, #f59e0b);
 }

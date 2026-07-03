@@ -5,19 +5,19 @@
 .promoter-products-container {
   min-height: 100vh;
   background: $background-color;
-  
+
   .main-content {
     max-width: 1400px;
     margin: $spacing-8 auto;
     padding: 0 $spacing-4;
     display: grid;
     gap: $spacing-8;
-    
+
     @include desktop {
       grid-template-columns: 280px 1fr;
       padding: 0 $spacing-8;
     }
-    
+
     @include mobile {
       display: block;
       margin: $spacing-4 auto;
@@ -31,12 +31,12 @@
     display: block;
     margin-bottom: 0;
   }
-  
+
   app-products-filter-sidebar {
     display: block;
     height: fit-content;
   }
-  
+
   app-products-content-view {
     display: block;
     width: 100%;

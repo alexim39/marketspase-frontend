@@ -105,7 +105,7 @@
       border-radius: $border-radius;
 
       &:hover {
-        background: rgba($gray-600, 0.1);
+        background: rgba(var(--primary-rgb), 0.06);
         color: $text-primary;
       }
 

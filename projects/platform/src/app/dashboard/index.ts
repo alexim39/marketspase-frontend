@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
@@ -17,13 +17,16 @@ import {
 } from '@angular/router';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DeviceService, LoadingService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { LoadingService, UserInterface } from '@shared/services';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { UserService } from '../common/services/user.service';
 import { DailyCheckInIndexComponent } from './daily-check-in';
 import { DailyCheckInService } from './daily-check-in/daily-check-in.service';
 import { DashboardComponent } from './sidenav/sidenav.component';
+import { OnboardingOverlayComponent } from '../common/components/onboarding/onboarding-overlay.component';
+import { MarketAiChatComponent } from '../common/components/marketai-chat/marketai-chat.component';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -40,6 +43,8 @@ interface AuthState {
     DashboardComponent,
     DailyCheckInIndexComponent,
     MatProgressBarModule,
+    OnboardingOverlayComponent,
+    MarketAiChatComponent,
   ],
   templateUrl: './index.html',
   styleUrls: ['./index.scss'],

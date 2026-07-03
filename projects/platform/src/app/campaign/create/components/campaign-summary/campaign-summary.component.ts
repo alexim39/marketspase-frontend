@@ -131,6 +131,17 @@ export class CampaignSummaryComponent {
     { initialValue: 'awareness' }
   );
 
+  private payoutModelValue = toSignal(
+    toObservable(this.goalForm).pipe(
+      switchMap((form) =>
+        form.get('payoutModel')!.valueChanges.pipe(
+          startWith(form.get('payoutModel')?.value || 'pay_per_click')
+        )
+      )
+    ),
+    { initialValue: 'pay_per_click' }
+  );
+
   public selectedAgeGroup = computed(() => {
     const ageTarget = this.ageTargetValue();
     return this.ageGroups.find((group) => group.value === ageTarget) || this.ageGroups[0];
@@ -139,6 +150,11 @@ export class CampaignSummaryComponent {
   public selectedGoal = computed(() => {
     const goal = (this.goalValue() as CampaignGoal) || 'awareness';
     return this.goalConfig[goal] ?? this.goalConfig.awareness;
+  });
+
+  public payoutModelLabel = computed(() => {
+    const model = this.payoutModelValue();
+    return model === 'cost_per_lead' ? 'Cost Per Lead (CPL)' : 'Pay Per Click (CPC)';
   });
 
   public estimatedOutcome = computed(() => {

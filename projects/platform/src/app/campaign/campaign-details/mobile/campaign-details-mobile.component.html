@@ -111,7 +111,36 @@
             <span>Activate</span>
           </button>
         }
+
+        @if (isOwner()) {
+          <button type="button" class="quick-action" (click)="openSmartInvite()">
+            <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+            <span>Smart Invite</span>
+          </button>
+          <button type="button" class="quick-action" (click)="openOptimizeContent()">
+            <mat-icon aria-hidden="true">psychology</mat-icon>
+            <span>Optimize</span>
+          </button>
+          <button type="button" class="quick-action" (click)="openBulkInvite()">
+            <mat-icon aria-hidden="true">group_add</mat-icon>
+            <span>Invite</span>
+          </button>
+        }
       </section>
+
+      @if (user(); as currentUser) {
+        <section class="wallet-strip">
+          <wallet-balance-card [user]="currentUser" />
+        </section>
+      }
+
+      @if (isOwner()) {
+        <section class="settings-strip">
+          <mat-slide-toggle [checked]="autoRenewEnabled()" (change)="toggleAutoRenew($event)" color="primary">
+            Auto-Renew Budget
+          </mat-slide-toggle>
+        </section>
+      }
 
       <section class="budget-card">
         <div class="budget-header">
@@ -248,6 +277,8 @@
                   <div class="avatar">{{ getInitials(getPromoterName(promotion)) }}</div>
                   <div>
                     <strong>{{ getPromoterName(promotion) }}</strong>
+                    <promoter-tier-badge [promoterId]="promotion.promoter._id" />
+                    <promoter-trust-metrics [promoterId]="promotion.promoter._id" />
                     <span class="status-badge status-{{ promotion.status }}">{{ promotion.status | titlecase }}</span>
                   </div>
                 </div>
@@ -264,6 +295,17 @@
                   <div>
                     <span>Spend</span>
                     <strong>{{ formatCurrency(getPromotionSpend(promotion), campaign.currency) }}</strong>
+                  </div>
+                  <div class="cpc-metric">
+                    <span>CPC</span>
+                    @let cpcInfo = getPromotionCpcInfo(promotion);
+                    @if (cpcInfo.bonus > 0) {
+                      <strong class="text-success">{{ formatCurrency(cpcInfo.adjusted, campaign.currency) }}
+                        <span class="tier-chip">{{cpcInfo.tier}} +{{cpcInfo.bonus}}%</span>
+                      </strong>
+                    } @else {
+                      <strong>{{ formatCurrency(cpcInfo.base, campaign.currency) }}</strong>
+                    }
                   </div>
                 </div>
 

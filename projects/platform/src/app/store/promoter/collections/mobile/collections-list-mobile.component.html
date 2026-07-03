@@ -1,0 +1,35 @@
+<div class="mobile-collections-list">
+  <header class="page-header">
+    <h1>My Collections</h1>
+    <button mat-flat-button color="primary" routerLink="/dashboard/stores/collections/create">
+      <mat-icon>add</mat-icon> New
+    </button>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-state"><mat-spinner diameter="34" /><span>Loading...</span></div>
+  } @else if (error()) {
+    <div class="error-state"><mat-icon>error_outline</mat-icon><p>{{ error() }}</p></div>
+  } @else if (collections().length === 0) {
+    <div class="empty-state">
+      <mat-icon>auto_awesome</mat-icon>
+      <h3>No collections yet</h3>
+      <p>Curate products into themed collections for your audience.</p>
+    </div>
+  } @else {
+    <div class="collection-cards">
+      @for (c of collections(); track c._id) {
+        <mat-card class="collection-card" appearance="outlined" [routerLink]="['/dashboard/stores/collections', c._id]">
+          <mat-card-content>
+            <strong>{{ c.name }}</strong>
+            <p>{{ c.description }}</p>
+            <div class="stats">
+              <span><mat-icon>inventory_2</mat-icon>{{ c.productCount }}</span>
+              <span><mat-icon>visibility</mat-icon>{{ c.viewCount }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

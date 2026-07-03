@@ -85,7 +85,7 @@
   min-width: 0;
 
   span {
-    color: #0f766e;
+    color: $primary-color;
     display: block;
     font-size: 0.72rem;
     font-weight: 800;
@@ -122,26 +122,26 @@
 }
 
 .hero-action {
-  background: color-mix(in srgb, #0f766e, var(--surface-color) 88%);
-  color: #0f766e;
+  background: color-mix(in srgb, $primary-color, var(--surface-color) 88%);
+  color: $primary-color;
   text-decoration: none;
 }
 
 .status-panel {
-  background: color-mix(in srgb, #f59e0b, var(--surface-color) 86%);
-  border-color: color-mix(in srgb, #f59e0b, var(--surface-color) 66%);
+  background: color-mix(in srgb, $warning-color, var(--surface-color) 86%);
+  border-color: color-mix(in srgb, $warning-color, var(--surface-color) 66%);
   border-radius: 22px;
   display: grid;
   gap: 14px;
   padding: 16px;
 
   &.is-active {
-    background: color-mix(in srgb, #10b981, var(--surface-color) 88%);
-    border-color: #a7f3d0;
+    background: color-mix(in srgb, $success-color, var(--surface-color) 88%);
+    border-color: color-mix(in srgb, $success-color, var(--surface-color) 82%);
 
     .status-light {
-      background: #16a34a;
-      box-shadow: 0 0 0 6px rgba(22, 163, 74, 0.12);
+      background: $success-color;
+      box-shadow: 0 0 0 6px rgba($success-color-hex, 0.12);
     }
   }
 }
@@ -169,9 +169,9 @@
 }
 
 .status-light {
-  background: #f59e0b;
+  background: $warning-color;
   border-radius: 999px;
-  box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.14);
+  box-shadow: 0 0 0 6px rgba($warning-color-hex, 0.14);
   height: 12px;
   width: 12px;
 }
@@ -211,7 +211,7 @@
   }
 
   input:checked + span {
-    background: #0f766e;
+    background: $primary-color;
 
     &::after {
       transform: translateX(24px);
@@ -237,7 +237,7 @@
   span {
     align-items: center;
     background: color-mix(in srgb, var(--surface-color), transparent 28%);
-    border: 1px solid rgba(15, 118, 110, 0.14);
+    border: 1px solid rgba($primary-color-hex, 0.14);
     border-radius: 999px;
     color: var(--text-secondary);
     display: inline-flex;
@@ -250,7 +250,7 @@
   }
 
   mat-icon {
-    color: #0f766e;
+    color: $primary-color;
     font-size: 18px;
     height: 18px;
     width: 18px;
@@ -273,7 +273,7 @@
   }
 
   mat-icon {
-    color: #d97706;
+    color: $warning-color;
   }
 
   strong {
@@ -288,7 +288,7 @@
   }
 
   button {
-    background: #0f766e;
+    background: $primary-color;
     border: 0;
     border-radius: 14px;
     color: var(--on-primary-color);
@@ -323,7 +323,7 @@
   scroll-snap-align: start;
 
   mat-icon {
-    color: #0f766e;
+    color: $primary-color;
   }
 
   strong {
@@ -357,12 +357,12 @@
   text-decoration: none;
 
   &.test {
-    background: color-mix(in srgb, #667eea, var(--surface-color) 86%);
-    border-color: color-mix(in srgb, #667eea, var(--surface-color) 66%);
+    background: color-mix(in srgb, $primary-color, var(--surface-color) 86%);
+    border-color: color-mix(in srgb, $primary-color, var(--surface-color) 66%);
   }
 
   mat-icon {
-    color: #0f766e;
+    color: $primary-color;
   }
 
   span {
@@ -393,7 +393,7 @@ button.quick-card {
   margin-bottom: 14px;
 
   span {
-    color: #0f766e;
+    color: $primary-color;
     display: block;
     font-size: 0.72rem;
     font-weight: 800;
@@ -408,7 +408,7 @@ button.quick-card {
   }
 
   a {
-    color: #0f766e;
+    color: $primary-color;
     font-size: 0.88rem;
     font-weight: 800;
     min-height: 44px;
@@ -436,21 +436,21 @@ button.quick-card {
   text-decoration: none;
 
   &.needs-attention {
-    background: color-mix(in srgb, #f59e0b, var(--surface-color) 86%);
-    border-color: #fdba74;
+    background: color-mix(in srgb, $warning-color, var(--surface-color) 86%);
+    border-color: color-mix(in srgb, $warning-color, var(--surface-color) 72%);
 
     .conversation-meta em {
-      background: color-mix(in srgb, #f59e0b, var(--surface-color) 66%);
-      color: #9a3412;
+      background: color-mix(in srgb, $warning-color, var(--surface-color) 66%);
+      color: $warning-color;
     }
   }
 }
 
 .avatar {
   align-items: center;
-  background: color-mix(in srgb, #14b8a6, var(--surface-color) 78%);
+  background: color-mix(in srgb, $primary-color, var(--surface-color) 78%);
   border-radius: 16px;
-  color: #0f766e;
+  color: $primary-color;
   display: inline-flex;
   font-weight: 900;
   height: 48px;
@@ -485,9 +485,9 @@ button.quick-card {
   gap: 5px;
 
   em {
-    background: color-mix(in srgb, #3b82f6, var(--surface-color) 78%);
+    background: color-mix(in srgb, $info-color, var(--surface-color) 78%);
     border-radius: 999px;
-    color: #1d4ed8;
+    color: $info-color;
     font-size: 0.72rem;
     font-style: normal;
     font-weight: 850;
@@ -511,7 +511,7 @@ button.quick-card {
   text-align: center;
 
   mat-icon {
-    color: #0f766e;
+    color: $primary-color;
     margin-bottom: 8px;
   }
 
@@ -634,7 +634,7 @@ button.quick-card {
 
   > span {
     align-items: center;
-    background: #0f766e;
+    background: $primary-color;
     border-radius: 14px;
     color: var(--on-primary-color);
     display: inline-flex;
@@ -682,7 +682,7 @@ button.quick-card {
 
 .primary-sheet-action {
   align-items: center;
-  background: #0f766e;
+  background: $primary-color;
   border: 0;
   border-radius: 16px;
   color: var(--on-primary-color);
@@ -696,13 +696,13 @@ button.quick-card {
 }
 
 .test-reply {
-  background: color-mix(in srgb, #10b981, var(--surface-color) 88%);
-  border: 1px solid #a7f3d0;
+  background: color-mix(in srgb, $success-color, var(--surface-color) 88%);
+  border: 1px solid color-mix(in srgb, $success-color, var(--surface-color) 78%);
   border-radius: 18px;
   padding: 14px;
 
   span {
-    color: #0f766e;
+    color: $success-color;
     font-weight: 850;
   }
 
@@ -717,7 +717,7 @@ button.quick-card {
   grid-template-columns: auto minmax(0, 1fr);
 
   mat-icon {
-    color: #0f766e;
+    color: $primary-color;
   }
 
   span {

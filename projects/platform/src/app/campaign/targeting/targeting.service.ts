@@ -1,7 +1,8 @@
-// targeting.service.ts (updated)
+﻿// targeting.service.ts (updated)
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService, CampaignInterface, TargetingArea } from '@shared/services';
+import { ApiService } from '@shared/services/api';
+import { CampaignInterface, TargetingArea } from '@shared/services';
 
 @Injectable()
 export class CampaignTargetingService {

@@ -109,18 +109,3 @@
   100% { opacity: 1; }
 }
 
-@media (max-width: 768px) {
-  .loading-items.view-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .campaign-list-skeleton {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .skeleton-media {
-    width: 100%;
-    max-width: 200px;
-  }
-}

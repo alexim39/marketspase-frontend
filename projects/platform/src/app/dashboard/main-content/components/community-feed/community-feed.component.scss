@@ -1308,18 +1308,4 @@
   }
 }
 
-@media (max-width: 767px) {
-  .community-post-card {
-    border-radius: 20px;
 
-    .post-content {
-      padding: $spacing-3;
-    }
-
-    .post-actions-mini {
-      .action-item--save {
-        margin-left: 0;
-      }
-    }
-  }
-}

@@ -17,11 +17,7 @@
               <div class="action-content">
                 <div class="action-icon-container">
                   @if (action.badge) {
-                    <!-- <mat-badge [content]="action.badge" 
-                              [color]="action.badgeColor"
-                              class="action-badge">
-                      <mat-icon class="action-icon">{{ action.icon }}</mat-icon>
-                    </mat-badge> -->
+                    <mat-icon class="action-icon" [matBadge]="action.badge" [matBadgeColor]="action.badgeColor">{{ action.icon }}</mat-icon>
                   } @else {
                     <mat-icon class="action-icon">{{ action.icon }}</mat-icon>
                   }
@@ -58,11 +54,7 @@
               
               <div class="mobile-action-content">
                 @if (action.badge) {
-                  <!-- <mat-badge [content]="action.badge" 
-                            [color]="action.badgeColor"
-                            class="mobile-badge">
-                    <mat-icon>{{ action.icon }}</mat-icon>
-                  </mat-badge> -->
+                    <mat-icon [matBadge]="action.badge" [matBadgeColor]="action.badgeColor">{{ action.icon }}</mat-icon>
                 } @else {
                   <mat-icon>{{ action.icon }}</mat-icon>
                 }

@@ -1,4 +1,4 @@
-// transactions.component.ts
+﻿// transactions.component.ts
 import { Component, Input, Signal, computed, inject, signal } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -16,7 +16,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
-import { CurrencyUtilsPipe, DeviceService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
 import { Transaction } from './transactions.model';
 import { ShortenIdPipe } from './shorten-id.pipe';
 import { MatDialog } from '@angular/material/dialog';

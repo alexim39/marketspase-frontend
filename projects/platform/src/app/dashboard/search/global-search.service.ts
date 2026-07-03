@@ -1,7 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+﻿import { inject, Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import {
   GlobalSearchEntityType,
   GlobalSearchFilters,

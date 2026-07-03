@@ -13,8 +13,7 @@
       <div class="topbar-copy">
         <span>Messages</span>
         <h1>
-          @if (activeSection() === 'activity') { Activity Feed }
-          @else if (activeSection() === 'direct') { Inbox }
+          @if (activeSection() === 'direct') { Inbox }
           @else { Groups }
         </h1>
       </div>
@@ -89,114 +88,62 @@
 
       <app-typing-indicator [text]="typingIndicatorText()" />
 
-      <app-mention-dropdown [suggestions]="mentionSuggestions()" (select)="insertMention($event)" />
+      <app-mention-dropdown [suggestions]="mentionSuggestions()" (select)="insertMention($event)" (dismiss)="showMentionDropdown.set(false); mentionSuggestions.set([])" />
 
       <app-message-composer [(draftMessage)]="draftMessage" [(attachment)]="pendingAttachment" (send)="sendMessage()" (emojiClick)="openEmojiPicker($event)" (fileSelected)="onFileSelected($event)" />
     </section>
   } @else {
     <!-- List views -->
+    <!-- Fixed search for inbox/groups -->
+    <div class="modern-search">
+        <mat-icon>search</mat-icon>
+        <input type="search" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Search" />
+        @if (search()) {
+          <button type="button" class="search-clear" (click)="search.set('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
     <main class="mobile-content">
-      <!-- Activity Feed -->
-      @if (activeSection() === 'activity') {
-        <section class="metric-rail" aria-label="Overview">
-          <article><strong>{{ workspaceStats().total }}</strong><span>Threads</span></article>
-          <article class="metric-alert"><strong>{{ workspaceStats().unread }}</strong><span>Unread</span></article>
-          <article><strong>{{ workspaceStats().direct }}</strong><span>Direct</span></article>
-          <article><strong>{{ workspaceStats().rooms }}</strong><span>Rooms</span></article>
-        </section>
-
-        <section class="section-card">
-          <div class="section-heading">
-            <div><span>Quick Start</span><h2>{{ isMarketer() ? 'Campaign rooms' : isPromoter() ? 'Promotion rooms' : 'Work with context' }}</h2></div>
-            @if (loadingStarters()) { <mat-spinner diameter="22" /> }
+      @if (loadingConversations()) {
+          <div class="modern-empty">
+            <mat-spinner diameter="24" /><span>Loading...</span>
           </div>
-          @if (isMarketer()) {
-            @for (campaign of starterCampaignPreview(); track trackStarterCampaign($index, campaign)) {
-              <article class="starter-row">
-                <div><strong>{{ campaign.title }}</strong><span>{{ getCampaignStarterNote(campaign) }}</span></div>
-                <button mat-button type="button" [disabled]="!canOpenCampaignRoom(campaign)" (click)="openCampaignRoom(campaign._id)">Open</button>
-              </article>
-            }
-          } @else if (isPromoter()) {
-            @for (promotion of starterPromotionPreview(); track trackStarterPromotion($index, promotion)) {
-              <article class="starter-row">
-                <div><strong>{{ promotion.campaign.title }}</strong><span>{{ getPromotionStarterNote(promotion) }}</span></div>
-                <button mat-button type="button" (click)="openPromotionRoom(promotion._id)">Open</button>
-              </article>
-            }
-          }
-        </section>
-
-        <section class="section-card">
-          <div class="section-heading"><div><span>People</span><h2>Direct chats</h2></div></div>
-          @for (collaborator of collaboratorPreview(); track trackCollaborator($index, collaborator)) {
-            <button type="button" class="collaborator-row" (click)="openDirectChat(collaborator._id, collaborator.campaignId, collaborator.promotionId)">
-              <span class="avatar">{{ collaborator.displayName.charAt(0) }}</span>
-              <span><strong>{{ collaborator.displayName }}</strong><small>{{ collaborator.role | titlecase }}</small></span>
-              <mat-icon>chat</mat-icon>
-            </button>
-          }
-        </section>
-
-        <section class="section-card">
-          <div class="section-heading"><div><span>Recent</span><h2>Latest threads</h2></div></div>
-          @for (conversation of latestThreads(); track trackConversation($index, conversation)) {
-            <button type="button" class="thread-row-native" (click)="openThread(conversation)">
-              <div class="thread-avatar">
-                @if (conversation.counterpart?.avatar) { <img [src]="conversation.counterpart!.avatar" alt="" /> }
-                @else { <span>{{ (conversation.counterpart?.displayName || conversation.title || '?')[0] }}</span> }
-              </div>
-              <div class="thread-body">
-                <div class="thread-top">
-                  <strong>{{ formatConversationTitle(conversation) }}</strong>
-                  <span class="thread-time">{{ formatTime(conversation.lastMessageAt || conversation.updatedAt) }}</span>
-                </div>
-                <div class="thread-bottom">
-                  <p class="thread-preview">{{ conversation.lastMessagePreview || 'No messages yet.' }}</p>
-                  @if (conversation.unreadCount > 0) { <span class="unread-pill">{{ conversation.unreadCount }}</span> }
-                </div>
-              </div>
-            </button>
-          }
-        </section>
-      }
-
-      <!-- Inbox / Groups -->
-      @if (activeSection() !== 'activity') {
-        <div class="search-bar">
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>Search</mat-label>
-            <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Search conversations...">
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
-        </div>
-
-        @if (loadingConversations()) {
-          <div class="empty-card"><mat-spinner diameter="28" /><p>Loading...</p></div>
         } @else if (visibleConversations().length === 0) {
-          <div class="empty-card"><mat-icon>forum</mat-icon><p>No conversations yet.</p></div>
+          <div class="modern-empty">
+            <mat-icon>forum</mat-icon>
+            <p>No conversations yet</p>
+          </div>
         } @else {
-          <div class="thread-list">
+          <div class="modern-list">
             @for (conversation of visibleConversations(); track trackConversation($index, conversation)) {
-              <button type="button" class="thread-row-native" [class.active]="selectedConversation()?._id === conversation._id" (click)="openThread(conversation)">
-                <div class="thread-avatar">
-                  @if (conversation.counterpart?.avatar) { <img [src]="conversation.counterpart!.avatar" alt="" /> }
-                  @else { <span>{{ (conversation.counterpart?.displayName || conversation.title || '?')[0] }}</span> }
+              <button type="button" class="modern-row" [class.active]="selectedConversation()?._id === conversation._id" (click)="openThread(conversation)">
+                <div class="modern-avatar" [class.online]="conversation.type === 'direct' && conversation.counterpart?._id && realtimeService.isUserOnline(conversation.counterpart!._id)">
+                  @if (conversation.counterpart?.avatar) {
+                    <img [src]="conversation.counterpart!.avatar" alt="" />
+                  } @else {
+                    <span>{{ (conversation.counterpart?.displayName || conversation.title || '?')[0] }}</span>
+                  }
                 </div>
-                <div class="thread-body">
-                  <div class="thread-top">
+                <div class="modern-body">
+                  <div class="modern-top">
                     <strong>{{ formatConversationTitle(conversation) }}</strong>
-                    <span class="thread-time">{{ formatTime(conversation.lastMessageAt || conversation.updatedAt) }}</span>
+                    @if (conversation.type === 'direct' && conversation.counterpart?._id) {
+                      <promoter-tier-badge [promoterId]="conversation.counterpart!._id" />
+                    }
+                    <span class="modern-time">{{ formatTime(conversation.lastMessageAt || conversation.updatedAt) }}</span>
                   </div>
-                  <div class="thread-bottom">
-                    <p class="thread-preview">{{ conversation.lastMessagePreview || 'No messages yet.' }}</p>
-                    @if (conversation.unreadCount > 0) { <span class="unread-pill">{{ conversation.unreadCount }}</span> }
+                  <div class="modern-bottom">
+                    <p class="modern-preview">{{ conversation.lastMessagePreview || 'No messages yet.' }}</p>
+                    @if (conversation.unreadCount > 0) {
+                      <span class="modern-badge">{{ conversation.unreadCount }}</span>
+                    }
                   </div>
                 </div>
               </button>
             }
-          </div>
-        }
+        </div>
       }
 
       @if (error()) {
@@ -208,9 +155,6 @@
 
     <!-- Bottom tabs (list view only) -->
     <nav class="bottom-tabs" aria-label="Message sections">
-      <button type="button" [class.active]="activeSection() === 'activity'" (click)="setKindFilter('all')">
-        <mat-icon>dynamic_feed</mat-icon><span>Activity</span>
-      </button>
       <button type="button" [class.active]="activeSection() === 'direct'" (click)="setKindFilter('direct')">
         <mat-icon>chat</mat-icon><span>Inbox</span>
       </button>

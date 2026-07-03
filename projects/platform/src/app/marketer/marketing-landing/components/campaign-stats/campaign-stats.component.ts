@@ -1,7 +1,8 @@
-import { Component, computed, inject, Input, OnChanges, signal, SimpleChanges } from '@angular/core';
+﻿import { Component, computed, inject, Input, OnChanges, signal, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { DeviceService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface } from '@shared/services';
 
 interface CampaignStats {
   // Campaign counts

@@ -42,3 +42,41 @@
     </div>
   </mat-card-content>
 </mat-card>
+
+<mat-card class="form-card payout-model-card">
+  <mat-card-header>
+    <mat-card-title>Payout Model</mat-card-title>
+    <mat-card-subtitle>
+      Choose how you want to pay for campaign results. CPC charges per click; CPL charges per qualified lead.
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="payout-model-grid" [formGroup]="formGroup">
+      @for (model of payoutModelOptions; track model.value) {
+        <button
+          type="button"
+          class="payout-option-card"
+          [class.selected]="isPayoutModelSelected(model.value)"
+          (click)="selectPayoutModel(model.value)"
+        >
+          <div class="payout-card-header">
+            <div class="payout-icon-wrap">
+              <mat-icon>{{ model.icon }}</mat-icon>
+            </div>
+
+            <div class="payout-title-group">
+              <h3>{{ model.title }}</h3>
+            </div>
+
+            <div class="payout-selected-indicator" [class.active]="isPayoutModelSelected(model.value)">
+              <mat-icon>{{ isPayoutModelSelected(model.value) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            </div>
+          </div>
+
+          <p class="payout-description">{{ model.description }}</p>
+        </button>
+      }
+    </div>
+  </mat-card-content>
+</mat-card>

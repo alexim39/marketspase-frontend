@@ -289,6 +289,7 @@ color: rgba(var(--surface-color), 0.76);
 
 .quote-loading,
 .conversion-note,
+.exchange-rate-note,
 .paystack-note {
   display: flex;
   align-items: center;
@@ -324,6 +325,16 @@ color: rgba(var(--surface-color), 0.76);
 
   mat-icon {
     color: $success-color;
+  }
+}
+
+.exchange-rate-note {
+  color: $info-color;
+  background: rgba(var(--info-rgb), 0.16);
+  margin-top: 0.5rem;
+
+  mat-icon {
+    color: $info-color;
   }
 }
 
@@ -640,5 +651,21 @@ color: rgba(var(--surface-color), 0.76);
   .quote-loading span,
   .is-processing .status-icon mat-icon {
     animation: none;
+  }
+}
+
+// Paystack inline checkout — mobile hardening
+:host ::ng-deep {
+  .paystack-checkout, iframe[name^="paystack"] {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  input[data-paystack], .paystack-card-number, .paystack-cvv, .paystack-expiry {
+    font-size: 14px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .paystack-widget {
+    overflow-x: hidden !important;
   }
 }

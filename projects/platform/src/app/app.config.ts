@@ -15,6 +15,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 // Firebase
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
+import { provideMessaging, getMessaging } from '@angular/fire/messaging';
 import { firebaseConfig } from './firebase.config';
 import { authInterceptor } from './common/interceptors/auth.interceptor';
 
@@ -31,6 +32,7 @@ export const appConfig: ApplicationConfig = {
 
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideAuth(() => getAuth()),
+    provideMessaging(() => getMessaging()),
     provideAnimationsAsync(),
 
     AppThemeService,

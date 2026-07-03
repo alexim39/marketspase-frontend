@@ -1,4 +1,4 @@
-@use '../../../../../styles/variables' as vars;
+@use '../../../../../styles/variables' as *;
 @use '../../../../../styles/mixins' as mixins;
 
 :host {
@@ -41,7 +41,7 @@
   padding: 18px;
 
   span {
-    color: #0f766e;
+    color: $primary-color;
     display: block;
     font-size: 0.72rem;
     font-weight: 850;
@@ -79,9 +79,9 @@
 }
 
 .hero-action {
-  background: color-mix(in srgb, #0f766e, var(--surface-color) 88%);
+  background: color-mix(in srgb, $primary-color, var(--surface-color) 88%);
   border-radius: 16px;
-  color: #0f766e;
+  color: $primary-color;
 }
 
 .summary-rail {
@@ -106,8 +106,8 @@
     padding: 14px;
 
     &.warning {
-      background: color-mix(in srgb, #f59e0b, var(--surface-color) 86%);
-      border-color: color-mix(in srgb, #f59e0b, var(--surface-color) 66%);
+      background: color-mix(in srgb, $warning-color, var(--surface-color) 86%);
+      border-color: color-mix(in srgb, $warning-color, var(--surface-color) 66%);
     }
   }
 
@@ -159,7 +159,7 @@
   }
 
   button {
-    background: #0f766e;
+    background: $primary-color;
     border-radius: 16px;
     color: var(--on-primary-color);
   }
@@ -189,8 +189,8 @@
     padding: 0 14px;
 
     &.active {
-      background: #0f766e;
-      border-color: #0f766e;
+      background: $primary-color;
+      border-color: $primary-color;
       color: var(--on-primary-color);
     }
   }
@@ -223,7 +223,7 @@
   }
 
   mat-icon {
-    color: #0f766e;
+    color: $primary-color;
     font-size: 40px;
     height: 40px;
     width: 40px;
@@ -248,17 +248,17 @@
   text-align: left;
 
   &.escalated {
-    background: color-mix(in srgb, #f59e0b, var(--surface-color) 86%);
-    border-color: #fdba74;
+    background: color-mix(in srgb, $warning-color, var(--surface-color) 86%);
+    border-color: color-mix(in srgb, $warning-color, var(--surface-color) 72%);
   }
 
   &.hot {
-    box-shadow: inset 4px 0 0 #dc2626, 0 12px 26px rgba(15, 23, 42, 0.07);
+    box-shadow: inset 4px 0 0 $error-color, 0 12px 26px rgba(15, 23, 42, 0.07);
   }
 
   b {
     align-items: center;
-    background: #0f766e;
+    background: $primary-color;
     border-radius: 999px;
     color: var(--on-primary-color);
     display: inline-flex;
@@ -273,9 +273,9 @@
 
 .avatar {
   align-items: center;
-  background: color-mix(in srgb, #14b8a6, var(--surface-color) 78%);
+  background: color-mix(in srgb, $primary-color, var(--surface-color) 78%);
   border-radius: 16px;
-  color: #0f766e;
+  color: $primary-color;
   display: inline-flex;
   font-weight: 900;
   height: 48px;
@@ -328,9 +328,9 @@
   overflow: hidden;
 
   em {
-    background: color-mix(in srgb, #3b82f6, var(--surface-color) 78%);
+    background: color-mix(in srgb, $info-color, var(--surface-color) 78%);
     border-radius: 999px;
-    color: #1d4ed8;
+    color: $info-color;
     flex: 0 0 auto;
     font-size: 0.72rem;
     font-style: normal;
@@ -394,10 +394,10 @@
 
 .escalation-note {
   align-items: center;
-  background: color-mix(in srgb, #f59e0b, var(--surface-color) 86%);
-  border-color: color-mix(in srgb, #f59e0b, var(--surface-color) 66%);
+  background: color-mix(in srgb, $warning-color, var(--surface-color) 86%);
+  border-color: color-mix(in srgb, $warning-color, var(--surface-color) 66%);
   border-radius: 16px;
-  color: #9a3412;
+  color: $warning-color;
   display: flex;
   gap: 8px;
   margin: 10px 12px 0;
@@ -441,7 +441,7 @@
   }
 
   mat-icon {
-    color: #0f766e;
+    color: $primary-color;
     font-size: 18px;
     height: 18px;
     width: 18px;
@@ -485,13 +485,13 @@
   padding: 10px 12px;
 
   &.ai {
-    background: color-mix(in srgb, #10b981, var(--surface-color) 88%);
-    border-color: #a7f3d0;
+    background: color-mix(in srgb, $success-color, var(--surface-color) 88%);
+    border-color: color-mix(in srgb, $success-color, var(--surface-color) 78%);
   }
 
   &.agent {
-    background: color-mix(in srgb, #0f766e, var(--surface-color) 88%);
-    border-color: #99f6e4;
+    background: color-mix(in srgb, $primary-color, var(--surface-color) 88%);
+    border-color: color-mix(in srgb, $primary-color, var(--surface-color) 80%);
   }
 
   p {
@@ -536,7 +536,7 @@
   }
 
   button {
-    background: #0f766e;
+    background: $primary-color;
     border-radius: 16px;
     color: var(--on-primary-color);
 
@@ -633,11 +633,11 @@
   padding: 0 14px;
   text-align: left;
 
-  &.active {
-    background: color-mix(in srgb, #0f766e, var(--surface-color) 88%);
-    border-color: #5eead4;
-    color: #0f766e;
-  }
+    &.active {
+      background: color-mix(in srgb, $primary-color, var(--surface-color) 88%);
+      border-color: color-mix(in srgb, $primary-color, var(--surface-color) 74%);
+      color: $primary-color;
+    }
 }
 
 .action-list button,
@@ -648,7 +648,7 @@
 .sheet-choice-grid mat-icon,
 .lead-tag-list mat-icon,
 .action-list mat-icon {
-  color: #0f766e;
+  color: $primary-color;
 }
 
 @media (min-width: 640px) {

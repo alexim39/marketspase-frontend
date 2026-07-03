@@ -488,22 +488,6 @@
 }
 
 // Responsive adjustments for list view
-/* @media (max-width: 768px) {
-  .campaign-card.list-view {
-    flex-direction: column;
-    max-height: none;
-    
-    .card-media {
-      flex: none;
-      margin: 16px 16px 0;
-    }
-    
-    .card-footer {
-      border-left: none;
-      border-top: 1px solid $border-color;
-    }
-  }
-} */
 
 .user-badge {
   display: inline-flex;
@@ -579,8 +563,3 @@
 }
 
 /* Hide on very small screens to avoid clutter */
-@media (max-width: 420px) {
-  .marketer-name {
-    display: none;
-  }
-}

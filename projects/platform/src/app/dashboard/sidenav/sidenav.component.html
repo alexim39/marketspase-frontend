@@ -46,6 +46,7 @@
         (createCampaign)="createCampaign()"
         (createPost)="createPost()"
         (fundWallet)="fundWallet()"
+        (viewProducts)="viewProducts()"
         (viewPromotion)="viewPromotion()"
         (viewMyPromotion)="viewMyPromotion()"
         (switchUser)="switchUser($event)"
@@ -69,10 +70,10 @@
             <div class="wallet-display" (click)="openWallet()">
               <mat-icon>account_balance_wallet</mat-icon>
               @if (currentUser.role === 'promoter') {
-                <span class="wallet-amount">{{currentUser.wallets?.promoter?.balance || 0 | currencyUtils:currentUser.wallets?.promoter?.currency}}</span>
+                <span class="wallet-amount">{{formatWalletBalance(currentUser.wallets?.promoter?.balance, currentUser.wallets?.promoter?.currency)}}</span>
               }
               @if (currentUser.role === 'marketer') {
-                <span class="wallet-amount">{{currentUser.wallets?.marketer?.balance || 0 | currencyUtils:currentUser.wallets?.marketer?.currency}}</span>
+                <span class="wallet-amount">{{formatWalletBalance(currentUser.wallets?.marketer?.balance, currentUser.wallets?.marketer?.currency)}}</span>
               }
             </div>
 

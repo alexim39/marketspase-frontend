@@ -212,6 +212,33 @@
         }
       }
       
+      .analytics-badge {
+        position: absolute;
+        top: 18px;
+        right: $spacing-4;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding: 2px $spacing-2;
+        border-radius: $border-radius-full;
+        font-size: 11px;
+        font-weight: $font-weight-semibold;
+        background: rgba($text-secondary, 0.12);
+        color: $text-secondary;
+        
+        &.high-perf {
+          background: rgba(var(--success-rgb), 0.12);
+          color: var(--success-color);
+        }
+        
+        mat-icon {
+          font-size: 12px;
+          width: 12px;
+          height: 12px;
+        }
+      }
+      
       .product-image {
         position: relative;
         height: 200px;
@@ -322,6 +349,16 @@
               background: rgba($text-secondary, 0.1);
               color: $text-secondary;
             }
+          }
+
+          .service-type-badge {
+            font-size: $font-size-xs;
+            padding: 1px $spacing-1;
+            border-radius: $border-radius-sm;
+            width: fit-content;
+            background: rgba(var(--primary-rgb), 0.08);
+            color: $primary-color;
+            font-weight: $font-weight-semibold;
           }
         }
       }

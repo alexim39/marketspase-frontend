@@ -1,4 +1,4 @@
-// product-detail.component.ts
+﻿// product-detail.component.ts
 import { Component, signal, inject, OnInit, TemplateRef, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
@@ -13,8 +13,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTabsModule } from '@angular/material/tabs';
 import { take } from 'rxjs';
 
+import { ApiService } from '@shared/services/api';
 import { StoreService } from '../../../services/store.service';
 import { Product } from '../../../models';
 import { DialogService } from '../../../shared/services/dialog.service';
@@ -37,6 +39,17 @@ interface Review {
   date: Date;
 }
 
+interface PromoterPerformanceEntry {
+  displayName: string;
+  promoterTier: string;
+  totalConversions: number;
+  totalEarnings: number;
+  averageOrderValue: number;
+  clickToConversionRate: number;
+  suspicious: boolean;
+  promoterId: string;
+}
+
 @Component({
   selector: 'app-marketer-product-detail',
   standalone: true,
@@ -54,6 +67,7 @@ interface Review {
     MatProgressSpinnerModule,
     MatDividerModule,
     MatDialogModule,
+    MatTabsModule,
     TruncatePipe,
     CurrencyUtilsPipe,
     
@@ -69,6 +83,7 @@ export class MarketerProductDetailComponent implements OnInit {
   private storeService = inject(StoreService);
   private productService = inject(ProductService);
   private dialogService = inject(DialogService);
+  private apiService = inject(ApiService);
 
   private userService: UserService = inject(UserService);
   public user: Signal<UserInterface | null> = this.userService.user;
@@ -84,6 +99,11 @@ export class MarketerProductDetailComponent implements OnInit {
   // Signals
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
+
+  // Promoter Performance
+  promoterPerformance = signal<PromoterPerformanceEntry[]>([]);
+  performanceLoading = signal<boolean>(false);
+  selectedTabIndex = signal<number>(0);
 
   // Time range selection
   selectedRange: string = '30d';
@@ -121,6 +141,60 @@ export class MarketerProductDetailComponent implements OnInit {
     // TODO: Implement API call to fetch analytics data for the selected range
     console.log('Loading analytics for range:', range);
   }
+
+  loadPromoterPerformance(): void {
+    if (!this.productId) return;
+    this.performanceLoading.set(true);
+    this.apiService.get<any>(`api/v1/stores/product/${this.productId}/promoter-performance`)
+      .pipe(take(1))
+      .subscribe({
+        next: (response) => {
+          this.promoterPerformance.set(response?.data ?? response ?? []);
+          this.performanceLoading.set(false);
+        },
+        error: () => {
+          this.performanceLoading.set(false);
+        }
+      });
+  }
+
+  onTabChange(index: number): void {
+    this.selectedTabIndex.set(index);
+    if (index === 1 && this.promoterPerformance().length === 0) {
+      this.loadPromoterPerformance();
+    }
+  }
+
+  deactivatePromoter(entry: PromoterPerformanceEntry): void {
+    const sub = this.dialogService.confirmDeactivate(entry.displayName, 'promoter')
+      .pipe(take(1))
+      .subscribe(confirmed => {
+        if (confirmed) {
+          this.apiService.patch<any>(
+            `api/v1/stores/product/${this.productId}/promoters/${entry.promoterId}/deactivate`,
+            {}
+          ).pipe(take(1)).subscribe({
+            next: () => {
+              this.promoterPerformance.update(list =>
+                list.filter(p => p.promoterId !== entry.promoterId)
+              );
+              this.snackBar.open(`${entry.displayName} deactivated`, 'OK', {
+                duration: 3000,
+                panelClass: ['success-snackbar']
+              });
+            },
+            error: () => {
+              this.snackBar.open('Failed to deactivate promoter', 'OK', {
+                duration: 5000,
+                panelClass: ['error-snackbar']
+              });
+            }
+          });
+        }
+      });
+  }
+
+  displayedPerformanceColumns: string[] = ['promoter', 'tier', 'conversions', 'aov', 'revenue', 'convRate', 'actions'];
 
   ngOnInit(): void {
     this.loadProduct();

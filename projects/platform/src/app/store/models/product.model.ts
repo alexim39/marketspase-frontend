@@ -89,6 +89,19 @@ export interface ProductResponse {
 
 export interface Product {
   _id?: string;
+  type?: 'product' | 'service';
+  service?: {
+    pricingType: string;
+    packages?: Array<{ name: string; price: number }>;
+    hourlyRate?: number;
+    deliveryTime?: string;
+    availability?: string;
+    commissionType: string;
+    leadCommission: number;
+    bookingCommission: number;
+    inquiries: number;
+    bookings: number;
+  };
   //store: string; // Store ID
    store: {
     _id: string;
@@ -193,6 +206,7 @@ export interface Product {
     uniqueId?: string;
     affiliateUrl?: string;
     promotionUrl?: string;
+    publicUrl?: string;
     shareUrl?: string;
     commissionPerSale?: number;
     amountReceivable?: number;

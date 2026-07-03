@@ -1,8 +1,8 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { DeviceService } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
 import { StoreProductsListComponent } from './store-products-list.component';
 import { StoreProductsListMobileComponent } from './mobile/store-products-list-mobile.component';
 

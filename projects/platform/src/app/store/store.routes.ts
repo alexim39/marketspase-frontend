@@ -2,18 +2,20 @@ import { Routes } from "@angular/router";
 
 export const StoreRoutes: Routes = [
     {
-        /* path: '',
-        redirectTo: 'partner',
-        pathMatch: 'full' */
         path: '',
         loadComponent: () => import('.').then(c => c.StoreIndexComponent),
         title: "Store Dashboard - View and Manage all store",
     },
 
     {
-        path: 'products',
+        path: 'offerings',
         loadComponent: () => import('./promoter/products-list').then(c => c.PromoterProductsListIndexComponent),
-        title: "Promoted products - View and Manage Product you are promoting",
+        title: "Browse to Promote — Products & Services",
+    },
+    {
+        path: 'products',
+        redirectTo: 'offerings',
+        pathMatch: 'full',
     },
 
     {
@@ -46,7 +48,12 @@ export const StoreRoutes: Routes = [
         title: "Create New Store - Setup your Marketer Store",
     }, 
    
-    { 
+    {
+        path: ':storeId/services',
+        loadComponent: () => import('./marketer/services/service-list-management/index').then(c => c.ServiceListIndexComponent),
+        title: 'Service Management — MarketSpase',
+    },
+    {
         path: 'edit/:id', 
         loadComponent: () => import('./marketer/edit-store').then(c => c.StoreEditIndexComponent),
         title: "Edit Store - Update Store Information",
@@ -95,8 +102,49 @@ export const StoreRoutes: Routes = [
     },
 
         {
+        path: 'discover-promoters',
+        loadComponent: () => import('./marketer/promoter-discovery').then(c => c.PromoterDiscoveryIndexComponent),
+        title: "Discover Promoters - Find top affiliates for your products",
+    },
+
+        {
+        path: 'collections',
+        loadComponent: () => import('./promoter/collections').then(c => c.PromoterCollectionsIndexComponent),
+        title: "My Collections - Curated Product Collections",
+    },
+        {
+        path: 'collections/create',
+        loadComponent: () => import('./promoter/collections').then(c => c.PromoterCollectionsCreateIndexComponent),
+        title: "Create Collection",
+    },
+        {
+        path: 'collections/:id',
+        loadComponent: () => import('./promoter/collections').then(c => c.PromoterCollectionsDetailIndexComponent),
+        title: "Collection Details",
+    },
+
+        {
         path: 'contacts',
         loadChildren: () => import('./marketer/contacts/contacts.routes').then(r => r.ContactsRoutes),
     },
-    
+
+    {
+        path: 'services/create/:storeId',
+        loadComponent: () => import('./marketer/services/create-service/index').then(c => c.CreateServiceIndexComponent),
+        title: 'Create Service — MarketSpase',
+    },
+    {
+        path: 'services/subscribe/:storeId',
+        loadComponent: () => import('./marketer/services/service-subscription/service-subscription.component').then(c => c.ServiceSubscriptionComponent),
+        title: 'Service Subscription — MarketSpase',
+    },
+    {
+        path: 'services/:storeId',
+        loadComponent: () => import('./marketer/services/create-service/index').then(c => c.CreateServiceIndexComponent),
+        title: 'Manage Services — MarketSpase',
+    },
+    {
+        path: ':storeId',
+        redirectTo: '',
+    },
 ]

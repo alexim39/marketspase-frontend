@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, Signal, Input, DestroyRef, Injector, runInInjectionContext } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed, Signal, Input, DestroyRef, Injector, runInInjectionContext } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,7 +16,8 @@ import { EmptyStateComponent } from './components/empty-state/empty-state.compon
 import { LoadingStateComponent } from './components/loading-state/loading-state.component';
 
 // Imported types and services
-import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { CampaignInterface, PromotionInterface, UserInterface } from '@shared/services';
 import { formatRemainingDays, isDatePast } from '../../common/utils/time.util';
 import { PromoterLandingService } from './promoter-landing.service';
 import { CampaignCardMobileComponent } from './components/campaign-card/mobile/campaign-card-mobile.component';
@@ -93,6 +94,8 @@ export class PromoterLandingComponent implements OnInit {
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
   promotions = signal<PromotionInterface[]>([]);
+  recommendedCampaigns = signal<any[]>([]);
+  loadingRecommended = signal(false);
 
   //applyingCampaignId: string | null = null;
 
@@ -160,6 +163,12 @@ export class PromoterLandingComponent implements OnInit {
       default:
         // No additional filtering needed
         break;
+    }
+
+    // Sort by match score when available (higher = better match)
+    const scores = this.matchScores();
+    if (scores.size > 0) {
+      filtered = [...filtered].sort((a, b) => (scores.get(b._id) || 0) - (scores.get(a._id) || 0));
     }
 
     return filtered;
@@ -246,6 +255,43 @@ export class PromoterLandingComponent implements OnInit {
         this.promoterLandingService.clearCache();
         this.loadCampaigns(false, user._id);
         this.loadUserPromotions(user._id);
+        this.loadMatchingCampaigns();
+        this.loadRecommended();
+      });
+  }
+
+  private loadRecommended(): void {
+    this.loadingRecommended.set(true);
+    this.promoterLandingService.getRecommendedCampaigns()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r: any) => { this.recommendedCampaigns.set(r?.data || []); this.loadingRecommended.set(false); },
+        error: () => this.loadingRecommended.set(false),
+      });
+  }
+
+  viewCampaign(id: string): void {
+    if (!id) return;
+    this.router.navigate(['/dashboard/campaigns', id]);
+  }
+
+  onRecImageError(event: Event): void {
+    (event.target as HTMLElement).style.display = 'none';
+  }
+
+  // Matching campaigns — scored by category affinity
+  readonly matchScores = signal<Map<string, number>>(new Map());
+
+  private loadMatchingCampaigns(): void {
+    this.promoterLandingService.getMatchingCampaigns()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r: any) => {
+          const scores = new Map<string, number>();
+          (r?.data || []).forEach((c: any) => { if (c._id && c.matchScore > 0) scores.set(c._id, c.matchScore); });
+          this.matchScores.set(scores);
+        },
+        error: () => null,
       });
   }
 

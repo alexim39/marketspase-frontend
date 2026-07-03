@@ -1,7 +1,7 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+﻿import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { catchError, finalize, map, Observable, of, tap, throwError } from 'rxjs';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 
 export interface FeedAuthor {
   _id: string;

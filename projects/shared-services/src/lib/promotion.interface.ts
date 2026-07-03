@@ -35,6 +35,8 @@ export interface PromotionInterface {
     unitCost?: number;
     budgetAtAcceptance?: number;
       acceptedAt?: Date | string;
+    tierBonus?: number;
+    promoterTier?: string;
   };
   acceptedAt?: Date | string;
   downloadedAt?: Date | string;

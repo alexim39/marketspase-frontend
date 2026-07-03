@@ -1,0 +1,145 @@
+<!-- ai-campaign-builder.component.html -->
+<div class="builder-root">
+  <div class="builder-container" @fadeIn>
+    <!-- Header -->
+    <header class="builder-header">
+      <div class="header-copy">
+        <span class="eyebrow">AI-Powered</span>
+        <h1>Create Your Campaign</h1>
+        <p>Describe your product, pick a goal, and we AI will generate the rest. Add your own image or video to make it yours.</p>
+      </div>
+      <button mat-stroked-button class="skip-btn" (click)="skipToManual()">
+        <mat-icon>arrow_forward</mat-icon>
+        Skip — Manual Setup
+      </button>
+    </header>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        <div class="loading-content">
+          <mat-icon class="loading-icon">auto_awesome</mat-icon>
+          <h2>Crafting your campaign...</h2>
+          <p>Our AI is generating the perfect title, caption, and targeting for your ad.</p>
+        </div>
+      </div>
+    } @else {
+      <!-- Main Form -->
+      <div class="builder-form">
+        <!-- Wallet Balance -->
+        <div class="wallet-banner">
+          <mat-icon>account_balance_wallet</mat-icon>
+          <div>
+            <strong>Wallet Balance: ₦{{ walletBalance() | number:'1.0-0' }}</strong>
+            @if (walletBalance() < 5000) {
+              <span class="low-balance">Balance may be low for a campaign. <a routerLink="/dashboard/transactions">Fund wallet</a></span>
+            }
+          </div>
+        </div>
+
+        <!-- Media Upload -->
+        <div class="form-section media-section">
+          <h2 class="section-title"><mat-icon>image</mat-icon> Your Ad Creative</h2>
+          <p class="section-hint">Upload a product photo or short video. People see this first.</p>
+
+          @if (previewUrl()) {
+            <div class="media-preview">
+              @if (selectedFile()?.type?.startsWith('video')) {
+                <video [src]="previewUrl()" controls muted class="preview-media"></video>
+              } @else {
+                <img [src]="previewUrl()" alt="Preview" class="preview-media"/>
+              }
+              <button mat-icon-button class="remove-media" (click)="removeFile()">
+                <mat-icon>close</mat-icon>
+              </button>
+              <span class="file-name">{{ selectedFile()?.name }}</span>
+            </div>
+          } @else {
+            <label class="dropzone"
+              [class.drag-over]="isDragOver()"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)">
+              <input type="file" accept="image/*,video/*" (change)="onFileSelected($event)" hidden />
+              <mat-icon>cloud_upload</mat-icon>
+              <strong>Drop your image or video here</strong>
+              <span>or click to browse. JPEG, PNG, GIF, MP4, WebM, MOV. Up to 50MB.</span>
+            </label>
+          }
+        </div>
+
+        <!-- Description -->
+        <div class="form-section">
+          <h2 class="section-title"><mat-icon>edit</mat-icon> What are you promoting?</h2>
+          <p class="section-hint">Describe your product or service in simple words. Be specific — it helps the AI.</p>
+          <textarea
+            class="desc-input"
+            [(ngModel)]="description"
+            rows="4"
+            maxlength="500"
+            placeholder="e.g. Hair bonnets for natural hair, available in 5 colours, free delivery in Lagos. Satin-lined to protect your curls while you sleep."
+          ></textarea>
+          <div class="char-count">{{ description.length }} / 500</div>
+        </div>
+
+        <!-- Goal -->
+        <div class="form-section">
+          <h2 class="section-title"><mat-icon>flag</mat-icon> What's your goal?</h2>
+          <div class="goal-cards">
+            @for (g of goals; track g.id) {
+              <button class="goal-card" [class.active]="goal() === g.id" (click)="goal.set(g.id)">
+                <mat-icon>{{ g.icon }}</mat-icon>
+                <div>
+                  <strong>{{ g.label }}</strong>
+                  <span>{{ g.desc }}</span>
+                </div>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Budget -->
+        <div class="form-section">
+          <h2 class="section-title"><mat-icon>payments</mat-icon> Budget comfort level</h2>
+          <p class="section-hint">Don't worry — you can adjust this later. Just pick what feels right.</p>
+          <div class="budget-slider">
+            <input type="range" min="0" max="100" [value]="budgetSliderValue" (input)="onSliderChange($any($event.target).valueAsNumber)" class="slider">
+            <div class="slider-labels">
+              @for (t of budgetTiers; track t.id) {
+                <span class="tier-label" [class.active]="budgetTier() === t.id">
+                  <strong>{{ t.label }}</strong>
+                  <small>{{ t.range }}</small>
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Error -->
+        @if (error()) {
+          <div class="error-banner">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ error() }}</span>
+          </div>
+        }
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button mat-stroked-button (click)="skipToManual()" [disabled]="loading()">
+            Skip — Manual Setup
+          </button>
+          <button mat-flat-button color="primary" class="generate-btn" (click)="generate()" [disabled]="loading() || !description.trim()">
+            <mat-icon>auto_awesome</mat-icon>
+            Generate Campaign
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Footer hint -->
+    <div class="builder-footer">
+      <mat-icon>lightbulb</mat-icon>
+      <span>You'll be able to review and edit everything before launching. Your wallet won't be charged until you approve.</span>
+    </div>
+  </div>
+</div>

@@ -136,6 +136,7 @@ export class ShareService {
     // Prefer the server-side affiliate link when present (it records clicks and redirects),
     // otherwise fall back to the public product page.
     const promoUrl =
+      product?.promotion?.publicUrl ||
       product?.promotion?.affiliateUrl ||
       (product?._id ? `${window.location.origin}/product/${product._id}` : window.location.origin);
 

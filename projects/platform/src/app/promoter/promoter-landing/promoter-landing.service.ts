@@ -1,7 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+﻿import { inject, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, finalize, shareReplay, tap } from 'rxjs/operators';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { HttpParams } from '@angular/common/http';
 
 // Cache entry interface
@@ -16,7 +16,7 @@ export class PromoterLandingService {
   public readonly api = this.apiService.getBaseUrl();
   private readonly promotionsEndpoint = 'api/v1/promotion';
   private readonly campaignsEndpoint = 'api/v1/campaign';
-  
+  private readonly userEndpoint = 'api/v1/user';
   // Cache implementation
   private cache = new Map<string, CacheEntry<any>>();
   private inFlightRequests = new Map<string, Observable<any>>();
@@ -61,6 +61,16 @@ export class PromoterLandingService {
 
     this.inFlightRequests.set(cacheKey, request$);
     return request$;
+  }
+
+  /**
+   * Get matching campaigns for a promoter based on category affinity.
+   * @returns An observable of scored campaigns sorted by matchScore.
+   */
+  getMatchingCampaigns(): Observable<any> {
+    return this.apiService.get<any>(`${this.userEndpoint}/matching-campaigns`, undefined, undefined, true).pipe(
+      catchError(() => of({ success: false, data: [] })),
+    );
   }
 
   /**
@@ -279,13 +289,13 @@ export class PromoterLandingService {
    * Use this to pre-load common data on app initialization.
    */
   preCacheCommonData(userId: string): void {
-    // Pre-cache first page of active campaigns
     if (userId) {
-      this.getCampaignsByStatus('active', userId, { page: 1, limit: 20 })
-        .subscribe();
-      
-      this.getUserPromotions(userId)
-        .subscribe();
+      this.getCampaignsByStatus('active', userId, { page: 1, limit: 20 }).subscribe();
+      this.getUserPromotions(userId).subscribe();
     }
+  }
+
+  getRecommendedCampaigns(): Observable<any> {
+    return this.apiService.get<any>(`${this.campaignsEndpoint}/recommended`, undefined, undefined, true);
   }
 }

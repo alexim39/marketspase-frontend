@@ -1,16 +1,31 @@
-@use '../../../../../../styles/variables' as vars;
-@use '../../../../../../styles/mixins' as mix;
+@use '../../../../../../styles/variables' as *;
 
-:host {
-  display: block;
-  min-height: 100vh;
-  background: var(--background-color) !important;
-  color: var(--text-primary) !important;
+:host { display: block; }
+
+.sms-dialog { width: 400px; max-width: 90vw; }
+
+.dialog-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.5rem 1.5rem 0;
+  h2 { margin: 0; font-size: 1.1rem; font-weight: 700; }
 }
 
-.sms-dialog { min-width: 400px; max-width: 500px;  } 
-.recipient-info { margin-bottom: 16px; } 
-.recipient-info strong { display: block; } 
-.recipient-info span { color: var(--text-secondary); font-size: 13px; } 
-.full-width { width: 100%; } 
-.cost-note { font-size: 12px; color: var(--text-secondary); margin-top: -8px; }
+mat-dialog-content { max-height: 55vh; overflow-y: auto; padding-top: 0.5rem; }
+
+.recipient-info {
+  margin-bottom: 0.75rem;
+  strong { display: block; font-size: 0.9rem; color: $text-primary; }
+  span { font-size: 0.82rem; color: $text-secondary; display: block; margin-top: 0.1rem; }
+}
+
+.full-width { width: 100%; }
+
+.cost-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.5rem 0 0; border-top: 1px solid $border-color; margin-top: 0.25rem;
+  font-size: 0.82rem;
+  .cost-label { color: $text-secondary; }
+  .cost-value { font-weight: 700; color: $text-primary; }
+}
+
+mat-dialog-actions { padding: 0.5rem 1.5rem 0.75rem; gap: 0.5rem; }

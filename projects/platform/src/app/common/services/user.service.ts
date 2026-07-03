@@ -1,11 +1,18 @@
-import { inject, Injectable, Signal, signal } from '@angular/core';
-import { catchError, Observable, tap, throwError } from 'rxjs'; // Import BehaviorSubject and of for reactive state
-import { ApiService, UserInterface } from '@shared/services';
+﻿import { inject, Injectable, Signal, signal } from '@angular/core';
+import { catchError, Observable, tap, throwError } from 'rxjs';
+import { ApiService } from '@shared/services/api';
+import { UserInterface } from '@shared/services';
+import { PushNotificationService } from './push-notification.service';
+import { CurrencyService } from './currency.service';
+import { LocaleService, LocaleCode } from '../i18n/locale.service';
 
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private apiService: ApiService = inject(ApiService);
+  private pushService = inject(PushNotificationService);
+  private currencyService = inject(CurrencyService);
+  private localeService = inject(LocaleService);
   private readonly userStorageKey = 'marketspase.currentUser';
   
   // REPLACED: BehaviorSubject is replaced with a private signal for the user data.
@@ -74,6 +81,11 @@ export class UserService {
 
     if (persist && user) {
       this.storeUser(user);
+      this.pushService.requestPermission();
+      this.currencyService.load();
+      if (user.preferredCurrency) this.currencyService.preferredCurrency.set(user.preferredCurrency as any);
+      const locale = user?.preferredLocale as LocaleCode | undefined;
+      if (locale) this.localeService.setLocale(locale);
     }
   }
   

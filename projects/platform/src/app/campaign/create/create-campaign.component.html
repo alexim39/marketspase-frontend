@@ -9,11 +9,14 @@
     </div>
     <div class="header-actions">
       <button mat-stroked-button (click)="saveDraft()" class="save-draft-btn" matTooltip="Save campaign for later" [disabled]="isSubmitting()">
-        <!-- <mat-icon>save</mat-icon> -->
-         Save
-        @if (deviceType() === 'desktop') {
-          As Draft
-        }
+        Save
+        @if (deviceType() === 'desktop') { As Draft }
+      </button>
+      <button mat-stroked-button (click)="loadTemplate()" matTooltip="Start from a saved template">
+        <mat-icon>description</mat-icon> Use Template
+      </button>
+      <button mat-stroked-button (click)="saveAsTemplate()" matTooltip="Save current form as a template">
+        <mat-icon>bookmark_add</mat-icon> Save as Template
       </button>
     </div>
   </mat-toolbar>
@@ -73,6 +76,14 @@
 
       @if (currentStep() === 5) {
         <app-campaign-summary [contentForm]="contentForm" [goalForm]="goalForm" [budgetForm]="budgetForm" [scheduleForm]="scheduleForm" [selectedMedia]="selectedMedia()" [costPerClick]="costPerClick()" />
+
+        <div class="optimize-row">
+          <button mat-stroked-button color="primary" (click)="optimizeFromSummary()" [disabled]="optimizingSummary()">
+            <mat-icon>{{ optimizingSummary() ? 'hourglass_empty' : 'auto_awesome' }}</mat-icon>
+            {{ optimizingSummary() ? 'Generating...' : 'Get AI Content Variations' }}
+          </button>
+          <span class="optimize-hint">Let AI suggest alternative titles and captions for your ad</span>
+        </div>
       }
 
       @if (isSubmitting()) {

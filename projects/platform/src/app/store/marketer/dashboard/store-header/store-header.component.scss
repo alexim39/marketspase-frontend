@@ -306,6 +306,16 @@
       }
     }
     
+    .store-type-badge {
+      display: inline-flex; align-items: center; gap: $spacing-1;
+      padding: $spacing-1 $spacing-3; border-radius: $border-radius-full;
+      font-size: $font-size-xs; font-weight: $font-weight-semibold;
+      background: rgba(var(--primary-rgb), 0.08); color: var(--primary-color);
+      white-space: nowrap;
+      &.service { background: rgba(var(--success-rgb), 0.1); color: var(--success-color); }
+      mat-icon { font-size: 14px; width: 14px; height: 14px; }
+    }
+
     .premium-badge {
       display: inline-flex;
       align-items: center;

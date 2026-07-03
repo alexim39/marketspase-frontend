@@ -13,6 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CurrencyUtilsPipe } from '@shared/services';
 import { UserService } from '../../../common/services/user.service';
@@ -21,6 +22,8 @@ import {
   MarketerCustomerRecord,
   StoreCustomerService,
 } from '../../services/store-customer.service';
+import { SupportSmsDialogComponent, SmsDialogData } from './support-sms-dialog.component';
+import { SupportBulkSmsDialogComponent, BulkSmsDialogData } from './support-bulk-sms-dialog.component';
 
 type ComposeChannel = 'email' | 'sms';
 type LifecycleStage = 'new' | 'active' | 'repeat' | 'vip' | 'at_risk' | 'suppressed';
@@ -59,6 +62,7 @@ export class CustomerSupportComponent {
   private readonly userService = inject(UserService);
   private readonly customerService = inject(StoreCustomerService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly user = this.userService.user;
@@ -380,21 +384,55 @@ export class CustomerSupportComponent {
   }
 
   launchSmsDraft(customer?: MarketerCustomerRecord | null): void {
-    const fallback = customer && customer.marketingOptIn && customer.phone ? [customer.phone] : this.recipientPhones();
-    if (!fallback.length) {
-      this.snackBar.open('Select at least one opted-in customer with a phone number.', 'Close', { duration: 3500 });
+    const c = customer || this.activeBuyer();
+    if (c?.phone) {
+      this.openSendSms(c);
       return;
     }
-
-    if (fallback.length > 1) {
-      this.copyRecipients('phones');
-      this.copyMessage();
-      this.snackBar.open('Phone list and message copied for your SMS tool.', 'Close', { duration: 3500 });
+    const phones = this.recipientPhones();
+    if (phones.length > 1) {
+      this.openBulkSms();
       return;
     }
+    if (phones.length === 1) {
+      this.openSendSms({ phone: phones[0], fullName: phones[0], email: '' } as any);
+      return;
+    }
+    this.snackBar.open('Select at least one opted-in customer with a phone number.', 'Close', { duration: 3500 });
+  }
 
-    const message = encodeURIComponent(this.interpolateMessage(this.composeMessage(), customer || this.activeBuyer()));
-    window.location.href = `sms:${fallback[0]}?body=${message}`;
+  openSendSms(customer: MarketerCustomerRecord): void {
+    if (!customer.phone) {
+      this.snackBar.open('Customer has no phone number.', 'Close', { duration: 3000 });
+      return;
+    }
+    this.dialog.open(SupportSmsDialogComponent, {
+      width: '420px', data: {
+        email: customer.email,
+        phone: customer.phone,
+        name: customer.fullName || customer.email,
+        marketerId: this.user()?._id || '',
+      } as SmsDialogData,
+    }).afterClosed().subscribe(sent => { if (sent) this.loadCustomers(false); });
+  }
+
+  openBulkSms(): void {
+    const selected = this.selectedCustomers();
+    const optedIn = selected.filter(c => c.marketingOptIn && c.phone);
+    const allOptedIn = this.customers().filter(c => c.marketingOptIn && c.phone);
+    const recipients = optedIn.length > 0 ? optedIn : allOptedIn;
+    if (!recipients.length) {
+      this.snackBar.open('No opted-in customers with phone numbers.', 'Close', { duration: 3500 });
+      return;
+    }
+    this.dialog.open(SupportBulkSmsDialogComponent, {
+      width: '480px', data: {
+        emails: recipients.map(c => c.email),
+        count: recipients.length,
+        preview: recipients.slice(0, 5).map(c => ({ name: c.fullName || c.email, phone: c.phone! })),
+        marketerId: this.user()?._id || '',
+      } as BulkSmsDialogData,
+    }).afterClosed().subscribe(sent => { if (sent) this.loadCustomers(false); });
   }
 
   openIndividualEmail(customer: MarketerCustomerRecord): void {

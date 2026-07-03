@@ -98,6 +98,18 @@
       </div>
     }
 
+    @if (benchmarks(); as b) {
+      <div class="benchmarks-strip">
+        <h3>Performance Benchmarks</h3>
+        <div class="benchmarks-grid">
+          <div class="bench-card"><strong>{{ b.platformAvgConversionRate }}%</strong><span>Platform Avg</span></div>
+          <div class="bench-card"><strong>{{ b.medianConversionRate }}%</strong><span>Median</span></div>
+          <div class="bench-card"><strong>{{ b.top25ConversionRate }}%</strong><span>Top 25%</span></div>
+          <div class="bench-card"><strong>{{ b.totalCampaigns }}</strong><span>Compared</span></div>
+        </div>
+      </div>
+    }
+
     <!-- Campaign list -->
     <div class="section-header">
       <h2>Campaigns</h2>

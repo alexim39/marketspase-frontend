@@ -1,18 +1,43 @@
 <div class="sms-dialog">
-  <h2 mat-dialog-title>Send Bulk SMS</h2>
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Send Bulk SMS</h2>
+    <button mat-icon-button mat-dialog-close aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
   <mat-dialog-content>
-    <p class="recipient-info">Sending to <strong>{{ data.count }}</strong> recipient(s) &middot; ₦{{ totalCost() }} total</p>
+    <p class="recipient-info">To <strong>{{ data.count }} recipient(s)</strong> &middot; ₦{{ totalCost() }} cost</p>
+
+    @if (data.preview?.length) {
+      <div class="preview-list">
+        <p class="preview-label">Selected contacts</p>
+        <div class="preview-scroll">
+          @for (c of data.preview; track c.phone) {
+            <div class="preview-item">
+              <span class="preview-name">{{ c.name }}</span>
+              <span class="preview-phone">{{ c.phone }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Message</mat-label>
-      <textarea matInput rows="5" [ngModel]="message()" (ngModelChange)="message.set($event)" maxlength="480" placeholder="Type your bulk SMS message..."></textarea>
+      <textarea matInput rows="4" [ngModel]="message()" (ngModelChange)="message.set($event)" maxlength="480" placeholder="Type your message..."></textarea>
       <mat-hint align="end">{{ message().length }}/480 &middot; {{ smsCount() }} page(s)</mat-hint>
     </mat-form-field>
-    <p class="cost-note">₦{{ COST_PER_SMS }}/page &times; {{ data.count }} recipients &times; {{ smsCount() }} page(s) = <strong>₦{{ totalCost() }}</strong></p>
+
+    <div class="cost-footer">
+      <span class="cost-label">₦{{ COST_PER_SMS }}/recipient × {{ data.count }} contacts</span>
+      <span class="cost-value">₦{{ totalCost() }}</span>
+    </div>
   </mat-dialog-content>
   <mat-dialog-actions align="end">
-    <button mat-button [disabled]="sending()" (click)="close()">Cancel</button>
+    <button mat-stroked-button [disabled]="sending()" mat-dialog-close>Cancel</button>
     <button mat-flat-button color="primary" [disabled]="sending() || !message().trim()" (click)="send()">
-      @if (sending()) { <mat-spinner diameter="18"></mat-spinner> } @else { Send (₦{{ totalCost() }}) }
+      @if (sending()) { <mat-spinner diameter="18" /> } @else { <mat-icon>send</mat-icon> }
+      Send
     </button>
   </mat-dialog-actions>
 </div>

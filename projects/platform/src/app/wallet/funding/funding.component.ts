@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, Inject, Optional, Signal, DestroyRef } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed, Inject, Optional, Signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -22,9 +22,11 @@ import { DialogActionsComponent } from './components/dialog-actions/dialog-actio
 
 // Services
 import { UserService } from '../../common/services/user.service';
+import { CurrencyService, CURRENCY_SYMBOLS, CurrencyCode } from '../../common/services/currency.service';
 import { PaymentResult, PaymentRequest, PaystackService } from '../../common/services/paystack.service';
 import { RecordPaymentPayload, WalletService } from '../wallet.service';
-import { CurrencyUtilsPipe, DeviceService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
 import {
   CurrencyQuote,
   PaymentCurrencyConfig,
@@ -71,6 +73,7 @@ export class WalletFundingComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<WalletFundingComponent>);
   private destroyRef = inject(DestroyRef);
   private userService = inject(UserService);
+  private currencyService = inject(CurrencyService);
   private walletService = inject(WalletService);
   private paymentCurrencyService = inject(PaymentCurrencyService);
   private router = inject(Router);
@@ -139,6 +142,19 @@ export class WalletFundingComponent implements OnInit {
     !this.isQuoteLoading()
   );
 
+  exchangeRateText = computed(() => {
+    const from = this.selectedCurrency() as CurrencyCode;
+    const to = this.walletBaseCurrency() as CurrencyCode;
+    if (from === to) return '';
+    const rates = this.currencyService.rates();
+    const fromRate = rates[from] || 1;
+    const toRate = rates[to] || 1;
+    const rate = toRate / fromRate;
+    const fromSymbol = CURRENCY_SYMBOLS[from] || from;
+    const toSymbol = CURRENCY_SYMBOLS[to] || to;
+    return `${fromSymbol}1 = ${toSymbol}${rate.toFixed(4)} ${to}`;
+  });
+
   showFundingRequirement = computed(() => 
     this.data.campaignBudget && this.data.campaignBudget > this.data.currentBalance
   );
@@ -194,7 +210,7 @@ export class WalletFundingComponent implements OnInit {
           this.currencyConfig.set(response?.data || null);
           const supportedCurrencies = (response?.data?.supportedCurrencies || [])
             .filter((currency) => currency?.capabilities?.deposit);
-          const preferredCurrency = this.user()?.preferences?.financial?.displayCurrency || 'NGN';
+          const preferredCurrency = this.currencyService.preferredCurrency() || this.user()?.preferences?.financial?.displayCurrency || 'NGN';
           const initialCurrency = supportedCurrencies.find((currency) => currency.code === preferredCurrency)?.code
             || supportedCurrencies[0]?.code
             || 'NGN';
@@ -288,44 +304,51 @@ export class WalletFundingComponent implements OnInit {
     this.startProcessingTimer();
 
     try {
-      // Generate reference with user ID for webhook to identify user
       const reference = this.generatePaymentReference();
-      
-      const paymentRequest: PaymentRequest = {
-        amount: this.totalAmount(),
+
+      const fundPayload = {
+        amount: this.selectedAmount(),
         currency: this.selectedCurrency(),
-        user: this.user()!,
+        purpose: 'wallet_funding',
         metadata: {
-          purpose: 'wallet_funding',
-          fundingAmount: this.selectedAmount(),
-          processingFee: this.processingFee(),
           userId: this.data.userId || this.user()?._id,
           userEmail: this.user()?.email,
           username: this.user()?.username,
-          webhookIdentifier: `wallet_${this.user()?._id}_${Date.now()}`
+          processingFee: this.processingFee(),
+          totalAmount: this.totalAmount(),
+          reference,
         },
-        reference: reference
       };
 
-      // Just initialize payment with Paystack
-      this.paystackService.initiatePayment(paymentRequest)
+      this.walletService.fundWallet(fundPayload)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (result) => {
-            // Payment popup opened successfully
-            // Don't call backend here - wait for webhook
-            this.paymentStatus.set({
-              success: true,
-              message: 'Payment initiated. Your wallet will be updated automatically after confirmation.',
-              reference: reference,
-              amount: this.selectedAmount(),
-              timestamp: new Date()
-            });
-            
-            // Start polling for payment confirmation
-            this.startPaymentPolling(reference);
+          next: (response) => {
+            if (response?.success) {
+              const newBalance = response?.data?.newBalance ?? this.newBalance();
+              this.paymentStatus.set({
+                success: true,
+                message: response.message || 'Wallet funded successfully!',
+                reference: reference,
+                amount: this.selectedAmount(),
+                timestamp: new Date()
+              });
+              this.updateLocalWalletBalance();
+              if (this.user()?.uid) {
+                this.userService.getUser(this.user()!.uid).subscribe();
+              }
+            } else {
+              this.paymentStatus.set({
+                success: true,
+                message: 'Payment initiated. Your wallet will be updated after confirmation.',
+                reference: reference,
+                amount: this.selectedAmount(),
+                timestamp: new Date()
+              });
+              this.startPaymentPolling(reference);
+            }
           },
-          error: (error) => this.handlePaymentError(error.message || 'Payment failed'),
+          error: (error) => this.handlePaymentError(error?.error?.message || error?.message || 'Payment failed'),
           complete: () => this.stopProcessingTimer()
         });
 

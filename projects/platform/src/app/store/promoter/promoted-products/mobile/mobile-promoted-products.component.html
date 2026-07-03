@@ -87,7 +87,7 @@
           <h2>Promotion links</h2>
           <p>{{ filteredPromotions().length }} result{{ filteredPromotions().length === 1 ? '' : 's' }}</p>
         </div>
-        <a class="text-link" routerLink="/dashboard/stores/products">Browse</a>
+        <a class="text-link" routerLink="/dashboard/stores/offerings">Browse</a>
       </div>
 
       @if (filteredPromotions().length === 0) {
@@ -95,9 +95,11 @@
           <mat-icon>inventory_2</mat-icon>
           <h2>No promoted products found</h2>
           <p>Create or search for a storefront promotion link to start tracking performance.</p>
-          <a class="primary-action" routerLink="/dashboard/stores/products">Browse products</a>
+          <a class="primary-action" routerLink="/dashboard/stores/offerings">Browse to promote</a>
         </div>
       } @else {
+        <click-cap-indicator style="display:block; margin-bottom: 0.5rem;" />
+
         <div class="promotion-list">
           @for (promotion of filteredPromotions(); track trackPromotion($index, promotion)) {
             <article class="promotion-card">

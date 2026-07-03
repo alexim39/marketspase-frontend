@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 
 export interface GamificationProfileSummary {
   totalExperiencePoints: number;

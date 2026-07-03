@@ -85,6 +85,8 @@ export class CampaignMetricsComponent {
     return v > 0 ? Math.round((l / v) * 100) : 0;
   });
 
+  readonly benchmarks = signal<any>(null);
+
   constructor() {
     this.filtersForm.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -99,6 +101,16 @@ export class CampaignMetricsComponent {
       });
 
     this.loadData();
+    this.loadBenchmarks();
+  }
+
+  private loadBenchmarks(): void {
+    this.collaborationService.getPerformanceBenchmarks()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r) => this.benchmarks.set(r?.data || null),
+        error: () => null,
+      });
   }
 
   refreshNow(): void {

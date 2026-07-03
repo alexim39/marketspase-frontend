@@ -107,11 +107,6 @@
   flex: 1;
   min-width: 0;
 
-  @media (max-width: 768px) {
-    text-align: center;
-    padding: 0 1em;
-    width: 400px;
-  }
 }
 
 .list-item-header {
@@ -211,10 +206,6 @@
     height: 1rem;
   }
 
-  @media (max-width: 768px) {
-    display: flex;
-    justify-content: center;
-  }
 }
 
 .list-item-metrics {
@@ -327,39 +318,7 @@
   }
 }
 
-@media (max-width: 768px) {
-  .campaigns-container.view-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .list-item-content {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-  }
-  
-  .list-item-header {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .campaign-title {
-    margin-right: 0;
-    white-space: normal;
-  }
-  
-  .list-item-metrics {
-    justify-content: center;
-  }
-  
-  .list-item-actions {
-    width: 100%;
-    
-    .view-details-btn {
-      width: 100%;
-    }
-  }
-}
+
 
 /* Pagination Styles */
 .pagination-container {
@@ -373,10 +332,6 @@
   flex-wrap: wrap;
   gap: 1rem;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
-    text-align: center;
-  }
 }
 
 .pagination-info {
@@ -506,7 +461,4 @@
     }
   }
 
-  @media (max-width: 768px) {
-    justify-content: center;
-  }
 }

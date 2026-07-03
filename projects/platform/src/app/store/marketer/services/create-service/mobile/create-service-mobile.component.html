@@ -1,0 +1,61 @@
+<header class="topbar">
+  <a routerLink=".."><mat-icon>arrow_back</mat-icon></a>
+  <strong>{{ editingServiceId ? 'Edit Service' : 'New Service' }}</strong>
+</header>
+
+<div class="form-scroll">
+  <!-- AI Banner -->
+  <div class="ai-banner">
+    <textarea [(ngModel)]="aiDescription" rows="2" maxlength="300" placeholder="Describe your service... AI will fill the rest." [disabled]="aiGenerating()"></textarea>
+    <button mat-flat-button color="primary" (click)="generateService()" [disabled]="aiGenerating() || !aiDescription.trim()">
+      {{ aiGenerating() ? 'Generating...' : '✨ Generate Content' }}
+    </button>
+  </div>
+
+  <form [formGroup]="serviceForm">
+    <!-- Basic Info -->
+    <div class="form-card">
+      <h3>Basic Info</h3>
+      <mat-form-field appearance="outline"><mat-label>Service Name</mat-label><input matInput formControlName="name"></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Description</mat-label><textarea matInput formControlName="description" rows="3" maxlength="2000"></textarea></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Category</mat-label><mat-select formControlName="category">
+        @for (cat of categories; track cat.value) { <mat-option [value]="cat.value">{{ cat.label }}</mat-option> }
+      </mat-select></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Delivery Time</mat-label><input matInput formControlName="deliveryTime" placeholder="e.g. 2-3 days"></mat-form-field>
+    </div>
+
+    <!-- Pricing -->
+    <div class="form-card">
+      <h3>Pricing</h3>
+      <mat-radio-group formControlName="pricingType">
+        <mat-radio-button value="fixed">Fixed Price</mat-radio-button>
+        <mat-radio-button value="hourly">Hourly</mat-radio-button>
+        <mat-radio-button value="package">Package</mat-radio-button>
+        <mat-radio-button value="quote">Custom Quote</mat-radio-button>
+      </mat-radio-group>
+      @if (pricingType() === 'fixed' || pricingType() === 'hourly') {
+        <mat-form-field appearance="outline"><mat-label>Price (₦)</mat-label><input matInput formControlName="price" type="number"></mat-form-field>
+      }
+    </div>
+
+    <!-- Affiliate -->
+    <div class="form-card">
+      <h3>Affiliate Commission</h3>
+      <mat-radio-group formControlName="commissionType">
+        <mat-radio-button value="per_lead">Per Lead (₦200-₦1000)</mat-radio-button>
+        <mat-radio-button value="per_booking">Per Booking (₦200-₦1000)</mat-radio-button>
+      </mat-radio-group>
+      @if (commissionType() === 'per_lead') {
+        <mat-form-field appearance="outline"><mat-label>Lead Commission (₦)</mat-label><input matInput formControlName="leadCommission" type="number"></mat-form-field>
+      } @else {
+        <mat-form-field appearance="outline"><mat-label>Booking Commission (₦)</mat-label><input matInput formControlName="bookingCommissionRate" type="number"></mat-form-field>
+      }
+    </div>
+  </form>
+</div>
+
+<div class="submit-btn">
+  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="serviceForm.invalid || isSubmitting()">
+    {{ isSubmitting() ? 'Saving...' : (editingServiceId ? 'Update Service' : 'Create Service') }}
+  </button>
+</div>

@@ -3,7 +3,8 @@ import { NavigationItem } from './navigation.model';
 export function getMarketerNavigation(
   pendingCampaigns: number,
   activeCampaigns: number,
-  unreadMessagesCount: number = 0
+  unreadMessagesCount: number = 0,
+  smartInviteCount: number = 0
 ): NavigationItem[] {
   return [
      {
@@ -22,6 +23,7 @@ export function getMarketerNavigation(
       expanded: false
     },
 
+
     {
       icon: 'account_box',
       label: 'Profile',
@@ -32,12 +34,12 @@ export function getMarketerNavigation(
     {
       icon: 'campaign',
       label: 'Campaigns',
-      badge: pendingCampaigns,
+      badge: pendingCampaigns + smartInviteCount || undefined,
       badgeColor: 'warn',
       expanded: false,
       children: [
         { icon: 'list_alt', label: 'My Campaigns', route: '/dashboard/campaigns' },
-        { icon: 'add_circle', label: 'Create Campaign', route: '/dashboard/campaigns/create' },
+        { icon: 'add_circle', label: 'Create Campaign', route: '/dashboard/campaigns/builder' },
         { icon: 'insights', label: 'Analytics', route: '/dashboard/campaigns/analytics' },
         { icon: 'bar_chart', label: 'Metrics', route: '/dashboard/campaigns/metrics' },
       ]
@@ -79,6 +81,13 @@ export function getMarketerNavigation(
     },
 
     {
+      icon: 'insights',
+      label: 'Analytics',
+      route: '/dashboard/analytics',
+      expanded: false
+    },
+
+    {
       icon: 'support_agent',
       label: 'Customer Support',
       expanded: false,
@@ -95,8 +104,8 @@ export function getMarketerNavigation(
       expanded: false,
       children: [
         { icon: 'support_agent', label: 'Support Assistant', route: '/dashboard/assistant/customer/overview' },
-        // { icon: 'dynamic_feed', label: 'Social Media Management', route: '/dashboard/assistant/social/overview' },
-        // { icon: 'analytics', label: 'Business Insights', route: '/dashboard/assistant/insights' },
+       // { icon: 'dynamic_feed', label: 'Social Media Management', route: '/dashboard/assistant/social/overview' },
+       // { icon: 'analytics', label: 'Business Insights', route: '/dashboard/assistant/insights' },
         // { icon: 'settings', label: 'Settings', route: '/dashboard/assistant/settings' }
       ]
     },
@@ -118,12 +127,11 @@ export function getMarketerNavigation(
           label: 'Group Chats',
           route: '/dashboard/messages/groups'
         },
-        {
-          icon: 'dynamic_feed',
-          label: 'Activity Feed',
-          //route: '/dashboard/messages/activity'
-          route: '/dashboard/messages'
-        },
+        // {
+        //   icon: 'dynamic_feed',
+        //   label: 'Activity Feed',
+        //   route: '/dashboard/messages'
+        // },
       ]
     },
 

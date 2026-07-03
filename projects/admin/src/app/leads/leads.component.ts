@@ -20,7 +20,6 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
     MatIconModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSnackBarModule,
     MatDialogModule,
-    AdminConfirmDialogComponent,
   ],
   templateUrl: './leads.component.html',
   styleUrls: ['./leads.component.scss'],

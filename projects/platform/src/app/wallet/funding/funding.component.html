@@ -59,6 +59,12 @@
         Wallet credit value: <strong>{{ currencyQuote()?.baseAmount | currencyUtils:walletBaseCurrency() }}</strong>
       </div>
     }
+    @if (exchangeRateText()) {
+      <div class="exchange-rate-note">
+        <mat-icon>currency_exchange</mat-icon>
+        <span>{{ exchangeRateText() }}</span>
+      </div>
+    }
   </div>
 
   <custom-amount-form

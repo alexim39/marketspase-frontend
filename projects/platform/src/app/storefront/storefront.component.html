@@ -81,9 +81,111 @@
           (retry)="retryLoad()"
         />
       }
+
+      <!-- Service Storefront -->
+      @if (store()?.type === 'service' && services().length > 0 && !loading() && !error()) {
+        <div class="services-grid">
+          @for (service of services(); track service._id) {
+            <div class="service-card" [class.grace-period]="service.inGracePeriod">
+              <div class="service-card-header">
+                <h3 class="service-name">{{ service.name }}</h3>
+                <div class="service-badges">
+                  <span class="service-pricing-badge">{{ pricingTypeLabel(service.pricingType) }}</span>
+                  @if (service.inGracePeriod) { <span class="grace-badge"><mat-icon class="badge-icon">warning</mat-icon>Renewal needed</span> }
+                  @if (service.availability === 'available') { <span class="avail-badge green"><mat-icon class="badge-icon">check_circle</mat-icon>Available</span> }
+                  @if (service.availability === 'busy') { <span class="avail-badge amber"><mat-icon class="badge-icon">hourglass_empty</mat-icon>{{ (service.slotsPerWeek ?? 10) - (service.filledSlots ?? 0) }} slots left</span> }
+                  @if (service.availability === 'away') { <span class="avail-badge gray"><mat-icon class="badge-icon">do_not_disturb</mat-icon>Away</span> }
+                </div>
+              </div>
+
+              <!-- Media gallery (uploaded images/videos) -->
+              @if (service.media?.length || service.portfolio?.length) {
+                <div class="portfolio-strip">
+                  @for (img of (service.media?.length ? service.media! : service.portfolio!).slice(0, 3); track img.url) {
+                    @if (img.type === 'video') {
+                      <video [src]="img.url" muted preload="metadata" class="thumb-video"></video>
+                    } @else {
+                      <img [src]="img.url" [alt]="service.name" loading="lazy" />
+                    }
+                  }
+                  @if ((service.media?.length || service.portfolio?.length || 0) > 3) {
+                    <span class="more-images">+{{ (service.media?.length || service.portfolio?.length || 0) - 3 }}</span>
+                  }
+                </div>
+              }
+
+              <span class="service-category">{{ service.category }}</span>
+              <div class="service-price">
+                @if (service.pricingType === 'quote' || service.acceptsQuotes) {
+                  <span class="contact-quote">Contact for quote</span>
+                } @else if (service.pricingType === 'package' && service.packages?.length) {
+                  <span class="price-value">₦{{ service.packages?.[0]?.price | number:'1.0-0' }}+</span>
+                } @else if (service.price) {
+                  <span class="price-value">₦{{ service.price | number:'1.0-0' }}</span>
+                }
+                @if (service.hourlyRate) { <span class="hourly-rate">/hr</span> }
+              </div>
+
+              <!-- Response time -->
+              @if (service.averageResponseTime && service.averageResponseTime > 0) {
+                <p class="response-time">⏱️ {{ responseTimeLabel(service.averageResponseTime!) }}</p>
+              }
+
+              @if (service.includes?.length) {
+                <p class="service-includes">Includes: {{ service.includes?.join(', ') }}</p>
+              }
+              @if (service.deliveryTime) {
+                <p class="service-delivery">Delivery: {{ service.deliveryTime }}</p>
+              }
+
+              <!-- Package comparison table -->
+              @if (service.pricingType === 'package' && service.packages && service.packages.length > 1) {
+                <div class="package-comparison">
+                  <table>
+                    <tr><th></th> @for (p of service.packages; track p.name) { <th>{{ p.name }}</th> }</tr>
+                    <tr><td>Price</td> @for (p of service.packages; track p.name) { <td>₦{{ p.price | number:'1.0-0' }}</td> }</tr>
+                    @for (feature of getAllPackageFeatures(service.packages); track feature) {
+                      <tr><td>{{ feature }}</td> @for (p of service.packages; track p.name) { <td>{{ p.includes?.includes(feature) ? '✓' : '✗' }}</td> }</tr>
+                    }
+                  </table>
+                </div>
+              }
+
+              <div class="service-footer">
+                <div class="service-rating">
+                  @if (service.averageRating) {
+                    <span class="stars">⭐ {{ service.averageRating }}</span>
+                    <span class="review-count">({{ service.ratingCount || 0 }})</span>
+                  }
+                </div>
+                <button mat-flat-button color="primary" class="inquire-btn" (click)="navigateToInquiry(service)">
+                  <mat-icon>send</mat-icon>
+                  Inquire Now
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Cross-sell products -->
+        @if (crossSellProducts().length) {
+          <section class="cross-sell-section">
+            <h3>Also from {{ store()?.name }}</h3>
+            <div class="cross-sell-grid">
+              @for (product of crossSellProducts(); track product._id) {
+                <div class="cross-sell-card" [routerLink]="['/product', product._id]">
+                  @if (product.images?.[0]?.url) { <img [src]="product.images[0].url" [alt]="product.name" /> }
+                  <span class="cs-name">{{ product.name }}</span>
+                  <span class="cs-price">₦{{ product.price | number:'1.0-0' }}</span>
+                </div>
+              }
+            </div>
+          </section>
+        }
+      }
       
       <!-- Products Display -->
-      @if (products().length > 0 && !loading() && !error()) {
+      @if (store()?.type !== 'service' && products().length > 0 && !loading() && !error()) {
         <!-- Grid View -->
         @if (viewMode() === 'grid') {
           <div class="products-grid">
@@ -133,12 +235,23 @@
         }
       }
       
-      <!-- Empty State for No Products -->
-      @if (products().length === 0 && !loading() && !error()) {
+      <!-- Empty State for No Products (Product Store) -->
+      @if (store()?.type !== 'service' && products().length === 0 && !loading() && !error()) {
         <app-empty-state
           icon="inventory_2"
           title="No Products Found"
           message="This store doesn't have any products available at the moment."
+          [actionLabel]="'Browse Marketplace'"
+          (action)="router.navigate(['/'])"
+        />
+      }
+      
+      <!-- Empty State for No Services -->
+      @if (store()?.type === 'service' && services().length === 0 && !loading() && !error()) {
+        <app-empty-state
+          icon="design_services"
+          title="No Services Found"
+          message="This store doesn't have any services available at the moment."
           [actionLabel]="'Browse Marketplace'"
           (action)="router.navigate(['/'])"
         />
@@ -194,4 +307,5 @@
     (brandToggle)="toggleBrandFilter($event)"
     (clearAll)="clearFilters()"
   />
+  <app-storefront-chat [storeLink]="store()?.storeLink || ''" [storeName]="store()?.name || ''" />
 </div>

@@ -144,15 +144,6 @@
         max-width: 40%;
       }
 
-      @media (max-width: 768px) {
-        flex-direction: column-reverse;
-
-        .form-section, 
-        .preview-section {
-          max-width: 100%;
-          width: 100%;
-        }
-      }
     }
     
     // Form Section Components
@@ -1023,6 +1014,13 @@
   border: $border-width solid $border-color;
   border-radius: $border-radius-lg;
   background: $background-color;
+  transition: border-color $transition-fast, background $transition-fast;
+
+  &.drag-over {
+    border-color: $primary-color;
+    background: rgba(var(--primary-rgb), 0.04);
+    border-style: dashed;
+  }
 }
 
 .media-upload-header {
@@ -1072,15 +1070,35 @@
   text-align: center;
 }
 
-@media (max-width: 768px) {
-  .source-toggle-group,
-  .product-selection-grid,
-  .challenge-grid {
-    grid-template-columns: 1fr;
-  }
+// Submission status (replicates campaign creation page)
+.submission-status {
+  margin-bottom: 1rem;
+  padding: 1rem 1.125rem;
+  border-radius: 18px;
+  border: 1px solid rgba(var(--primary-rgb), 0.16);
+  background: rgba(var(--primary-rgb), 0.06);
+  display: grid;
+  gap: 0.875rem;
+}
 
-  .media-upload-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+.submission-status-copy {
+  display: grid;
+  gap: 0.35rem;
+  h3 { margin: 0; font-size: 1rem; font-weight: 700; color: $text-primary; }
+  p { margin: 0; color: $text-secondary; font-size: 0.92rem; line-height: 1.5; }
+}
+
+.submission-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: $primary-color !important;
+}
+
+.submission-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  mat-progress-bar { flex: 1; }
 }

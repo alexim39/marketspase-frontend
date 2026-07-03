@@ -24,6 +24,7 @@ import { PinnedBannerComponent } from './components/pinned-banner/pinned-banner.
 import { TypingIndicatorComponent } from './components/typing-indicator/typing-indicator.component';
 import { MentionDropdownComponent } from './components/mention-dropdown/mention-dropdown.component';
 import { MessageComposerComponent } from './components/composer/message-composer.component';
+import { PromoterTierBadgeComponent } from '../../common/components/promoter-tier-badge/promoter-tier-badge.component';
 
 type ConversationKind = 'all' | 'direct' | 'campaign_room' | 'promotion_room' | 'context_room';
 
@@ -32,6 +33,7 @@ interface RouteOpenContext {
   campaignId: string | null;
   promotionId: string | null;
   targetUserId: string | null;
+  directChat: boolean;
 }
 
 interface RecentCollaborator {
@@ -64,6 +66,7 @@ interface RecentCollaborator {
     TypingIndicatorComponent,
     MentionDropdownComponent,
     MessageComposerComponent,
+    PromoterTierBadgeComponent,
   ],
   providers: [DatePipe, TitleCasePipe],
   templateUrl: './collaboration.component.html',
@@ -71,7 +74,7 @@ interface RecentCollaborator {
 })
 export class CampaignCollaborationComponent {
   private readonly collaborationService = inject(CollaborationService);
-  private readonly realtimeService = inject(CollaborationRealtimeService);
+  protected readonly realtimeService = inject(CollaborationRealtimeService);
   private readonly userService = inject(UserService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -97,7 +100,10 @@ export class CampaignCollaborationComponent {
   readonly error = signal<string | null>(null);
   readonly typingUsers = signal<Map<string, string>>(new Map());
   readonly pinnedMessages = signal<CollaborationMessage[]>([]);
-  readonly activeSection = signal<'activity' | 'direct' | 'rooms'>('activity');
+  readonly activeSection = signal<'direct' | 'rooms'>('direct');
+  readonly activityEvents = signal<any[]>([]);
+  readonly loadingActivity = signal(false);
+  protected readonly shouldAutoJoinChat = signal(false);
   readonly mentionQuery = signal('');
   readonly mentionSuggestions = signal<Array<{ username: string; displayName: string }>>([]);
   readonly showMentionDropdown = signal(false);
@@ -252,6 +258,7 @@ export class CampaignCollaborationComponent {
     campaignId: null,
     promotionId: null,
     targetUserId: null,
+    directChat: false,
   };
 
   constructor() {
@@ -278,6 +285,7 @@ export class CampaignCollaborationComponent {
           campaignId: params.get('campaignId'),
           promotionId: params.get('promotionId'),
           targetUserId: params.get('targetUserId'),
+          directChat: params.get('directChat') === '1',
         };
         const section = params.get('section') || (this.route.snapshot.data as any)?.['section'];
         if (section === 'direct') {
@@ -287,7 +295,7 @@ export class CampaignCollaborationComponent {
           this.kindFilter.set('campaign_room');
           this.activeSection.set('rooms');
         } else {
-          this.activeSection.set('activity');
+          this.activeSection.set('direct');
         }
         this.resolvePendingContext();
       });
@@ -344,6 +352,7 @@ export class CampaignCollaborationComponent {
       this.realtimeService.connect(user._id);
       this.loadConversations();
       this.loadStarterEntries();
+      this.loadActivityFeed();
     });
 
     effect(() => {
@@ -373,6 +382,17 @@ export class CampaignCollaborationComponent {
   refresh(): void {
     this.loadConversations();
     this.loadStarterEntries();
+    this.loadActivityFeed();
+  }
+
+  loadActivityFeed(): void {
+    this.loadingActivity.set(true);
+    this.collaborationService.getActivityFeed(1, 15)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r) => { this.activityEvents.set(r.data?.events || []); this.loadingActivity.set(false); },
+        error: () => this.loadingActivity.set(false),
+      });
   }
 
   setKindFilter(kind: string): void {
@@ -382,7 +402,7 @@ export class CampaignCollaborationComponent {
     } else if (kind === 'campaign_room' || kind === 'promotion_room') {
       this.activeSection.set('rooms');
     } else {
-      this.activeSection.set('activity');
+      this.activeSection.set('direct');
     }
   }
 
@@ -457,6 +477,7 @@ export class CampaignCollaborationComponent {
       this.showMentionDropdown.set(true);
     } else {
       this.showMentionDropdown.set(false);
+      this.mentionSuggestions.set([]);
     }
   }
 
@@ -515,6 +536,7 @@ export class CampaignCollaborationComponent {
     this.draftMessage.set(newValue);
     this.showMentionDropdown.set(false);
     this.mentionQuery.set('');
+    this.mentionSuggestions.set([]);
   }
 
   sendMessage(): void {
@@ -991,7 +1013,7 @@ export class CampaignCollaborationComponent {
     if (conversationId) {
       const matched = this.conversations().find((conversation) => conversation._id === conversationId);
       if (matched) {
-        this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null };
+        this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null, directChat: false };
         this.selectConversation(matched, false);
         return;
       }
@@ -1012,7 +1034,7 @@ export class CampaignCollaborationComponent {
         .subscribe({
           next: (response) => {
             this.resolvingEntry.set(false);
-            this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null };
+            this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null, directChat: false };
             this.upsertConversation(response.data, true);
           },
           error: () => {
@@ -1029,7 +1051,7 @@ export class CampaignCollaborationComponent {
         .subscribe({
           next: (response) => {
             this.resolvingEntry.set(false);
-            this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null };
+            this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null, directChat: false };
             this.upsertConversation(response.data, true);
           },
           error: () => {
@@ -1046,7 +1068,7 @@ export class CampaignCollaborationComponent {
         .subscribe({
           next: (response) => {
             this.resolvingEntry.set(false);
-            this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null };
+            this.pendingOpenContext = { conversationId: null, campaignId: null, promotionId: null, targetUserId: null, directChat: false };
             this.upsertConversation(response.data, true);
           },
           error: () => {
@@ -1133,6 +1155,7 @@ export class CampaignCollaborationComponent {
     if (selectAfter) {
       const nextConversation = this.conversations().find((entry) => entry._id === conversation._id) || conversation;
       this.selectConversation(nextConversation);
+      this.shouldAutoJoinChat.set(true);
     }
   }
 

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -13,6 +14,8 @@ import { AddProductComponent } from '../add-product.component';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
+    MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
   ],

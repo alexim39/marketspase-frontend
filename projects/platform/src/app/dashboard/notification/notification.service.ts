@@ -1,7 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+﻿import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription, of, timer } from 'rxjs';
 import { catchError, finalize, switchMap, tap } from 'rxjs/operators';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 import { NotificationRealtimeService } from './notification-realtime.service';
 import { HttpParams } from '@angular/common/http';
 

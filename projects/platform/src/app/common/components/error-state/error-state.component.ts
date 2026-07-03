@@ -20,12 +20,7 @@ import { MatIconModule } from '@angular/material/icon';
       }
     </div>
   `,
-  styles: [`
-    .error-container { display: grid; place-items: center; gap: 0.5rem; padding: 2.5rem 1.5rem; text-align: center; color: var(--text-secondary); }
-    .error-icon { font-size: 48px; width: 48px; height: 48px; color: var(--error-color, #ef4444); }
-    h3 { margin: 0; color: var(--text-primary); font-size: 1.05rem; }
-    p { margin: 0; max-width: 420px; }
-  `],
+  styleUrl: './error-state.component.scss'
 })
 export class SharedErrorStateComponent {
   readonly icon = input('error_outline');

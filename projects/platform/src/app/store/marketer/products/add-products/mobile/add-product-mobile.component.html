@@ -19,6 +19,26 @@
       </button>
     </header>
 
+    <!-- AI Product Assistant Banner -->
+    @if (showAiBanner()) {
+      <div class="ai-banner-mobile">
+        <div class="ai-banner-mobile-header">
+          <h3><mat-icon>auto_awesome</mat-icon> AI Product Assistant</h3>
+          <button mat-button (click)="showAiBanner.set(false)">Skip</button>
+        </div>
+        <p>Describe your product. We'll fill in the details.</p>
+        <textarea [(ngModel)]="aiDescription" rows="3" maxlength="500"
+          placeholder="e.g. Wireless Bluetooth earbuds with noise cancelling, IPX5 waterproof"
+          [disabled]="aiGenerating()"></textarea>
+        <div class="ai-banner-mobile-actions">
+          <span>{{ aiDescription.length }}/500</span>
+          <button mat-flat-button color="primary" (click)="generateProduct()" [disabled]="aiGenerating() || !aiDescription.trim()">
+            {{ aiGenerating() ? 'Generating...' : 'Generate' }}
+          </button>
+        </div>
+      </div>
+    }
+
     <section class="create-hero">
       <p class="eyebrow">Storefront inventory</p>
       <h1>Add a product buyers can trust</h1>

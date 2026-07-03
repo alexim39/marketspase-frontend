@@ -13,7 +13,7 @@
           <div class="loading-content">
             <div class="spinner-container">
               <div class="spinner" aria-hidden="true"></div>
-            </div>
+             </div>
             <h2 class="loading-title">Authenticating</h2>
             <p class="loading-subtitle">Please wait while we verify your credentials...</p>
           </div>
@@ -59,9 +59,11 @@
           }
           
         </div>
+        
+        <app-onboarding-overlay />
       }
-      
-      <!-- Fallback for unauthenticated users (shouldn't normally show due to redirect) -->
+
+      <!-- Fallback for unauthenticated users -->
       @else {
         <div class="error-state" role="alert">
           <div class="error-content">
@@ -71,3 +73,5 @@
         </div>
       }
     </div>
+
+<app-marketai-chat />

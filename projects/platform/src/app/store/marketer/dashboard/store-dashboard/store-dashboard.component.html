@@ -13,6 +13,25 @@
   />
   
 
+  @if (currentStore()?.type === 'service') {
+    <div class="subscription-banner" [class.expired]="isSubscriptionExpired()" [class.grace]="isInGracePeriod()">
+      <div class="sub-info">
+        <mat-icon>workspace_premium</mat-icon>
+        <div>
+          <strong>{{ subscriptionTierLabel() }} Plan</strong>
+          <span>
+            @if (isSubscriptionExpired()) { Expired — renew to restore visibility }
+            @else if (isInGracePeriod()) { Grace period — renew within {{ daysUntilExpiry() }} days }
+            @else { Active until {{ $any(currentStore())?.subscriptionExpiresAt | date:'mediumDate' }} }
+          </span>
+        </div>
+      </div>
+      <button mat-flat-button color="primary" [routerLink]="['/dashboard/stores/services/subscribe', currentStore()?._id]">
+        {{ isSubscriptionExpired() ? 'Renew Plan' : 'Manage Plan' }}
+      </button>
+    </div>
+  }
+
   <!-- Store Selection/Overview -->
   @if (!currentStore()) {
     <div class="store-selection">
@@ -30,10 +49,6 @@
                 <mat-icon>add_business</mat-icon>
                 Create Your First Store
               </button>
-              <!-- <button mat-stroked-button color="primary" routerLink="#">
-                <mat-icon>info</mat-icon>
-                Learn More
-              </button> -->
             </div>
           </div>
         </mat-card-content>
@@ -57,15 +72,38 @@
             Auto-refresh {{ autoRefresh() ? 'On' : 'Off' }}
           </button>
 
-          <button mat-stroked-button (click)="openStoreManager(currentStore()!)" [color]="autoRefresh() ? 'primary' : ''">
+          <button mat-stroked-button (click)="openStoreManager(currentStore()!)" color="primary">
             <mat-icon>store</mat-icon>
             Store Manager ({{stores().length}})
           </button>
 
-          <button mat-stroked-button (click)="viewStoreProducts(currentStore()?._id || '')" [color]="autoRefresh() ? 'primary' : ''">
-            <mat-icon>store</mat-icon>
-            Store Products
-          </button>
+          @if (currentStore()?.type === 'service') {
+            <button mat-stroked-button color="primary" [routerLink]="['/dashboard/stores/services/create', currentStore()?._id]">
+              <mat-icon>add_circle</mat-icon>
+              Add Service
+            </button>
+            <button mat-stroked-button [routerLink]="['/dashboard/stores', currentStore()?._id, 'services']">
+              <mat-icon>design_services</mat-icon>
+              View Services
+            </button>
+            <button mat-stroked-button color="primary" [routerLink]="['/store', currentStore()?.storeLink]" target="_blank">
+              <mat-icon>visibility</mat-icon>
+              View Storefront
+            </button>
+          } @else {
+            <button mat-stroked-button (click)="addProduct()" color="primary">
+              <mat-icon>add_circle</mat-icon>
+              Add Product
+            </button>
+            <button mat-stroked-button (click)="viewStoreProducts(currentStore()?._id || '')" color="primary">
+              <mat-icon>inventory_2</mat-icon>
+              Store Products
+            </button>
+            <button mat-stroked-button color="primary" [routerLink]="['/store', currentStore()?.storeLink]" target="_blank">
+              <mat-icon>visibility</mat-icon>
+              View Storefront
+            </button>
+          }
 
           <div class="view-controls">
             <button mat-icon-button (click)="switchViewMode('grid')"
@@ -102,38 +140,38 @@
 
       <!-- Real-time Stats Bar -->
       @if (realTimeUpdates()) {
-        <!-- <app-real-time-stats
+        <app-real-time-stats
           [store]="currentStore()!"
           [metrics]="performanceMetrics()">
-        </app-real-time-stats> -->
+        </app-real-time-stats>
       }
 
       <!-- Enhanced Navigation Tabs -->
-      <!-- <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="store-tabs" [mat-stretch-tabs]="false">
-        <a mat-tab-link
-          *ngFor="let tab of tabs"
-          [active]="activeTab() === tab"
-          (click)="activeTab.set(tab)"
-          class="store-tab">
-          <mat-icon class="tab-icon">{{ getTabIcon(tab) }}</mat-icon>
-          <span class="tab-label">{{ tab | titlecase }}</span>
-          @if (tab === 'products' && lowStockProducts().length > 0) {
-            <mat-icon class="tab-badge" color="warn">warning</mat-icon>
-          }
-          
-        </a>
-      </nav> -->
+      <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="store-tabs" [mat-stretch-tabs]="false">
+        @for (tab of tabs; track tab.id) {
+          <a mat-tab-link
+            [active]="activeTab() === tab.id"
+            (click)="activeTab.set(tab.id)"
+            class="store-tab">
+            <mat-icon class="tab-icon">{{ tab.icon }}</mat-icon>
+            <span class="tab-label">{{ tab.label }}</span>
+            @if (tab.id === 'products' && lowStockProducts().length) {
+              <mat-icon class="warning-badge" [matBadge]="lowStockProducts().length" matBadgeColor="warn">warning</mat-icon>
+            }
+          </a>
+        }
+      </nav>
 
       <!-- Enhanced Tab Content -->
     <mat-tab-nav-panel #tabPanel="matTabNavPanel">
 
-      <div class="tab-content">
+      <div class="tab-content" [class]="viewModeClass()">
         <!-- Overview Tab -->
         @if (activeTab() === 'overview') {
           <div class="overview-tab">
 
             <!-- Enhanced Stats Grid -->
-           <!--  <div class="stats-grid">
+            <div class="stats-grid">
               @for (stat of dashboardStats(); track trackByStatId($index, stat)) {
                 <mat-card class="stat-card" [class]="stat.trend + '-trend'">
                   <mat-card-content>
@@ -177,7 +215,7 @@
                   </mat-card-content>
                 </mat-card>
               }
-            </div> -->
+            </div>
 
             <!-- Two-column Layout for Alerts and Performance -->
             <div class="overview-content">
@@ -185,7 +223,7 @@
               <div class="overview-left">
                 <!-- Enhanced Alerts Section -->
                 <div class="alerts-section">
-                  <!-- @if (lowStockProducts().length > 0) {
+                  @if (lowStockProducts().length > 0) {
                     <mat-card class="alert-card critical">
                       <mat-card-content>
                         <div class="alert-content">
@@ -212,10 +250,10 @@
                         </div>
                       </mat-card-content>
                     </mat-card>
-                  } -->
+                  }
 
                   <!-- Performance Metrics -->
-                  <!-- <mat-card class="performance-card">
+                  <mat-card class="performance-card">
                     <mat-card-header>
                       <mat-card-title>
                         <mat-icon>trending_up</mat-icon>
@@ -238,14 +276,14 @@
                         }
                       </div>
                     </mat-card-content>
-                  </mat-card> -->
+                  </mat-card>
                 </div>
               </div>
 
               <!-- Right Column: Quick Actions & Insights -->
               <div class="overview-right">
                 <!-- Enhanced Quick Actions -->
-                <!-- <mat-card class="quick-actions-card">
+                <mat-card class="quick-actions-card">
                   <mat-card-header>
                     <mat-card-title>
                       <mat-icon>flash_on</mat-icon>
@@ -269,42 +307,32 @@
                       }
                     </div>
                   </mat-card-content>
-                </mat-card> -->
+                </mat-card>
 
                 <!-- Store Insights -->
-                <!-- <mat-card class="insights-card">
-                  <mat-card-header>
-                    <mat-card-title>
-                      <mat-icon>insights</mat-icon>
-                      Store Insights
-                    </mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content>
-                    <div class="insights-list">
-                      <div class="insight-item positive">
-                        <mat-icon>arrow_upward</mat-icon>
-                        <div class="insight-content">
-                          <span class="insight-title">Sales trending up</span>
-                          <span class="insight-desc">12% increase this week</span>
-                        </div>
+                @if (storeInsights().length > 0) {
+                  <mat-card class="insights-card">
+                    <mat-card-header>
+                      <mat-card-title>
+                        <mat-icon>insights</mat-icon>
+                        Store Insights
+                      </mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="insights-list">
+                        @for (insight of storeInsights(); track insight.title) {
+                          <div class="insight-item" [class]="insight.trend">
+                            <mat-icon>{{ insight.icon }}</mat-icon>
+                            <div class="insight-content">
+                              <span class="insight-title">{{ insight.title }}</span>
+                              <span class="insight-desc">{{ insight.description }}</span>
+                            </div>
+                          </div>
+                        }
                       </div>
-                      <div class="insight-item neutral">
-                        <mat-icon>trending_flat</mat-icon>
-                        <div class="insight-content">
-                          <span class="insight-title">Visitor engagement stable</span>
-                          <span class="insight-desc">Consistent traffic patterns</span>
-                        </div>
-                      </div>
-                      <div class="insight-item action">
-                        <mat-icon>campaign</mat-icon>
-                        <div class="insight-content">
-                          <span class="insight-title">Promotion opportunity</span>
-                          <span class="insight-desc">Top products ready for campaigns</span>
-                        </div>
-                      </div>
-                    </div>
-                  </mat-card-content>
-                </mat-card> -->
+                    </mat-card-content>
+                  </mat-card>
+                }
               </div>
             </div>
           </div>
@@ -312,40 +340,91 @@
 
         <!-- Other Tabs -->
         @if (activeTab() === 'products') {
-          
-          <!-- In your parent template -->
-          <!-- <app-product-management 
+          <app-product-management
             [store]="currentStore()!"
             [products]="filteredProducts()"
-            (productUpdated)="refreshStoreData()"
-          /> -->
+            (productUpdated)="refreshStoreData()" />
+        }
+
+        @if (activeTab() === 'services' || currentStore()?.type === 'service') {
+          <mat-card class="panel-card">
+            <mat-card-header>
+              <mat-card-title>Services ({{ services().length }})</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              @if (services().length === 0) {
+                <div class="empty-state">
+                  <mat-icon>design_services</mat-icon>
+                  <p>No services yet.</p>
+                  <button mat-stroked-button color="primary" [routerLink]="['/dashboard/stores/services/create', currentStore()?._id]">Add your first service</button>
+                </div>
+              } @else {
+                <div class="services-list">
+                  @for (s of services(); track s._id) {
+                    <div class="service-row">
+                      <div class="service-info">
+                        <strong>{{ s.name }}</strong>
+                        <span>{{ s.pricingType | titlecase }}
+                          @if (s.pricingType === 'fixed') { · ₦{{ s.price | number:'1.0-0' }} }
+                          @else if (s.pricingType === 'hourly') { · ₦{{ s.hourlyRate }}/hr }
+                          @else if (s.pricingType === 'package') { · {{ s.packages?.length || 0 }} packages }
+                          @else { · Contact for quote }
+                        </span>
+                        <span class="service-meta">
+                          {{ s.category || 'Uncategorized' }}
+                          @if (s.portfolio?.length) { · {{ s.portfolio.length }} portfolio items }
+                          @if (s.bookingCount) { · {{ s.bookingCount }} bookings }
+                          · {{ s.createdAt | date:'MMM d' }}
+                        </span>
+                      </div>
+                      <div class="service-actions">
+                        <span class="status-chip" [class.active]="s.isPublished">{{ s.isPublished ? 'Published' : 'Draft' }}</span>
+                        <button mat-icon-button [routerLink]="['/dashboard/stores/services/create', currentStore()?._id]" [queryParams]="{ serviceId: s._id }" matTooltip="Edit service"><mat-icon>edit</mat-icon></button>
+                        <button mat-icon-button (click)="publishService(s)" matTooltip="{{ s.isPublished ? 'Unpublish' : 'Publish' }}">
+                          <mat-icon>{{ s.isPublished ? 'unpublished' : 'publish' }}</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
         }
 
         @if (activeTab() === 'analytics') {
-         <!--  <app-store-analytics 
+          <app-store-analytics
             [store]="currentStore()!"
             [realTimeUpdates]="realTimeUpdates()">
-          </app-store-analytics> -->
+          </app-store-analytics>
         }
 
         @if (activeTab() === 'promotions') {
-         <!--  <app-store-promotions 
+          <app-store-promotions
             [store]="currentStore()!"
             [products]="products()">
-          </app-store-promotions> -->
+          </app-store-promotions>
         }
 
         @if (activeTab() === 'settings') {
-          <div class="settings-tab">
-            <!-- <mat-card>
-              <mat-card-header>
-                <mat-card-title>Store Settings</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <p>Store configuration settings coming soon...</p>
-              </mat-card-content>
-            </mat-card> -->
-          </div>
+          <mat-card class="settings-card">
+            <mat-card-header><mat-card-title>Store Settings</mat-card-title></mat-card-header>
+            <mat-card-content>
+              <div class="settings-section">
+                <h3>Store Information</h3>
+                <p><strong>Name:</strong> {{ currentStore()?.name }}</p>
+                <p><strong>Category:</strong> {{ currentStore()?.category }}</p>
+                <p><strong>Type:</strong> {{ currentStore()?.type || 'Product' | titlecase }}</p>
+                <p><strong>Store Link:</strong> /store/{{ currentStore()?.storeLink }}</p>
+                <p><strong>Verification:</strong> {{ currentStore()?.verificationTier | titlecase }}</p>
+                <p><strong>Created:</strong> {{ currentStore()?.createdAt | date:'mediumDate' }}</p>
+              </div>
+              <div class="settings-actions">
+                <button mat-stroked-button (click)="editStore()">Edit Store</button>
+                <button mat-stroked-button (click)="verifyStore()" [disabled]="currentStore()?.verificationTier === 'premium'">Verify Store</button>
+              </div>
+            </mat-card-content>
+          </mat-card>
         }
       </div>
     </mat-tab-nav-panel>
@@ -356,8 +435,13 @@
   <app-quick-action-bar
     [store]="currentStore()"
     [isMobile]="isMobile()"
+    [lowStockCount]="lowStockProducts().length"
+    [pendingPromotions]="pendingPromotionsCount()"
     (addProduct)="addProduct()"
     (createPromotion)="activeTab.set('promotions')"
     (viewAnalytics)="activeTab.set('analytics')"
+    (manageInventory)="activeTab.set('products')"
+    (viewPromotions)="activeTab.set('promotions')"
+    (storeSettings)="activeTab.set('settings')"
   />
 </div>

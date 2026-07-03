@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   DestroyRef,
   ElementRef,
@@ -27,7 +27,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { DeviceService, PromotionInterface, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { PromotionInterface, UserInterface } from '@shared/services';
 import { PromoterService } from '../../promoter.service';
 import { UserService } from '../../../common/services/user.service';
 import { ShareService } from '../../../store/services/share.service';

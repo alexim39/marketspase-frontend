@@ -1,7 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiService } from '@shared/services';
+import { ApiService } from '@shared/services/api';
 
 export interface CustomerLinkedStore {
   _id: string;
@@ -34,6 +34,7 @@ export interface MarketerCustomerRecord {
   behaviorSegment: 'new' | 'repeat' | 'vip' | 'at_risk' | 'suppressed';
   linkedStores: CustomerLinkedStore[];
   source?: string;
+  activityLog?: Array<{ type: string; message: string; channel?: string; createdAt: string }>;
 }
 
 export interface MarketerCustomerSummary {
@@ -194,6 +195,18 @@ export class StoreCustomerService {
       payload,
       undefined,
       true,
+    );
+  }
+
+  sendCustomerSms(marketerId: string, payload: { email: string; phone: string; message: string }): Observable<{ success: boolean; message: string }> {
+    return this.apiService.post<{ success: boolean; message: string }>(
+      `${this.apiUrl}/marketer/${marketerId}/send-sms`, payload, undefined, true,
+    );
+  }
+
+  sendBulkCustomerSms(marketerId: string, payload: { emails: string[]; message: string }): Observable<{ success: boolean; message: string }> {
+    return this.apiService.post<{ success: boolean; message: string }>(
+      `${this.apiUrl}/marketer/${marketerId}/send-bulk-sms`, payload, undefined, true,
     );
   }
 }

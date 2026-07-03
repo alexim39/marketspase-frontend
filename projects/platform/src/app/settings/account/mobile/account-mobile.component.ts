@@ -6,9 +6,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { UserInterface } from '@shared/services';
 import { UserService } from '../../../common/services/user.service';
-import { PersonalInfoComponent } from '../personal/personal.component';
-import { ProfessionalInfoComponent } from '../professional/professional.component';
-import { UsernameInfoComponent } from '../username/username.component';
+import { PersonalInfoMobileComponent } from '../personal/mobile/personal-mobile.component';
+import { ProfessionalInfoMobileComponent } from '../professional/mobile/professional-mobile.component';
+import { UsernameInfoMobileComponent } from '../username/mobile/username-mobile.component';
 
 type AccountSectionId = 'personal' | 'professional' | 'identity';
 
@@ -28,9 +28,9 @@ interface AccountSection {
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    PersonalInfoComponent,
-    ProfessionalInfoComponent,
-    UsernameInfoComponent,
+    PersonalInfoMobileComponent,
+    ProfessionalInfoMobileComponent,
+    UsernameInfoMobileComponent,
   ],
   templateUrl: './account-mobile.component.html',
   styleUrls: ['./account-mobile.component.scss'],
@@ -41,6 +41,12 @@ export class AccountMobileComponent {
 
   readonly user = this.userService.user;
   readonly activeSection = signal<AccountSectionId>('personal');
+  readonly isFormVisible = signal(false);
+
+  readonly activeSectionLabel = computed(() => {
+    const s = this.sections.find(s => s.id === this.activeSection());
+    return s?.label || 'Settings';
+  });
 
   readonly sections: AccountSection[] = [
     {
@@ -125,7 +131,12 @@ export class AccountMobileComponent {
 
   selectSection(section: AccountSectionId): void {
     this.activeSection.set(section);
+    this.isFormVisible.set(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  closeForm(): void {
+    this.isFormVisible.set(false);
   }
 
   sectionStatus(section: AccountSectionId): string {

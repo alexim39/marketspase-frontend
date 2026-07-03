@@ -36,9 +36,7 @@
     color: $text-secondary;
     font-size: 0.95rem;
 
-    @include mobile {
-      margin: 2em 0;
-    }
+
 
     mat-icon {
       background-color: $primary-color;
@@ -51,10 +49,7 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.08);
-      @include mobile {
-        font-size: 1rem;
-        
-      }
+
     }
 
     p {
@@ -163,14 +158,6 @@
   }
 }
 
-// Responsive adjustments
-@media (max-width: 768px) {
-  .budget-form {
-    .age-options-grid {
-      grid-template-columns: 1fr !important;
-    }
-  }
-}
 
 .payout-tiers {
   margin-top: 1rem;

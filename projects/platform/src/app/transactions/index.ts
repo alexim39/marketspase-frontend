@@ -1,7 +1,8 @@
-import { Component, inject, computed, Signal } from '@angular/core';
+﻿import { Component, inject, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../common/services/user.service';
-import { DeviceService, UserInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { UserInterface } from '@shared/services';
 import { TransactionComponent } from './transactions.component';
 import { MobileTransactionsComponent } from './mobile/index.component';
 

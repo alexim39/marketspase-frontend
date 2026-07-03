@@ -1,4 +1,4 @@
-@use '../../../../../styles/variables' as vars;
+@use '../../../../../styles/variables' as *;
 @use '../../../../../styles/mixins' as mixins;
 
 :host {
@@ -36,7 +36,7 @@
   padding: 18px;
 
   span {
-    color: #0f766e;
+    color: $primary-color;
     display: block;
     font-size: 0.72rem;
     font-weight: 850;
@@ -70,9 +70,9 @@
 }
 
 .hero-action {
-  background: color-mix(in srgb, #0f766e, var(--surface-color) 88%);
+  background: color-mix(in srgb, $primary-color, var(--surface-color) 88%);
   border-radius: 16px;
-  color: #0f766e;
+  color: $primary-color;
 }
 
 .loading-state {
@@ -93,8 +93,8 @@
 
 .status-panel {
   align-items: center;
-  background: color-mix(in srgb, #f59e0b, var(--surface-color) 86%);
-  border-color: color-mix(in srgb, #f59e0b, var(--surface-color) 66%);
+  background: color-mix(in srgb, $warning-color, var(--surface-color) 86%);
+  border-color: color-mix(in srgb, $warning-color, var(--surface-color) 66%);
   border-radius: 22px;
   display: grid;
   gap: 12px;
@@ -102,12 +102,12 @@
   padding: 16px;
 
   &.active {
-    background: color-mix(in srgb, #10b981, var(--surface-color) 88%);
-    border-color: #a7f3d0;
+    background: color-mix(in srgb, $success-color, var(--surface-color) 88%);
+    border-color: color-mix(in srgb, $success-color, var(--surface-color) 82%);
 
     .status-dot {
-      background: #16a34a;
-      box-shadow: 0 0 0 6px rgba(22, 163, 74, 0.12);
+      background: $success-color;
+      box-shadow: 0 0 0 6px rgba($success-color-hex, 0.12);
     }
   }
 }
@@ -137,9 +137,9 @@
 }
 
 .status-dot {
-  background: #f59e0b;
+  background: $warning-color;
   border-radius: 999px;
-  box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.14);
+  box-shadow: 0 0 0 6px rgba($warning-color-hex, 0.14);
   height: 12px;
   width: 12px;
 }
@@ -182,7 +182,7 @@
   }
 
   input:checked + span {
-    background: #0f766e;
+    background: $primary-color;
 
     &::after {
       transform: translateX(24px);
@@ -205,7 +205,7 @@
   }
 
   mat-icon {
-    color: #0f766e;
+    color: $primary-color;
   }
 
   strong {
@@ -222,8 +222,8 @@
 }
 
 .sample-card {
-  background: color-mix(in srgb, #10b981, var(--surface-color) 88%);
-  border-color: #a7f3d0;
+  background: color-mix(in srgb, $success-color, var(--surface-color) 88%);
+  border-color: color-mix(in srgb, $success-color, var(--surface-color) 78%);
   border-radius: 20px;
   padding: 16px;
 
@@ -232,7 +232,7 @@
   }
 
   span {
-    color: #0f766e;
+    color: $success-color;
     display: block;
     font-size: 0.74rem;
     font-weight: 850;
@@ -291,19 +291,19 @@
   width: 48px;
 
   &.teal {
-    background: #0f766e;
+    background: $primary-color;
   }
 
   &.amber {
-    background: #d97706;
+    background: $warning-color;
   }
 
   &.green {
-    background: #16a34a;
+    background: $success-color;
   }
 
   &.blue {
-    background: #2563eb;
+    background: $info-color;
   }
 }
 
@@ -339,7 +339,7 @@
 
   &.primary {
     align-items: center;
-    background: #0f766e;
+    background: $primary-color;
     color: var(--on-primary-color);
     display: inline-flex;
     gap: 8px;
@@ -431,9 +431,9 @@
     padding: 0 14px;
 
     &.active {
-      background: color-mix(in srgb, #0f766e, var(--surface-color) 88%);
-      border-color: #5eead4;
-      color: #0f766e;
+      background: color-mix(in srgb, $primary-color, var(--surface-color) 88%);
+      border-color: color-mix(in srgb, $primary-color, var(--surface-color) 74%);
+      color: $primary-color;
     }
   }
 }
@@ -470,7 +470,7 @@
   }
 
   input {
-    accent-color: #0f766e;
+    accent-color: $primary-color;
     height: 24px;
     width: 24px;
   }
@@ -525,13 +525,13 @@
 }
 
 .remove-link {
-  background: color-mix(in srgb, #ef4444, var(--surface-color) 88%);
-  color: #b91c1c;
+  background: color-mix(in srgb, $error-color, var(--surface-color) 88%);
+  color: $error-color;
 }
 
 .add-link {
-  background: color-mix(in srgb, #0f766e, var(--surface-color) 88%);
-  color: #0f766e;
+  background: color-mix(in srgb, $primary-color, var(--surface-color) 88%);
+  color: $primary-color;
 }
 
 .two-fields {

@@ -34,7 +34,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-icon critical"><mat-icon>star</mat-icon></div>
-        <div class="stat-details"><span class="stat-value">{{ a.recentAdditions?.length || 0 }}</span><span class="stat-label">Recent Additions</span></div>
+        <div class="stat-details"><span class="stat-value">{{ a.recentAdditions.length || 0 }}</span><span class="stat-label">Recent Additions</span></div>
       </div>
     </section>
   }
@@ -145,9 +145,13 @@
 
   <!-- Customer list -->
   <section class="list-panel">
-    <div class="panel-topbar">
-      <span>{{ totalItems() }} contacts</span>
-    </div>
+      <div class="panel-topbar">
+        <label class="select-all-checkbox" (click)="$event.stopPropagation()">
+          <input type="checkbox" [checked]="isAllSelected()" (change)="toggleSelectAll()" />
+          <span>{{ selectedIds().size > 0 ? selectedIds().size + ' selected' : 'Select all' }}</span>
+        </label>
+        <span>{{ totalItems() }} contacts</span>
+      </div>
 
     @if (isLoading()) {
       <div class="state-panel"><mat-spinner diameter="40"></mat-spinner><span>Loading contacts...</span></div>
@@ -165,6 +169,9 @@
       <div class="customer-list">
         @for (c of customers(); track c._id) {
           <article class="customer-card" [routerLink]="[c._id]">
+            <div class="customer-card-check" (click)="$event.stopPropagation()">
+              <input type="checkbox" [checked]="selectedIds().has(c._id)" (change)="toggleSelect(c._id)" />
+            </div>
             <div class="customer-card-top">
               <div class="customer-avatar">{{ c.displayName.charAt(0).toUpperCase() }}</div>
               <div class="customer-copy">

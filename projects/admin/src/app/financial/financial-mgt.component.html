@@ -58,6 +58,39 @@
         </div>
       </div>
     </div>
+    <div class="clawback-section">
+      <div class="clawback-header">
+        <div>
+          <h3><mat-icon>gavel</mat-icon> Recent Fraud Recoveries</h3>
+          <p>Clawed-back earnings from suspended promoters</p>
+        </div>
+        <button type="button" class="ghost-btn" (click)="loadClawbacks()"><mat-icon>refresh</mat-icon>Refresh</button>
+      </div>
+      @if (clawbackLoading()) {
+        <div class="clawback-loading"><mat-progress-bar mode="indeterminate" /><span>Loading clawbacks...</span></div>
+      } @else if (clawbackHistory().length === 0) {
+        <div class="clawback-empty"><mat-icon>check_circle</mat-icon><span>No clawback transactions found.</span></div>
+      } @else {
+        <div class="clawback-list">
+          @for (c of clawbackHistory(); track c.id) {
+            <div class="clawback-item">
+              <mat-icon class="clawback-icon">undo</mat-icon>
+              <div class="clawback-details">
+                <div class="clawback-main">
+                  <span class="clawback-amount">{{ currencyLabel() }}{{ c.amount.toLocaleString() }}</span>
+                  <span class="clawback-user">{{ c.userName }}</span>
+                  <span class="clawback-desc">{{ c.description }}</span>
+                </div>
+                <div class="clawback-meta">
+                  <span class="clawback-date">{{ c.createdAt | date:'mediumDate' }}</span>
+                  <span class="status-pill status-warning"><mat-icon class="pill-icon">undo</mat-icon>Clawed Back</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
   </section>
 
   <section class="management-section">

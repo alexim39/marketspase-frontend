@@ -1,4 +1,4 @@
-// campaign-details.component.ts
+﻿// campaign-details.component.ts
 import { Component, OnInit, inject, signal, computed, DestroyRef, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
@@ -11,15 +11,24 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { CampaignInterface, DeviceService, PromotionInterface } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { CampaignInterface, PromotionInterface } from '@shared/services';
 
+import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
 import { PromotionDetailsDialogComponent } from './promotion-details-dialog/promotion-details-dialog.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { TruncateIDPipe } from './truncate-id.pipe';
 import { CampaignDetailsService } from './campaign-details.service';
+import { CollaborationService } from '../collaboration/collaboration.service';
+import { PromoterTierBadgeComponent } from '../../common/components/promoter-tier-badge/promoter-tier-badge.component';
 import { MediaViewerOnlyDialogComponent } from './media-viewer-dialog/media-viewer-dialog.component';
+import { BulkInviteDialogComponent } from '../shared/bulk-invite-dialog/bulk-invite-dialog.component';
+import { SmartInviteDialogComponent } from '../shared/smart-invite-dialog/smart-invite-dialog.component';
+import { OptimizeContentDialogComponent } from '../shared/optimize-content-dialog/optimize-content-dialog.component';
+import { PromoterTrustMetricsComponent } from '../../common/components/promoter-trust-metrics/promoter-trust-metrics.component';
 import { UserService } from '../../common/services/user.service';
+import { CurrencyService } from '../../common/services/currency.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   getCampaignBillableClicks,
@@ -31,6 +40,7 @@ import {
   getCampaignUniquePromoterCount,
 } from '../../common/utils/campaign-performance.util';
 import { CampaignTopUpDialogComponent } from '../shared/campaign-top-up-dialog.component';
+import { WalletBalanceCardComponent } from '../shared/wallet-balance-card.component';
 
 export enum CampaignStatus {
   PENDING = 'pending',
@@ -58,10 +68,14 @@ export enum CampaignStatus {
     MatProgressSpinnerModule,
     MatDialogModule,
     MatSnackBarModule,
+    MatSlideToggleModule,
     ShortNumberPipe,
     //CategoryPlaceholderPipe,
     MatProgressBarModule,
-    TruncateIDPipe
+    TruncateIDPipe,
+    PromoterTierBadgeComponent,
+    PromoterTrustMetricsComponent,
+    WalletBalanceCardComponent,
   ],
   templateUrl: './campaign-details.component.html',
   styleUrls: ['./campaign-details.component.scss']
@@ -70,6 +84,7 @@ export class CampaignDetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private campaignDetailsService = inject(CampaignDetailsService);
+  private collaborationService = inject(CollaborationService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
@@ -85,6 +100,7 @@ export class CampaignDetailsComponent implements OnInit {
   public readonly api = this.campaignDetailsService.api;
 
   private userService = inject(UserService);
+  private currencyService = inject(CurrencyService);
   public user = this.userService.user;
 
   // Ownership check — only the campaign owner should see management controls
@@ -97,6 +113,18 @@ export class CampaignDetailsComponent implements OnInit {
       : campaign.owner?._id;
     return ownerId === u._id;
   });
+
+  readonly autoRenewEnabled = signal(false);
+
+  toggleAutoRenew(event: MatSlideToggleChange): void {
+    const checked = event.checked;
+    const campaign = this.campaign();
+    if (!campaign) return;
+    this.collaborationService.setAutoRenew(campaign._id, checked).subscribe({
+      next: () => { this.autoRenewEnabled.set(checked); this.snackBar.open(checked ? 'Auto-renew enabled' : 'Auto-renew disabled', 'OK', { duration: 2000 }); },
+      error: () => this.snackBar.open('Failed to update auto-renew', 'Close', { duration: 2000 }),
+    });
+  }
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -227,6 +255,7 @@ export class CampaignDetailsComponent implements OnInit {
         if (response.success) {
             //console.log('campaign ',response)
             this.campaign.set(response.data);
+            this.autoRenewEnabled.set(response.data?.autoRenew?.enabled ?? false);
             this.isLoading.set(false);
         }
       },
@@ -316,25 +345,37 @@ export class CampaignDetailsComponent implements OnInit {
     }
   }
 
-  toggleCampaignStatus() {
-    if (!this.isOwner()) {
-      this.snackBar.open('Only the campaign owner can change campaign status.', 'Close', { duration: 3000 });
-      return;
-    }
+  openBulkInvite(): void {
     const campaign = this.campaign();
     if (!campaign) return;
-    
-    const newStatus = campaign.status === CampaignStatus.ACTIVE ? CampaignStatus.PAUSED : CampaignStatus.ACTIVE;
-    
-    // this.campaignService.updateCampaignStatus(campaign._id, newStatus).subscribe({
-    //   next: (updatedCampaign) => {
-    //     this.campaign.set(updatedCampaign);
-    //     this.snackBar.open(`Campaign ${newStatus} successfully`, 'Close', { duration: 3000 });
-    //   },
-    //   error: (err) => {
-    //     this.snackBar.open(err.message || 'Failed to update campaign status', 'Close', { duration: 3000 });
-    //   }
-    // });
+    const ref = this.dialog.open(BulkInviteDialogComponent, { width: '460px' });
+    ref.componentInstance.campaignId.set(campaign._id);
+  }
+
+  openSmartInvite(): void {
+    const campaign = this.campaign();
+    if (!campaign) return;
+    this.dialog.open(SmartInviteDialogComponent, {
+      width: '500px', maxWidth: '95vw',
+      data: { campaignId: campaign._id, campaignTitle: campaign.title || 'Campaign' },
+    });
+  }
+
+  openOptimizeContent(): void {
+    const campaign = this.campaign();
+    if (!campaign) return;
+    this.dialog.open(OptimizeContentDialogComponent, {
+      width: '520px', maxWidth: '95vw',
+      data: { campaignId: campaign._id, campaignTitle: campaign.title || 'Campaign' },
+    });
+  }
+
+  shareOnWhatsApp(): void {
+    const campaign = this.campaign() as any;
+    if (!campaign) return;
+    const link = campaign.publicUrl || `${window.location.origin}/c/${campaign.uni || ''}`;
+    const text = encodeURIComponent(`Check out this campaign on MarketSpase: ${campaign.title}\n${link}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
   }
 
   deleteCampaign() {
@@ -361,10 +402,7 @@ export class CampaignDetailsComponent implements OnInit {
 
   formatCurrency(amount: number | undefined, currency?: string): string {
     if (amount === undefined || amount === null) return 'N/A';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency || this.campaign()?.currency || 'NGN'
-    }).format(amount);
+    return this.currencyService.format(amount, ((currency || this.campaign()?.currency || 'NGN') as string).toUpperCase());
   }
 
   getProgressColor(percentage: number): string {
@@ -412,6 +450,15 @@ export class CampaignDetailsComponent implements OnInit {
     }
 
     return Number(promotion.payoutAmount ?? 0);
+  }
+
+  getPromotionCpcInfo(promotion: PromotionInterface): { base: number; adjusted: number; tier: string | null; bonus: number } {
+    const baseCpc = Number(promotion.costPerClick ?? this.campaign()?.costPerClick ?? 0);
+    const snapshot = promotion.payoutSnapshot;
+    const tierBonus = Number(snapshot?.tierBonus ?? 0);
+    const promoterTier = snapshot?.promoterTier || null;
+    const adjustedCpc = tierBonus > 0 ? baseCpc * (1 + tierBonus / 100) : baseCpc;
+    return { base: baseCpc, adjusted: adjustedCpc, tier: promoterTier, bonus: tierBonus };
   }
 
   getPromotionLastActivity(promotion: PromotionInterface): Date | string | undefined {

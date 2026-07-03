@@ -1,11 +1,12 @@
-import { Component, Input, Output, EventEmitter, inject, computed } from '@angular/core';
+﻿import { Component, Input, Output, EventEmitter, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
 // Components
 import { ShortNumberPipe } from '../../../../common/pipes/short-number.pipe';
-import { CampaignInterface, DeviceService, TruncatePipe } from '@shared/services';
+import { DeviceService } from '@shared/services/device';
+import { CampaignInterface, TruncatePipe } from '@shared/services';
 import { CampaignCardComponent } from '../campaign-card/campaign-card.component';
 import { CampaignSkeletonComponent } from '../campaign-skeleton/campaign-skeleton.component';
 import { CampaignCardMobileComponent } from '../campaign-card/mobile/campaign-card-mobile.component';

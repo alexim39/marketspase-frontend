@@ -1,0 +1,114 @@
+<div class="mobile-builder">
+  <header class="mobile-topbar">
+    <button type="button" class="back-btn" (click)="skipToManual()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <span>AI-Powered</span>
+      <strong>Create Campaign</strong>
+    </div>
+    <button mat-button class="skip-link" (click)="skipToManual()">Manual</button>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <div class="loading-content">
+        <mat-icon>auto_awesome</mat-icon>
+        <h2>Crafting your campaign...</h2>
+        <p>Our AI is generating the perfect title, caption, and targeting.</p>
+      </div>
+    </div>
+  } @else {
+    <div class="builder-scroll">
+      <!-- Media Upload -->
+      <section class="form-card">
+        <h3><mat-icon>image</mat-icon> Your Ad Creative</h3>
+        <p class="hint">Upload a product photo or video. People see this first.</p>
+
+        @if (previewUrl()) {
+          <div class="media-preview">
+            @if (selectedFile()?.type?.startsWith('video')) {
+              <video [src]="previewUrl()" controls muted></video>
+            } @else {
+              <img [src]="previewUrl()" alt="Preview"/>
+            }
+            <button mat-icon-button class="remove-btn" (click)="removeFile()"><mat-icon>close</mat-icon></button>
+          </div>
+        } @else {
+          <label class="dropzone"
+            [class.drag-over]="isDragOver()"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)">
+            <input type="file" accept="image/*,video/*" (change)="onFileSelected($event)" hidden/>
+            <mat-icon>cloud_upload</mat-icon>
+            <strong>Tap to browse or drop file</strong>
+            <span>JPEG, PNG, GIF, MP4, WebM, MOV. Up to 50MB.</span>
+          </label>
+        }
+      </section>
+
+      <!-- Description -->
+      <section class="form-card">
+        <h3><mat-icon>edit</mat-icon> What are you promoting?</h3>
+        <p class="hint">Describe your product or service in simple words.</p>
+        <textarea [(ngModel)]="description" rows="4" maxlength="500"
+          placeholder="e.g. Hair bonnets for natural hair, available in 5 colours, free delivery in Lagos.">
+        </textarea>
+        <div class="char-count">{{ description.length }} / 500</div>
+      </section>
+
+      <!-- Goal -->
+      <section class="form-card">
+        <h3><mat-icon>flag</mat-icon> What's your goal?</h3>
+        <div class="goal-list">
+          @for (g of goals; track g.id) {
+            <button class="goal-option" [class.active]="goal() === g.id" (click)="goal.set(g.id)">
+              <mat-icon>{{ g.icon }}</mat-icon>
+              <div>
+                <strong>{{ g.label }}</strong>
+                <span>{{ g.desc }}</span>
+              </div>
+            </button>
+          }
+        </div>
+      </section>
+
+      <!-- Budget -->
+      <section class="form-card">
+        <h3><mat-icon>payments</mat-icon> Budget comfort level</h3>
+        <p class="hint">Pick what feels right. You can adjust later.</p>
+        <div class="budget-slider">
+          <input type="range" min="0" max="100" [value]="budgetSliderValue" (input)="onSliderChange($any($event.target).valueAsNumber)"/>
+          <div class="slider-labels">
+            @for (t of budgetTiers; track t.id) {
+              <span class="tier-label" [class.active]="budgetTier() === t.id">
+                <strong>{{ t.label }}</strong>
+                <small>{{ t.range }}</small>
+              </span>
+            }
+          </div>
+        </div>
+      </section>
+
+      @if (error()) {
+        <div class="error-banner">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ error() }}</span>
+        </div>
+      }
+    </div>
+
+    <footer class="mobile-footer">
+      <button mat-flat-button color="primary" class="generate-btn" (click)="generate()" [disabled]="loading() || uploading() || !description.trim()">
+        @if (uploading()) {
+          Uploading media...
+        } @else {
+          <mat-icon>auto_awesome</mat-icon>
+          Generate Campaign
+        }
+      </button>
+    </footer>
+  }
+</div>

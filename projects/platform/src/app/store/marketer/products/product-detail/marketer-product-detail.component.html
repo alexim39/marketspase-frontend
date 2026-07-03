@@ -572,6 +572,13 @@
           </div> -->
 
           <!-- Analytics Card - Updated HTML -->
+<mat-tab-group 
+  class="product-detail-tabs"
+  [selectedIndex]="selectedTabIndex()"
+  (selectedIndexChange)="onTabChange($event)"
+  animationDuration="200ms"
+>
+  <mat-tab label="Analytics">
 <div class="analytics-card">
   <div class="card-header">
     <div class="header-left">
@@ -794,6 +801,98 @@
     </div>
   </div>
 </div>
+  </mat-tab>
+
+  <mat-tab label="Promoters">
+    <!-- Promoter Performance Card -->
+    <div class="promoter-performance-card">
+      <div class="card-header">
+        <h2 class="card-title">Promoter Performance</h2>
+      </div>
+
+      <div class="card-content">
+        @if (performanceLoading()) {
+          <div class="loading-state">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading promoter data...</p>
+          </div>
+        } @else if (promoterPerformance().length === 0) {
+          <div class="empty-state">
+            <mat-icon>people_outline</mat-icon>
+            <p>No promoters are currently promoting this product.</p>
+          </div>
+        } @else {
+          <div class="performance-table-wrapper">
+            <table mat-table [dataSource]="promoterPerformance()" class="performance-table">
+              <ng-container matColumnDef="promoter">
+                <th mat-header-cell *matHeaderCellDef>Promoter</th>
+                <td mat-cell *matCellDef="let row">
+                  <div class="promoter-cell">
+                    <span class="promoter-name">{{ row.displayName }}</span>
+                    @if (row.suspicious) {
+                      <mat-icon class="suspicious-icon" matTooltip="Suspicious activity detected">warning</mat-icon>
+                    }
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="tier">
+                <th mat-header-cell *matHeaderCellDef>Tier</th>
+                <td mat-cell *matCellDef="let row">
+                  <span class="tier-badge" [class]="row.promoterTier?.toLowerCase()">
+                    {{ row.promoterTier || 'Standard' }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="conversions">
+                <th mat-header-cell *matHeaderCellDef>Conversions</th>
+                <td mat-cell *matCellDef="let row">{{ row.totalConversions | number }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="aov">
+                <th mat-header-cell *matHeaderCellDef>AOV</th>
+                <td mat-cell *matCellDef="let row">{{ row.averageOrderValue | currencyUtils:product.currency }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="revenue">
+                <th mat-header-cell *matHeaderCellDef>Revenue</th>
+                <td mat-cell *matCellDef="let row">{{ row.totalEarnings | currencyUtils:product.currency }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="convRate">
+                <th mat-header-cell *matHeaderCellDef>Conv. Rate</th>
+                <td mat-cell *matCellDef="let row">{{ row.clickToConversionRate | percent:'1.1-1' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let row">
+                  <button
+                    mat-stroked-button
+                    color="warn"
+                    (click)="deactivatePromoter(row)"
+                    class="deactivate-btn"
+                  >
+                    <mat-icon>block</mat-icon>
+                    <span>Deactivate</span>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedPerformanceColumns"></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: displayedPerformanceColumns;"
+                [class.suspicious-row]="row.suspicious"
+              ></tr>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  </mat-tab>
+</mat-tab-group>
           
           <!-- Reviews Card -->
           @if (product.reviews && product.reviews.length > 0) {

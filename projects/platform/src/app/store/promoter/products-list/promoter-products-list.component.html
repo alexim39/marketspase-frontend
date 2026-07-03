@@ -6,7 +6,7 @@
   <!-- Main Content -->
   <main class="main-content">
     <!-- Filters Sidebar -->
-     @if (deviceType() === 'desktop') {
+    @if (deviceType() === 'desktop') {
       <app-products-filter-sidebar
         [categories]="categories()"
         [priceRange]="priceRange()"
@@ -14,9 +14,9 @@
         [commissionRange]="commissionRange()"
         (filterChange)="applyFilters($event)"
       />
-     }
+    }
 
-    <!-- Products Content -->
+    <!-- Unified Products + Services Grid -->
     <app-products-content-view
       [products]="products()"
       [user]="user()"

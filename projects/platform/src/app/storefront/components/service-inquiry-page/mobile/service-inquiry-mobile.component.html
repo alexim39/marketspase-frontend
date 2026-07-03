@@ -1,0 +1,67 @@
+<div class="inquiry-root">
+  @if (loading()) {
+    <div class="loading-state"><mat-progress-bar mode="indeterminate"></mat-progress-bar><p>Loading service...</p></div>
+  } @else if (error()) {
+    <div class="error-state"><mat-icon>error_outline</mat-icon><h2>{{ error() }}</h2><a mat-button [routerLink]="['/store', storeLink]">Back to Store</a></div>
+  } @else if (submitted()) {
+    <div class="success-state">
+      <mat-icon>check_circle</mat-icon>
+      <h2>Inquiry Sent!</h2>
+      <p>Sent to <strong>{{ providerName }}</strong>. They typically respond {{ averageResponseTime || 'soon' }}.</p>
+      <a mat-raised-button color="primary" [routerLink]="['/store', storeLink]">Back to Store</a>
+    </div>
+  } @else {
+    <header class="inquiry-topbar">
+      <a [routerLink]="['/store', storeLink]"><mat-icon>arrow_back</mat-icon></a>
+      <strong>{{ serviceName || 'Inquiry' }}</strong>
+    </header>
+
+    <div class="inquiry-scroll">
+      @if (serviceImage) { <img [src]="serviceImage" [alt]="serviceName" class="svc-hero-img"> }
+
+      <h1 class="svc-title">{{ serviceName }}</h1>
+      <div class="svc-badges">
+        <span class="badge">{{ pricingType === 'package' ? 'Package' : pricingType === 'hourly' ? 'Hourly' : pricingType === 'fixed' ? 'Fixed' : 'Quote' }}</span>
+        @if (availability === 'available') { <span class="badge avail">Available</span> }
+        @if (availability === 'busy') { <span class="badge">Few Slots</span> }
+      </div>
+
+      @if (servicePrice && pricingType !== 'package') { <div class="svc-price">₦{{ servicePrice | number:'1.0-0' }}</div> }
+      @if (serviceDescription) { <p class="svc-desc">{{ serviceDescription }}</p> }
+
+      <div class="svc-meta">
+        @if (averageRating) { <span>⭐ {{ averageRating }} ({{ ratingCount }})</span> }
+        @if (averageResponseTime) { <span><mat-icon>schedule</mat-icon> {{ averageResponseTime }}</span> }
+      </div>
+
+      @if (packages.length > 1) {
+        <div class="pkg-chips">
+          @for (pkg of packages; track pkg.name) {
+            <button class="pkg-chip" [class.selected]="selectedPackage?.name === pkg.name" (click)="selectPackage(pkg)">
+              <strong>{{ pkg.name }}</strong>
+              <span>₦{{ pkg.price | number:'1.0-0' }}</span>
+            </button>
+          }
+        </div>
+      }
+
+      <div class="form-card">
+        <h3>Your Details</h3>
+        <form [formGroup]="inquiryForm">
+          <mat-form-field appearance="outline"><mat-label>Name *</mat-label><input matInput formControlName="name" placeholder="John Doe"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Phone *</mat-label><input matInput formControlName="phone" placeholder="08012345678" type="tel"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Email</mat-label><input matInput formControlName="email" placeholder="you@example.com" type="email"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Budget (₦)</mat-label><input matInput formControlName="budget" placeholder="e.g. 50000" type="number"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Timeline</mat-label><input matInput formControlName="timeline" placeholder="e.g. 1 week"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Message</mat-label><textarea matInput formControlName="message" rows="4" maxlength="1000" placeholder="Describe what you need..."></textarea></mat-form-field>
+        </form>
+      </div>
+    </div>
+
+    <div class="submit-bar">
+      <button mat-flat-button color="primary" (click)="submit()" [disabled]="inquiryForm.invalid || submitting()">
+        @if (submitting()) { Sending... } @else { Submit Inquiry }
+      </button>
+    </div>
+  }
+</div>

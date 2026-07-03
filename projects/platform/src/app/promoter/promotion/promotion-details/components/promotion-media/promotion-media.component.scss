@@ -212,19 +212,4 @@
   }
 }
 
-// Extra small screens - icon only
-@media (max-width: 360px) {
-  .media-actions .action-btn {
-    span {
-      display: none;
-    }
-    
-    mat-icon {
-      margin: 0;
-    }
-    
-    padding: 0.5rem;
-    border-radius: 6px;
-  }
-}
 

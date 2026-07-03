@@ -368,7 +368,7 @@ a {
     place-items: center;
     border-radius: 14px;
     background: rgba(var(--warning-rgb), 0.14);
-    color: darken($warning-color, 15%);
+    color: color-mix(in srgb, $warning-color-hex, #000000 15%);
     font-size: 24px;
   }
 
@@ -389,7 +389,7 @@ a {
     border: 0;
     border-radius: 999px;
     padding: 0 12px;
-    background: darken($warning-color, 15%);
+    background: color-mix(in srgb, $warning-color-hex, #000000 15%);
     color: $on-primary-color;
     font-weight: 950;
   }
@@ -727,7 +727,7 @@ a {
   grid-template-columns: 34px minmax(0, 1fr);
 
   mat-icon {
-    color: darken($warning-color, 15%);
+    color: color-mix(in srgb, $warning-color-hex, #000000 15%);
   }
 }
 

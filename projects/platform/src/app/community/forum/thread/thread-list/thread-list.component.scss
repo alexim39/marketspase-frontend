@@ -250,58 +250,7 @@
 // RESPONSIVE BREAKPOINTS
 // ============================================
 
-// Mobile devices (up to 600px)
-@media (max-width: 600px) {
-  .professional-card-header {
-    padding: $spacing-2 $spacing-3 $spacing-1;
-    gap: $spacing-2;
 
-    .header-left {
-      gap: $spacing-2;
-
-      .author-avatar {
-        width: 32px;
-        height: 32px;
-      }
-
-      .author-meta {
-        .author-name-line {
-          .author-display-name {
-            font-size: $font-size-xs;
-          }
-
-          .author-username {
-            font-size: 10px;
-          }
-        }
-
-        .post-time {
-          span {
-            font-size: 10px;
-          }
-        }
-      }
-    }
-
-    .pin-badge {
-      padding: 2px $spacing-2;
-
-      .pin-text {
-        display: none; // Hide text on mobile, show only icon
-      }
-
-      .pin-icon {
-        margin: 0;
-      }
-    }
-  }
-
-  .professional-card-title {
-    font-size: $font-size-base;
-    padding: 0 $spacing-3 $spacing-2;
-    line-height: 1.35;
-  }
-}
 
 // Tablet devices (601px to 1024px)
 @media (min-width: 601px) and (max-width: 1024px) {
@@ -732,94 +681,7 @@
   }
 }
 
-/* Responsive design */
-@media (max-width: 600px) {
-  .thread-list {
-    gap: $spacing-4;
-  }
-  
-  .thread-card {
-    mat-card-header {
-      padding: $spacing-3 $spacing-3 $spacing-1;
-      
-      .pin-indicator {
-        font-size: $font-size-xs;
-        padding: 2px $spacing-2;
-        
-        span {
-          display: none;
-        }
-        
-        mat-icon {
-          margin: 0;
-        }
-      }
-      
-      mat-card-title {
-        font-size: $font-size-base !important;
-      }
-      
-      mat-card-subtitle {
-        font-size: $font-size-xs;
-      }
-    }
-    
-    mat-card-content {
-      padding: 0 $spacing-3;
-      
-      .thread-content {
-        font-size: $font-size-sm;
-        -webkit-line-clamp: 2;
-      }
-      
-      .media-preview {
-        .preview-image,
-        .preview-video {
-          max-height: 150px;
-        }
-      }
-    }
-    
-    mat-card-actions {
-      padding: $spacing-2 $spacing-3;
-      justify-content: flex-start;
-      flex-wrap: wrap;
-      gap: $spacing-1;
-      
-      button {
-        padding: $spacing-5 $spacing-2;
-        font-size: $font-size-xs;
-        
-        mat-icon {
-          margin-right: $spacing-5;
-          font-size: 16px;
-          width: 16px;
-          height: 16px;
-        }
-      }
-      
-      .delete-button,
-      .edit-button {
-        margin-left: 0;
-      }
-    }
-  }
-  
-  .no-threads {
-    padding: $spacing-8 $spacing-4;
-    
-    mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      margin-bottom: $spacing-4;
-    }
-    
-    h3 {
-      font-size: $font-size-lg;
-    }
-  }
-}
+
 
 /* Tablet responsive */
 @include tablet {

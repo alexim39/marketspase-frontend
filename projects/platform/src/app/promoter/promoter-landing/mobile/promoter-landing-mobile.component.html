@@ -52,6 +52,32 @@
   } @else if (filteredCampaigns().length === 0 && !isCampaignsLoading() && hasLoaded()) {
     <empty-state />
   } @else {
+    <!-- Recommended for You -->
+    @if (recommendedCampaigns().length > 0) {
+    <section class="recommended-section-mobile">
+      <div class="section-heading">
+        <h3><mat-icon>auto_awesome</mat-icon> Recommended for You</h3>
+        <span>{{ recommendedCampaigns().length }}</span>
+      </div>
+      <div class="recommended-scroll">
+        @for (c of recommendedCampaigns().slice(0, 6); track c._id) {
+          <article class="rec-card-mobile" (click)="viewCampaign(c._id)">
+            @if (c.mediaUrl) {
+              <img [src]="c.mediaUrl" [alt]="c.title" loading="lazy" (error)="onRecImageError($event)">
+            } @else {
+              <div class="rec-placeholder"><mat-icon>campaign</mat-icon></div>
+            }
+            <div class="rec-body">
+              <strong>{{ c.title }}</strong>
+              <span class="rec-meta">{{ c.matchReason }}</span>
+              <span class="rec-budget">₦{{ c.budget | number:'1.0-0' }} · ₦{{ c.cpc }}/click</span>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+    }
+
     <section class="campaign-feed" [class.list-mode]="viewMode() === 'list'" aria-label="Available campaigns">
       @for (campaign of filteredCampaigns(); track campaignTrack($index, campaign)) {
         <app-campaign-card-mobile

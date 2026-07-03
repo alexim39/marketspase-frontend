@@ -1,15 +1,15 @@
-@use '../../../../../styles/variables' as vars;
+@use '../../../../../styles/variables' as *;
 @use '../../../../../styles/mixins' as mix;
 
 .analytics-mobile {
   display: flex;
   min-height: 100%;
   flex-direction: column;
-  gap: vars.$spacing-4;
-  padding: vars.$spacing-4;
+  gap: $spacing-4;
+  padding: $spacing-4;
   background:
-    linear-gradient(180deg, color-mix(in srgb, vars.$primary-color, transparent 92%), transparent 18rem),
-    vars.$background-color;
+    linear-gradient(180deg, color-mix(in srgb, $primary-color, transparent 92%), transparent 18rem),
+    $background-color;
 }
 
 .mobile-hero {
@@ -17,11 +17,11 @@
   position: sticky;
   top: 0;
   z-index: 5;
-  gap: vars.$spacing-3;
-  margin: calc(vars.$spacing-4 * -1) calc(vars.$spacing-4 * -1) 0;
-  padding: vars.$spacing-4 vars.$spacing-4 vars.$spacing-3;
-  border-bottom: 1px solid color-mix(in srgb, vars.$border-color, transparent 28%);
-  background: color-mix(in srgb, vars.$background-color, transparent 6%);
+  gap: $spacing-3;
+  margin: calc($spacing-4 * -1) calc($spacing-4 * -1) 0;
+  padding: $spacing-4 $spacing-4 $spacing-3;
+  border-bottom: 1px solid color-mix(in srgb, $border-color, transparent 28%);
+  background: color-mix(in srgb, $background-color, transparent 6%);
   backdrop-filter: blur(16px);
 }
 
@@ -30,25 +30,25 @@
 
   .eyebrow {
     display: block;
-    margin-bottom: vars.$spacing-1;
-    color: vars.$primary-color;
-    font-size: vars.$font-size-xs;
-    font-weight: vars.$font-weight-bold;
+    margin-bottom: $spacing-1;
+    color: $primary-color;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
     text-transform: uppercase;
   }
 
   h1 {
     margin: 0;
-    color: vars.$text-primary;
-    font-size: vars.$font-size-2xl;
-    font-weight: vars.$font-weight-bold;
+    color: $text-primary;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
   }
 
   p {
-    margin: vars.$spacing-1 0 0;
-    color: vars.$text-secondary;
-    font-size: vars.$font-size-sm;
-    line-height: vars.$line-height-normal;
+    margin: $spacing-1 0 0;
+    color: $text-secondary;
+    font-size: $font-size-sm;
+    line-height: $line-height-normal;
   }
 }
 
@@ -56,42 +56,42 @@
   width: 48px;
   height: 48px;
   flex: 0 0 auto;
-  border: 1px solid vars.$border-color;
-  border-radius: vars.$border-radius-full;
-  background: vars.$surface-color;
-  box-shadow: vars.$shadow-sm;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-full;
+  background: $surface-color;
+  box-shadow: $shadow-sm;
 
   mat-icon {
-    color: vars.$primary-color;
+    color: $primary-color;
   }
 }
 
 .loading-state {
   @include mix.flex-column-center;
-  gap: vars.$spacing-3;
+  gap: $spacing-3;
   min-height: 12rem;
-  border: 1px solid vars.$border-color;
-  border-radius: vars.$border-radius-lg;
-  background: vars.$surface-color;
-  color: vars.$text-secondary;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  background: $surface-color;
+  color: $text-secondary;
   text-align: center;
-  box-shadow: vars.$shadow-sm;
+  box-shadow: $shadow-sm;
 }
 
 .skeleton-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: vars.$spacing-3;
+  gap: $spacing-3;
 }
 
 .skeleton-card {
   min-height: 7.75rem;
-  border-radius: vars.$border-radius-lg;
+  border-radius: $border-radius-lg;
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, vars.$surface-color, vars.$background-color 42%) 25%,
-    color-mix(in srgb, vars.$surface-color, vars.$background-color 18%) 50%,
-    color-mix(in srgb, vars.$surface-color, vars.$background-color 42%) 75%
+    color-mix(in srgb, $surface-color, $background-color 42%) 25%,
+    color-mix(in srgb, $surface-color, $background-color 18%) 50%,
+    color-mix(in srgb, $surface-color, $background-color 42%) 75%
   );
   background-size: 220% 100%;
   animation: skeleton-pulse 1.35s ease-in-out infinite;
@@ -100,9 +100,9 @@
 .summary-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(14rem, 1fr));
-  gap: vars.$spacing-3;
-  margin: 0 calc(vars.$spacing-4 * -1);
-  padding: 0 vars.$spacing-4 vars.$spacing-1;
+  gap: $spacing-3;
+  margin: 0 calc($spacing-4 * -1);
+  padding: 0 $spacing-4 $spacing-1;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
@@ -115,90 +115,90 @@
 .summary-card {
   @include mix.flex-between;
   min-height: 8.75rem;
-  padding: vars.$spacing-4;
+  padding: $spacing-4;
   border: 1px solid transparent;
-  border-radius: vars.$border-radius-lg;
-  background: vars.$surface-color;
-  box-shadow: vars.$shadow-md;
+  border-radius: $border-radius-lg;
+  background: $surface-color;
+  box-shadow: $shadow-md;
   scroll-snap-align: start;
 
   span,
   small {
     display: block;
-    color: vars.$text-secondary;
-    font-size: vars.$font-size-sm;
+    color: $text-secondary;
+    font-size: $font-size-sm;
   }
 
   strong {
     display: block;
-    margin: vars.$spacing-2 0 vars.$spacing-1;
-    color: vars.$text-primary;
-    font-size: vars.$font-size-3xl;
-    font-weight: vars.$font-weight-bold;
+    margin: $spacing-2 0 $spacing-1;
+    color: $text-primary;
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
   }
 
   mat-icon {
     width: 2.5rem;
     height: 2.5rem;
     flex: 0 0 auto;
-    border-radius: vars.$border-radius-md;
-    color: vars.$on-primary-color;
+    border-radius: $border-radius-md;
+    color: $on-primary-color;
     font-size: 2rem;
     line-height: 2.5rem;
     text-align: center;
   }
 
   &.primary {
-    border-color: color-mix(in srgb, vars.$primary-color, transparent 76%);
+    border-color: color-mix(in srgb, $primary-color, transparent 76%);
 
     mat-icon {
-      background: vars.$primary-color;
+      background: $primary-color;
     }
   }
 
   &.success mat-icon {
-    background: vars.$success-color;
+    background: $success-color;
   }
 
   &.warning mat-icon {
-    background: vars.$warning-color;
+    background: $warning-color;
   }
 }
 
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: vars.$spacing-3;
+  gap: $spacing-3;
 }
 
 .metric-card {
   display: flex;
   min-width: 0;
-  gap: vars.$spacing-3;
-  padding: vars.$spacing-3;
-  border: 1px solid vars.$border-color;
-  border-radius: vars.$border-radius-lg;
-  background: vars.$surface-color;
-  box-shadow: vars.$shadow-sm;
+  gap: $spacing-3;
+  padding: $spacing-3;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  background: $surface-color;
+  box-shadow: $shadow-sm;
 
   p {
     margin: 0;
-    color: vars.$text-secondary;
-    font-size: vars.$font-size-xs;
-    font-weight: vars.$font-weight-semibold;
+    color: $text-secondary;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
   }
 
   strong {
     display: block;
-    margin: vars.$spacing-1 0;
-    color: vars.$text-primary;
-    font-size: vars.$font-size-xl;
-    font-weight: vars.$font-weight-bold;
+    margin: $spacing-1 0;
+    color: $text-primary;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
   }
 
   small {
-    color: vars.$text-tertiary;
-    font-size: vars.$font-size-xs;
+    color: $text-tertiary;
+    font-size: $font-size-xs;
   }
 }
 
@@ -207,95 +207,95 @@
   width: 2.25rem;
   height: 2.25rem;
   flex: 0 0 auto;
-  border-radius: vars.$border-radius-md;
-  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 52%);
+  border-radius: $border-radius-md;
+  background: color-mix(in srgb, $surface-color, $background-color 52%);
 
   mat-icon {
-    color: vars.$text-secondary;
+    color: $text-secondary;
     font-size: 1.25rem;
   }
 }
 
 .metric-card.messages .metric-icon {
-  background: color-mix(in srgb, vars.$info-color, vars.$surface-color 88%);
+  background: color-mix(in srgb, $info-color, $surface-color 88%);
 
   mat-icon {
-    color: vars.$info-color;
+    color: $info-color;
   }
 }
 
 .metric-card.ai .metric-icon {
-  background: color-mix(in srgb, vars.$success-color, vars.$surface-color 88%);
+  background: color-mix(in srgb, $success-color, $surface-color 88%);
 
   mat-icon {
-    color: vars.$success-color;
+    color: $success-color;
   }
 }
 
 .metric-card.human .metric-icon {
-  background: color-mix(in srgb, vars.$warning-color, vars.$surface-color 86%);
+  background: color-mix(in srgb, $warning-color, $surface-color 86%);
 
   mat-icon {
-    color: vars.$warning-color;
+    color: $warning-color;
   }
 }
 
 .metric-card.speed .metric-icon {
-  background: color-mix(in srgb, vars.$primary-color, vars.$surface-color 88%);
+  background: color-mix(in srgb, $primary-color, $surface-color 88%);
 
   mat-icon {
-    color: vars.$primary-color;
+    color: $primary-color;
   }
 }
 
 .mobile-panel {
-  padding: vars.$spacing-4;
-  border: 1px solid vars.$border-color;
-  border-radius: vars.$border-radius-lg;
-  background: vars.$surface-color;
-  box-shadow: vars.$shadow-sm;
+  padding: $spacing-4;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  background: $surface-color;
+  box-shadow: $shadow-sm;
 }
 
 .panel-heading {
   @include mix.flex-between;
-  gap: vars.$spacing-3;
-  margin-bottom: vars.$spacing-4;
+  gap: $spacing-3;
+  margin-bottom: $spacing-4;
 
   span {
-    color: vars.$text-tertiary;
-    font-size: vars.$font-size-xs;
-    font-weight: vars.$font-weight-bold;
+    color: $text-tertiary;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
     text-transform: uppercase;
   }
 
   h2 {
-    margin: vars.$spacing-1 0 0;
-    color: vars.$text-primary;
-    font-size: vars.$font-size-lg;
-    font-weight: vars.$font-weight-bold;
+    margin: $spacing-1 0 0;
+    color: $text-primary;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
   }
 
   > mat-icon {
-    color: vars.$primary-color;
+    color: $primary-color;
   }
 }
 
 .panel-pill {
   max-width: 9.5rem;
-  padding: vars.$spacing-2 vars.$spacing-3;
-  border-radius: vars.$border-radius-full;
-  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 52%);
-  color: vars.$text-secondary;
-  font-size: vars.$font-size-xs;
-  font-weight: vars.$font-weight-semibold;
-  line-height: vars.$line-height-normal;
+  padding: $spacing-2 $spacing-3;
+  border-radius: $border-radius-full;
+  background: color-mix(in srgb, $surface-color, $background-color 52%);
+  color: $text-secondary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-normal;
   text-align: right;
 }
 
 .day-chart {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: vars.$spacing-2;
+  gap: $spacing-2;
   min-height: 12rem;
   align-items: end;
 }
@@ -307,16 +307,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  gap: vars.$spacing-2;
+  gap: $spacing-2;
 
   strong {
-    color: vars.$text-primary;
-    font-size: vars.$font-size-sm;
+    color: $text-primary;
+    font-size: $font-size-sm;
   }
 
   small {
-    color: vars.$text-tertiary;
-    font-size: vars.$font-size-xs;
+    color: $text-tertiary;
+    font-size: $font-size-xs;
   }
 }
 
@@ -327,15 +327,15 @@
   height: 8.5rem;
   align-items: flex-end;
   justify-content: center;
-  border-radius: vars.$border-radius-full;
-  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 52%);
+  border-radius: $border-radius-full;
+  background: color-mix(in srgb, $surface-color, $background-color 52%);
   overflow: hidden;
 
   span {
     width: 62%;
     min-height: 0.45rem;
-    border-radius: vars.$border-radius-full vars.$border-radius-full 0 0;
-    background: linear-gradient(180deg, vars.$primary-color, vars.$success-color);
+    border-radius: $border-radius-full $border-radius-full 0 0;
+    background: linear-gradient(180deg, $primary-color, $success-color);
   }
 }
 
@@ -343,38 +343,38 @@
 .signal-list {
   display: flex;
   flex-direction: column;
-  gap: vars.$spacing-4;
+  gap: $spacing-4;
 }
 
 .activity-row,
 .signal-row {
   display: grid;
   grid-template-columns: minmax(4.5rem, auto) 1fr auto;
-  gap: vars.$spacing-3;
+  gap: $spacing-3;
   align-items: center;
 }
 
 .activity-label {
   display: flex;
   flex-direction: column;
-  gap: vars.$spacing-1;
+  gap: $spacing-1;
 
   span {
-    color: vars.$text-secondary;
-    font-size: vars.$font-size-sm;
+    color: $text-secondary;
+    font-size: $font-size-sm;
   }
 
   strong {
-    color: vars.$text-primary;
-    font-size: vars.$font-size-base;
+    color: $text-primary;
+    font-size: $font-size-base;
   }
 }
 
 .activity-track,
 .signal-track {
   height: 0.75rem;
-  border-radius: vars.$border-radius-full;
-  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 52%);
+  border-radius: $border-radius-full;
+  background: color-mix(in srgb, $surface-color, $background-color 52%);
   overflow: hidden;
 
   span {
@@ -382,12 +382,12 @@
     width: 0;
     height: 100%;
     min-width: 0.35rem;
-    border-radius: vars.$border-radius-full;
-    background: vars.$warning-color;
+    border-radius: $border-radius-full;
+    background: $warning-color;
   }
 
   .ai-bar {
-    background: vars.$success-color;
+    background: $success-color;
   }
 }
 
@@ -395,28 +395,28 @@
   grid-template-columns: 2.75rem 1fr auto;
 
   > span {
-    color: vars.$text-secondary;
-    font-size: vars.$font-size-sm;
+    color: $text-secondary;
+    font-size: $font-size-sm;
   }
 
   strong {
-    color: vars.$text-primary;
-    font-size: vars.$font-size-sm;
+    color: $text-primary;
+    font-size: $font-size-sm;
   }
 }
 
 .signal-track span {
-  background: vars.$primary-color;
+  background: $primary-color;
 }
 
 .empty-panel {
   @include mix.flex-column-center;
-  gap: vars.$spacing-2;
+  gap: $spacing-2;
   min-height: 9rem;
-  border: 1px dashed vars.$border-color;
-  border-radius: vars.$border-radius-md;
-  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 42%);
-  color: vars.$text-secondary;
+  border: 1px dashed $border-color;
+  border-radius: $border-radius-md;
+  background: color-mix(in srgb, $surface-color, $background-color 42%);
+  color: $text-secondary;
   text-align: center;
 
   &.compact {
@@ -424,7 +424,7 @@
   }
 
   mat-icon {
-    color: vars.$text-tertiary;
+    color: $text-tertiary;
   }
 
   p {
@@ -444,12 +444,12 @@
 
 @media (max-width: 360px) {
   .analytics-mobile {
-    padding: vars.$spacing-3;
+    padding: $spacing-3;
   }
 
   .mobile-hero {
-    margin: calc(vars.$spacing-3 * -1) calc(vars.$spacing-3 * -1) 0;
-    padding: vars.$spacing-3;
+    margin: calc($spacing-3 * -1) calc($spacing-3 * -1) 0;
+    padding: $spacing-3;
   }
 
   .metric-grid {

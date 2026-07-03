@@ -419,38 +419,7 @@
   }
 }
 
-/* Responsive design */
-@media (max-width: 600px) {
-  .comment {
-    padding: $spacing-3;
-    
-    .comment-main {
-      gap: $spacing-3;
-    }
-    
-    .comment-avatar {
-      width: 36px;
-      height: 36px;
-    }
-    
-    .comment-replies {
-      margin-left: 30px;
-    }
-    
-    .comment-header {
-      flex-wrap: wrap;
-      gap: $spacing-1;
-      
-      .comment-time {
-        flex: 1;
-        min-width: 100%;
-        order: 1;
-        margin-top: $spacing-1;
-        margin-left: 0;
-      }
-    }
-  }
-}
+
 
 .comment-edit-form {
   margin-top: $spacing-3;

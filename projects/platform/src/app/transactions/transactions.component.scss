@@ -127,11 +127,6 @@
     align-items: center;
   }
 
-  @media (max-width: 768px) {
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-  }
   
   .balance-item {
     text-align: center;

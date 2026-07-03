@@ -21,6 +21,17 @@
     </button>
   </header>
 
+  <section class="mobile-template-bar" aria-label="Template actions">
+    <button type="button" class="template-btn" (click)="loadTemplate()">
+      <mat-icon aria-hidden="true">description</mat-icon>
+      <span>Use Template</span>
+    </button>
+    <button type="button" class="template-btn" (click)="saveAsTemplate()">
+      <mat-icon aria-hidden="true">bookmark_add</mat-icon>
+      <span>Save Template</span>
+    </button>
+  </section>
+
   <section class="mobile-status-card" aria-label="Campaign setup progress">
     <div class="status-row">
       <div>

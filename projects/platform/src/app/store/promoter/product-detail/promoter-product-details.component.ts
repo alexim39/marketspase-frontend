@@ -8,11 +8,14 @@ import {
   DestroyRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
@@ -53,10 +56,13 @@ import { PromotionService } from '../services/promotion.service';
   ],
   imports: [
     CommonModule,
+    FormsModule,
     RouterModule,
     MatIconModule,
     MatButtonModule,
     MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatProgressSpinnerModule,
     MatDialogModule,
     ProductImageGalleryComponent,
@@ -93,6 +99,37 @@ export class PromoterProductDetailsComponent implements OnInit {
   selectedImageIndex = signal(0);
   relatedProducts = signal<Product[]>([]);
   loadingRelated = signal(false);
+  blurb = signal('');
+
+  landingUrl = computed(() => {
+    const p = this.product()?.promotion as any;
+    return p?.publicUrl || (p?.trackingCode ? `marketspase.com/promote/p/${p.trackingCode}` : '');
+  });
+
+  tierAdjustedCommission = computed(() => {
+    const p = this.product()?.promotion as any;
+    if (!p) return null;
+
+    const tierBonus = p.metadata?.tierBonus || 0;
+    const baseRate = p.metadata?.baseCommissionRate ?? p.commissionRate;
+    const tier = p.metadata?.promoterTier;
+
+    if (tierBonus > 0) {
+      return {
+        rate: p.commissionRate,
+        baseRate,
+        tierBonus,
+        tier
+      };
+    }
+
+    return {
+      rate: p.commissionRate,
+      baseRate: null,
+      tierBonus: 0,
+      tier: null
+    };
+  });
 
   
 
@@ -237,7 +274,7 @@ ngOnInit(): void {
     const shareData = {
       title: `Check out ${product.name}`,
       text: `${product.name} - $${product.price} | ${product.promotion.commissionRate}% commission`,
-      url: promotion.affiliateUrl
+      url: (promotion as any).publicUrl || promotion.affiliateUrl
     };
 
     this.shareService.share(shareData, platform);
@@ -263,7 +300,7 @@ ngOnInit(): void {
       `Commission: ${product.promotion.commissionRate}%\n\n` +
       `Category: ${product.category}\n` +
       `Store: ${product.store.name}\n\n` +
-      `Order here: ${promotion.affiliateUrl}`;
+      `Order here: ${(promotion as any).publicUrl || promotion.affiliateUrl}`;
 
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   }
@@ -279,8 +316,9 @@ ngOnInit(): void {
   // ------------------ HELPERS ------------------
 
   private async ensurePromotion(product: Product): Promise<{ trackingCode: string; uniqueId: string; affiliateUrl: string } | null> {
-    const existingUrl = product.promotion?.affiliateUrl || product.promotion?.promotionUrl;
-    const existingCode = product.promotion?.trackingCode;
+    const promo = product.promotion as any;
+    const existingUrl = promo?.publicUrl || promo?.affiliateUrl || promo?.promotionUrl;
+    const existingCode = promo?.trackingCode;
 
     if (existingUrl && existingCode) {
       return {
@@ -308,7 +346,7 @@ ngOnInit(): void {
 
       const data = response?.data;
       const trackingCode = data?.uniqueCode || data?.trackingCode;
-      const affiliateUrl = data?.affiliateUrl || data?.promotionUrl || this.promotionService.getTrackingLink(trackingCode, product._id ?? '');
+      const affiliateUrl = data?.publicUrl || data?.affiliateUrl || data?.promotionUrl || this.promotionService.getTrackingLink(trackingCode, product._id ?? '');
 
       this.product.update(current => current ? {
         ...current,
@@ -317,8 +355,9 @@ ngOnInit(): void {
           trackingCode,
           uniqueId: data?.uniqueId,
           affiliateUrl,
-          promotionUrl: affiliateUrl
-        }
+          promotionUrl: affiliateUrl,
+          publicUrl: data?.publicUrl || affiliateUrl,
+        } as any
       } : current);
 
       return {
@@ -359,6 +398,14 @@ ngOnInit(): void {
   }
 
   setActiveTab(_: number): void {}
+
+  copyLandingUrl(): void {
+    const url = this.landingUrl();
+    if (!url) return;
+    navigator.clipboard.writeText('https://' + url).then(() => {
+      this.snackBar.open('Landing URL copied!', 'Close', { duration: 3000 });
+    });
+  }
 
   async retryLoadProduct(): Promise<void> {
     const params = this.route.snapshot.paramMap;

@@ -51,7 +51,7 @@ export function getPromoterNavigation(
       expanded: false,
       children: [
         { icon: 'store', label: 'Explore Stores', route: '/dashboard/stores' },
-        { icon: 'search', label: 'Browse Products', route: '/dashboard/stores/products' },
+        { icon: 'search', label: 'Browse to Promote', route: '/dashboard/stores/offerings' },
         { icon: 'inventory', label: 'Promoted Products', route: '/dashboard/stores/promotions' },
         { icon: 'receipt_long', label: 'Affiliate Sales', route: '/dashboard/stores/orders' },
         //{ icon: 'link', label: 'My Storefront Links', route: '/dashboard/storefronts/links' },
@@ -78,12 +78,11 @@ export function getPromoterNavigation(
           label: 'Group Chats',
           route: '/dashboard/messages/groups'
         },
-        {
-          icon: 'dynamic_feed',
-          label: 'Activity Feed',
-          //route: '/dashboard/messages/activity'
-          route: '/dashboard/messages'
-        },
+        // {
+        //   icon: 'dynamic_feed',
+        //   label: 'Activity Feed',
+        //   route: '/dashboard/messages'
+        // },
       ]
     },
     
