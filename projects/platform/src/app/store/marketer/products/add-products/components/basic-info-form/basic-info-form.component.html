@@ -104,7 +104,7 @@
           (dragover)="images().length < maxImages() && onDragOver($event)"
           (dragleave)="onDragLeave($event)"
           (drop)="images().length < maxImages() && onDrop($event)">
-        <input type="file" #fileInput accept="image/*" multiple 
+        <input type="file" #fileInput accept="image/*,video/*" multiple 
               [disabled]="images().length >= maxImages()"
               (change)="images().length < maxImages() && onImageSelect($event)" hidden>
         <mat-icon class="upload-icon">cloud_upload</mat-icon>
@@ -118,7 +118,7 @@
             (dragover)="onDragOver($event)"
             (dragleave)="onDragLeave($event)"
             (drop)="onDrop($event)">
-          <input type="file" required #fileInput accept="image/*" multiple (change)="onImageSelect($event)" hidden>
+          <input type="file" required #fileInput accept="image/*,video/*" multiple (change)="onImageSelect($event)" hidden>
           <mat-icon class="upload-icon">cloud_upload</mat-icon>
           <p>Drag & drop images here or click to browse</p>
           <span class="upload-hint">Supports JPG, PNG, WebP up to 5MB each</span>

@@ -980,3 +980,9 @@
 .simple-emoji-item:active {
   transform: scale(0.95);
 }
+
+// Mobile keyboard + safe-area fix
+@include vars.mobile {
+  .message-input-container { padding-bottom: env(safe-area-inset-bottom, 8px); }
+  .chat-messages { height: calc(100dvh - 180px); }
+}

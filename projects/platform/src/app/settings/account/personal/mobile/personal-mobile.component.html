@@ -1,0 +1,155 @@
+<form [formGroup]="profileForm" class="mobile-form" (ngSubmit)="onSubmit()">
+  <!-- Display Name -->
+  <mat-form-field appearance="outline">
+    <mat-label>Display Name</mat-label>
+    <input matInput formControlName="displayName">
+    <mat-hint>Username: &#64;{{ user()?.username }}</mat-hint>
+  </mat-form-field>
+
+  <!-- Gender -->
+  <mat-form-field appearance="outline">
+    <mat-label>Gender</mat-label>
+    <mat-select formControlName="gender" required>
+      @for (gender of genders; track gender) {
+        <mat-option [value]="gender">{{ gender }}</mat-option>
+      }
+    </mat-select>
+    @if (profileForm.get('gender')?.hasError('required') && profileForm.get('gender')?.touched) {
+      <mat-error>Gender is required</mat-error>
+    }
+  </mat-form-field>
+
+  <!-- Email -->
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput type="email" formControlName="email">
+    @if (profileForm.get('email')?.hasError('email') && profileForm.get('email')?.touched) {
+      <mat-error>Please enter a valid email</mat-error>
+    }
+  </mat-form-field>
+
+  <!-- Country Code + Phone -->
+  <div class="phone-row">
+    <mat-form-field appearance="outline" class="country-code">
+      <mat-label>Country</mat-label>
+      <mat-select formControlName="countryCode">
+        <div class="search-box">
+          <input matInput placeholder="Search country..." #searchInput (keyup)="filterCountries(searchInput.value)">
+        </div>
+        @for (country of filteredPhoneCountries(); track country.iso2) {
+          <mat-option [value]="country.dialCode.toString()">
+            {{ country.emoji }} {{ country.name }} (+{{ country.dialCode }})
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="phone-field">
+      <mat-label>Phone Number</mat-label>
+      <span matPrefix class="phone-prefix">+{{ profileForm.get('countryCode')?.value || '234' }}&nbsp;</span>
+      <input matInput formControlName="phone" placeholder="8031234567" type="tel">
+      @if (profileForm.get('phone')?.hasError('required') && profileForm.get('phone')?.touched) {
+        <mat-error>Phone number is required</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <!-- DOB -->
+  <mat-form-field appearance="outline">
+    <mat-label>Date of Birth</mat-label>
+    <input matInput [matDatepicker]="dobPicker" formControlName="dob" [min]="minDate" [max]="maxDate" (dateChange)="showAgeRestrictionWarning()">
+    <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
+    <mat-datepicker #dobPicker></mat-datepicker>
+    @if (isUnderAge()) {
+      <mat-error>You must be at least 18 years old</mat-error>
+    }
+  </mat-form-field>
+
+  <!-- Address with Google Maps Autocomplete -->
+  <mat-form-field appearance="outline">
+    <mat-label>Street Address</mat-label>
+    <input matInput formControlName="street" required #streetInput>
+    @if (profileForm.get('street')?.hasError('required') && profileForm.get('street')?.touched) {
+      <mat-error>Street address is required</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>City</mat-label>
+    <input matInput formControlName="city" required>
+    @if (profileForm.get('city')?.hasError('required') && profileForm.get('city')?.touched) {
+      <mat-error>City is required</mat-error>
+    }
+  </mat-form-field>
+
+  <!-- Country with Autocomplete -->
+  <mat-form-field appearance="outline">
+    <mat-label>Country</mat-label>
+    <input matInput formControlName="country" [matAutocomplete]="countryAuto" required>
+    <mat-autocomplete #countryAuto="matAutocomplete">
+      @for (country of filteredCountries(); track country) {
+        <mat-option [value]="country">{{ country }}</mat-option>
+      }
+    </mat-autocomplete>
+    @if (profileForm.get('country')?.hasError('required') && profileForm.get('country')?.touched) {
+      <mat-error>Country is required</mat-error>
+    }
+  </mat-form-field>
+
+  <!-- State -->
+  @if (showStateSelect()) {
+    <mat-form-field appearance="outline">
+      <mat-label>State</mat-label>
+      <mat-select formControlName="state" required>
+        @for (state of nigerianStates; track state) {
+          <mat-option [value]="state">{{ state }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+  @if (showStateAutocomplete()) {
+    <mat-form-field appearance="outline">
+      <mat-label>State/Province</mat-label>
+      <input matInput formControlName="state">
+    </mat-form-field>
+  }
+
+  <!-- Bio -->
+  <mat-form-field appearance="outline">
+    <mat-label>Bio</mat-label>
+    <textarea matInput formControlName="biography" rows="3" maxlength="500" placeholder="Tell the community about yourself"></textarea>
+    <mat-hint align="end">{{ profileForm.get('biography')?.value?.length || 0 }}/500</mat-hint>
+    @if (profileForm.get('biography')?.hasError('maxlength')) {
+      <mat-error>Bio cannot exceed 500 characters</mat-error>
+    }
+  </mat-form-field>
+
+  <!-- Account Status -->
+  <div class="toggle-row">
+    <div>
+      <strong>{{ user()?.isActive ? 'Account Active' : 'Activate Account' }}</strong>
+      <span>Your account is currently {{ user()?.isActive ? 'active' : 'inactive' }}</span>
+    </div>
+    <mat-slide-toggle [checked]="user()?.isActive" [disabled]="user()?.isActive || isLoading()" (change)="onAccountStatusChange($event)"></mat-slide-toggle>
+  </div>
+
+  <!-- Age restriction banner -->
+  @if (isUnderAge()) {
+    <div class="age-banner">
+      <mat-icon>warning</mat-icon>
+      <span>You must be at least 18 years old to update your profile</span>
+    </div>
+  }
+
+  <!-- Saving indicator -->
+  @if (isLoading()) {
+    <div class="saving-bar"><mat-spinner diameter="18"></mat-spinner> Saving...</div>
+  }
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button mat-flat-button color="primary" type="submit" [disabled]="profileForm.invalid || isLoading() || isUnderAge()">
+      @if (isLoading()) { Saving... } @else { Save Changes }
+    </button>
+  </div>
+</form>

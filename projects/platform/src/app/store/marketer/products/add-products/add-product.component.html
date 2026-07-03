@@ -8,6 +8,36 @@
     (submit)="onSubmit()"
   />
 
+  <!-- AI Product Assistant Banner -->
+  @if (showAiBanner()) {
+    <div class="ai-assistant-banner">
+      <div class="ai-banner-header">
+        <h3><mat-icon>auto_awesome</mat-icon> AI Product Assistant</h3>
+        <button mat-button (click)="showAiBanner.set(false)">Skip — fill manually</button>
+      </div>
+      <p>Describe your product in simple words. We'll fill in the details for you.</p>
+      <div class="ai-banner-input">
+        <textarea [(ngModel)]="aiDescription" rows="3" maxlength="500"
+          placeholder="e.g. Wireless Bluetooth earbuds with noise cancelling, IPX5 waterproof, 30hr battery life, available in black and white"
+          [disabled]="aiGenerating()"></textarea>
+        <div class="ai-banner-actions">
+          <span class="char-count">{{ aiDescription.length }}/500</span>
+          <button mat-flat-button color="primary" (click)="generateProduct()" [disabled]="aiGenerating() || !aiDescription.trim()">
+            <mat-icon>{{ aiGenerating() ? 'hourglass_empty' : 'auto_awesome' }}</mat-icon>
+            {{ aiGenerating() ? 'Generating...' : 'Generate Content' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="ai-banner-toggle">
+      <button mat-button color="primary" (click)="showAiBanner.set(true)">
+        <mat-icon>auto_awesome</mat-icon>
+        Use AI Assistant to fill form
+      </button>
+    </div>
+  }
+
   <!-- Stepper -->
   <app-product-stepper
     [currentStep]="currentStep()"

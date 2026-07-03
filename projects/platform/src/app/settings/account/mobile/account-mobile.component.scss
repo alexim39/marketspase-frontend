@@ -1,4 +1,4 @@
-@use '../../../../styles/variables' as vars;
+﻿@use '../../../../styles/variables' as vars;
 @use '../../../../styles/mixins' as mixins;
 
 :host {
@@ -346,145 +346,40 @@ textarea {
 
 .mobile-form-shell {
   min-width: 0;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background: var(--background-color);
+  overflow-y: auto;
+  padding-bottom: 40px;
 }
 
-:host ::ng-deep {
-  .mobile-form-shell {
-    .profile-card,
-    .professional-card,
-    .username-card {
-      margin: 0;
-      border-radius: vars.$border-radius-xl;
-      border: 1px solid vars.$border-color;
-      box-shadow: vars.$shadow-sm;
-      background: vars.$surface-color;
-      overflow: hidden;
-    }
+.form-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 
-    mat-card-header {
-      padding: vars.$spacing-4 vars.$spacing-4 vars.$spacing-3;
-    }
-
-    mat-card-title {
-      font-size: vars.$font-size-lg;
-      line-height: vars.$line-height-tight;
-    }
-
-    mat-card-subtitle {
-      margin-top: vars.$spacing-1;
-      font-size: vars.$font-size-sm;
-      line-height: vars.$line-height-normal;
-    }
-
-    mat-card-content {
-      padding: vars.$spacing-4;
-    }
-
-    .profile-form,
-    .professional-form,
-    .username-form {
-      display: grid;
-      gap: vars.$spacing-4;
-    }
-
-    .form-section {
-      margin: 0;
-      padding: 0;
-      display: grid;
-      gap: vars.$spacing-3;
-    }
-
-    .section-header {
-      margin: 0;
-      min-width: 0;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: vars.$spacing-3;
-
-      h3 {
-        margin: 0;
-        font-size: vars.$font-size-base;
-      }
-
-      p {
-        margin: 4px 0 0;
-        font-size: vars.$font-size-sm;
-        color: vars.$text-secondary;
-        line-height: vars.$line-height-normal;
-      }
-    }
-
-    .form-row,
-    .social-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: vars.$spacing-3;
-    }
-
-    .form-field,
-    mat-form-field,
-    .social-grid__full,
-    .full-width {
-      width: 100%;
-      min-width: 0;
-    }
-
-    .country-code-field,
-    .phone-field {
-      width: 100%;
-    }
-
-    .mat-mdc-form-field {
-      font-size: vars.$font-size-sm;
-    }
-
-    mat-card-actions.form-actions,
-    .form-actions {
-      padding: vars.$spacing-3 vars.$spacing-4 vars.$spacing-4;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: vars.$spacing-2;
-
-      button {
-        min-height: 48px;
-        border-radius: vars.$border-radius-lg;
-      }
-    }
-
-    .url-preview,
-    .referral-section,
-    .account-status,
-    .age-restriction-banner {
-      border-radius: vars.$border-radius-lg;
-      overflow-wrap: anywhere;
-    }
-
-    .referral-stats,
-    .share-buttons {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: vars.$spacing-2;
-    }
-
-    .referral-link {
-      min-width: 0;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 44px;
-      gap: vars.$spacing-2;
-      align-items: center;
-    }
-
-    .link-code {
-      min-width: 0;
-      white-space: normal;
-      overflow-wrap: anywhere;
-    }
-
-    mat-chip-grid {
-      width: 100%;
-    }
+  .back-btn {
+    width: 40px; height: 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    display: grid; place-items: center;
+    background: var(--surface-color);
+    color: var(--text-primary);
   }
+
+  h2 { margin: 0; font-size: 16px; font-weight: 700; }
 }
 
 @include mixins.tablet {

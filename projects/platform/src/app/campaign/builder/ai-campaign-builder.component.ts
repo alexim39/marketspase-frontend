@@ -122,6 +122,7 @@ export class AiCampaignBuilderComponent {
       let mediaUrl = '';
       let mediaType = 'image';
       let mediaPublicId = '';
+      let thumbnailUrl = '';
 
       // Step 2: Upload media if selected
       if (this.selectedFile()) {
@@ -134,6 +135,7 @@ export class AiCampaignBuilderComponent {
             mediaUrl = uploadResp.data.mediaUrl || uploadResp.data.url || '';
             mediaType = uploadResp.data.mediaType || 'image';
             mediaPublicId = uploadResp.data.mediaPublicId || '';
+            thumbnailUrl = uploadResp.data.thumbnailUrl || '';
           }
         } catch (e) {
           this.snack.open('Media upload failed. You can add it on the next step.', 'OK', { duration: 4000 });
@@ -156,6 +158,7 @@ export class AiCampaignBuilderComponent {
             mediaUrl,
             mediaType,
             mediaPublicId,
+            thumbnailUrl,
           },
         },
       });

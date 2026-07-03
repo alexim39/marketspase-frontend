@@ -1,0 +1,58 @@
+<form [formGroup]="usernameForm" class="mobile-form" (ngSubmit)="onSubmit()">
+  <!-- Username -->
+  <mat-form-field appearance="outline">
+    <mat-label>Username</mat-label>
+    <input matInput formControlName="username" placeholder="yourbrandname">
+    <mat-hint>Your unique &#64;handle across MarketSpase</mat-hint>
+  </mat-form-field>
+
+  @if (usernameForm.get('username')?.value) {
+    <div class="url-preview">marketspase.com/&#64;{{ usernameForm.get('username')?.value }}</div>
+  }
+
+  <!-- Website -->
+  <mat-form-field appearance="outline">
+    <mat-label>Website</mat-label>
+    <input matInput formControlName="website" placeholder="https://yourbrand.com">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Instagram</mat-label>
+    <input matInput formControlName="instagram" placeholder="&#64;yourhandle">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>TikTok</mat-label>
+    <input matInput formControlName="tiktok" placeholder="&#64;yourhandle">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Facebook</mat-label>
+    <input matInput formControlName="facebook" placeholder="Page name or URL">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>X (Twitter)</mat-label>
+    <input matInput formControlName="x" placeholder="&#64;yourhandle">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>YouTube</mat-label>
+    <input matInput formControlName="youtube" placeholder="Channel URL">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>LinkedIn</mat-label>
+    <input matInput formControlName="linkedin" placeholder="Profile URL">
+  </mat-form-field>
+
+  @if (isLoading()) {
+    <div class="saving-bar"><mat-spinner diameter="18"></mat-spinner> Saving...</div>
+  }
+
+  <div class="form-actions">
+    <button mat-flat-button color="primary" type="submit" [disabled]="usernameForm.invalid || isLoading()">
+      Save Changes
+    </button>
+  </div>
+</form>

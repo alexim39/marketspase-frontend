@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnDestroy, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -25,6 +25,7 @@ import { CATEGORIES } from '../../../../common/utils/categories';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -50,6 +51,11 @@ export class CreateServiceComponent {
 
   loading = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
+
+  // AI Assistant
+  hideAiBanner = signal(false);
+  aiDescription = '';
+  aiGenerating = signal(false);
   mediaPreviews = signal<string[]>([]);
   mediaFiles = signal<File[]>([]);
   includesChips = signal<string[]>([]);
@@ -242,6 +248,36 @@ export class CreateServiceComponent {
     if (field.errors['required']) return 'This field is required';
     if (field.errors['maxlength']) return `Maximum ${field.errors['maxlength'].requiredLength} characters allowed`;
     return 'Invalid value';
+  }
+
+  async generateService(): Promise<void> {
+    if (!this.aiDescription.trim() || this.aiGenerating()) return;
+    this.aiGenerating.set(true);
+    try {
+      const name = this.serviceForm.get('name')?.value || this.aiDescription.trim().substring(0, 50);
+      const category = this.serviceForm.get('category')?.value || '';
+      const resp = await this.apiService.post<any>('api/v1/stores/service/suggest', { name, category, description: this.aiDescription.trim() }, undefined, true).toPromise();
+      const data = resp?.data;
+      if (!data) throw new Error('No data');
+
+      const patch: any = {};
+      if (data.description) patch.description = data.description;
+      if (data.category && !category) patch.category = data.category;
+      if (data.includes?.length) {
+        const includesArr = this.serviceForm.get('includes') as FormArray;
+        includesArr.clear();
+        data.includes.forEach((i: string) => includesArr.push(this.fb.control(i)));
+      }
+      if (data.pricingType) patch.pricingType = data.pricingType;
+      if (data.suggestedPrice) patch.price = data.suggestedPrice;
+      if (data.deliveryTime) patch.deliveryTime = data.deliveryTime;
+      this.serviceForm.patchValue(patch);
+      this.snackBar.open('AI-generated content applied! Review and edit.', 'OK', { duration: 4000 });
+    } catch (e: any) {
+      this.snackBar.open(e?.error?.message || 'Failed to generate. Try manual setup.', 'OK', { duration: 4000 });
+    } finally {
+      this.aiGenerating.set(false);
+    }
   }
 
   async onSubmit(): Promise<void> {

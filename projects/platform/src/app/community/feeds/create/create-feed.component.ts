@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -75,6 +76,7 @@ interface LocalMediaPreview {
     MatSelectModule,
     MatChipsModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatCardModule,
     MatDividerModule,
     MatTooltipModule,
@@ -98,6 +100,9 @@ export class CreateFeedPageComponent implements OnInit {
   @ViewChild('mediaInput') mediaInput!: ElementRef<HTMLInputElement>;
 
   isSubmitting = signal(false);
+  submissionStage = signal<'idle' | 'uploading' | 'creating'>('idle');
+  uploadProgress = signal<number | null>(null);
+  isDragOver = signal(false);
   isLoadingCampaigns = signal(false);
   isLoadingStores = signal(false);
   isLoadingProducts = signal(false);
@@ -115,6 +120,16 @@ export class CreateFeedPageComponent implements OnInit {
   postId = signal<string | null>(null);
   uploadedMedia = signal<LocalMediaPreview[]>([]);
   existingPostMedia = signal<LocalMediaPreview[]>([]);
+
+  submissionTitle = computed(() =>
+    this.submissionStage() === 'uploading' ? 'Uploading media' :
+    this.submissionStage() === 'creating' ? 'Creating post' : ''
+  );
+
+  submissionDescription = computed(() =>
+    this.submissionStage() === 'uploading' ? 'We are uploading your media before publishing your post.' :
+    this.submissionStage() === 'creating' ? 'Your media is ready. Finishing up your post.' : ''
+  );
 
   suggestedHashtags = signal<string[]>([
     'marketspase',
@@ -428,6 +443,30 @@ export class CreateFeedPageComponent implements OnInit {
   onMediaSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files || []).slice(0, 6);
+    this.addFiles(files);
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(false);
+    const files = Array.from(event.dataTransfer?.files || []).slice(0, 6);
+    this.addFiles(files);
+  }
+
+  private addFiles(files: File[]): void {
     if (!files.length) return;
 
     const nextMedia = files.map((file) => ({
@@ -500,6 +539,8 @@ export class CreateFeedPageComponent implements OnInit {
     this.isSubmitting.set(true);
 
     if (this.isEditMode()) {
+      this.isSubmitting.set(true);
+      this.submissionStage.set('creating');
       this.feedService.editPost(this.postId()!, {
         content: this.postData.content,
         hashtags: this.hashtags(),
@@ -514,16 +555,16 @@ export class CreateFeedPageComponent implements OnInit {
           rewardLabel: this.challengeReward()
         } : null
       })
-        .pipe(finalize(() => this.isSubmitting.set(false)))
-        .subscribe({
-          next: () => {
-            this.snackBar.open('Post updated successfully', 'OK', { duration: 2500 });
-            this.router.navigate(['/dashboard/community/feeds']);
-          },
-          error: () => {
-            this.snackBar.open('Failed to update post', 'Dismiss', { duration: 3000 });
-          }
-        });
+      .pipe(finalize(() => { this.isSubmitting.set(false); this.submissionStage.set('idle'); }))
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Post updated successfully', 'OK', { duration: 2500 });
+          this.router.navigate(['/dashboard/community/feeds']);
+        },
+        error: () => {
+          this.snackBar.open('Failed to update post', 'Dismiss', { duration: 3000 });
+        }
+      });
       return;
     }
 
@@ -553,8 +594,13 @@ export class CreateFeedPageComponent implements OnInit {
       }
     });
 
+    // Show upload progress
+    this.isSubmitting.set(true);
+    this.submissionStage.set('uploading');
+    this.uploadProgress.set(0);
+
     this.feedService.createPost(payload)
-      .pipe(finalize(() => this.isSubmitting.set(false)))
+      .pipe(finalize(() => { this.isSubmitting.set(false); this.submissionStage.set('idle'); this.uploadProgress.set(null); }))
       .subscribe({
         next: () => {
           this.snackBar.open('Post published successfully', 'OK', { duration: 2500 });

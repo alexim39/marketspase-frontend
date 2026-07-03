@@ -111,3 +111,13 @@
   // UPDATED: Use error-color for error snackbar
   background-color: $error-color;
 }
+
+// Mobile responsive overrides
+@include mobile {
+  .professional-card { margin: 0; max-width: 100%; width: 100%; }
+
+  .form-row {
+    flex-direction: column; gap: 12px;
+    .form-field { width: 100%; flex: none; }
+  }
+}

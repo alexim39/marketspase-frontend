@@ -10,6 +10,29 @@
       </div>
     </div>
 
+    <!-- AI Service Assistant Banner -->
+    <div class="ai-assistant-banner">
+      <div class="ai-banner-header">
+        <h3><mat-icon>auto_awesome</mat-icon> AI Service Assistant</h3>
+        <button mat-button (click)="hideAiBanner.set(!hideAiBanner())">{{ hideAiBanner() ? 'Show' : 'Skip' }}</button>
+      </div>
+      @if (!hideAiBanner()) {
+        <p>Describe your service. We'll generate the description, features, and pricing for you.</p>
+        <div class="ai-banner-input">
+          <textarea [(ngModel)]="aiDescription" rows="3" maxlength="500"
+            placeholder="e.g. Graphic design for social media — Instagram posts, stories, and carousel designs with fast turnaround"
+            [disabled]="aiGenerating()"></textarea>
+          <div class="ai-banner-actions">
+            <span class="char-count">{{ aiDescription.length }}/500</span>
+            <button mat-flat-button color="primary" (click)="generateService()" [disabled]="aiGenerating() || !aiDescription.trim()">
+              <mat-icon>{{ aiGenerating() ? 'hourglass_empty' : 'auto_awesome' }}</mat-icon>
+              {{ aiGenerating() ? 'Generating...' : 'Generate Content' }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
     @if (isSubmitting()) {
       <div class="loading-overlay">
         <mat-card class="loading-card">

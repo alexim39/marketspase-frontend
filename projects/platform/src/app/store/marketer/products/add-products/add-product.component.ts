@@ -16,6 +16,10 @@ import {
   NonNullableFormBuilder,
 } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { ApiService } from '@shared/services/api';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 //import { ProductVariant } from '../../../models/product.model';
@@ -123,6 +127,9 @@ type ProductForm = FormGroup<{
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
     AddProductHeaderComponent,
     ProductStepperComponent,
     BasicInfoFormComponent,
@@ -142,12 +149,17 @@ export class AddProductComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);
   private productService = inject(ProductService);
+  private api = inject(ApiService);
   //private storeService = inject(StoreService);
 
   protected storeId = ''
 
   private userService: UserService = inject(UserService);
   public user: Signal<UserInterface | null> = this.userService.user;
+
+  showAiBanner = signal(true);
+  aiDescription = '';
+  aiGenerating = signal(false);
   
 
   // State
@@ -356,7 +368,51 @@ export class AddProductComponent implements OnInit, OnDestroy {
   }
 
   // ======= Submit / Cancel =======
-onSubmit(): void {
+  async generateProduct(): Promise<void> {
+    if (!this.aiDescription.trim() || this.aiGenerating()) return;
+    this.aiGenerating.set(true);
+    try {
+      const resp = await this.api.post<any>('api/v1/stores/product/suggest', { description: this.aiDescription.trim() }, undefined, true).toPromise();
+      const data = resp?.data;
+      if (!data) throw new Error('No data returned');
+
+      const basicInfo = this.basicInfo;
+      if (basicInfo) {
+        const patch: any = {};
+        if (data.name) patch.name = data.name;
+        if (data.description) patch.description = data.description;
+        if (data.category) patch.category = data.category;
+        if (data.tags?.length) { const ta = basicInfo.get('tags') as FormArray; ta.clear(); data.tags.forEach((t: string) => ta.push(new FormControl(t))); }
+        if (data.brand) patch.brand = data.brand;
+        basicInfo.patchValue(patch);
+      }
+      if (data.seoTitle || data.seoDescription) {
+        const seoForm = this.productForm.get('seo') as FormGroup;
+        if (seoForm) {
+          const sp: any = {};
+          if (data.seoTitle) sp.seoTitle = data.seoTitle;
+          if (data.seoDescription) sp.seoDescription = data.seoDescription;
+          seoForm.patchValue(sp);
+        }
+      }
+      if (data.suggestedPrice || data.commissionRate !== undefined) {
+        const pf = this.productForm.get('pricing') as FormGroup;
+        if (pf) {
+          const pp: any = {};
+          if (data.suggestedPrice) pp.price = data.suggestedPrice;
+          if (data.commissionRate !== undefined) pp.commissionRate = data.commissionRate;
+          pf.patchValue(pp);
+        }
+      }
+      this.snackBar.open('AI-generated content applied! Review and edit as needed.', 'OK', { duration: 4000 });
+    } catch (e: any) {
+      this.snackBar.open(e?.error?.message || 'Failed to generate.', 'OK', { duration: 4000 });
+    } finally {
+      this.aiGenerating.set(false);
+    }
+  }
+
+  onSubmit(): void {
   if (this.productForm.invalid) {
     this.markFormGroupTouched(this.productForm);
     this.showError('Please fill all required fields correctly.');

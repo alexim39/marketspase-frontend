@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FeedPostCardComponent } from '../../feed-post-card/feed-post-card.component';
@@ -34,6 +35,7 @@ import { CreateFeedPageComponent } from '../create-feed.component';
     MatSelectModule,
     MatChipsModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatCardModule,
     MatDividerModule,
     MatTooltipModule,

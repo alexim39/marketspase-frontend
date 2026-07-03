@@ -198,7 +198,7 @@ export class CreateCampaignComponent implements OnInit {
         this.uploadedMediaAsset.set({
           mediaUrl: aiData.mediaUrl,
           mediaType: aiData.mediaType || 'image',
-          thumbnailUrl: aiData.mediaUrl,
+          thumbnailUrl: aiData.thumbnailUrl || aiData.mediaUrl,
           mediaPublicId: aiData.mediaPublicId || '',
         });
         this.uploadedMediaKey.set(aiData.mediaUrl);

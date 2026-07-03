@@ -50,7 +50,7 @@ export const StoreRoutes: Routes = [
    
     {
         path: ':storeId/services',
-        loadComponent: () => import('./marketer/services/service-list-management/service-list-management.component').then(c => c.ServiceListManagementComponent),
+        loadComponent: () => import('./marketer/services/service-list-management/index').then(c => c.ServiceListIndexComponent),
         title: 'Service Management — MarketSpase',
     },
     {
@@ -130,7 +130,7 @@ export const StoreRoutes: Routes = [
 
     {
         path: 'services/create/:storeId',
-        loadComponent: () => import('./marketer/services/create-service/create-service.component').then(c => c.CreateServiceComponent),
+        loadComponent: () => import('./marketer/services/create-service/index').then(c => c.CreateServiceIndexComponent),
         title: 'Create Service — MarketSpase',
     },
     {
@@ -140,7 +140,7 @@ export const StoreRoutes: Routes = [
     },
     {
         path: 'services/:storeId',
-        loadComponent: () => import('./marketer/services/create-service/create-service.component').then(c => c.CreateServiceComponent),
+        loadComponent: () => import('./marketer/services/create-service/index').then(c => c.CreateServiceIndexComponent),
         title: 'Manage Services — MarketSpase',
     },
     {

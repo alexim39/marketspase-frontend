@@ -653,3 +653,19 @@ color: rgba(var(--surface-color), 0.76);
     animation: none;
   }
 }
+
+// Paystack inline checkout — mobile hardening
+:host ::ng-deep {
+  .paystack-checkout, iframe[name^="paystack"] {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  input[data-paystack], .paystack-card-number, .paystack-cvv, .paystack-expiry {
+    font-size: 14px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .paystack-widget {
+    overflow-x: hidden !important;
+  }
+}

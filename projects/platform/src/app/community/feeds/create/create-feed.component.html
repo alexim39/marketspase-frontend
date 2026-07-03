@@ -169,7 +169,8 @@
           </div>
 
           @if (!isEditMode()) {
-            <div class="media-upload-panel">
+            <div class="media-upload-panel" [class.drag-over]="isDragOver()"
+              (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
               <div class="media-upload-header">
                 <div>
                   <h3>Rich media</h3>
@@ -282,6 +283,23 @@
       </div>
 
       <div class="publish-section">
+        @if (isSubmitting()) {
+          <div class="submission-status" role="status" aria-live="polite">
+            <div class="submission-status-copy">
+              <p class="submission-eyebrow">Post setup in progress</p>
+              <h3>{{ submissionTitle() }}</h3>
+              <p>{{ submissionDescription() }}</p>
+            </div>
+            @if (submissionStage() === 'uploading') {
+              <div class="submission-progress">
+                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              </div>
+            } @else {
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            }
+          </div>
+        }
+
         <button class="publish-btn" [disabled]="!isFormValid() || isSubmitting() || isLoadingPost()" (click)="onSubmit()">
           @if (isSubmitting()) {
             <mat-spinner diameter="20"></mat-spinner>
