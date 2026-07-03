@@ -14,7 +14,7 @@ interface ChatMessage { role: 'user' | 'assistant'; content: string; }
 
 import { DeviceService } from '@shared/services/device';
 
-const ALWAYS_HIDDEN = ['messages', 'campaigns/create', 'campaigns/edit', 'stores/support'];
+const ALWAYS_HIDDEN = ['messages', 'campaigns/create', 'campaigns/edit', 'stores/support', 'collaboration'];
 const MOBILE_HIDDEN = ['/home'];
 
 @Component({
