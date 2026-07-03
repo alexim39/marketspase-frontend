@@ -68,6 +68,10 @@ export class MobileStorefrontCartComponent extends StorefrontCartComponent {
     }
   }
 
+  goBack(): void {
+    if (history.length > 1) { history.back(); } else { window.location.href = '/'; }
+  }
+
   override async checkoutSelectedStore(): Promise<void> {
     await super.checkoutSelectedStore();
     if (!this.checkoutError()) {
