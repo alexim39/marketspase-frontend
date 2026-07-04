@@ -692,7 +692,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  handleStoreContact(method: 'whatsapp' | 'email' | 'chat'): void {
+  handleStoreContact(method: 'whatsapp' | 'email' | 'chat' | 'inquiry'): void {
     if (method === 'whatsapp') {
       this.contactViaWhatsApp();
       return;
