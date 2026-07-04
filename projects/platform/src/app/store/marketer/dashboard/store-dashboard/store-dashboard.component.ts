@@ -33,6 +33,8 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialog } from '@angular/material/dialog';
 import { StoreManagerComponent } from '../../store-manager/store-manager.component';
+import { ElementRef, ViewChild } from '@angular/core';
+import { GalleryUploadDialogComponent } from '../gallery-upload-dialog/gallery-upload-dialog.component';
 interface StoreStat {
   icon: string;
   label: string;
@@ -121,6 +123,8 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
   public selectedCategory = signal<string>('all');
 
   private dialog = inject(MatDialog);
+
+  @ViewChild('galleryInput') galleryInput!: ElementRef<HTMLInputElement>;
 
   // Performance metrics - FIXED: Added proper typing
   public performanceMetrics = computed((): PerformanceMetric[] => {
@@ -700,4 +704,40 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
     return Array.from(categories);
   });
 
+  openGalleryUpload(): void {
+    const store = this.currentStore();
+    if (!store?._id) return;
+    const dialogRef = this.dialog.open(GalleryUploadDialogComponent, {
+      width: '480px',
+      maxWidth: '95vw',
+      panelClass: 'gallery-upload-dialog'
+    });
+    dialogRef.componentInstance.storeId.set(store._id);
+  }
+
+  onGalleryFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+    if (!files || files.length === 0) return;
+
+    const store = this.currentStore();
+    if (!store?._id) return;
+
+    const formData = new FormData();
+    for (let i = 0; i < Math.min(files.length, 5); i++) {
+      formData.append('media', files[i], files[i].name);
+    }
+
+    this.storeService.uploadGallery(store._id, formData).subscribe({
+      next: () => {
+        this.snackBar.open('Gallery media uploaded successfully', 'OK', { duration: 3000 });
+        input.value = '';
+      },
+      error: (err) => {
+        console.error('Gallery upload failed:', err);
+        this.snackBar.open(err?.error?.message || 'Upload failed', 'OK', { duration: 5000 });
+        input.value = '';
+      }
+    });
+  }
 }

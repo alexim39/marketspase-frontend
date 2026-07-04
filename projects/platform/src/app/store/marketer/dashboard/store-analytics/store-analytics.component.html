@@ -95,41 +95,57 @@
 
         <!-- Charts Row -->
         <div class="charts-row">
-          <div class="chart-container">
-            <mat-card class="chart-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>show_chart</mat-icon>
-                  Sales Performance
-                </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="chart-placeholder">
-                  <mat-icon>bar_chart</mat-icon>
-                  <p>Sales chart would be displayed here</p>
-                  <small>Using libraries like Chart.js or ng2-charts</small>
+          <mat-card class="chart-card">
+            <mat-card-header>
+              <mat-card-title><mat-icon>show_chart</mat-icon>Sales Performance</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="kpi-grid">
+                <div class="kpi-item">
+                  <span class="kpi-value">{{ store().analytics.totalSales | number }}</span>
+                  <span class="kpi-label">Total Sales</span>
                 </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
+                <div class="kpi-item accent">
+                  <span class="kpi-value">{{ store().analytics.conversionRate | number:'1.1-1' }}%</span>
+                  <span class="kpi-label">Conversion</span>
+                </div>
+                <div class="kpi-item">
+                  <span class="kpi-value">{{ $any(store().analytics).salesData?.totalRevenue | number:'1.0-0' }}</span>
+                  <span class="kpi-label">Revenue (₦)</span>
+                </div>
+                <div class="kpi-item accent">
+                  <span class="kpi-value">{{ $any(store().analytics).salesData?.averageOrderValue | number:'1.0-0' }}</span>
+                  <span class="kpi-label">Avg Order (₦)</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
 
-          <div class="chart-container">
-            <mat-card class="chart-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>trending_up</mat-icon>
-                  Traffic Overview
-                </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="chart-placeholder">
-                  <mat-icon>show_chart</mat-icon>
-                  <p>Traffic chart would be displayed here</p>
-                  <small>Using libraries like Chart.js or ng2-charts</small>
+          <mat-card class="chart-card">
+            <mat-card-header>
+              <mat-card-title><mat-icon>trending_up</mat-icon>Traffic Overview</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="kpi-grid">
+                <div class="kpi-item">
+                  <span class="kpi-value">{{ store().analytics.totalViews | number }}</span>
+                  <span class="kpi-label">Total Views</span>
                 </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
+                <div class="kpi-item accent">
+                  <span class="kpi-value">{{ store().analytics.promoterTraffic | number }}</span>
+                  <span class="kpi-label">Promoter Traffic</span>
+                </div>
+                <div class="kpi-item">
+                  <span class="kpi-value">{{ (store().followers || 0) | number }}</span>
+                  <span class="kpi-label">Followers</span>
+                </div>
+                <div class="kpi-item accent">
+                  <span class="kpi-value">{{ store().isVerified ? 'Yes' : 'No' }}</span>
+                  <span class="kpi-label">Verified</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
         </div>
 
         <!-- Quick Stats -->

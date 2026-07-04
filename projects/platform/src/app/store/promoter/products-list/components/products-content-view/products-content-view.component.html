@@ -93,7 +93,7 @@
           </div>
 
           <!-- Analytics Badge -->
-          @if ($any(product).type !== 'service' && getAvgConversionRate(product) > 0) {
+          @if (getAvgConversionRate(product) > 0) {
             <div class="analytics-badge" [class.high-perf]="getAvgConversionRate(product) >= 5">
               <mat-icon>insights</mat-icon>
               <span>{{ getAvgConversionRate(product) }}%</span>
@@ -186,33 +186,25 @@
               </div>
 
               <div class="performance-stats">
-                @if ($any(product).type !== 'service') {
                 <div class="stat" matTooltip="Views">
                   <mat-icon>visibility</mat-icon>
                   <span>{{ product.viewCount | number }}</span>
                 </div>
-                <div class="stat" matTooltip="Clicks">
-                  <mat-icon>touch_app</mat-icon>
+                <div class="stat" matTooltip="{{ $any(product).type === 'service' ? 'Inquiries' : 'Clicks' }}">
+                  <mat-icon>{{ $any(product).type === 'service' ? 'question_answer' : 'touch_app' }}</mat-icon>
                   <span>{{ product.promotion.clickCount | number }}</span>
                 </div>
-                <div class="stat" matTooltip="Conversions">
-                  <mat-icon>shopping_cart</mat-icon>
+                <div class="stat" matTooltip="{{ $any(product).type === 'service' ? 'Bookings' : 'Conversions' }}">
+                  <mat-icon>{{ $any(product).type === 'service' ? 'event' : 'shopping_cart' }}</mat-icon>
                   <span>{{ product.promotion.conversions | number }}</span>
                 </div>
-                } @else {
-                <div class="stat">
-                  <mat-icon>build</mat-icon>
-                  <span>Service</span>
-                </div>
-                }
               </div>
             </div>
 
             <!-- Performance Bar -->
-            @if ($any(product).type !== 'service') {
             <div class="performance-bar">
               <div class="bar-label">
-                <span>Conversion Rate</span>
+                <span>{{ $any(product).type === 'service' ? 'Booking Rate' : 'Conversion Rate' }}</span>
                 <span>{{ getConversionRate(product) | number:'1.1-1' }}%</span>
               </div>
               <mat-progress-bar
@@ -221,7 +213,6 @@
                 [color]="getPerformanceColor(product.promotion.commissionRate)"
               />
             </div>
-            }
 
             <!-- Tags -->
             @if (product.tags && product.tags.length > 0) {

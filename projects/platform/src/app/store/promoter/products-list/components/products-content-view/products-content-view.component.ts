@@ -132,7 +132,10 @@ export class ProductsContentViewComponent implements OnChanges {
   inquireNow(product: Product): void {
     const p = product as any;
     const storeName = (p.store?.name || 'store').toLowerCase().replace(/\s+/g, '-');
-    this.router.navigate(['/store', storeName, 'inquiry', p._id]);
+    const ref = p.service?.commissionType || 'per_lead';
+    this.router.navigate(['/store', storeName, 'inquiry', p._id], {
+      queryParams: { ref: p.promotion?.publicUrl?.split('/')?.pop() || '' },
+    });
   }
 
   onShareWhatsApp(product: Product): void {

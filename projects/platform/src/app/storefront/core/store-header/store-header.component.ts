@@ -17,12 +17,18 @@ import { DeviceService } from '@shared/services/device';
 
 export interface StoreStats {
   productCount: number;
+  serviceCount?: number;
+  inquiryCount?: number;
+  bookingCount?: number;
+  totalServiceViews?: number;
   followerCount: number;
   totalViews: number;
   totalSales: number;
   conversionRate: number;
   responseRate?: number;
   responseTime?: string;
+  rating?: number;
+  totalReviews?: number;
   memberSince?: Date;
 }
 
@@ -69,7 +75,7 @@ export class StoreHeaderComponent implements OnInit, OnDestroy {
 
   @Output() toggleFavorite = new EventEmitter<void>();
   @Output() shareStore = new EventEmitter<void>();
-  @Output() contactStore = new EventEmitter<'whatsapp' | 'email' | 'chat'>();
+  @Output() contactStore = new EventEmitter<'whatsapp' | 'email' | 'chat' | 'inquiry'>();
   @Output() reportStore = new EventEmitter<void>();
   @Output() tabChange = new EventEmitter<string>();
   @Output() viewAllProducts = new EventEmitter<void>();
@@ -95,6 +101,10 @@ export class StoreHeaderComponent implements OnInit, OnDestroy {
     return !!this.store?.whatsappNumber;
   }
 
+  getWhatsAppNumber(): string {
+    return this.store?.whatsappNumber?.replace(/^\+/, '') || '';
+  }
+
   hasEmail(): boolean {
     return !!(this.store?.email || this.store?.owner?.email);
   }
@@ -103,13 +113,60 @@ export class StoreHeaderComponent implements OnInit, OnDestroy {
     return !!(this.store?.phoneNumber || this.store?.owner?.personalInfo?.phone);
   }
 
-  // Navigation tabs
-  navTabs = [
+  private readonly productNavTabs = [
     { id: 'products', label: 'Products', icon: 'inventory_2' },
     { id: 'about', label: 'About', icon: 'info' },
     { id: 'reviews', label: 'Reviews', icon: 'star' },
     { id: 'policies', label: 'Policies', icon: 'description' }
   ];
+
+  private readonly serviceNavTabs = [
+    { id: 'services', label: 'Services', icon: 'design_services' },
+    { id: 'about', label: 'About', icon: 'info' },
+    { id: 'gallery', label: 'Gallery', icon: 'collections' },
+    { id: 'reviews', label: 'Reviews', icon: 'star' },
+    { id: 'contact', label: 'Contact', icon: 'support_agent' }
+  ];
+
+  get navTabs(): Array<{ id: string; label: string; icon: string }> {
+    return this.isServiceStore ? this.serviceNavTabs : this.productNavTabs;
+  }
+
+  get effectiveActiveTab(): string {
+    if (this.isServiceStore && this.activeTab === 'products') {
+      return 'services';
+    }
+
+    return this.activeTab;
+  }
+
+  get itemCountLabel(): string {
+    return this.isServiceStore ? 'Services' : 'Products';
+  }
+
+  get itemCountValue(): number {
+    return this.isServiceStore
+      ? Number(this.storeStats.serviceCount ?? this.storeStats.productCount ?? 0)
+      : Number(this.storeStats.productCount || 0);
+  }
+
+  get secondaryMetricLabel(): string {
+    return this.isServiceStore ? 'Inquiries' : 'Sales';
+  }
+
+  get secondaryMetricValue(): number {
+    return this.isServiceStore
+      ? Number(this.storeStats.inquiryCount || 0)
+      : Number(this.storeStats.totalSales || 0);
+  }
+
+  get viewAllTooltip(): string {
+    return this.isServiceStore ? 'View all services' : 'View all products';
+  }
+
+  get isServiceStore(): boolean {
+    return this.store?.type === 'service';
+  }
 
   ngOnInit(): void {
     this.checkInitialScroll();

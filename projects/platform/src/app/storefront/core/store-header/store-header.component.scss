@@ -351,6 +351,45 @@
             font-weight: $font-weight-medium;
           }
         }
+
+        // Service store CTA buttons
+        &.service-whatsapp-btn {
+          @include body-small;
+          font-weight: $font-weight-semibold;
+          height: 40px;
+          line-height: 38px;
+          padding: 0 $spacing-4;
+          border-radius: $border-radius;
+          border-color: #25D366;
+          color: #25D366;
+          background: transparent;
+
+          mat-icon { font-size: 18px; width: 18px; height: 18px; margin-right: 4px; color: #25D366; }
+
+          &:hover {
+            background: #25D366;
+            color: #fff;
+            mat-icon { color: #fff; }
+          }
+        }
+
+        &.inquire-cta-btn {
+          height: 40px;
+          padding: 0 $spacing-5;
+          border-radius: $border-radius;
+          font-size: 0.85rem;
+          font-weight: $font-weight-semibold;
+          color: $white;
+          background: $gradient-primary;
+          border: 0;
+
+          mat-icon { font-size: 18px; width: 18px; height: 18px; margin-right: 4px; color: $white; }
+
+          &:hover {
+            transform: translateY(-1px);
+            box-shadow: $shadow-md;
+          }
+        }
       }
 
       .share-btn {

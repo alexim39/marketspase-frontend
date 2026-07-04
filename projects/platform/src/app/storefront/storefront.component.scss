@@ -64,78 +64,232 @@
           
           &:hover {
             color: color-mix(in srgb, $primary-color, $white 20%);
+          }
+        }
+      }
     }
   }
 }
 
-// Service badges
-.service-badges { display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center; }
-.avail-badge, .grace-badge { display: inline-flex; align-items: center; gap: 0.2rem; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.67rem; font-weight: 700; line-height: 1.3; white-space: nowrap; .badge-icon { font-size: 0.8rem; width: 0.8rem; height: 0.8rem; } }
-.avail-badge {
-  &.green { background: rgba(var(--success-rgb), 0.12); color: var(--success-color); .badge-icon { color: var(--success-color); } }
-  &.amber { background: rgba(var(--warning-rgb), 0.14); color: var(--warning-color); .badge-icon { color: var(--warning-color); } }
-  &.gray { background: rgba(var(--primary-rgb), 0.07); color: var(--text-secondary); .badge-icon { color: var(--text-tertiary); } }
-}
-.grace-badge { background: rgba(var(--warning-rgb), 0.18); color: var(--warning-color); .badge-icon { color: var(--warning-color); } }
-.service-card.grace-period { border-color: var(--warning-color); }
 
-// Portfolio
-.portfolio-strip { display: flex; gap: 0.35rem; margin: 0.5rem 0; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; border-radius: 8px; max-width: 100%; padding-bottom: 2px; &::-webkit-scrollbar { display: none; } img, .thumb-video { width: 56px; height: 56px; object-fit: cover; border-radius: 6px; flex-shrink: 0; scroll-snap-align: start; border: 1px solid rgba(var(--primary-rgb), 0.06); background: rgba(var(--primary-rgb), 0.02); } .more-images { display: flex; align-items: center; justify-content: center; min-width: 56px; height: 56px; border-radius: 6px; background: rgba(var(--primary-rgb), 0.06); color: var(--primary-color); font-weight: 700; font-size: 0.75rem; flex-shrink: 0; } }
+// ============================================================
+// Service Storefront — Modern business profile design
+// ============================================================
 
-// Response time
-.response-time { font-size: 0.72rem; color: var(--text-secondary); margin: 0.25rem 0 0; }
+.storefront-page .store-main .container {
 
-// Package comparison
-.package-comparison { margin: 0.6rem 0; overflow-x: auto; table { width: 100%; border-collapse: collapse; font-size: 0.72rem; th, td { padding: 0.35rem 0.5rem; text-align: center; border-bottom: 1px solid var(--border-color); } th { font-weight: 700; color: var(--primary-color); } tr:first-of-type th { font-size: 0.78rem; } td:first-child, th:first-child { text-align: left; color: var(--text-secondary); } } }
+  // Shared section headers
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: $spacing-5;
+    .section-label { display: block; font-size: 0.72rem; font-weight: $font-weight-semibold; color: $primary-color; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: $spacing-1; }
+    h2 { font-size: 1.35rem; font-weight: $font-weight-bold; color: $text-primary; margin: 0; }
+    .section-badge { font-size: 0.78rem; font-weight: $font-weight-semibold; color: $primary-color; background: rgba(var(--primary-rgb), 0.08); padding: 4px 12px; border-radius: 999px; }
+  }
 
-// Cross-sell
-.cross-sell-section { margin-top: 2rem; h3 { margin: 0 0 0.75rem; font-size: 1.05rem; font-weight: 700; } }
-.cross-sell-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
-.cross-sell-card { display: flex; flex-direction: column; padding: 0.6rem; border-radius: 10px; border: 1px solid var(--border-color); cursor: pointer; text-decoration: none; color: inherit; img { width: 100%; height: 100px; object-fit: cover; border-radius: 6px; margin-bottom: 0.35rem; } .cs-name { font-size: 0.78rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .cs-price { font-size: 0.82rem; font-weight: 700; color: var(--primary-color); } }
+  .empty-state-hint {
+    display: flex; flex-direction: column; align-items: center; gap: $spacing-2; padding: $spacing-8 $spacing-5; background: $surface-color; border-radius: $border-radius-lg; border: 1.5px dashed $border-color; margin-bottom: $spacing-4;
+    mat-icon { font-size: 2.5rem; width: 2.5rem; height: 2.5rem; color: $text-tertiary; opacity: 0.5; }
+    p { font-size: 0.85rem; color: $text-tertiary; margin: 0; text-align: center; max-width: 420px; }
+  }
 
-      .featured-carousel {
-        display: grid;
-        grid-auto-flow: column;
-        // Keep a stable card width so the carousel feels intentional (not oversized).
-        grid-auto-columns: minmax(220px, 260px);
-        gap: $spacing-4;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        scroll-behavior: smooth;
-        padding: $spacing-2;
-        @include scrollbar;
-
-        // Ensure the card snaps nicely even though it's a component host element.
-        > app-product-grid-card {
-          scroll-snap-align: start;
-        }
+  // ---------- Hero Summary ----------
+  .svc-hero-summary { margin-bottom: $spacing-6; }
+  .svc-summary-card {
+    background: linear-gradient(135deg, $surface-color 0%, color-mix(in srgb, $primary-color 3%, $surface-color) 100%);
+    border-radius: $border-radius-xl; border: 1px solid $border-color; padding: $spacing-6; box-shadow: $shadow-sm;
+  }
+  .summary-grid { display: grid; grid-template-columns: 1fr 280px; gap: $spacing-6; align-items: center;
+    @include mobile { grid-template-columns: 1fr; }
+  }
+  .summary-left {
+    .business-type-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: $font-weight-semibold; color: $primary-color; background: rgba(var(--primary-rgb), 0.08); padding: 5px 14px; border-radius: 999px; margin-bottom: $spacing-3; mat-icon { font-size: 16px; width: 16px; height: 16px; } }
+    .summary-desc { font-size: 0.92rem; color: $text-secondary; line-height: 1.65; margin: 0 0 $spacing-3; }
+    .summary-meta { display: flex; flex-wrap: wrap; gap: $spacing-2;
+      .meta-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 0.76rem; color: $text-secondary; background: rgba(0,0,0,0.03); padding: 4px 10px; border-radius: 999px; mat-icon { font-size: 14px; width: 14px; height: 14px; } }
+    }
+  }
+  .summary-right {
+    display: flex; flex-direction: column; gap: $spacing-4;
+    .summary-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: $spacing-3;
+      .stat-block { text-align: center; padding: $spacing-3 $spacing-2; background: $background-color; border-radius: $border-radius;
+        .stat-num { display: block; font-size: 1.3rem; font-weight: $font-weight-bold; color: $primary-color; }
+        .stat-label { display: block; font-size: 0.7rem; color: $text-tertiary; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
       }
     }
-
-    // Products Grid View container
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: $spacing-6;
-      margin-bottom: $spacing-12;
-      animation: fadeIn 0.5s ease-out;
-
-      @include tablet {
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: $spacing-8;
+    .summary-actions { display: flex; gap: $spacing-2; flex-wrap: wrap;
+      .sum-wa-btn {
+        height: 44px; padding: 0 $spacing-5; border-radius: $border-radius; font-weight: $font-weight-semibold; font-size: 0.85rem;
+        border-color: #25D366; color: #25D366; background: transparent;
+        mat-icon { font-size: 18px; width: 18px; height: 18px; color: #25D366; margin-right: 4px; }
+        &:hover { background: #25D366; color: #fff; mat-icon { color: #fff; } }
       }
-
-      @include desktop {
-        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      .sum-inquiry-btn {
+        height: 44px; padding: 0 $spacing-5; border-radius: $border-radius; font-weight: $font-weight-semibold; font-size: 0.85rem;
+        background: $gradient-primary; color: $white; border: 0; box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.25);
+        mat-icon { font-size: 18px; width: 18px; height: 18px; color: $white; margin-right: 4px; }
+        &:hover { box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.35); transform: translateY(-1px); }
       }
     }
+  }
 
-    // Products List View container
-    .products-list {
-      @include flex-column;
-      gap: $spacing-4;
-      margin-bottom: $spacing-12;
+  // ---------- Service Cards Grid ----------
+  .svc-cards-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: $spacing-5; margin-bottom: $spacing-8;
+    @include mobile { grid-template-columns: 1fr; }
+    @include tablet { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .svc-card {
+    @include card-base; display: flex; flex-direction: column; overflow: hidden; border: 1px solid $border-color; transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    &:hover { transform: translateY(-3px); box-shadow: $shadow-lg; border-color: rgba(var(--primary-rgb), 0.2); }
+  }
+
+  .svc-card-media {
+    position: relative; height: 180px; overflow: hidden; background: color-mix(in srgb, $primary-color 6%, $background-color);
+    img, video { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .svc-card:hover & img { transform: scale(1.05); }
+    .media-overlay { position: absolute; top: $spacing-3; right: $spacing-3; }
+    .pricing-tag { font-size: 0.7rem; font-weight: $font-weight-bold; color: $white; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; }
+  }
+
+  .svc-card-body {
+    padding: $spacing-4 $spacing-4 $spacing-4; display: flex; flex-direction: column; gap: $spacing-2; flex: 1;
+  }
+
+  .svc-card-top {
+    h3 { font-size: 1.05rem; font-weight: $font-weight-semibold; color: $text-primary; margin: 0; line-height: 1.3; }
+    .svc-status-row { display: flex; align-items: center; gap: $spacing-1; margin-top: $spacing-1;
+      .status-available { font-size: 0.75rem; color: #16a34a; font-weight: $font-weight-semibold; .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #16a34a; margin-right: 4px; margin-bottom: 1px; } }
+      .status-busy { font-size: 0.75rem; color: #d97706; font-weight: $font-weight-semibold; .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #d97706; margin-right: 4px; margin-bottom: 1px; } }
+      .status-away { font-size: 0.75rem; color: $text-tertiary; font-weight: $font-weight-semibold; .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: $text-tertiary; margin-right: 4px; margin-bottom: 1px; } }
     }
+  }
+
+  .svc-cat-label { font-size: 0.7rem; color: $text-tertiary; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .svc-features { display: flex; flex-wrap: wrap; gap: 6px; margin: $spacing-1 0;
+    .feature-tag { display: inline-flex; align-items: center; gap: 2px; font-size: 0.72rem; color: $text-secondary; background: rgba(var(--primary-rgb), 0.04); padding: 2px 8px; border-radius: 6px; mat-icon { font-size: 13px; width: 13px; height: 13px; color: $primary-color; } }
+    .feature-tag.more { background: transparent; color: $primary-color; font-weight: $font-weight-semibold; }
+  }
+
+  .svc-card-bottom {
+    display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: $spacing-2; border-top: 1px solid $border-color;
+    .svc-pricing {
+      .svc-price { font-size: 1.1rem; font-weight: $font-weight-bold; color: $text-primary; }
+      .quote-text { font-size: 0.85rem; color: $primary-color; font-weight: $font-weight-semibold; font-style: italic; }
+      .per-unit { font-size: 0.72rem; color: $text-tertiary; margin-left: 2px; }
+    }
+    .svc-mini-rating { display: flex; align-items: center; gap: 2px; font-size: 0.82rem; font-weight: $font-weight-semibold; color: #d97706; mat-icon { font-size: 16px; width: 16px; height: 16px; color: #d97706; } }
+  }
+
+  .svc-inquire-btn {
+    width: 100%; margin-top: $spacing-1; font-weight: $font-weight-semibold; height: 44px; border-radius: $border-radius;
+    background: $gradient-primary; color: $white; border: 0; box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.25);
+    &:hover { box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.35); transform: translateY(-1px); }
+    mat-icon { font-size: 18px; width: 18px; height: 18px; color: $white; }
+  }
+
+  // ---------- About ----------
+  .svc-about-section { margin-bottom: $spacing-8; }
+  .about-content {
+    background: $surface-color; border-radius: $border-radius-lg; border: 1px solid $border-color; padding: $spacing-6;
+    p { font-size: 0.95rem; color: $text-secondary; line-height: 1.7; margin: 0; }
+    .about-location { display: flex; align-items: center; gap: $spacing-1; margin-top: $spacing-4; padding-top: $spacing-4; border-top: 1px solid $border-color; font-size: 0.85rem; color: $text-secondary; mat-icon { font-size: 18px; width: 18px; height: 18px; color: $primary-color; } }
+  }
+
+  // ---------- Gallery ----------
+  .svc-gallery-section { margin-bottom: $spacing-8; }
+  .gallery-masonry {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: $spacing-3;
+    @include tablet { grid-template-columns: repeat(3, 1fr); }
+    @include mobile { grid-template-columns: repeat(2, 1fr); }
+  }
+  .gallery-tile {
+    position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 4 / 3; background: color-mix(in srgb, $primary-color 5%, $background-color); cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
+    &:first-child { grid-column: span 2; grid-row: span 2; }
+    &:hover { transform: scale(1.02); box-shadow: $shadow-lg; }
+    img, video { width: 100%; height: 100%; object-fit: cover; }
+    .tile-caption { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 12px; background: linear-gradient(transparent, rgba(0,0,0,0.6)); span { font-size: 0.72rem; color: #fff; font-weight: $font-weight-semibold; } }
+  }
+
+  // ---------- Certifications ----------
+  .svc-certs-section { margin-bottom: $spacing-8; }
+  .certs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: $spacing-3; }
+  .cert-card { display: flex; align-items: flex-start; gap: $spacing-3; padding: $spacing-4; background: $surface-color; border-radius: $border-radius; border: 1px solid $border-color;
+    mat-icon { font-size: 24px; width: 24px; height: 24px; color: #16a34a; flex-shrink: 0; margin-top: 2px; }
+    div { display: flex; flex-direction: column; strong { font-size: 0.9rem; font-weight: $font-weight-semibold; color: $text-primary; } span { font-size: 0.78rem; color: $text-secondary; margin-top: 2px; } a { font-size: 0.76rem; color: $primary-color; font-weight: $font-weight-semibold; margin-top: 4px; text-decoration: underline; } }
+  }
+
+  // ---------- Reviews / Trust ----------
+  .svc-reviews-section { margin-bottom: $spacing-8; }
+  .reviews-card {
+    display: grid; grid-template-columns: 240px 1fr; gap: $spacing-6; background: $surface-color; border-radius: $border-radius-lg; border: 1px solid $border-color; padding: $spacing-6;
+    @include mobile { grid-template-columns: 1fr; gap: $spacing-4; }
+  }
+  .review-score { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    .score-big { font-size: 3rem; font-weight: $font-weight-bold; color: $primary-color; line-height: 1; }
+    .score-stars { display: flex; gap: 1px; margin: $spacing-1 0; mat-icon { font-size: 18px; width: 18px; height: 18px; color: #f59e0b; } }
+    .score-label { font-size: 0.78rem; color: $text-tertiary; }
+  }
+  .review-highlights { display: flex; flex-direction: column; gap: $spacing-3; justify-content: center;
+    .highlight-item { display: flex; align-items: flex-start; gap: $spacing-3; padding: $spacing-3; background: $background-color; border-radius: $border-radius;
+      mat-icon { font-size: 22px; width: 22px; height: 22px; color: $primary-color; flex-shrink: 0; margin-top: 2px; }
+      div { display: flex; flex-direction: column;
+        strong { font-size: 0.85rem; font-weight: $font-weight-semibold; color: $text-primary; }
+        span { font-size: 0.76rem; color: $text-secondary; }
+      }
+    }
+  }
+
+  // ---------- Cross-sell ----------
+  .svc-cross-sell { margin-bottom: $spacing-8; }
+  .cross-sell-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: $spacing-3; }
+  .cs-item { display: flex; flex-direction: column; border-radius: 12px; border: 1px solid $border-color; overflow: hidden; text-decoration: none; color: inherit; background: $surface-color; transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer;
+    &:hover { transform: translateY(-2px); box-shadow: $shadow-md; }
+    img { width: 100%; height: 120px; object-fit: cover; background: $background-color; }
+    .cs-info { padding: $spacing-2 $spacing-3; .cs-name { display: block; font-size: 0.82rem; font-weight: $font-weight-semibold; color: $text-primary; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .cs-price { display: block; font-size: 0.88rem; font-weight: $font-weight-bold; color: $primary-color; margin-top: 2px; } }
+  }
+
+  // ---------- Responsive overrides ----------
+  @include mobile {
+    .svc-summary-card { padding: $spacing-4; }
+    .reviews-card { padding: $spacing-4; }
+    .svc-cards-grid { grid-template-columns: 1fr; }
+    .gallery-masonry { grid-template-columns: repeat(2, 1fr);
+      .gallery-tile:first-child { grid-column: span 2; grid-row: span 1; }
+    }
+  }
+
+  // Featured products carousel (product stores)
+  .featured-carousel {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(220px, 260px);
+    gap: $spacing-4;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: $spacing-2;
+    @include scrollbar;
+    > app-product-grid-card { scroll-snap-align: start; }
+  }
+
+  // Products Grid View container
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: $spacing-6;
+    margin-bottom: $spacing-12;
+    animation: fadeIn 0.5s ease-out;
+    @include tablet { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: $spacing-8; }
+    @include desktop { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); }
+  }
+
+  // Products List View container
+  .products-list {
+    @include flex-column;
+    gap: $spacing-4;
+    margin-bottom: $spacing-12;
   }
 }
 
@@ -144,246 +298,32 @@
   .storefront-page {
     .store-main {
       margin-top: -40px;
-
       .featured-section {
         padding: $spacing-4;
         background: $surface-color;
         border-color: $border-color;
-
-        .featured-carousel {
-          gap: $spacing-3;
-          grid-auto-columns: minmax(200px, 240px);
-        }
+        .featured-carousel { gap: $spacing-3; grid-auto-columns: minmax(200px, 240px); }
       }
-
-      .products-grid {
-        grid-template-columns: 1fr;
-        gap: $spacing-4;
-      }
+      .products-grid { grid-template-columns: 1fr; gap: $spacing-4; }
     }
   }
 }
 
 // Tablet Responsive
 @include tablet {
-  .storefront-page {
-    .store-main {
-      .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-  }
+  .storefront-page .store-main .products-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 // Accessibility improvements
 @media (prefers-reduced-motion: reduce) {
   .storefront-page,
-  .storefront-page * {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-// Service Storefront Grid
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: $spacing-5;
-  margin-bottom: $spacing-8;
-
-  @include mobile {
-    grid-template-columns: 1fr;
-  }
-}
-
-.service-card {
-  @include card-base;
-  padding: $spacing-4;
-  display: flex;
-  flex-direction: column;
-  transition: transform $transition-normal, box-shadow $transition-normal, border-color $transition-normal;
-  border: 1px solid $border-color;
-  overflow: hidden;
-  min-width: 0;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary-color), rgba(var(--primary-rgb), 0.3));
-    opacity: 0;
-    transition: opacity $transition-fast;
-  }
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: $shadow-lg;
-    border-color: rgba(var(--primary-rgb), 0.25);
-
-    &::before {
-      opacity: 1;
-    }
-  }
-
-  .service-card-header {
-    @include flex-between;
-    margin-bottom: $spacing-3;
-    flex-wrap: wrap;
-    gap: $spacing-2;
-
-    .service-name {
-      @include heading-small;
-      margin: 0;
-      color: $text-primary;
-      font-weight: $font-weight-semibold;
-      font-size: 1rem;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 100%;
-    }
-
-    .service-pricing-badge {
-      @include caption;
-      background: color-mix(in srgb, $primary-color 10%, transparent);
-      color: $primary-color;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      font-weight: $font-weight-semibold;
-      font-size: 0.67rem;
-      white-space: nowrap;
-      letter-spacing: 0.01em;
-    }
-  }
-
-  .service-category {
-    @include caption;
-    color: $text-tertiary;
-    margin-bottom: $spacing-2;
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .service-price {
-    margin-bottom: $spacing-3;
-
-    .price-value {
-      @include heading-small;
-      color: $text-primary;
-      font-weight: $font-weight-bold;
-      font-size: 1.1rem;
-    }
-
-    .contact-quote {
-      @include body-medium;
-      color: $primary-color;
-      font-weight: $font-weight-semibold;
-      font-style: italic;
-      font-size: 0.85rem;
-    }
-
-    .hourly-rate {
-      font-size: 0.75rem;
-      color: $text-tertiary;
-      margin-left: 2px;
-    }
-  }
-
-  .service-includes {
-    @include body-small;
-    color: $text-secondary;
-    margin: 0 0 $spacing-2 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .service-delivery {
-    @include body-small;
-    color: $text-secondary;
-    margin: 0 0 $spacing-3 0;
-  }
-
-  .service-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: $spacing-3;
-    margin-top: auto;
-    padding-top: $spacing-4;
-    border-top: 1px solid $border-color;
-
-    .service-rating {
-      @include flex-center;
-      gap: $spacing-1;
-      flex-shrink: 0;
-
-      .stars {
-        color: $warning-color;
-        font-weight: $font-weight-semibold;
-        font-size: 0.82rem;
-      }
-
-      .review-count {
-        @include caption;
-        color: $text-tertiary;
-      }
-    }
-
-    .inquire-btn {
-      min-width: 120px;
-      font-weight: $font-weight-semibold;
-      font-size: $font-size-sm;
-      padding: $spacing-2 $spacing-4;
-      height: 38px;
-      border-radius: $border-radius;
-      flex-shrink: 0;
-      transition: all $transition-normal;
-
-      // Match app's primary gradient button standard
-      background: $gradient-primary;
-      color: $white;
-      border: none;
-
-      mat-icon {
-        font-size: 1.15rem;
-        width: 1.15rem;
-        height: 1.15rem;
-        color: $white;
-        vertical-align: middle;
-        line-height: 1;
-      }
-
-      &:hover:not(:disabled) {
-        transform: translateY(-1px);
-        box-shadow: $shadow-md;
-        background: $gradient-primary;
-      }
-
-      &:active:not(:disabled) {
-        transform: translateY(0);
-      }
-
-      &:disabled {
-        opacity: 0.6;
-      }
-    }
-  }
+  .storefront-page * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
 // High contrast mode support
 @media (prefers-contrast: high) {
   .storefront-page {
-    .featured-section,
-    .featured-card,
-    .products-grid,
-    .products-list {
-      border-width: 2px;
-      border-color: $text-primary;
-    }
+    .featured-section, .featured-card, .products-grid, .products-list { border-width: 2px; border-color: $text-primary; }
   }
 }
 
@@ -398,11 +338,6 @@
   .storefront-page {
     background: $white;
     color: $black;
-    
-    .featured-section,
-    .products-grid,
-    .products-list {
-      break-inside: avoid;
-    }
+    .featured-section, .products-grid, .products-list { break-inside: avoid; }
   }
 }

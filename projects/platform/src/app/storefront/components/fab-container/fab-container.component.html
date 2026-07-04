@@ -14,14 +14,16 @@
     <mat-icon>share</mat-icon>
   </button>
   
-  <button mat-fab 
-          class="fab-button"
-          [routerLink]="['/cart']"
-          matTooltip="View Cart">
-    @if (cartCount > 0) {
-      <mat-icon [matBadge]="cartCount" matBadgeColor="warn">shopping_cart</mat-icon>
-    } @else {
-      <mat-icon>shopping_cart</mat-icon>
-    }
-  </button>
+  @if (storeType !== 'service') {
+    <button mat-fab
+            class="fab-button"
+            [routerLink]="['/cart']"
+            matTooltip="View Cart">
+      @if (cartCount > 0) {
+        <mat-icon [matBadge]="cartCount" matBadgeColor="warn">shopping_cart</mat-icon>
+      } @else {
+        <mat-icon>shopping_cart</mat-icon>
+      }
+    </button>
+  }
 </div>

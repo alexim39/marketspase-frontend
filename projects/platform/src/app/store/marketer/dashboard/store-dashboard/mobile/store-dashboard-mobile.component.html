@@ -60,10 +60,21 @@
         </div>
 
         <div class="hero-actions">
-          <button type="button" (click)="addProduct()">
-            <mat-icon>add_box</mat-icon>
-            Add product
-          </button>
+          @if (store.type === 'service') {
+            <a [routerLink]="['/dashboard/stores/services/create', store._id]">
+              <mat-icon>add_box</mat-icon>
+              Add Service
+            </a>
+            <button type="button" (click)="openGalleryUpload()">
+              <mat-icon>collections</mat-icon>
+              Gallery
+            </button>
+          } @else {
+            <button type="button" (click)="addProduct()">
+              <mat-icon>add_box</mat-icon>
+              Add Product
+            </button>
+          }
           <a [routerLink]="['/store', store.storeLink]" aria-label="Preview public storefront">
             <mat-icon>open_in_new</mat-icon>
             Preview
@@ -99,7 +110,7 @@
         </div>
       </section>
 
-      @if (lowStockProducts().length > 0) {
+      @if ((lowStockProducts()?.length || 0) > 0) {
         <aside class="alert-card">
           <mat-icon>warning</mat-icon>
           <div>
@@ -111,10 +122,33 @@
       }
 
       <section class="quick-grid" aria-label="Store quick actions">
-        <button type="button" (click)="openStoreProducts()">
-          <mat-icon>inventory_2</mat-icon>
-          <span>Products</span>
-          <small>{{ products().length || 0 }} total</small>
+        @if (store.type === 'service') {
+          <a [routerLink]="['/dashboard/stores', store._id, 'services']">
+            <mat-icon>design_services</mat-icon>
+            <span>Services</span>
+            <small>{{ (services()?.length || 0) }} total</small>
+          </a>
+          <a [routerLink]="['/dashboard/stores/services/create', store._id]">
+            <mat-icon>add_circle</mat-icon>
+            <span>Add Service</span>
+            <small>Create new</small>
+          </a>
+          <a [routerLink]="['/store', store.storeLink]">
+            <mat-icon>visibility</mat-icon>
+            <span>Storefront</span>
+            <small>Live preview</small>
+          </a>
+        } @else {
+          <button type="button" (click)="openStoreProducts()">
+            <mat-icon>inventory_2</mat-icon>
+            <span>Products</span>
+            <small>{{ (products()?.length || 0) }} total</small>
+          </button>
+        }
+        <button type="button" (click)="openStoreManager(currentStore()!)">
+          <mat-icon>store</mat-icon>
+          <span>Store Manager</span>
+          <small>{{ (stores()?.length || 0) }} stores</small>
         </button>
         <a routerLink="/dashboard/stores/orders">
           <mat-icon>local_shipping</mat-icon>
@@ -136,18 +170,55 @@
           <span>Buyer CRM</span>
           <small>Follow ups</small>
         </a>
-        <button type="button" (click)="openSheet('filters')">
-          <mat-icon>filter_alt</mat-icon>
-          <span>Filter products</span>
-          <small>{{ selectedCategory() === 'all' ? 'All categories' : selectedCategory() }}</small>
-        </button>
+        @if (store.type !== 'service') {
+          <button type="button" (click)="openSheet('filters')">
+            <mat-icon>filter_alt</mat-icon>
+            <span>Filter products</span>
+            <small>{{ selectedCategory() === 'all' ? 'All categories' : selectedCategory() }}</small>
+          </button>
+        }
       </section>
 
-      <section class="product-preview">
-        <div class="section-heading">
-          <div>
-            <span>Inventory pulse</span>
-            <h2>Top products</h2>
+      @if (store.type === 'service') {
+        <section class="product-preview">
+          <div class="section-heading">
+            <div>
+              <span>Service Catalog</span>
+              <h2>Your Services</h2>
+            </div>
+            <button type="button" [routerLink]="['/dashboard/stores', store._id, 'services']">View all</button>
+          </div>
+          @if ((services()?.length || 0) > 0) {
+            <div class="product-list">
+              @for (s of (services() || []).slice(0, 5); track s._id) {
+                <article class="product-card">
+                  <div class="product-image">
+                    @if (s?.media?.[0]?.url) {
+                      <img [src]="s.media[0].url" [alt]="s.name" loading="lazy" />
+                    } @else { <mat-icon>design_services</mat-icon> }
+                  </div>
+                  <div class="product-copy">
+                    <strong>{{ s.name }}</strong>
+                    <span>{{ s.category || 'Uncategorized' }}</span>
+                    <b>₦{{ s.price | number:'1.0-0' }}</b>
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="empty-state">
+              <mat-icon>design_services</mat-icon>
+              <p>No services yet.</p>
+              <a [routerLink]="['/dashboard/stores/services/create', store._id]">Add a service</a>
+            </div>
+          }
+        </section>
+      } @else {
+        <section class="product-preview">
+          <div class="section-heading">
+            <div>
+              <span>Inventory pulse</span>
+              <h2>Top products</h2>
           </div>
           <button type="button" (click)="openStoreProducts()">View all</button>
         </div>
@@ -181,16 +252,24 @@
           </div>
         }
       </section>
+      }
 
       <nav class="sticky-actions" aria-label="Store dashboard sticky actions">
         <button type="button" class="secondary" (click)="openSheet('stores')">
           <mat-icon>swap_horiz</mat-icon>
           Stores
         </button>
-        <button type="button" class="primary" (click)="addProduct()">
-          <mat-icon>add</mat-icon>
-          Add product
-        </button>
+        @if (store.type === 'service') {
+          <button type="button" class="primary" [routerLink]="['/dashboard/stores/services/create', store._id]">
+            <mat-icon>add</mat-icon>
+            Add Service
+          </button>
+        } @else {
+          <button type="button" class="primary" (click)="addProduct()">
+            <mat-icon>add</mat-icon>
+            Add Product
+          </button>
+        }
       </nav>
     }
   }

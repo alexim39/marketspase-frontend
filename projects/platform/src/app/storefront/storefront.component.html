@@ -18,7 +18,7 @@
   <main class="store-main">
     <div class="container">
       <!-- Featured Products (Optional) -->
-      @if (featuredProducts().length > 0) {
+      @if (featuredProducts().length > 0 && store()?.type !== 'service') {
         <section class="featured-section">
           <div class="section-header">
             <h2>
@@ -49,25 +49,27 @@
         </section>
       }
       
-      <!-- Store Controls Component -->
-      <app-store-controls
-        [viewMode]="viewMode()"
-        [searchControl]="searchControl"
-        [sortControl]="sortControl"
-        [isScrolled]="isScrolled()"
-        [filteredProductsCount]="totalFilteredProducts()"
-        [totalProductsCount]="products().length"
-        [activeFilters]="activeFilters()"
-        (viewModeChange)="toggleViewMode($event)"
-        (clearFilters)="clearFilters()"
-        (toggleFilterSidebar)="toggleFilterSidebar()"
-        (clearSearch)="clearSearch()"
-        (setCategory)="setCategory($event)"
-        (priceRangeReset)="priceRange.set([minPrice(), maxPrice()])"
-        (ratingFilterReset)="ratingFilter.set(0)"
-        (tagFilterRemove)="toggleTagFilter($event)"
-        (brandFilterRemove)="toggleBrandFilter($event)"
-      />
+      <!-- Store Controls (product stores only) -->
+      @if (store()?.type !== 'service') {
+        <app-store-controls
+          [viewMode]="viewMode()"
+          [searchControl]="searchControl"
+          [sortControl]="sortControl"
+          [isScrolled]="isScrolled()"
+          [filteredProductsCount]="totalFilteredProducts()"
+          [totalProductsCount]="products().length"
+          [activeFilters]="activeFilters()"
+          (viewModeChange)="toggleViewMode($event)"
+          (clearFilters)="clearFilters()"
+          (toggleFilterSidebar)="toggleFilterSidebar()"
+          (clearSearch)="clearSearch()"
+          (setCategory)="setCategory($event)"
+          (priceRangeReset)="priceRange.set([minPrice(), maxPrice()])"
+          (ratingFilterReset)="ratingFilter.set(0)"
+          (tagFilterRemove)="toggleTagFilter($event)"
+          (brandFilterRemove)="toggleBrandFilter($event)"
+        />
+      }
       
       <!-- Loading State -->
       @if (loading()) {
@@ -82,106 +84,328 @@
         />
       }
 
-      <!-- Service Storefront -->
-      @if (store()?.type === 'service' && services().length > 0 && !loading() && !error()) {
-        <div class="services-grid">
-          @for (service of services(); track service._id) {
-            <div class="service-card" [class.grace-period]="service.inGracePeriod">
-              <div class="service-card-header">
-                <h3 class="service-name">{{ service.name }}</h3>
-                <div class="service-badges">
-                  <span class="service-pricing-badge">{{ pricingTypeLabel(service.pricingType) }}</span>
-                  @if (service.inGracePeriod) { <span class="grace-badge"><mat-icon class="badge-icon">warning</mat-icon>Renewal needed</span> }
-                  @if (service.availability === 'available') { <span class="avail-badge green"><mat-icon class="badge-icon">check_circle</mat-icon>Available</span> }
-                  @if (service.availability === 'busy') { <span class="avail-badge amber"><mat-icon class="badge-icon">hourglass_empty</mat-icon>{{ (service.slotsPerWeek ?? 10) - (service.filledSlots ?? 0) }} slots left</span> }
-                  @if (service.availability === 'away') { <span class="avail-badge gray"><mat-icon class="badge-icon">do_not_disturb</mat-icon>Away</span> }
+      <!-- Service Storefront — Business profile landing page -->
+      @if (store()?.type === 'service' && !loading() && !error()) {
+        <!-- Service Hero Summary -->
+        <section class="svc-hero-summary">
+          <div class="svc-summary-card">
+            <div class="summary-grid">
+              <div class="summary-left">
+                <div class="business-type-badge">
+                  <mat-icon>business</mat-icon> {{ store()?.category || 'Service Provider' }}
                 </div>
-              </div>
-
-              <!-- Media gallery (uploaded images/videos) -->
-              @if (service.media?.length || service.portfolio?.length) {
-                <div class="portfolio-strip">
-                  @for (img of (service.media?.length ? service.media! : service.portfolio!).slice(0, 3); track img.url) {
-                    @if (img.type === 'video') {
-                      <video [src]="img.url" muted preload="metadata" class="thumb-video"></video>
-                    } @else {
-                      <img [src]="img.url" [alt]="service.name" loading="lazy" />
-                    }
-                  }
-                  @if ((service.media?.length || service.portfolio?.length || 0) > 3) {
-                    <span class="more-images">+{{ (service.media?.length || service.portfolio?.length || 0) - 3 }}</span>
-                  }
-                </div>
-              }
-
-              <span class="service-category">{{ service.category }}</span>
-              <div class="service-price">
-                @if (service.pricingType === 'quote' || service.acceptsQuotes) {
-                  <span class="contact-quote">Contact for quote</span>
-                } @else if (service.pricingType === 'package' && service.packages?.length) {
-                  <span class="price-value">₦{{ service.packages?.[0]?.price | number:'1.0-0' }}+</span>
-                } @else if (service.price) {
-                  <span class="price-value">₦{{ service.price | number:'1.0-0' }}</span>
+                @if (store()?.description) {
+                  <p class="summary-desc">{{ $any(store()).description | truncate:200 }}</p>
                 }
-                @if (service.hourlyRate) { <span class="hourly-rate">/hr</span> }
-              </div>
-
-              <!-- Response time -->
-              @if (service.averageResponseTime && service.averageResponseTime > 0) {
-                <p class="response-time">⏱️ {{ responseTimeLabel(service.averageResponseTime!) }}</p>
-              }
-
-              @if (service.includes?.length) {
-                <p class="service-includes">Includes: {{ service.includes?.join(', ') }}</p>
-              }
-              @if (service.deliveryTime) {
-                <p class="service-delivery">Delivery: {{ service.deliveryTime }}</p>
-              }
-
-              <!-- Package comparison table -->
-              @if (service.pricingType === 'package' && service.packages && service.packages.length > 1) {
-                <div class="package-comparison">
-                  <table>
-                    <tr><th></th> @for (p of service.packages; track p.name) { <th>{{ p.name }}</th> }</tr>
-                    <tr><td>Price</td> @for (p of service.packages; track p.name) { <td>₦{{ p.price | number:'1.0-0' }}</td> }</tr>
-                    @for (feature of getAllPackageFeatures(service.packages); track feature) {
-                      <tr><td>{{ feature }}</td> @for (p of service.packages; track p.name) { <td>{{ p.includes?.includes(feature) ? '✓' : '✗' }}</td> }</tr>
-                    }
-                  </table>
-                </div>
-              }
-
-              <div class="service-footer">
-                <div class="service-rating">
-                  @if (service.averageRating) {
-                    <span class="stars">⭐ {{ service.averageRating }}</span>
-                    <span class="review-count">({{ service.ratingCount || 0 }})</span>
+                <div class="summary-meta">
+                  @if (storeLocation()) {
+                    <span class="meta-pill"><mat-icon>location_on</mat-icon> {{ storeLocation() }}</span>
+                  }
+                  @if (store()?.analytics?.rating) {
+                    <span class="meta-pill"><mat-icon>star</mat-icon> {{ store()?.analytics?.rating | number:'1.1-1' }}</span>
+                  }
+                  @if (storeStats().responseTime) {
+                    <span class="meta-pill"><mat-icon>schedule</mat-icon> {{ storeStats().responseTime }}</span>
                   }
                 </div>
-                <button mat-flat-button color="primary" class="inquire-btn" (click)="navigateToInquiry(service)">
-                  <mat-icon>send</mat-icon>
-                  Inquire Now
-                </button>
+              </div>
+              <div class="summary-right">
+                <div class="summary-stats">
+                  <div class="stat-block">
+                    <span class="stat-num">{{ services().length }}</span>
+                    <span class="stat-label">Services</span>
+                  </div>
+                  <div class="stat-block">
+                    <span class="stat-num">{{ totalServiceInquiries() }}</span>
+                    <span class="stat-label">Inquiries</span>
+                  </div>
+                  <div class="stat-block">
+                    <span class="stat-num">{{ storeStats().totalViews | number }}</span>
+                    <span class="stat-label">Views</span>
+                  </div>
+                </div>
+                <div class="summary-actions">
+                  @if (store()?.whatsappNumber) {
+                    <a mat-stroked-button class="sum-wa-btn" [href]="'https://wa.me/' + store()?.whatsappNumber" target="_blank" rel="noopener">
+                      <mat-icon>chat</mat-icon> WhatsApp
+                    </a>
+                  }
+                  @if (services().length) {
+                    <button mat-flat-button class="sum-inquiry-btn" (click)="navigateToInquiry(services()[0])">
+                      <mat-icon>send</mat-icon> Send Inquiry
+                    </button>
+                  }
+                </div>
               </div>
             </div>
-          }
-        </div>
+          </div>
+        </section>
 
-        <!-- Cross-sell products -->
-        @if (crossSellProducts().length) {
-          <section class="cross-sell-section">
-            <h3>Also from {{ store()?.name }}</h3>
-            <div class="cross-sell-grid">
-              @for (product of crossSellProducts(); track product._id) {
-                <div class="cross-sell-card" [routerLink]="['/product', product._id]">
-                  @if (product.images?.[0]?.url) { <img [src]="product.images[0].url" [alt]="product.name" /> }
-                  <span class="cs-name">{{ product.name }}</span>
-                  <span class="cs-price">₦{{ product.price | number:'1.0-0' }}</span>
+        <!-- Services Section -->
+        <section id="store-services" class="svc-services-section">
+          <div class="section-header">
+            <div>
+              <span class="section-label">What I Offer</span>
+              <h2>Services</h2>
+            </div>
+            <span class="section-badge">{{ services().length }} available</span>
+          </div>
+
+          @if (services().length > 0) {
+            <div class="svc-cards-grid">
+            @for (service of services(); track service._id) {
+              <div class="svc-card">
+                @if (service.media?.length || service.portfolio?.length) {
+                  <div class="svc-card-media">
+                    @if ((service.media?.length ? service.media![0] : service.portfolio![0])?.type === 'video') {
+                      <video [src]="(service.media?.length ? service.media![0] : service.portfolio![0])?.url" muted preload="metadata"></video>
+                    } @else {
+                      <img [src]="(service.media?.length ? service.media![0] : service.portfolio![0])?.url" [alt]="service.name" loading="lazy" />
+                    }
+                    <div class="media-overlay">
+                      <span class="pricing-tag">{{ pricingTypeLabel(service.pricingType) }}</span>
+                    </div>
+                  </div>
+                }
+
+                <div class="svc-card-body">
+                  <div class="svc-card-top">
+                    <h3>{{ service.name }}</h3>
+                    <div class="svc-status-row">
+                      @if (service.availability === 'available') {
+                        <span class="status-available"><span class="dot"></span> Available</span>
+                      } @else if (service.availability === 'busy') {
+                        <span class="status-busy"><span class="dot"></span> {{ (service.slotsPerWeek ?? 10) - (service.filledSlots ?? 0) }} slots left</span>
+                      } @else {
+                        <span class="status-away"><span class="dot"></span> Away</span>
+                      }
+                    </div>
+                  </div>
+
+                  <span class="svc-cat-label">{{ service.category }}</span>
+
+                  @if (service.includes?.length) {
+                    <div class="svc-features">
+                      @for (item of (service.includes || []).slice(0, 4); track item) {
+                        <span class="feature-tag"><mat-icon>check</mat-icon> {{ item }}</span>
+                      }
+                      @if ((service.includes?.length || 0) > 4) {
+                        <span class="feature-tag more">+{{ (service.includes?.length || 0) - 4 }} more</span>
+                      }
+                    </div>
+                  }
+
+                  <div class="svc-card-bottom">
+                    <div class="svc-pricing">
+                      @if (service.pricingType === 'quote') {
+                        <span class="quote-text">Request a quote</span>
+                      } @else if (service.pricingType === 'package' && service.packages?.length) {
+                        <span class="svc-price">From ₦{{ service.packages?.[0]?.price | number:'1.0-0' }}</span>
+                      } @else if (service.price) {
+                        <span class="svc-price">₦{{ service.price | number:'1.0-0' }}</span>
+                      }
+                      @if (service.hourlyRate) { <span class="per-unit">/hr</span> }
+                    </div>
+
+                    @if (service.averageRating) {
+                      <div class="svc-mini-rating">
+                        <mat-icon>star</mat-icon> {{ service.averageRating }}
+                      </div>
+                    }
+                  </div>
+
+                  <button mat-flat-button class="svc-inquire-btn" (click)="navigateToInquiry(service)">
+                    <mat-icon>send</mat-icon> Inquire Now
+                  </button>
+                </div>
+              </div>
+            }
+            </div>
+          } @else {
+            <div class="empty-state-hint">
+              <mat-icon>build</mat-icon>
+              <p>{{ store()?.name }} hasn't added any services yet.</p>
+            </div>
+          }
+        </section>
+
+        <!-- About Section -->
+        <section id="store-about" class="svc-about-section">
+          <div class="section-header">
+            <div>
+              <span class="section-label">About the Business</span>
+              <h2>{{ store()?.name }}</h2>
+            </div>
+          </div>
+          @if (store()?.description) {
+            <div class="about-content">
+              <p>{{ store()?.description }}</p>
+              @if (storeLocation()) {
+                <div class="about-location">
+                  <mat-icon>location_on</mat-icon>
+                  <span>Serving {{ storeLocation() }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-state-hint">
+              <mat-icon>edit_note</mat-icon>
+              <p>No description yet. The seller hasn't added business details.</p>
+            </div>
+          }
+        </section>
+
+        <!-- Gallery Section -->
+        <section id="store-gallery" class="svc-gallery-section">
+          <div class="section-header">
+            <div>
+              <span class="section-label">Portfolio</span>
+              <h2>Work & Gallery</h2>
+            </div>
+          </div>
+          @if (hasServiceGallery()) {
+            <div class="gallery-masonry">
+              <!-- Store-level gallery -->
+              @for (item of storeProfile()?.gallery || []; track item.url) {
+                <div class="gallery-tile" [class.video-tile]="item.type === 'video'">
+                  @if (item.type === 'video') {
+                    <video [src]="item.url" controls preload="metadata"></video>
+                  } @else {
+                    <img [src]="item.url" [alt]="item.caption || 'Gallery'" loading="lazy" />
+                  }
+                  @if (item.caption) {
+                    <div class="tile-caption"><span>{{ item.caption }}</span></div>
+                  }
+                </div>
+              }
+              <!-- Service-level media -->
+              @for (svc of services(); track svc._id) {
+                @for (media of (svc.media?.length ? svc.media! : (svc.portfolio || [])); track media.url) {
+                  <div class="gallery-tile" [class.video-tile]="media.type === 'video'">
+                    @if (media.type === 'video') {
+                      <video [src]="media.url" controls preload="metadata"></video>
+                    } @else {
+                      <img [src]="media.url" [alt]="svc.name" loading="lazy" />
+                    }
+                    <div class="tile-caption"><span>{{ svc.name }}</span></div>
+                  </div>
+                }
+              }
+            </div>
+          } @else {
+            <div class="empty-state-hint">
+              <mat-icon>image</mat-icon>
+              <p>No portfolio images yet. Photos of past work build trust with customers.</p>
+            </div>
+          }
+        </section>
+
+        <!-- Certifications -->
+        @if (storeProfile()?.certifications?.length) {
+          <section class="svc-certs-section">
+            <div class="section-header">
+              <div>
+                <span class="section-label">Credentials</span>
+                <h2>Certifications & Licenses</h2>
+              </div>
+            </div>
+            <div class="certs-grid">
+              @for (cert of (storeProfile()?.certifications || []); track cert.name) {
+                <div class="cert-card">
+                  <mat-icon>verified</mat-icon>
+                  <div>
+                    <strong>{{ cert.name }}</strong>
+                    @if (cert.issuer) { <span>{{ cert.issuer }}{{ cert.year ? ' • ' + cert.year : '' }}</span> }
+                    @if (cert.file) { <a [href]="cert.file" target="_blank" rel="noopener">View certificate</a> }
+                  </div>
                 </div>
               }
             </div>
           </section>
         }
+
+        <!-- Reviews / Trust Section -->
+        <section id="store-reviews" class="svc-reviews-section">
+          <div class="section-header">
+            <div>
+              <span class="section-label">Trust & Reviews</span>
+              <h2>What Customers Say</h2>
+            </div>
+          </div>
+          <div class="reviews-card">
+            <div class="review-score">
+              <div class="score-big">{{ (store()?.analytics?.rating || 0) | number:'1.1-1' }}</div>
+              <div class="score-stars">
+                @for (star of [1,2,3,4,5]; track star) {
+                  <mat-icon>{{ star <= (store()?.analytics?.rating || 0) ? 'star' : 'star_border' }}</mat-icon>
+                }
+              </div>
+              @if (store()?.analytics?.rating) {
+                <span class="score-label">Based on {{ store()?.analytics?.totalReviews || 0 }} reviews</span>
+              } @else {
+                <span class="score-label">No reviews yet</span>
+              }
+            </div>
+            <div class="review-highlights">
+              <div class="highlight-item">
+                <mat-icon>verified</mat-icon>
+                <div>
+                  <strong>{{ store()?.isVerified ? 'Verified Business' : 'Not Verified' }}</strong>
+                  <span>{{ store()?.isVerified ? 'This business has been verified by MarketSpase' : 'Verification pending' }}</span>
+                </div>
+              </div>
+              <div class="highlight-item">
+                <mat-icon>speed</mat-icon>
+                <div>
+                  <strong>Response Rate</strong>
+                  <span>{{ storeStats().responseRate || 100 }}% response rate</span>
+                </div>
+              </div>
+              @if (store()?.createdAt) {
+                <div class="highlight-item">
+                  <mat-icon>calendar_today</mat-icon>
+                  <div>
+                    <strong>Member Since</strong>
+                    <span>{{ store()?.createdAt | date:'MMMM yyyy' }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- Cross-sell products -->
+        @if (crossSellProducts().length) {
+          <section class="svc-cross-sell">
+            <div class="section-header">
+              <div>
+                <span class="section-label">Also Available</span>
+                <h2>Products from {{ store()?.name }}</h2>
+              </div>
+            </div>
+            <div class="cross-sell-row">
+              @for (product of crossSellProducts(); track product._id) {
+                <a class="cs-item" [routerLink]="['/product', product._id]">
+                  @if (product.images?.[0]?.url) { <img [src]="product.images[0].url" [alt]="product.name" loading="lazy" /> }
+                  <div class="cs-info">
+                    <span class="cs-name">{{ product.name }}</span>
+                    <span class="cs-price">₦{{ product.price | number:'1.0-0' }}</span>
+                  </div>
+                </a>
+              }
+            </div>
+          </section>
+        }
+      }
+
+      @if (store()?.type === 'service' && services().length === 0 && !loading() && !error()) {
+        <app-empty-state
+          icon="design_services"
+          title="No Services Found"
+          message="This store doesn't have any services available at the moment."
+          [actionLabel]="'Browse Marketplace'"
+          (action)="router.navigate(['/'])"
+        />
       }
       
       <!-- Products Display -->
@@ -282,11 +506,13 @@
   <app-fab-container
     [isScrolled]="isScrolled()"
     [cartCount]="getCartCount()"
+    [storeType]="store()?.type"
     (scrollToTop)="scrollToTop()"
     (shareStore)="shareStore()"
   />
   
-  <!-- Filter Sidebar (Component) -->
+  <!-- Filter Sidebar (product stores only) -->
+  @if (store()?.type !== 'service') {
   <app-filter-sidebar 
     [show]="showFilters()"
     (close)="showFilters.set(false)"
@@ -307,5 +533,6 @@
     (brandToggle)="toggleBrandFilter($event)"
     (clearAll)="clearFilters()"
   />
+  }
   <app-storefront-chat [storeLink]="store()?.storeLink || ''" [storeName]="store()?.name || ''" />
 </div>

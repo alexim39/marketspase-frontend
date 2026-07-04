@@ -41,6 +41,7 @@ import { ShareService } from '../store/services/share.service';
 import { buildWhatsAppChatUrl } from '../common/utils/whatsapp.util';
 import { StorefrontChatComponent } from './components/storefront-chat/storefront-chat.component';
 import { ServiceInquiryDialogComponent } from './components/service-inquiry-dialog/service-inquiry-dialog.component';
+import { TruncatePipe } from '@shared/services';
 
 @Component({
   selector: 'app-storefront',
@@ -64,7 +65,8 @@ import { ServiceInquiryDialogComponent } from './components/service-inquiry-dial
     FilterSidebarComponent,
     StorefrontChatComponent,
     MatIconModule,
-    ServiceInquiryDialogComponent
+    ServiceInquiryDialogComponent,
+    TruncatePipe
   ],
   providers: [StorefrontService, ShareService],
   templateUrl: './storefront.component.html',
@@ -272,15 +274,28 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   // Store analytics computed
   storeStats = computed(() => {
     const store = this.store();
+    const isServiceStore = store?.type === 'service';
+    const serviceCount = this.services().length || Number((store as any)?.serviceStats?.serviceCount || (store as any)?.statistics?.serviceCount || 0);
+    const inquiryCount = this.totalServiceInquiries() || Number((store as any)?.serviceStats?.inquiryCount || (store as any)?.statistics?.inquiryCount || 0);
+    const bookingCount = this.totalServiceBookings() || Number((store as any)?.serviceStats?.bookingCount || (store as any)?.statistics?.bookingCount || 0);
+    const totalServiceViews = this.totalServiceViews() || Number((store as any)?.serviceStats?.totalServiceViews || (store as any)?.statistics?.totalServiceViews || 0);
     const followers = Array.isArray((store as any)?.followers)
       ? (store as any).followers.length
       : Number((store as any)?.followerCount || 0);
     return {
-      productCount: this.products().length,
-      totalViews: store?.analytics?.totalViews || 0,
-      totalSales: store?.analytics?.totalSales || 0,
+      productCount: isServiceStore ? serviceCount : this.products().length,
+      serviceCount,
+      inquiryCount,
+      bookingCount,
+      totalServiceViews,
+      totalViews: isServiceStore ? Math.max(Number(store?.analytics?.totalViews || 0), totalServiceViews) : store?.analytics?.totalViews || 0,
+      totalSales: isServiceStore ? inquiryCount : store?.analytics?.totalSales || 0,
       conversionRate: store?.analytics?.conversionRate || 0,
-      followerCount: Number.isFinite(followers) ? followers : 0
+      followerCount: Number.isFinite(followers) ? followers : 0,
+      responseRate: 100,
+      responseTime: '',
+      rating: store?.analytics?.rating,
+      totalReviews: (store?.analytics as any)?.totalReviews || 0
     };
   });
 
@@ -370,6 +385,12 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
       if (storeResponse.data.type === 'service') {
         const servicesResponse = await firstValueFrom(this.storeService.getStoreServices(storeResponse.data._id ?? ''));
         this.services.set(servicesResponse?.data || []);
+
+        this.apiService.get(`api/v1/stores/store/${storeResponse.data._id}/public-profile`).subscribe({
+          next: (res: any) => this.storeProfile.set(res?.data || {}),
+          error: () => {}
+        });
+
         // Track views per individual service
         (servicesResponse?.data || []).forEach(svc => {
           if (svc._id) {
@@ -563,6 +584,24 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
     return `Typically responds within ${hours} hr`;
   }
 
+  hasServiceGallery(): boolean {
+    const svcMedia = (this.services() || []).some((s: any) => (s.media?.length || s.portfolio?.length) > 0);
+    const storeGallery = (this.storeProfile()?.gallery?.length || 0) > 0;
+    return svcMedia || storeGallery;
+  }
+
+  totalServiceInquiries(): number {
+    return (this.services() || []).reduce((sum: number, s: any) => sum + (s.inquiryCount || 0), 0);
+  }
+
+  totalServiceBookings(): number {
+    return (this.services() || []).reduce((sum: number, s: any) => sum + (s.bookingCount || 0), 0);
+  }
+
+  totalServiceViews(): number {
+    return (this.services() || []).reduce((sum: number, s: any) => sum + (s.viewCount || 0), 0);
+  }
+
   getAllPackageFeatures(packages: any[]): string[] {
     const features = new Set<string>();
     for (const p of packages) { (p.includes || []).forEach((f: string) => features.add(f)); }
@@ -570,6 +609,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   readonly crossSellProducts = signal<any[]>([]);
+  readonly storeProfile = signal<any>(null);
 
   toggleWishlist(product: Product): void {
     const productId = product?._id ?? '';
@@ -617,9 +657,17 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  handleStoreContact(method: 'whatsapp' | 'email' | 'chat'): void {
+  handleStoreContact(method: 'whatsapp' | 'email' | 'chat' | 'inquiry'): void {
     const store = this.store();
     if (!store) return;
+
+    if (method === 'inquiry') {
+      const services = this.services();
+      if (services.length) {
+        this.navigateToInquiry(services[0]);
+      }
+      return;
+    }
 
     if (method === 'whatsapp') {
       this.contactViaWhatsApp();
@@ -671,6 +719,16 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
 
   shareProduct(product: Product): void {
     this.openShareBottomSheet('product', product);
+  }
+
+  onViewAllStoreItems(): void {
+    if (this.store()?.type === 'service') {
+      this.scrollToSection('store-services');
+      return;
+    }
+
+    this.clearFilters();
+    this.scrollToSection('store-products');
   }
 
   closeQuickView(): void {
@@ -762,6 +820,12 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.cartService.itemCount();
   }
 
+  storeLocation(): string {
+    const address = (this.store() as any)?.address;
+    if (!address) return '';
+    return [address.city, address.state, address.country].filter(Boolean).join(', ');
+  }
+
   isNewProduct(date: Date): boolean {
     if (!date) return false;
     const createdDate = new Date(date);
@@ -805,21 +869,36 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onStoreTabChange(tabId: string): void {
+    const isServiceStore = this.store()?.type === 'service';
+
+    if (isServiceStore) {
+      const sectionMap: Record<string, string> = {
+        services: 'store-services',
+        about: 'store-about',
+        gallery: 'store-gallery',
+        reviews: 'store-reviews',
+        contact: 'store-contact',
+      };
+      this.scrollToSection(sectionMap[tabId] || 'store-services');
+      return;
+    }
+
     if (tabId === 'products') {
       this.clearFilters();
+      this.scrollToSection('store-products');
       return;
     }
     if (tabId === 'about') {
-      this.showNotification(this.store()?.description || 'Store description is not available yet.', 'info');
+      this.scrollToSection('store-about');
       return;
     }
     if (tabId === 'reviews') {
       this.sortControl.setValue('rating');
-      this.showNotification('Showing the highest rated products first.', 'info');
+      this.scrollToSection('store-reviews');
       return;
     }
     if (tabId === 'policies') {
-      this.showNotification('MarketSpase checkout protects payments in escrow until delivery is confirmed.', 'info');
+      this.scrollToSection('store-policies');
     }
   }
 
@@ -839,6 +918,15 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
     } catch {
       return new Set();
     }
+  }
+
+  scrollToSection(sectionId: string): void {
+    const target = document.getElementById(sectionId);
+    if (!target) {
+      return;
+    }
+
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
 }

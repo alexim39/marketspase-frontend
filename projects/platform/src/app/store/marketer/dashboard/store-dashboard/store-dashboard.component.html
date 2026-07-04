@@ -86,10 +86,16 @@
               <mat-icon>design_services</mat-icon>
               View Services
             </button>
+            <button mat-stroked-button color="accent" (click)="openGalleryUpload()">
+              <mat-icon>collections</mat-icon>
+              Upload Gallery
+            </button>
             <button mat-stroked-button color="primary" [routerLink]="['/store', currentStore()?.storeLink]" target="_blank">
               <mat-icon>visibility</mat-icon>
               View Storefront
             </button>
+
+            <input type="file" #galleryInput hidden accept="image/*,video/*" multiple (change)="onGalleryFilesSelected($event)">
           } @else {
             <button mat-stroked-button (click)="addProduct()" color="primary">
               <mat-icon>add_circle</mat-icon>

@@ -112,6 +112,64 @@
 
         <!-- Store Actions -->
         <div class="store-actions">
+          <!-- Service store: primary CTAs -->
+          @if (store?.type === 'service') {
+            @if (hasWhatsApp()) {
+              <a mat-stroked-button
+                 class="action-btn service-whatsapp-btn"
+                 [href]="'https://wa.me/' + getWhatsAppNumber()"
+                 target="_blank" rel="noopener"
+                 matTooltip="Chat on WhatsApp">
+                <mat-icon>chat</mat-icon>
+                <span>WhatsApp</span>
+              </a>
+            }
+            <button mat-flat-button
+                    class="action-btn inquire-cta-btn"
+                    (click)="contactStore.emit('inquiry')"
+                    matTooltip="Send an inquiry">
+              <mat-icon>send</mat-icon>
+              <span>Send Inquiry</span>
+            </button>
+          } @else {
+            <!-- Product store: contact dropdown -->
+            @if (hasWhatsApp() || hasEmail() || hasPhone()) {
+              <button mat-raised-button
+                      class="action-btn contact-btn"
+                      [matMenuTriggerFor]="contactMenu"
+                      matTooltip="Contact store">
+                <mat-icon>chat</mat-icon>
+                <span>Contact</span>
+              </button>
+
+              <mat-menu #contactMenu="matMenu" xPosition="before">
+                @if (hasWhatsApp()) {
+                  <button mat-menu-item (click)="onContact('whatsapp')">
+                    <mat-icon class="whatsapp-icon">chat</mat-icon>
+                    <span>WhatsApp</span>
+                  </button>
+                }
+                @if (hasEmail()) {
+                  <button mat-menu-item (click)="onContact('email')">
+                    <mat-icon>email</mat-icon>
+                    <span>Email</span>
+                  </button>
+                }
+                @if (hasPhone()) {
+                  <button mat-menu-item (click)="onContact('chat')">
+                    <mat-icon>phone</mat-icon>
+                    <span>Call</span>
+                  </button>
+                }
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="onReportStore()">
+                  <mat-icon color="warn">flag</mat-icon>
+                  <span>Report Store</span>
+                </button>
+              </mat-menu>
+            }
+          }
+
           <button mat-icon-button
                   class="action-btn favorite-btn"
                   [class.active]="isFavorited"
@@ -126,43 +184,6 @@
                   matTooltip="Share this store">
             <mat-icon>share</mat-icon>
           </button>
-
-          <!-- Contact Button -->
-          @if (hasWhatsApp() || hasEmail() || hasPhone()) {
-            <button mat-raised-button
-                    class="action-btn contact-btn"
-                    [matMenuTriggerFor]="contactMenu"
-                    matTooltip="Contact store">
-              <mat-icon>chat</mat-icon>
-              <span>Contact</span>
-            </button>
-
-            <mat-menu #contactMenu="matMenu" xPosition="before">
-              @if (hasWhatsApp()) {
-                <button mat-menu-item (click)="onContact('whatsapp')">
-                  <mat-icon class="whatsapp-icon">chat</mat-icon>
-                  <span>WhatsApp</span>
-                </button>
-              }
-              @if (hasEmail()) {
-                <button mat-menu-item (click)="onContact('email')">
-                  <mat-icon>email</mat-icon>
-                  <span>Email</span>
-                </button>
-              }
-              @if (hasPhone()) {
-                <button mat-menu-item (click)="onContact('chat')">
-                  <mat-icon>phone</mat-icon>
-                  <span>Call</span>
-                </button>
-              }
-              <mat-divider></mat-divider>
-              <button mat-menu-item (click)="onReportStore()">
-                <mat-icon color="warn">flag</mat-icon>
-                <span>Report Store</span>
-              </button>
-            </mat-menu>
-          }
         </div>
       </div>
     </div>
@@ -173,38 +194,52 @@
     <div class="store-stats">
       <div class="container">
         <div class="stats-grid">
-          <!-- Products -->
-          <div class="stat-item" matTooltip="Total products in store">
-            <div class="stat-icon">
-              <mat-icon>inventory_2</mat-icon>
+          @if (store?.type === 'service') {
+            <div class="stat-item" matTooltip="Services offered">
+              <div class="stat-icon"><mat-icon>build</mat-icon></div>
+              <div class="stat-content">
+                <div class="stat-value">{{ formatNumber(itemCountValue) }}</div>
+                <div class="stat-label">{{ itemCountLabel }}</div>
+              </div>
             </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ formatNumber(storeStats.productCount) }}</div>
-              <div class="stat-label">Products</div>
+            <div class="stat-item" matTooltip="Customer inquiries">
+              <div class="stat-icon"><mat-icon>question_answer</mat-icon></div>
+              <div class="stat-content">
+                <div class="stat-value">{{ formatNumber(secondaryMetricValue) }}</div>
+                <div class="stat-label">{{ secondaryMetricLabel }}</div>
+              </div>
             </div>
-          </div>
-
-          <!-- Sales -->
-          <div class="stat-item" matTooltip="Total sales">
-            <div class="stat-icon">
-              <mat-icon>shopping_bag</mat-icon>
+            <div class="stat-item" matTooltip="Store views">
+              <div class="stat-icon"><mat-icon>visibility</mat-icon></div>
+              <div class="stat-content">
+                <div class="stat-value">{{ formatNumber(storeStats.totalViews) }}</div>
+                <div class="stat-label">Views</div>
+              </div>
             </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ formatNumber(storeStats.totalSales) }}</div>
-              <div class="stat-label">Sales</div>
+          } @else {
+            <!-- Product-specific stats -->
+            <div class="stat-item" matTooltip="Total products">
+              <div class="stat-icon"><mat-icon>inventory_2</mat-icon></div>
+              <div class="stat-content">
+                <div class="stat-value">{{ formatNumber(storeStats.productCount) }}</div>
+                <div class="stat-label">Products</div>
+              </div>
             </div>
-          </div>
-
-          <!-- Views -->
-          <div class="stat-item" matTooltip="Store views">
-            <div class="stat-icon">
-              <mat-icon>visibility</mat-icon>
+            <div class="stat-item" matTooltip="Total sales">
+              <div class="stat-icon"><mat-icon>shopping_bag</mat-icon></div>
+              <div class="stat-content">
+                <div class="stat-value">{{ formatNumber(storeStats.totalSales) }}</div>
+                <div class="stat-label">Sales</div>
+              </div>
             </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ formatNumber(storeStats.totalViews) }}</div>
-              <div class="stat-label">Views</div>
+            <div class="stat-item" matTooltip="Store views">
+              <div class="stat-icon"><mat-icon>visibility</mat-icon></div>
+              <div class="stat-content">
+                <div class="stat-value">{{ formatNumber(storeStats.totalViews) }}</div>
+                <div class="stat-label">Views</div>
+              </div>
             </div>
-          </div>
+          }
 
           <!-- Response Rate -->
           @if (storeStats.responseRate) {
@@ -231,7 +266,7 @@
       <div class="nav-tabs">
         @for (tab of navTabs; track tab.id) {
           <button class="nav-tab"
-                  [class.active]="activeTab === tab.id"
+                  [class.active]="effectiveActiveTab === tab.id"
                   (click)="onTabChange(tab.id)">
             <mat-icon>{{ tab.icon }}</mat-icon>
             <span>{{ tab.label }}</span>
@@ -239,10 +274,10 @@
         }
         
         <!-- View All Products Link (Desktop) -->
-        @if (storeStats.productCount > 0) {
+        @if (itemCountValue > 0) {
           <button class="nav-tab view-all"
                   (click)="onViewAllProducts()"
-                  matTooltip="View all products">
+                  [matTooltip]="viewAllTooltip">
             <mat-icon>arrow_forward</mat-icon>
           </button>
         }

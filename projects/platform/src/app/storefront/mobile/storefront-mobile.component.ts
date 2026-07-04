@@ -123,11 +123,10 @@ export class MobileStorefrontComponent extends StorefrontComponent {
     return 'good';
   }
 
-  storeLocation(): string {
-    const store = this.store() as any;
-    const city = store?.address?.city;
-    const country = store?.address?.country;
-    return [city, country].filter(Boolean).join(', ');
+  override storeLocation(): string {
+    const address = (this.store() as any)?.address;
+    if (!address) return '';
+    return [address.city, address.state, address.country].filter(Boolean).join(', ');
   }
 
   storeEmail(): string {

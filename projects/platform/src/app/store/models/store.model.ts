@@ -33,6 +33,47 @@ export interface Store {
   isDefaultStore: boolean;
   storeLink: string;
   followers: number;
+
+  // Service store profile
+  gallery?: GalleryItem[];
+  certifications?: Certification[];
+  businessHours?: BusinessHour[];
+  serviceAreas?: string[];
+  faqs?: FAQ[];
+
+  coverImage?: string;
+  serviceStats?: any;
+  statistics?: any;
+}
+
+export interface GalleryItem {
+  _id?: string;
+  url: string;
+  type: 'image' | 'video';
+  caption?: string;
+  serviceId?: string;
+  createdAt?: Date;
+}
+
+export interface Certification {
+  _id?: string;
+  name: string;
+  issuer?: string;
+  year?: number;
+  file?: string;
+}
+
+export interface BusinessHour {
+  day: string;
+  open?: string;
+  close?: string;
+  closed?: boolean;
+}
+
+export interface FAQ {
+  _id?: string;
+  question: string;
+  answer: string;
 }
 
 export interface StoreAnalytics {
@@ -40,11 +81,12 @@ export interface StoreAnalytics {
   totalSales: number;
   conversionRate: number;
   promoterTraffic: number;
+  rating: number;
+  totalReviews?: number;
   dailyViews: DailyView[];
   salesData: SalesData;
   promoterPerformance: PromoterPerformance[];
   performanceMetrics: PerformanceMetric[];
-  rating: number;
 }
 
 export interface DailyView {

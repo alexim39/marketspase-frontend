@@ -16,6 +16,7 @@ import { RouterModule } from '@angular/router';
 export class FabContainerComponent {
   @Input() isScrolled = false;
   @Input() cartCount = 0;
+  @Input() storeType?: 'product' | 'service';
   
   @Output() scrollToTop = new EventEmitter<void>();
   @Output() shareStore = new EventEmitter<void>();

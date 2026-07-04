@@ -136,11 +136,9 @@ a {
   gap: 16px;
   border-radius: 28px;
   padding: 18px;
-  background:
-    linear-gradient(135deg, rgba(var(--primary-rgb), 0.94), rgba($primary-dark, 0.9)),
-    $primary-color;
-  color: $on-primary-color;
-  box-shadow: 0 18px 38px rgba(var(--primary-rgb), 0.24);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  box-shadow: 0 18px 38px rgba(102, 126, 234, 0.28);
 }
 
 .hero-head {
@@ -155,16 +153,11 @@ a {
   overflow: hidden;
   display: grid;
   place-items: center;
-  background: rgba($on-primary-color, 0.18);
-  color: $on-primary-color;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
   font-weight: 950;
 
-  img {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: cover;
-  }
+  img { width: 100%; height: 100%; display: block; object-fit: cover; }
 }
 
 .store-logo {
@@ -177,31 +170,9 @@ a {
 .hero-title {
   min-width: 0;
 
-  span {
-    color: rgba($on-primary-color, 0.72);
-    font-size: 12px;
-    font-weight: 850;
-    text-transform: uppercase;
-    letter-spacing: 0;
-  }
-
-  h1 {
-    margin: 4px 0 6px;
-    font-size: 25px;
-    line-height: 1.12;
-    font-weight: 950;
-  }
-
-  p {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    overflow: hidden;
-    margin: 0;
-    color: rgba($on-primary-color, 0.82);
-    font-size: 13px;
-    line-height: 1.45;
-  }
+  span { color: rgba(255, 255, 255, 0.72); font-size: 12px; font-weight: 850; text-transform: uppercase; letter-spacing: 0; }
+  h1 { margin: 4px 0 6px; font-size: 25px; line-height: 1.12; font-weight: 950; color: #fff; }
+  p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; margin: 0; color: rgba(255, 255, 255, 0.82); font-size: 13px; line-height: 1.45; }
 }
 
 .hero-status,
@@ -219,26 +190,15 @@ a {
   gap: 6px;
   border-radius: 999px;
   padding: 0 10px;
-  background: rgba($on-primary-color, 0.14);
-  color: rgba($on-primary-color, 0.88);
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 12px;
   font-weight: 900;
 
-    &.good {
-      background: rgba(var(--success-rgb), 0.18);
-      color: $on-primary-color;
-    }
+  &.good { background: rgba(34, 197, 94, 0.22); color: #bbf7d0; }
+  &.bad  { background: rgba(239, 68, 68, 0.22); color: #fecaca; }
 
-    &.bad {
-      background: rgba(var(--error-rgb), 0.22);
-      color: $on-primary-color;
-    }
-
-  mat-icon {
-    width: 17px;
-    height: 17px;
-    font-size: 17px;
-  }
+  mat-icon { width: 17px; height: 17px; font-size: 17px; }
 }
 
 .hero-actions {
@@ -251,15 +211,15 @@ a {
     border: 0;
     border-radius: 999px;
     padding: 0 14px;
-    background: $on-primary-color;
-    color: $primary-color;
+    background: #fff;
+    color: #667eea;
     text-decoration: none;
     font-weight: 950;
   }
 
-    a {
-    background: rgba($on-primary-color, 0.14);
-    color: $on-primary-color;
+  a {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
   }
 }
 
@@ -577,11 +537,21 @@ a {
     border: 0;
     border-radius: 18px;
     font-weight: 950;
+    cursor: pointer;
+    font-size: 0.88rem;
+    text-decoration: none;
 
     &.secondary {
       background: $surface-color;
       color: $text-primary;
       box-shadow: 0 8px 20px rgba($black, 0.06);
+    }
+
+    &.primary {
+      background: $gradient-primary;
+      color: $white;
+      box-shadow: 0 4px 14px rgba($primary-rgb, 0.35);
+      mat-icon { color: $white; }
     }
   }
 }

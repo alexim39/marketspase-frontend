@@ -1,18 +1,33 @@
 <header class="topbar">
-  <a routerLink="/dashboard/stores"><mat-icon>arrow_back</mat-icon></a>
-  <h1>Services</h1>
-  <a mat-stroked-button [routerLink]="['/dashboard/stores/services/create', storeId()]"><mat-icon>add</mat-icon></a>
+  <button mat-icon-button routerLink="/dashboard/stores">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <div class="topbar-title">
+    <span>{{ store()?.name || 'Services' }}</span>
+    <h1>Services</h1>
+  </div>
+  <button mat-flat-button color="primary" [routerLink]="['/dashboard/stores/services/create', storeId()]">
+    <mat-icon>add</mat-icon>
+  </button>
 </header>
 
-<div class="stats">
-  <span class="stat-chip"><strong>{{ publishedCount }}</strong> Published</span>
-  <span class="stat-chip"><strong>{{ draftCount }}</strong> Draft</span>
+<div class="stats-row">
+  <div class="stat-item"><strong>{{ services().length }}</strong><span>Total</span></div>
+  <div class="stat-item published"><strong>{{ publishedCount }}</strong><span>Published</span></div>
+  <div class="stat-item draft"><strong>{{ draftCount }}</strong><span>Drafts</span></div>
 </div>
 
 @if (loading()) {
   <div class="loading-state"><mat-spinner diameter="32"/><span>Loading services...</span></div>
+} @else if (error()) {
+  <div class="error-state"><mat-icon>error_outline</mat-icon><p>{{ error() }}</p><button mat-stroked-button (click)="loadServices()">Retry</button></div>
 } @else if (services().length === 0) {
-  <div class="empty-state"><mat-icon>build</mat-icon><h3>No services yet</h3></div>
+  <div class="empty-state">
+    <mat-icon>design_services</mat-icon>
+    <h3>No services yet</h3>
+    <p>Create your first service to start receiving inquiries and bookings.</p>
+    <button mat-stroked-button color="primary" [routerLink]="['/dashboard/stores/services/create', storeId()]">Add Service</button>
+  </div>
 } @else {
   <div class="svc-list">
     @for (svc of services(); track svc._id) {
@@ -21,14 +36,33 @@
           <strong>{{ svc.name }}</strong>
           <span class="svc-badge" [class.published]="svc.isPublished" [class.draft]="!svc.isPublished">{{ svc.isPublished ? 'Published' : 'Draft' }}</span>
         </div>
+
+        @if (svc.description) {
+          <p class="svc-desc">{{ svc.description | slice:0:80 }}{{ svc.description.length > 80 ? '...' : '' }}</p>
+        }
+
         <div class="svc-meta">
-          <span>{{ svc.category }}</span>
-          <span>{{ svc.pricingType }}</span>
-          <span>{{ svc.inquiryCount || 0 }} inquiries</span>
+          <span>{{ svc.category || 'Uncategorized' }}</span>
+          @if (svc.media?.length || svc.portfolio?.length) {
+            <span>{{ (svc.media?.length || 0) + (svc.portfolio?.length || 0) }} media</span>
+          }
         </div>
-        <div class="svc-actions">
-          <button mat-stroked-button [routerLink]="['/dashboard/stores/services/create', storeId()]" [queryParams]="{ serviceId: svc._id }"><mat-icon>edit</mat-icon></button>
-          <button mat-stroked-button (click)="togglePublish(svc)"><mat-icon>{{ svc.isPublished ? 'unpublished' : 'publish' }}</mat-icon></button>
+
+        <div class="svc-pricing">
+          <strong>{{ pricingSummary(svc) }}</strong>
+          <span>{{ svc.pricingType | titlecase }}</span>
+        </div>
+
+        <div class="svc-footer">
+          <span class="svc-inquiries"><mat-icon>question_answer</mat-icon>{{ svc.inquiryCount || 0 }} inquiries</span>
+          <div class="svc-actions">
+            <button mat-icon-button [routerLink]="['/dashboard/stores/services/create', storeId()]" [queryParams]="{ serviceId: svc._id }" matTooltip="Edit">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button (click)="togglePublish(svc)" [matTooltip]="svc.isPublished ? 'Unpublish' : 'Publish'">
+              <mat-icon>{{ svc.isPublished ? 'unpublished' : 'publish' }}</mat-icon>
+            </button>
+          </div>
         </div>
       </div>
     }

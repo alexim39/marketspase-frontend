@@ -1,7 +1,7 @@
 ﻿// services/store.service.ts
 import { Injectable, inject, signal } from '@angular/core';
 import { catchError, map, Observable, tap, throwError } from 'rxjs';
-import { Store, StoreAnalytics } from '../models/store.model';
+import { Store, StoreAnalytics, GalleryItem } from '../models/store.model';
 import { Product, StorePromotion, PerformanceMetric, CreateStoreRequest, CreateProductRequest, UpdateProductRequest } from '../models';
 import { ApiService } from '@shared/services/api';
 
@@ -455,6 +455,30 @@ export class StoreService {
 
 
 
- 
+  // Gallery management
+  uploadGallery(storeId: string, formData: FormData): Observable<{ success: boolean; data: GalleryItem[]; gallery: GalleryItem[] }> {
+    return this.apiService.post<{ success: boolean; data: GalleryItem[]; gallery: GalleryItem[] }>(
+      `${this.apiUrl}/store/${storeId}/gallery`, formData, undefined, true
+    );
+  }
 
+  getGallery(storeId: string): Observable<{ success: boolean; data: GalleryItem[] }> {
+    return this.apiService.get<{ success: boolean; data: GalleryItem[] }>(
+      `${this.apiUrl}/store/${storeId}/gallery`, undefined, undefined, true
+    );
+  }
+
+  deleteGalleryItem(storeId: string, mediaId: string): Observable<{ success: boolean; gallery: GalleryItem[] }> {
+    return this.apiService.delete<{ success: boolean; gallery: GalleryItem[] }>(
+      `${this.apiUrl}/store/${storeId}/gallery/${mediaId}`, undefined, undefined, true
+    );
+  }
+
+  getPublicProfile(storeId: string): Observable<any> {
+    return this.apiService.get<any>(`${this.apiUrl}/store/${storeId}/public-profile`);
+  }
+
+  updateStoreProfile(storeId: string, data: any): Observable<any> {
+    return this.apiService.patch<any>(`${this.apiUrl}/store/${storeId}/profile`, data);
+  }
 }
