@@ -1,0 +1,137 @@
+<div class="hire-page">
+  <header class="page-header">
+    <button mat-icon-button routerLink="/dashboard/stores"><mat-icon>arrow_back</mat-icon></button>
+    <div class="header-content">
+      <h1>Hire Promoters</h1>
+      <p>Find top-ranked promoters to boost your social engagement. Sorted by reputation & activity.</p>
+    </div>
+  </header>
+
+  <div class="search-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput placeholder="Search promoters by name..." (input)="onSearch($any($event.target).value)">
+    </mat-form-field>
+    <span class="result-count">{{ total() }} promoters found</span>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state"><mat-spinner diameter="32"/><span>Loading promoters...</span></div>
+  } @else if (promoters().length === 0) {
+    <div class="empty-state">
+      <mat-icon>person_search</mat-icon>
+      <h3>No promoters found</h3>
+      <p>Try a different search or check back later.</p>
+    </div>
+  } @else {
+    <div class="promoters-grid">
+      @for (p of promoters(); track p._id) {
+        <div class="promoter-card" (click)="startHire(p)">
+          <div class="p-avatar" [style.background]="tierColor(p.tier)">
+            {{ p.displayName?.[0] || 'P' }}
+            @if (p.streak >= 7) {
+              <span class="streak-badge">🔥</span>
+            }
+          </div>
+          <div class="p-info">
+            <div class="p-name-row">
+              <strong>{{ p.displayName }}</strong>
+              <span class="tier-badge" [style.color]="tierColor(p.tier)" [style.background]="tierColor(p.tier) + '18'">
+                {{ tierLabel(p.tier) }}
+              </span>
+            </div>
+            <div class="p-stats">
+              <span class="stat"><mat-icon>star</mat-icon>{{ p.reputation || 'New' }}</span>
+              <span class="stat"><mat-icon>check_circle</mat-icon>{{ p.completedContracts }} jobs</span>
+              @if (p.longestStreak) {
+                <span class="stat"><mat-icon>local_fire_department</mat-icon>{{ p.longestStreak }}d streak</span>
+              }
+            </div>
+          </div>
+          <button mat-stroked-button color="primary" (click)="$event.stopPropagation(); startHire(p)">Hire</button>
+        </div>
+      }
+    </div>
+
+    @if (loadingMore()) {
+      <div class="loading-more"><mat-spinner diameter="24"/></div>
+    }
+
+    @if (page > totalPages() && promoters().length > 0) {
+      <div class="end-message">All promoters loaded</div>
+    }
+  }
+</div>
+
+<!-- Hire Dialog (fixed modal) -->
+@if (hireDialogOpen()) {
+  <div class="hire-overlay" (click)="closeHire()"></div>
+  <div class="hire-modal">
+    <div class="modal-header">
+      <div>
+        <h2>Hire {{ selectedPromoter()?.displayName }}</h2>
+        <span class="modal-subtitle">
+          <mat-icon>star</mat-icon> {{ selectedPromoter()?.reputation }} rep ·
+          {{ selectedPromoter()?.completedContracts }} completed jobs
+        </span>
+      </div>
+      <button mat-icon-button (click)="closeHire()"><mat-icon>close</mat-icon></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-section">
+        <label class="section-label">Engagement Tasks</label>
+        <div class="tasks-list">
+          @for (task of hireTasks; track task.type; let i = $index) {
+            <div class="task-row">
+              <mat-form-field appearance="outline" class="task-type">
+                <mat-select [(ngModel)]="task.type">
+                  <mat-option value="like">Likes</mat-option>
+                  <mat-option value="comment">Comments</mat-option>
+                  <mat-option value="share">Shares</mat-option>
+                  <mat-option value="follow">Follows</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="task-target">
+                <input matInput type="number" [(ngModel)]="task.target" min="1" placeholder="Count">
+              </mat-form-field>
+              @if (hireTasks.length > 1) {
+                <button mat-icon-button (click)="hireTasks.splice(i, 1)" class="remove-task"><mat-icon>delete_outline</mat-icon></button>
+              }
+            </div>
+          }
+        </div>
+        <button mat-stroked-button class="add-task-btn" (click)="hireTasks.push({ type: 'like', target: 10 })">
+          <mat-icon>add</mat-icon> Add task
+        </button>
+      </div>
+
+      <div class="form-section">
+        <label class="section-label">Payment Details</label>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Total Payment (₦)</mat-label>
+          <input matInput type="number" [(ngModel)]="hirePayment" min="500">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Payment Schedule</mat-label>
+          <mat-select [(ngModel)]="hireSchedule">
+            <mat-option value="on-completion">On Completion</mat-option>
+            <mat-option value="milestone">50-50 Milestone</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contract Terms (optional)</mat-label>
+          <textarea matInput [(ngModel)]="hireTerms" rows="2" placeholder="e.g. Must use real accounts, no bots"></textarea>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button mat-stroked-button (click)="closeHire()">Cancel</button>
+      <button mat-flat-button color="primary" (click)="submitHire()" [disabled]="submitting()">
+        <mat-icon>send</mat-icon>
+        {{ submitting() ? 'Creating...' : 'Create Contract (₦' + hirePayment + ')' }}
+      </button>
+    </div>
+  </div>
+}

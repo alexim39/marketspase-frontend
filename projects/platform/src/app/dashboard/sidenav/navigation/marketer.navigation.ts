@@ -38,7 +38,7 @@ export function getMarketerNavigation(
       children: [
         { icon: 'person_search', label: 'Hire Promoters', route: '/dashboard/marketer/hire' },
         { icon: 'assignment', label: 'Contracts', route: '/dashboard/contracts' },
-        { icon: 'dynamic_feed', label: 'Social Posts', route: '/dashboard/community/feeds' },
+        // { icon: 'dynamic_feed', label: 'Social Posts', route: '/dashboard/community/feeds' },
       ]
     },
 

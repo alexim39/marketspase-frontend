@@ -1,0 +1,47 @@
+<div class="contracts-page">
+  <header class="page-header">
+    <button mat-icon-button routerLink="/dashboard/stores"><mat-icon>arrow_back</mat-icon></button>
+    <div>
+      <h1>{{ isPromoter() ? 'My Jobs' : 'My Contracts' }}</h1>
+      <p>{{ isPromoter() ? 'Engagement contracts from marketers' : 'Manage your promoter engagements' }}</p>
+    </div>
+    <div class="header-tabs">
+      <button [class.active]="filter() === 'all'" (click)="filter.set('all')">All</button>
+      <button [class.active]="filter() === 'active'" (click)="filter.set('active')">Active</button>
+      <button [class.active]="filter() === 'completed'" (click)="filter.set('completed')">Done</button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="loading"><mat-spinner diameter="32"/></div>
+  } @else if (filteredContracts().length === 0) {
+    <div class="empty">
+      <mat-icon>description</mat-icon>
+      <h3>No contracts</h3>
+      <p>{{ isPromoter() ? 'No engagement jobs yet.' : 'No contracts yet.' }}</p>
+      @if (!isPromoter()) {
+        <button mat-flat-button color="primary" routerLink="/dashboard/marketer/hire">Hire a Promoter</button>
+      }
+    </div>
+  } @else {
+    <div class="contracts-list">
+      @for (c of filteredContracts(); track c._id) {
+        <div class="contract-card" [routerLink]="['/dashboard/contracts', c._id]">
+          <div class="cc-header">
+            <div class="cc-party">
+              <strong>{{ isPromoter() ? c.marketerId?.displayName : c.promoterId?.displayName }}</strong>
+              <span class="cc-status" [class]="c.status">{{ c.status }}</span>
+            </div>
+            <span class="cc-amount">₦{{ c.payment?.total | number }}</span>
+          </div>
+          <div class="cc-tasks">
+            @for (t of c.tasks || []; track t.type) {
+              <span class="task-chip">{{ t.target }}x {{ t.type }}</span>
+            }
+          </div>
+          <mat-progress-bar mode="determinate" [value]="c.progress || 0"></mat-progress-bar>
+        </div>
+      }
+    </div>
+  }
+</div>
