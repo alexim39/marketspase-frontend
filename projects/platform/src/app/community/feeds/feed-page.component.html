@@ -284,6 +284,8 @@
               (chat)="onChat($event)"
               (sharePlatform)="onShare(post, $event)"
               (hashtagClick)="onHashtagClick($event)"
+              (boost)="onBoost(post)"
+              (promote)="onPromote(post)"
             />
           </div>
           }
@@ -337,7 +339,9 @@
                 (share)="onShare(post)"
                 (chat)="onChat($event)"
                 (sharePlatform)="onShare(post, $event)"
-                (hashtagClick)="onHashtagClick($event)">
+                (hashtagClick)="onHashtagClick($event)"
+                (boost)="onBoost(post)"
+                (promote)="onPromote(post)">
               </app-feed-post-card>
             </div>
           }

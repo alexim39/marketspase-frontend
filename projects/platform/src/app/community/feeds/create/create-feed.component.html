@@ -291,14 +291,6 @@
                 }
               </div>
             </div>
-            <div class="boost-row">
-              <label class="boost-label">
-                <mat-checkbox [(ngModel)]="postData.isBoosted" name="isBoosted" [disabled]="!(postData.socialPlatform || sourceType() === 'campaign')">
-                  Boost this post <strong>₦1,000</strong>
-                </mat-checkbox>
-              </label>
-              <span class="boost-hint">Get 24h spotlight placement in the feed</span>
-            </div>
             <mat-divider></mat-divider>
             <mat-checkbox [(ngModel)]="postData.postAnonymously" name="postAnonymously">Post anonymously</mat-checkbox>
             <mat-checkbox [(ngModel)]="postData.disableComments" name="disableComments">Disable comments</mat-checkbox>
@@ -325,23 +317,15 @@
           </div>
         }
 
-        <div class="publish-buttons">
-          <button class="publish-btn" [disabled]="!isFormValid() || isSubmitting() || isLoadingPost()" (click)="onSubmit()">
-            @if (isSubmitting()) {
-              <mat-spinner diameter="20"></mat-spinner>
-              <span>{{ isEditMode() ? 'Updating...' : 'Publishing...' }}</span>
-            } @else {
-              <mat-icon>{{ isEditMode() ? 'edit' : 'publish' }}</mat-icon>
-              <span>{{ isEditMode() ? 'Update post' : 'Publish post' }}</span>
-            }
-          </button>
-          @if (!isEditMode() && isFormValid()) {
-            <button class="publish-btn promote" (click)="promoteAsCampaign()">
-              <mat-icon>campaign</mat-icon>
-              <span>Publish & Promote</span>
-            </button>
+        <button class="publish-btn" [disabled]="!isFormValid() || isSubmitting() || isLoadingPost()" (click)="onSubmit()">
+          @if (isSubmitting()) {
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>{{ isEditMode() ? 'Updating...' : 'Publishing...' }}</span>
+          } @else {
+            <mat-icon>{{ isEditMode() ? 'edit' : 'publish' }}</mat-icon>
+            <span>{{ isEditMode() ? 'Update post' : 'Publish post' }}</span>
           }
-        </div>
+        </button>
 
         @if (!isFormValid()) {
           <div class="validation-message">

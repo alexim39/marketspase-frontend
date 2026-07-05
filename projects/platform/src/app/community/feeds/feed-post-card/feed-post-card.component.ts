@@ -44,6 +44,10 @@ export class FeedPostCardComponent {
   hide = output<string>();
   report = output<string>();
   hashtagClick = output<string>();
+  boost = output<FeedPost>();
+  promote = output<FeedPost>();
+
+  isAuthor = computed(() => this.post().author?._id === this.user()?._id);
 
   showFullContent = signal(false);
   activeMediaIndex = signal(0);
@@ -230,5 +234,13 @@ export class FeedPostCardComponent {
       disableClose: true,
       autoFocus: false
     });
+  }
+
+  onBoost(): void {
+    this.boost.emit(this.post());
+  }
+
+  onPromote(): void {
+    this.promote.emit(this.post());
   }
 }

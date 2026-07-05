@@ -161,7 +161,6 @@ export class CreateFeedPageComponent implements OnInit {
     disableComments: false,
     allowExternalShare: true,
     socialPlatform: false as string | false,
-    isBoosted: false,
   };
 
   isEditMode = computed(() => !!this.postId());
@@ -582,7 +581,6 @@ export class CreateFeedPageComponent implements OnInit {
       allowExternalShare: this.postData.allowExternalShare
     }));
     if (this.postData.socialPlatform) payload.append('socialPlatform', this.postData.socialPlatform);
-    if (this.postData.isBoosted) payload.append('isBoosted', 'true');
 
     if (this.challengeTag()) {
       payload.append('challenge', JSON.stringify({
@@ -606,15 +604,8 @@ export class CreateFeedPageComponent implements OnInit {
     this.feedService.createPost(payload)
       .pipe(finalize(() => { this.isSubmitting.set(false); this.submissionStage.set('idle'); this.uploadProgress.set(null); }))
       .subscribe({
-        next: (createdPost: any) => {
-          if (this.postData.isBoosted && createdPost?._id) {
-            this.feedService.boostPost(createdPost._id).subscribe({
-              next: () => this.snackBar.open('Post published & boosted!', 'OK', { duration: 2500 }),
-              error: (e: any) => this.snackBar.open('Post created, but boost failed: ' + (e?.error?.message || 'Insufficient funds'), 'OK', { duration: 5000 })
-            });
-          } else {
-            this.snackBar.open('Post published successfully', 'OK', { duration: 2500 });
-          }
+        next: () => {
+          this.snackBar.open('Post published successfully', 'OK', { duration: 2500 });
           this.router.navigate(['/dashboard/community/feeds']);
         },
         error: (error) => {
@@ -635,13 +626,6 @@ export class CreateFeedPageComponent implements OnInit {
 
   markDirty(): void {
     this.isDirty.set(true);
-  }
-
-  promoteAsCampaign(): void {
-    this.onSubmit(); // publish first, then navigate to campaign builder
-    this.router.navigate(['/dashboard/campaigns/builder'], {
-      queryParams: { sourcePostContent: this.postData.content }
-    });
   }
 
   private cleanupUploads(): void {

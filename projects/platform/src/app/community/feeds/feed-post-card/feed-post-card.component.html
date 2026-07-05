@@ -212,5 +212,16 @@
     <button class="action-btn save-btn" [class.active]="isSaved()" (click)="onSave()" [matTooltip]="isSaved() ? 'Unsave' : 'Save'">
       <mat-icon>{{ isSaved() ? 'bookmark' : 'bookmark_border' }}</mat-icon>
     </button>
+
+    @if (isAuthor()) {
+      <button class="action-btn boost-btn" (click)="onBoost()" [matTooltip]="'Boost this post (₦500 for 24h)'">
+        <mat-icon>trending_up</mat-icon>
+        <span>Boost</span>
+      </button>
+      <button class="action-btn promote-btn" (click)="onPromote()" [matTooltip]="'Turn this post into a campaign'">
+        <mat-icon>campaign</mat-icon>
+        <span>Promote</span>
+      </button>
+    }
   </mat-card-actions>
 </mat-card>

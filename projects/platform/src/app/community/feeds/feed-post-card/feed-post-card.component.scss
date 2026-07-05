@@ -436,6 +436,18 @@
     color: #0f9d58;
     background: rgba(37, 211, 102, 0.08);
   }
+
+  &.boost-btn {
+    color: #d97706;
+    background: rgba(245, 158, 11, 0.08);
+    &:hover { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+  }
+
+  &.promote-btn {
+    color: $primary-color;
+    background: rgba($primary-rgb, 0.08);
+    &:hover { background: rgba($primary-rgb, 0.15); }
+  }
 }
 
 @media (max-width: 1039px) {

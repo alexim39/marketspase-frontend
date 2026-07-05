@@ -860,20 +860,7 @@
     margin-top: $spacing-6;
     text-align: center;
     
-    .publish-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-
     .publish-btn {
-      @include button-primary;
-      padding: $spacing-3 $spacing-8;
-      border-radius: $border-radius-xl;
-      font-size: $font-size-lg;
-      min-width: 300px;
-
-      &.promote {
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
-        &:hover { opacity: 0.9; }
-      }
       
       mat-spinner { display: inline-block; margin-right: $spacing-2; }
       
@@ -915,9 +902,7 @@
   }
 
   .boost-row {
-    display: flex; align-items: center; gap: 12px; width: 100%;
-    .boost-label { strong { color: var(--primary-color); } }
-    .boost-hint { font-size: 0.72rem; color: $text-tertiary; }
+    display: none;
   }
   
   // Dark Mode

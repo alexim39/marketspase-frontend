@@ -494,6 +494,20 @@ export class DesktopFeedPageComponent implements AfterViewInit {
     this.selectedTab.set('trending');
   }
 
+  onBoost(post: FeedPost): void {
+    if (!post._id) return;
+    this.feedService.boostPost(post._id).subscribe({
+      next: () => this.snackBar.open('Post boosted for 24h! (₦500 charged)', 'OK', { duration: 3000 }),
+      error: (e) => this.snackBar.open(e?.error?.message || 'Boost failed', 'OK', { duration: 3000 })
+    });
+  }
+
+  onPromote(post: FeedPost): void {
+    this.router.navigate(['/dashboard/campaigns/builder'], {
+      queryParams: { sourcePostContent: post.content }
+    });
+  }
+
   onOpenChallenge(tag: string): void {
     this.searchQuery.set(tag);
     this.selectedTab.set('trending');
