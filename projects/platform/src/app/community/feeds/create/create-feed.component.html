@@ -275,6 +275,31 @@
           </div>
 
           <div class="post-options">
+            <div class="social-platform-row">
+              <label class="platform-label">Share to social platform</label>
+              <div class="platform-toggle-group">
+                @for (p of [{ id: 'facebook', icon: 'facebook', label: 'Facebook' },
+                            { id: 'instagram', icon: 'photo_camera', label: 'Instagram' },
+                            { id: 'whatsapp', icon: 'chat', label: 'WhatsApp' },
+                            { id: 'tiktok', icon: 'music_note', label: 'TikTok' }]; track p.id) {
+                  <button type="button" class="platform-toggle"
+                    [class.active]="postData.socialPlatform === p.id"
+                    (click)="postData.socialPlatform = postData.socialPlatform === p.id ? false : p.id">
+                    <mat-icon>{{ p.icon }}</mat-icon>
+                    <span>{{ p.label }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+            <div class="boost-row">
+              <label class="boost-label">
+                <mat-checkbox [(ngModel)]="postData.isBoosted" name="isBoosted" [disabled]="!(postData.socialPlatform || sourceType() === 'campaign')">
+                  Boost this post <strong>₦1,000</strong>
+                </mat-checkbox>
+              </label>
+              <span class="boost-hint">Get 24h spotlight placement in the feed</span>
+            </div>
+            <mat-divider></mat-divider>
             <mat-checkbox [(ngModel)]="postData.postAnonymously" name="postAnonymously">Post anonymously</mat-checkbox>
             <mat-checkbox [(ngModel)]="postData.disableComments" name="disableComments">Disable comments</mat-checkbox>
             <mat-checkbox [(ngModel)]="postData.allowExternalShare" name="allowExternalShare">Allow external sharing</mat-checkbox>
@@ -300,15 +325,23 @@
           </div>
         }
 
-        <button class="publish-btn" [disabled]="!isFormValid() || isSubmitting() || isLoadingPost()" (click)="onSubmit()">
-          @if (isSubmitting()) {
-            <mat-spinner diameter="20"></mat-spinner>
-            <span>{{ isEditMode() ? 'Updating...' : 'Publishing...' }}</span>
-          } @else {
-            <mat-icon>{{ isEditMode() ? 'edit' : 'publish' }}</mat-icon>
-            <span>{{ isEditMode() ? 'Update post' : 'Publish post' }}</span>
+        <div class="publish-buttons">
+          <button class="publish-btn" [disabled]="!isFormValid() || isSubmitting() || isLoadingPost()" (click)="onSubmit()">
+            @if (isSubmitting()) {
+              <mat-spinner diameter="20"></mat-spinner>
+              <span>{{ isEditMode() ? 'Updating...' : 'Publishing...' }}</span>
+            } @else {
+              <mat-icon>{{ isEditMode() ? 'edit' : 'publish' }}</mat-icon>
+              <span>{{ isEditMode() ? 'Update post' : 'Publish post' }}</span>
+            }
+          </button>
+          @if (!isEditMode() && isFormValid()) {
+            <button class="publish-btn promote" (click)="promoteAsCampaign()">
+              <mat-icon>campaign</mat-icon>
+              <span>Publish & Promote</span>
+            </button>
           }
-        </button>
+        </div>
 
         @if (!isFormValid()) {
           <div class="validation-message">

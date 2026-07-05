@@ -32,6 +32,17 @@ export function getMarketerNavigation(
     },
 
     {
+      icon: 'group_add',
+      label: 'Engagement',
+      expanded: false,
+      children: [
+        { icon: 'person_search', label: 'Hire Promoters', route: '/dashboard/marketer/hire' },
+        { icon: 'assignment', label: 'Contracts', route: '/dashboard/contracts' },
+        { icon: 'dynamic_feed', label: 'Social Posts', route: '/dashboard/community/feeds' },
+      ]
+    },
+
+    {
       icon: 'campaign',
       label: 'Campaigns',
       badge: pendingCampaigns + smartInviteCount || undefined,

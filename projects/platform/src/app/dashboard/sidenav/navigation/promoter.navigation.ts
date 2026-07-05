@@ -46,6 +46,16 @@ export function getPromoterNavigation(
     },
 
     {
+      icon: 'work_history',
+      label: 'Engagement Jobs',
+      expanded: false,
+      children: [
+        { icon: 'dynamic_feed', label: 'Engagement Feed', route: '/dashboard/promoter/feed' },
+        { icon: 'assignment', label: 'My Contracts', route: '/dashboard/contracts' },
+      ]
+    },
+
+    {
       icon: 'storefront',
       label: 'Storefronts',
       expanded: false,

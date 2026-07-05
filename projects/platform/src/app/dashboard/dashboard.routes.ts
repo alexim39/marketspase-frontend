@@ -66,6 +66,31 @@ export const dashboardRoutes: Routes = [
                 title: 'Analytics — Unified Dashboard',
             },
             {
+                path: 'marketer/hire',
+                loadComponent: () => import('../engagement/hire/index').then(c => c.HirePromotersIndexComponent),
+                title: 'Hire Promoters — Engagement Dashboard',
+            },
+            {
+                path: 'promoter/feed',
+                loadComponent: () => import('../engagement/promoter-feed/index').then(c => c.PromoterEngagementFeedIndexComponent),
+                title: 'Engagement Feed — Promoter Dashboard',
+            },
+            {
+                path: 'admin/disputes',
+                loadComponent: () => import('../engagement/admin/admin-disputes.component').then(c => c.AdminDisputesComponent),
+                title: 'Dispute Resolution — Admin',
+            },
+            {
+                path: 'contracts',
+                loadComponent: () => import('../engagement/contracts/index').then(c => c.EngagementContractsIndexComponent),
+                title: 'Engagement Contracts',
+            },
+            {
+                path: 'contracts/:id',
+                loadComponent: () => import('../engagement/contracts/detail-index').then(c => c.EngagementContractDetailIndexComponent),
+                title: 'Contract Details',
+            },
+            {
                 path: 'leaderboard',
                 loadComponent: () => import('./leaderboard').then(c => c.LeaderboardIndexComponent),
             },

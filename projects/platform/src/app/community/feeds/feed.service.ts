@@ -569,6 +569,10 @@ export class FeedService {
     );
   }
 
+  boostPost(postId: string): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/${postId}/boost`, {}, undefined, true);
+  }
+
   getMarketerCampaigns(userId: string, params?: any): Observable<any> {
     return this.apiService.get(`api/v1/campaign/user/${userId}`, params, undefined, true);
   }

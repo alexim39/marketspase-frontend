@@ -860,19 +860,24 @@
     margin-top: $spacing-6;
     text-align: center;
     
+    .publish-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
     .publish-btn {
       @include button-primary;
       padding: $spacing-3 $spacing-8;
       border-radius: $border-radius-xl;
       font-size: $font-size-lg;
       min-width: 300px;
+
+      &.promote {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        &:hover { opacity: 0.9; }
+      }
       
       mat-spinner { display: inline-block; margin-right: $spacing-2; }
       
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
+      &:disabled { opacity: 0.5; cursor: not-allowed; }
     }
     
     .validation-message {
@@ -893,6 +898,26 @@
     background: $background-color;
     border-radius: $border-radius-lg;
     border: $border-width solid $border-color;
+    flex-wrap: wrap;
+  }
+
+  .social-platform-row {
+    width: 100%;
+    .platform-label { display: block; font-size: 0.78rem; font-weight: 700; color: $text-secondary; margin-bottom: 8px; }
+    .platform-toggle-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .platform-toggle {
+      display: flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1.5px solid $border-color; border-radius: 999px;
+      background: $surface-color; color: $text-secondary; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+      mat-icon { font-size: 18px; width: 18px; height: 18px; }
+      &.active { border-color: var(--primary-color); background: rgba(var(--primary-rgb), 0.08); color: var(--primary-color); }
+      &:hover:not(.active) { border-color: var(--primary-color); }
+    }
+  }
+
+  .boost-row {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    .boost-label { strong { color: var(--primary-color); } }
+    .boost-hint { font-size: 0.72rem; color: $text-tertiary; }
   }
   
   // Dark Mode
