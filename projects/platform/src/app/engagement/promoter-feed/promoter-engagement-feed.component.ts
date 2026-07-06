@@ -80,28 +80,28 @@ export class PromoterEngagementFeedComponent implements OnInit {
     if (!post?._id) return;
 
     if (type === 'like') {
-      this.api.post(`api/v1/feeds/${post._id}/like`, {}, undefined, true).subscribe(() => {
+      this.api.post(`api/v1/feed/${post._id}/like`, {}, undefined, true).subscribe(() => {
         const set = new Set(this.likedPosts());
         if (set.has(post._id)) { set.delete(post._id); } else { set.add(post._id); }
         this.likedPosts.set(set);
-        this.trackEngagement(post, type);
+        this.todayEngagements.update(v => v + 1);
       });
     } else if (type === 'save') {
-      this.api.post(`api/v1/feeds/${post._id}/save`, {}, undefined, true).subscribe(() => {
+      this.api.post(`api/v1/feed/${post._id}/save`, {}, undefined, true).subscribe(() => {
         const set = new Set(this.savedPosts());
         if (set.has(post._id)) { set.delete(post._id); } else { set.add(post._id); }
         this.savedPosts.set(set);
       });
     } else if (type === 'share') {
-      this.api.post(`api/v1/feeds/${post._id}/share`, { platform: 'internal' }, undefined, true).subscribe(() => {
-        this.trackEngagement(post, type);
+      this.api.post(`api/v1/feed/${post._id}/share`, { platform: 'internal' }, undefined, true).subscribe(() => {
+        this.todayEngagements.update(v => v + 1);
         this.snack.open('Post shared!', 'OK', { duration: 1500 });
       });
     } else if (type === 'comment') {
       const comment = prompt('Write a meaningful comment:');
       if (comment?.trim()) {
-        this.api.post(`api/v1/feeds/${post._id}/comments`, { content: comment.trim() }, undefined, true).subscribe(() => {
-          this.trackEngagement(post, type);
+        this.api.post(`api/v1/feed/${post._id}/comments`, { content: comment.trim() }, undefined, true).subscribe(() => {
+          this.todayEngagements.update(v => v + 1);
           this.snack.open('Comment posted!', 'OK', { duration: 1500 });
         });
       }

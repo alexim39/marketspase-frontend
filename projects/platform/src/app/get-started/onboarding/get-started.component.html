@@ -41,6 +41,7 @@
       <marketspase-onboarding-steps
         [steps]="getCurrentSteps()"
         [role]="userRole()"
+        [videoUrl]="userRole() === 'marketer' ? marketerVideoUrl : promoterVideoUrl"
         (navigate)="navigateToStep($event)"
       />
     }

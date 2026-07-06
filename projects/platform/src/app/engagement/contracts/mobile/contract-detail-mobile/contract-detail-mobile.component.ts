@@ -62,9 +62,6 @@ import { EngagementContractDetailComponent } from '../../contract-detail/contrac
                 <span>{{ task.completed }}/{{ task.target }}</span>
               </div>
               <mat-progress-bar mode="determinate" [value]="task.target ? (task.completed/task.target*100) : 0"></mat-progress-bar>
-              @if (isPromoter() && contract()?.status === 'active') {
-                <button mat-stroked-button class="inc-btn" (click)="incrementTask(i)">+1 {{ task.type }}</button>
-              }
             </div>
           }
         </section>

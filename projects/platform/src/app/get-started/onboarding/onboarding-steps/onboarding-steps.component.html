@@ -46,6 +46,23 @@
           </button>
         </div>
       }
+
+      @if (i === steps.length - 1 && videoUrl) {
+        <div class="step-video">
+          <p class="video-label"><mat-icon>play_circle</mat-icon> Watch the video guide</p>
+          <div class="video-wrapper">
+            <iframe
+              [src]="videoUrl"
+              title="Onboarding video guide"
+              loading="lazy"
+              frameborder="0"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+      }
     </div>
   }
 </div>

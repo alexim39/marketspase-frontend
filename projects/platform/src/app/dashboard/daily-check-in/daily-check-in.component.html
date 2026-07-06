@@ -69,6 +69,43 @@
           <small>Every {{ streakStatus.cycleLengthDays }} completed check-ins unlocks a wallet withdrawal.</small>
         </div>
 
+        @if (mission(); as m) {
+          @if (!m.completed) {
+            <div class="mission-section">
+              <span class="mission-label">Today's Mission · {{ m.label || 'Standard Day' }}</span>
+              @for (r of m.requirements || []; track r.type) {
+                <div class="mission-row">
+                  <mat-icon>{{ taskIcons[r.type] || 'check' }}</mat-icon>
+                  <span class="task-type">{{ r.type }}</span>
+                  <div class="task-bar-wrap">
+                    <div class="mission-track">
+                      <div class="mission-fill" [style.width.%]="r.target ? (r.completed / r.target * 100) : 0"></div>
+                    </div>
+                  </div>
+                  <span class="task-count">{{ r.completed }}/{{ r.target }}</span>
+                </div>
+              }
+              @if (missionClaimable()) {
+                <button mat-flat-button color="primary" class="claim-btn" (click)="claimMission()">
+                  <mat-icon>redeem</mat-icon> Claim ₦{{ m.reward }}
+                </button>
+              } @else {
+                <p class="mission-hint">Reward: ₦{{ m.reward }} · Complete all tasks above to claim</p>
+              }
+            </div>
+          } @else {
+            <div class="mission-done">
+              <mat-icon>check_circle</mat-icon>
+              <span>Today's mission completed · ₦{{ m.reward }} earned</span>
+            </div>
+          }
+        } @else {
+          <div class="mission-section">
+            <span class="mission-label">Today's Mission</span>
+            <p class="mission-hint">New mission arrives at midnight. Engage with posts to earn rewards.</p>
+          </div>
+        }
+
         <footer class="modal-footer">
           <div class="footnote">
             <span>1 point = NGN {{ streakStatus.pointValueNaira | number:'1.0-0' }}</span>

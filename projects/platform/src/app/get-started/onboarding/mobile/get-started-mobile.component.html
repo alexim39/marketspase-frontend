@@ -73,7 +73,7 @@
 
     @if (activeSteps().length) {
       <div class="step-list">
-        @for (step of activeSteps(); track step.id) {
+        @for (step of activeSteps(); track step.id; let i = $index) {
           <article class="step-card" [class.completed]="step.completed">
             <span class="step-icon" aria-hidden="true">
               <mat-icon>{{ step.completed ? 'check' : step.icon }}</mat-icon>
@@ -86,6 +86,22 @@
                 <button mat-stroked-button type="button" (click)="navigateToStep(step)">
                   {{ step.action }}
                 </button>
+              }
+              @if (i === activeSteps().length - 1 && currentVideoUrl()) {
+                <div class="step-video-inline">
+                  <p class="video-label"><mat-icon>play_circle</mat-icon> Watch the video guide</p>
+                  <div class="video-wrapper">
+                    <iframe
+                      [src]="currentVideoUrl()"
+                      title="Onboarding video guide"
+                      loading="lazy"
+                      frameborder="0"
+                      referrerpolicy="strict-origin-when-cross-origin"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowfullscreen>
+                    </iframe>
+                  </div>
+                </div>
               }
             </div>
           </article>

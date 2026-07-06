@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-//import { OnboardingStep } from '../get-started.component'; // adjust path if needed
+import { SafeResourceUrl } from '@angular/platform-browser';
 
  interface OnboardingStep {
   id: number;
@@ -24,6 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class OnboardingStepsComponent {
   @Input() steps: OnboardingStep[] = [];
   @Input() role: string = '';
+  @Input() videoUrl: SafeResourceUrl | null = null;
   @Output() navigate = new EventEmitter<OnboardingStep>();
 
   trackByStepId(index: number, step: OnboardingStep): number {

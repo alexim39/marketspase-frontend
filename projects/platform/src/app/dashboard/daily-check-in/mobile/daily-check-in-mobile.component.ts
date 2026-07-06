@@ -2,12 +2,14 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { DailyCheckInComponent } from '../daily-check-in.component';
 
 @Component({
   selector: 'app-daily-check-in-mobile',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatSnackBarModule],
+  imports: [CommonModule, MatIconModule, MatSnackBarModule, MatButtonModule, MatProgressBarModule],
   templateUrl: './daily-check-in-mobile.component.html',
   styleUrls: ['./daily-check-in-mobile.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

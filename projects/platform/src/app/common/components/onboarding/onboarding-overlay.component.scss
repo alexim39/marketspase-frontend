@@ -3,13 +3,24 @@
 
 
 .onboarding-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; }
-.onboarding-sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 1001; background: var(--surface-color); border-radius: 24px 24px 0 0; padding: 1.5rem; max-width: 480px; margin: 0 auto; }
+.onboarding-sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 1001; background: var(--surface-color); border-radius: 24px 24px 0 0; padding: 1.5rem; max-width: 480px; margin: 0 auto; max-height: 90vh; overflow-y: auto;
+  @include desktop { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); bottom: auto; right: auto; border-radius: 24px; padding: 2rem; }
+}
 .onboarding-progress { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; }
 .onboarding-progress mat-progress-bar { flex: 1; }
 .onboarding-progress span { font-size: 0.8rem; color: var(--text-secondary); }
 .onboarding-step { text-align: center; padding: 1rem 0; }
 .step-icon { font-size: 48px; width: 48px; height: 48px; color: var(--primary-color); margin-bottom: 0.75rem; }
-.onboarding-step h2 { margin: 0 0 0.5rem; font-size: 1.2rem; }
+.onboarding-step h2 { margin: 0 0 0.5rem; font-size: 1.2rem; color: var(--text-primary); }
 .onboarding-step p { color: var(--text-secondary); line-height: 1.5; max-width: 360px; margin: 0 auto; }
-.onboarding-actions { display: flex; justify-content: space-between; gap: 0.75rem; margin-top: 1rem; }
+.onboarding-video {
+  margin: 0.75rem 0 0;
+  padding: 0.75rem;
+  background: rgba($primary-rgb, 0.03);
+  border-radius: 12px;
+  border: 1px solid $border-color;
+  .video-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; font-weight: 700; color: $text-primary; margin: 0 0 0.5rem; mat-icon { color: var(--primary-color); } }
+  .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; } }
+}
+.onboarding-actions { display: flex; gap: 0.75rem; margin-top: 1rem; a, button { flex: 1; min-height: 44px; font-weight: 700; justify-content: center; display: inline-flex; align-items: center; gap: 2px; } }
 .onboarding-skip { width: 100%; margin-top: 0.5rem; color: var(--text-secondary); }

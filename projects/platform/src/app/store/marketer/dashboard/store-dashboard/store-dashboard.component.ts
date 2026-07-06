@@ -36,7 +36,6 @@ import { StoreManagerComponent } from '../../store-manager/store-manager.compone
 import { ElementRef, ViewChild } from '@angular/core';
 import { GalleryUploadDialogComponent } from '../gallery-upload-dialog/gallery-upload-dialog.component';
 import { DailySuggestionsCardComponent } from '../../../../engagement/daily-suggestions-card.component';
-import { MissionProgressWidgetComponent } from '../../../../engagement/mission-progress-widget.component';
 interface StoreStat {
   icon: string;
   label: string;
@@ -85,7 +84,6 @@ interface PerformanceMetric {
     MatOptionModule,
     MatInputModule,
     DailySuggestionsCardComponent,
-    MissionProgressWidgetComponent,
   ],
   templateUrl: './store-dashboard.component.html',
   styleUrls: ['./store-dashboard.component.scss']

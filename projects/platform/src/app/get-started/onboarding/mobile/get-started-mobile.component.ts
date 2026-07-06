@@ -38,6 +38,9 @@ export class GetStartedMobileComponent extends GetStartedComponent {
   readonly activeVideoGuides = computed(() =>
     this.visibleVideoRole() === 'marketer' ? this.marketerVideoGuides : this.promoterVideoGuides
   );
+  readonly currentVideoUrl = computed(() =>
+    this.userRole() === 'marketer' ? this.marketerVideoUrl : this.promoterVideoUrl
+  );
   readonly completedSteps = computed(() => this.activeSteps().filter((step) => step.completed).length);
   readonly nextStep = computed<OnboardingStep | null>(() => {
     const steps = this.activeSteps();

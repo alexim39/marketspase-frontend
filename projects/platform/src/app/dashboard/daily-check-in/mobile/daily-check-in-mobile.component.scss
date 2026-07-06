@@ -499,3 +499,24 @@
     background: ButtonText !important;
   }
 }
+
+// Mission section (inside checkin sheet)
+.mission-section {
+  margin: 0 0 14px; padding: 14px;
+  background: rgba(var(--primary-rgb), 0.03); border-radius: 14px; border: 1px solid var(--border-color);
+  .mission-label { display: block; font-size: 0.72rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
+  .mission-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    mat-icon { font-size: 17px; width: 17px; height: 17px; color: var(--primary-color); flex-shrink: 0; }
+    .task-type { font-size: 0.76rem; color: var(--text-secondary); text-transform: capitalize; min-width: 55px; }
+    .task-bar-wrap { flex: 1; }
+    .mission-track { height: 7px; background: var(--background-color); border-radius: 999px; overflow: hidden; }
+    .mission-fill { height: 100%; background: linear-gradient(90deg, var(--primary-color), rgba(var(--primary-rgb), 0.5)); border-radius: 999px; transition: width 0.3s ease; }
+    .task-count { font-size: 0.75rem; font-weight: 700; color: var(--text-primary); min-width: 36px; text-align: right; }
+  }
+  .claim-btn { width: 100%; margin-top: 8px; min-height: 44px; font-weight: 700; border-radius: 12px; }
+  .mission-hint { font-size: 0.75rem; color: var(--text-tertiary); text-align: center; margin: 8px 0 0; line-height: 1.4; }
+}
+.mission-done { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding: 14px; background: rgba(var(--success-rgb), 0.08); border-radius: 14px;
+  mat-icon { color: var(--success-color); font-size: 22px; width: 22px; height: 22px; }
+  span { font-size: 0.82rem; color: var(--success-color); font-weight: 600; }
+}
