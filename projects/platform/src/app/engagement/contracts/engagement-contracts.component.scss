@@ -1,48 +1,295 @@
 @use '../../../styles/mixins' as mixins;
 @use '../../../styles/variables' as vars;
 
+:host {
+  display: block;
+  background: vars.$background-color;
+}
+
 .contracts-page {
-  padding: vars.$spacing-6; max-width: 800px; margin: 0 auto; min-height: 100vh; background: vars.$background-color;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: vars.$spacing-6;
+  min-height: 100vh;
 }
 
 .page-header {
-  display: flex; align-items: flex-start; gap: vars.$spacing-4; margin-bottom: vars.$spacing-6; flex-wrap: wrap;
-  h1 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: vars.$text-primary; }
-  p { margin: 0; color: vars.$text-secondary; font-size: 0.85rem; }
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: vars.$spacing-4;
+  margin-bottom: vars.$spacing-6;
+  padding: vars.$spacing-5;
+  border: 1px solid vars.$border-color;
+  border-radius: vars.$border-radius-xl;
+  background: linear-gradient(135deg, color-mix(in srgb, vars.$surface-color 92%, vars.$primary-color 8%), vars.$surface-color 72%);
+  box-shadow: vars.$shadow-sm;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: vars.$spacing-3;
+}
+
+.back-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: vars.$surface-color;
+  color: vars.$primary-color;
+  border: 1px solid vars.$border-color;
+  box-shadow: vars.$shadow-sm;
+}
+
+.heading-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: vars.$font-weight-semibold;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: vars.$primary-color;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  font-weight: vars.$font-weight-bold;
+  color: vars.$text-primary;
+}
+
+.subtext {
+  margin: 0;
+  color: vars.$text-secondary;
+  font-size: 0.9rem;
 }
 
 .header-tabs {
-  display: flex; gap: 4px; margin-left: auto;
-  button { padding: 6px 14px; border-radius: 999px; border: 1px solid vars.$border-color; background: vars.$surface-color; font-size: 0.78rem; font-weight: 600; cursor: pointer;
-    &.active { background: vars.$primary-color; color: #fff; border-color: vars.$primary-color; }
+  display: flex;
+  flex-wrap: wrap;
+  gap: vars.$spacing-2;
+}
+
+.filter-pill {
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid vars.$border-color;
+  background: vars.$surface-color;
+  color: vars.$text-secondary;
+  font-size: 0.8rem;
+  font-weight: vars.$font-weight-semibold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.active {
+    background: vars.$primary-color;
+    color: vars.$white;
+    border-color: vars.$primary-color;
+    box-shadow: vars.$shadow-sm;
   }
 }
 
-.contracts-list { display: flex; flex-direction: column; gap: vars.$spacing-3; }
+.contracts-list {
+  display: flex;
+  flex-direction: column;
+  gap: vars.$spacing-3;
+}
 
 .contract-card {
-  padding: vars.$spacing-4; background: vars.$surface-color; border-radius: 14px; border: 1px solid vars.$border-color;
-  cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
-  &:hover { transform: translateY(-1px); box-shadow: vars.$shadow-md; }
-  .cc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
-    .cc-party strong { font-size: 1rem; color: vars.$text-primary; }
-    .cc-amount { font-weight: 800; color: vars.$primary-color; font-size: 1.1rem; }
-  }
-  .cc-status {
-    padding: 2px 8px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
-    &.active { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
-    &.pending { background: rgba(245, 158, 11, 0.1); color: var(--warning-color); }
-    &.completed { background: rgba(vars.$primary-rgb, 0.08); color: var(--primary-color); }
-    &.cancelled { background: rgba(239, 68, 68, 0.08); color: var(--error-color); }
-    &.disputed { background: rgba(239, 68, 68, 0.12); color: var(--error-color); }
-  }
-  .cc-tasks { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;
-    .task-chip { padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; background: rgba(vars.$primary-rgb, 0.06); color: vars.$text-secondary; }
+  padding: vars.$spacing-4;
+  border: 1px solid vars.$border-color;
+  border-radius: vars.$border-radius-xl;
+  background: vars.$surface-color;
+  box-shadow: vars.$shadow-sm;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: vars.$shadow-md;
+    border-color: rgba(var(--primary-rgb), 0.22);
   }
 }
 
-.loading, .empty {
-  text-align: center; padding: 40px; color: vars.$text-secondary;
-  mat-icon { font-size: 3rem; width: 3rem; height: 3rem; opacity: 0.3; }
-  h3 { color: vars.$text-primary; }
+.cc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: vars.$spacing-3;
+  margin-bottom: vars.$spacing-3;
+}
+
+.cc-party {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cc-role {
+  font-size: 0.72rem;
+  font-weight: vars.$font-weight-semibold;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: vars.$text-tertiary;
+}
+
+.cc-party strong {
+  font-size: 1rem;
+  color: vars.$text-primary;
+}
+
+.cc-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.cc-amount {
+  font-size: 1.06rem;
+  font-weight: vars.$font-weight-bold;
+  color: vars.$primary-color;
+}
+
+.cc-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: vars.$font-weight-semibold;
+  text-transform: capitalize;
+  background: rgba(var(--primary-rgb), 0.08);
+  color: vars.$primary-color;
+
+  &.active {
+    background: rgba(var(--success-rgb), 0.12);
+    color: vars.$success-color;
+  }
+
+  &.pending {
+    background: rgba(var(--warning-rgb), 0.12);
+    color: vars.$warning-color;
+  }
+
+  &.completed {
+    background: rgba(var(--success-rgb), 0.12);
+    color: vars.$success-color;
+  }
+
+  &.cancelled,
+  &.disputed {
+    background: rgba(var(--error-rgb), 0.12);
+    color: vars.$error-color;
+  }
+}
+
+.cc-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: vars.$spacing-2;
+  margin-bottom: vars.$spacing-3;
+}
+
+.summary-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, vars.$background-color 80%, vars.$surface-color 20%);
+  color: vars.$text-secondary;
+  font-size: 0.76rem;
+  font-weight: vars.$font-weight-semibold;
+
+  mat-icon {
+    font-size: 0.95rem;
+    width: 0.95rem;
+    height: 0.95rem;
+    color: vars.$primary-color;
+  }
+}
+
+.cc-tasks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: vars.$spacing-2;
+  margin-bottom: vars.$spacing-3;
+}
+
+.task-chip {
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  background: rgba(var(--primary-rgb), 0.08);
+  color: vars.$text-secondary;
+}
+
+.cc-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: vars.$spacing-3;
+  color: vars.$text-tertiary;
+  font-size: 0.8rem;
+}
+
+.loading,
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: vars.$spacing-3;
+  padding: vars.$spacing-8;
+  min-height: 280px;
+  border: 1px dashed vars.$border-color;
+  border-radius: vars.$border-radius-xl;
+  background: vars.$surface-color;
+  color: vars.$text-secondary;
+  text-align: center;
+
+  mat-icon {
+    font-size: 2.1rem;
+    color: vars.$primary-color;
+  }
+
+  h3 {
+    margin: 0;
+    color: vars.$text-primary;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+@include mixins.mobile {
+  .contracts-page {
+    padding: vars.$spacing-4;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-left {
+    width: 100%;
+  }
+
+  .cc-top {
+    flex-direction: column;
+  }
+
+  .cc-meta {
+    align-items: flex-start;
+  }
 }

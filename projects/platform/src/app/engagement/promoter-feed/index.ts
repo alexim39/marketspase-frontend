@@ -1,7 +1,7 @@
 import { Component, inject, computed } from '@angular/core';
 import { DeviceService } from '@shared/services/device';
 import { PromoterEngagementFeedComponent } from './promoter-engagement-feed.component';
-import { PromoterEngagementFeedMobileComponent } from './mobile/promoter-engagement-feed-mobile.component';
+import { PromoterEngagementFeedMobileComponent } from './mobile/promoter-engagement-feed-mobile/promoter-engagement-feed-mobile.component';
 
 @Component({
   selector: 'app-promoter-engagement-feed-index',

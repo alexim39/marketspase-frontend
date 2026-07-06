@@ -77,6 +77,10 @@ export const dashboardRoutes: Routes = [
                 loadComponent: () => import('../newsletter/newsletter.component').then(c => c.NewsletterManagementComponent),
                 title: 'Newsletters Management - Admin Dashboard'
             }, 
+            {   path: 'disputes', 
+                loadComponent: () => import('../disputes/admin-disputes.component').then(c => c.AdminDisputesComponent),
+                title: 'Dispute Resolution — Admin Dashboard',
+            },
             {   path: 'newletters',
                 redirectTo: 'newsletters',
                 pathMatch: 'full'

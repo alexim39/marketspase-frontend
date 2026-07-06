@@ -1,19 +1,29 @@
 <div class="contracts-page">
   <header class="page-header">
-    <button mat-icon-button routerLink="/dashboard/stores"><mat-icon>arrow_back</mat-icon></button>
-    <div>
-      <h1>{{ isPromoter() ? 'My Jobs' : 'My Contracts' }}</h1>
-      <p>{{ isPromoter() ? 'Engagement contracts from marketers' : 'Manage your promoter engagements' }}</p>
+    <div class="header-left">
+      <button mat-icon-button class="back-btn" routerLink="/dashboard/stores" aria-label="Back to stores">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+
+      <div class="heading-block">
+        <p class="eyebrow">Engagements</p>
+        <h1>{{ isPromoter() ? 'My Jobs' : 'My Contracts' }}</h1>
+        <p class="subtext">{{ isPromoter() ? 'Engagement contracts from marketers' : 'Manage your promoter engagements' }}</p>
+      </div>
     </div>
-    <div class="header-tabs">
-      <button [class.active]="filter() === 'all'" (click)="filter.set('all')">All</button>
-      <button [class.active]="filter() === 'active'" (click)="filter.set('active')">Active</button>
-      <button [class.active]="filter() === 'completed'" (click)="filter.set('completed')">Done</button>
+
+    <div class="header-tabs" role="tablist" aria-label="Contract filters">
+      <button class="filter-pill" [class.active]="filter() === 'all'" (click)="filter.set('all')">All</button>
+      <button class="filter-pill" [class.active]="filter() === 'active'" (click)="filter.set('active')">Active</button>
+      <button class="filter-pill" [class.active]="filter() === 'completed'" (click)="filter.set('completed')">Done</button>
     </div>
   </header>
 
   @if (loading()) {
-    <div class="loading"><mat-spinner diameter="32"/></div>
+    <div class="loading">
+      <mat-spinner diameter="32"></mat-spinner>
+      <p>Loading contracts...</p>
+    </div>
   } @else if (filteredContracts().length === 0) {
     <div class="empty">
       <mat-icon>description</mat-icon>
@@ -26,21 +36,41 @@
   } @else {
     <div class="contracts-list">
       @for (c of filteredContracts(); track c._id) {
-        <div class="contract-card" [routerLink]="['/dashboard/contracts', c._id]">
-          <div class="cc-header">
+        <article class="contract-card" [routerLink]="['/dashboard/contracts', c._id]">
+          <div class="cc-top">
             <div class="cc-party">
+              <span class="cc-role">{{ isPromoter() ? 'Marketer' : 'Promoter' }}</span>
               <strong>{{ isPromoter() ? c.marketerId?.displayName : c.promoterId?.displayName }}</strong>
-              <span class="cc-status" [class]="c.status">{{ c.status }}</span>
             </div>
-            <span class="cc-amount">₦{{ c.payment?.total | number }}</span>
+            <div class="cc-meta">
+              <span class="cc-status" [class]="c.status">{{ c.status | titlecase }}</span>
+              <span class="cc-amount">₦{{ c.payment?.total | number }}</span>
+            </div>
           </div>
+
+          <div class="cc-summary">
+            <div class="summary-pill">
+              <mat-icon>task_alt</mat-icon>
+              <span>{{ c.tasks?.length || 0 }} milestones</span>
+            </div>
+            <div class="summary-pill">
+              <mat-icon>trending_up</mat-icon>
+              <span>{{ c.progress || 0 }}% done</span>
+            </div>
+          </div>
+
           <div class="cc-tasks">
             @for (t of c.tasks || []; track t.type) {
               <span class="task-chip">{{ t.target }}x {{ t.type }}</span>
             }
           </div>
+
+          <div class="cc-footer">
+            <span class="footer-text">Tap to view details</span>
+            <mat-icon>chevron_right</mat-icon>
+          </div>
           <mat-progress-bar mode="determinate" [value]="c.progress || 0"></mat-progress-bar>
-        </div>
+        </article>
       }
     </div>
   }

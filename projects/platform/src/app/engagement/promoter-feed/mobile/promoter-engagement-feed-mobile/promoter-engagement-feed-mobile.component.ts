@@ -4,8 +4,8 @@ import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { FeedPostCardComponent } from '../../../community/feeds/feed-post-card/feed-post-card.component';
-import { PromoterEngagementFeedComponent } from '../promoter-engagement-feed.component';
+import { FeedPostCardComponent } from '../../../../community/feeds/feed-post-card/feed-post-card.component';
+import { PromoterEngagementFeedComponent } from '../../promoter-engagement-feed.component';
 
 @Component({
   selector: 'app-promoter-engagement-feed-mobile',
@@ -67,15 +67,7 @@ import { PromoterEngagementFeedComponent } from '../promoter-engagement-feed.com
       }
     </main>
   `,
-  styles: [`
-    :host { display: block; min-height: 100dvh; background: var(--background-color); }
-    .topbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surface-color); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 10; }
-    .topbar span { display: block; font-size: 0.68rem; color: var(--text-tertiary); } .topbar h1 { margin: 0; font-size: 1rem; font-weight: 700; flex: 1; }
-    .header-badges { display: flex; gap: 6px; .badge { display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; mat-icon { font-size: 14px; width: 14px; height: 14px; } &.green { background: rgba(var(--success-rgb),0.1); color: var(--success-color); } &.amber { background: rgba(var(--warning-rgb),0.1); color: var(--warning-color); } } }
-    .chip-scroll { display: flex; gap: 5px; padding: 10px 14px; overflow-x: auto; scrollbar-width: none; &::-webkit-scrollbar { display: none; } button { flex-shrink: 0; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border-color); background: var(--surface-color); font-size: 0.72rem; font-weight: 600; cursor: pointer; &.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); } } }
-    .feed-list { padding: 0 14px 100px; display: flex; flex-direction: column; gap: 10px; }
-    .loader, .empty { text-align: center; padding: 40px; color: var(--text-secondary); mat-icon { font-size: 2.5rem; width: 2.5rem; height: 2.5rem; opacity: 0.3; } }
-    .load-more { width: calc(100% - 28px); margin: 16px 14px; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--surface-color); font-weight: 600; }
-  `]
+  styleUrls: ['./promoter-engagement-feed-mobile.component.scss']
+    
 })
 export class PromoterEngagementFeedMobileComponent extends PromoterEngagementFeedComponent {}

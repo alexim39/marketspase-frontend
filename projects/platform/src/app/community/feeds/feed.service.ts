@@ -273,7 +273,7 @@ const FEED_CONFIG = {
   POSTS_PER_PAGE: 10
 } as const;
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class FeedService {
   private apiService = inject(ApiService);
   private readonly apiUrl = 'api/v1/feed';
@@ -571,6 +571,10 @@ export class FeedService {
 
   boostPost(postId: string): Observable<any> {
     return this.apiService.post<any>(`${this.apiUrl}/${postId}/boost`, {}, undefined, true);
+  }
+
+  repostPost(postId: string): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/${postId}/repost`, {}, undefined, true);
   }
 
   getMarketerCampaigns(userId: string, params?: any): Observable<any> {

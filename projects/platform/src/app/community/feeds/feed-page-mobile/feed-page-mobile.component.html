@@ -377,7 +377,18 @@
             <span>{{ formatCount(post.saveCount || 0) }}</span>
           </button>
 
-          @if (user()?.role === 'promoter' && isPromotional(post)) {
+          @if (post.author?._id === user()?._id) {
+            <button class="rail-action boost-action" type="button" (click)="onBoost(post)" aria-label="Boost post">
+              <span class="rail-icon"><mat-icon>trending_up</mat-icon></span>
+              <span>Boost</span>
+            </button>
+            <button class="rail-action promote-action" type="button" (click)="onPromote(post)" aria-label="Promote this post">
+              <span class="rail-icon"><mat-icon>campaign</mat-icon></span>
+              <span>Promote</span>
+            </button>
+          }
+
+          @if (user()?.role === 'promoter' && isPromotional(post) && post.author?._id !== user()?._id) {
             <button class="rail-action promote-action" type="button" (click)="promotePost(post, $event)" aria-label="Promote this post">
               <span class="rail-icon"><mat-icon>campaign</mat-icon></span>
               <span>Promote</span>
@@ -531,6 +542,10 @@
         <button type="button" (click)="shareTo('copy')">
           <mat-icon>link</mat-icon>
           <span>Copy link</span>
+        </button>
+        <button type="button" (click)="repostShare()">
+          <mat-icon style="color:var(--primary-color)">repeat</mat-icon>
+          <span>MarketSpase</span>
         </button>
       </div>
     </section>

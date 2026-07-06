@@ -183,6 +183,7 @@ export class AdminDashboardComponent implements OnInit {
         '/dashboard/posts': 'community',
         '/dashboard/newletters': 'community',
         '/dashboard/newsletters': 'community',
+        '/dashboard/disputes': 'community',
         '/dashboard/testimonials': 'community',
         '/dashboard/settings/payments': 'settings',
         '/dashboard/settings/ppc-pricing': 'settings',

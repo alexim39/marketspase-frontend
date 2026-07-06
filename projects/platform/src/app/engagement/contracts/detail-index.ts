@@ -1,7 +1,7 @@
 import { Component, inject, computed } from '@angular/core';
 import { DeviceService } from '@shared/services/device';
-import { EngagementContractDetailComponent } from './contract-detail.component';
-import { EngagementContractDetailMobileComponent } from './mobile/contract-detail-mobile.component';
+import { EngagementContractDetailComponent } from './contract-detail/contract-detail.component';
+import { EngagementContractDetailMobileComponent } from './mobile/contract-detail-mobile/contract-detail-mobile.component';
 
 @Component({
   selector: 'app-contract-detail-index',

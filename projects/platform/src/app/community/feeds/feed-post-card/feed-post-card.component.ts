@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -17,7 +18,7 @@ type BadgeType = 'top-promoter' | 'verified' | 'rising-star' | 'expert' | 'veter
 @Component({
   selector: 'app-feed-post-card',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, MatCardModule, MatMenuModule, MatTooltipModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule, MatCardModule, MatMenuModule, MatTooltipModule, MatDividerModule],
   providers: [FeedService],
   templateUrl: './feed-post-card.component.html',
   styleUrls: ['./feed-post-card.component.scss']
@@ -46,6 +47,7 @@ export class FeedPostCardComponent {
   hashtagClick = output<string>();
   boost = output<FeedPost>();
   promote = output<FeedPost>();
+  repost = output<FeedPost>();
 
   isAuthor = computed(() => this.post().author?._id === this.user()?._id);
 
@@ -117,7 +119,11 @@ export class FeedPostCardComponent {
   }
 
   onShareTo(platform: string): void {
-    this.sharePlatform.emit(platform);
+    if (platform === 'repost') {
+      this.repost.emit(this.post());
+    } else {
+      this.sharePlatform.emit(platform);
+    }
   }
 
   onHide(): void {

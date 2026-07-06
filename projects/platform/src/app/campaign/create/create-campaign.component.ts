@@ -217,6 +217,26 @@ export class CreateCampaignComponent implements OnInit {
       this.isBudgetValid.set(true);
       this.isScheduleValid.set(true);
     }
+
+    // Pre-fill from Promote Post button (passed via router state)
+    const promotedContent = history.state?.promotedPost;
+    if (promotedContent?.caption) {
+      this.contentForm.patchValue({ caption: promotedContent.caption });
+      if (promotedContent.mediaUrl) {
+        this.uploadedMediaAsset.set({
+          mediaUrl: promotedContent.mediaUrl,
+          mediaType: promotedContent.mediaType || 'image',
+          thumbnailUrl: promotedContent.thumbnailUrl || promotedContent.mediaUrl,
+          mediaPublicId: '',
+        });
+        this.uploadedMediaKey.set(promotedContent.mediaUrl);
+        this.selectedMedia.set({
+          file: null as any, url: promotedContent.mediaUrl,
+          type: (promotedContent.mediaType === 'video' ? 'video' : 'image') as any, size: 0,
+        });
+      }
+      this.isContentValid.set(true);
+    }
   }
 
   private initializeForms(): void {

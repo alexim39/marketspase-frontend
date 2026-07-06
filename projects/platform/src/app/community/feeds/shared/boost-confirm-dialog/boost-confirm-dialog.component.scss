@@ -1,0 +1,110 @@
+@use '../../../../../styles/variables' as vars;
+@use '../../../../../styles/mixins' as mixins;
+
+:host {
+  display: block;
+    background-color: color-mix(in srgb, vars.$background-color, black 5%);
+    
+
+}
+
+.boost-dialog {
+  min-width: min(92vw, 380px);
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  
+}
+
+.dialog-hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(vars.$text-primary, 0.12), rgba(vars.$text-tertiary, 0.08));
+  border: 1px solid rgba(vars.$primary-rgb, 0.14);
+}
+
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--primary-color);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(var(--primary-rgb), 0.2);
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.hero-copy {
+  .eyebrow {
+    margin: 0 0 2px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.06rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+}
+
+.dialog-body {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+
+  strong {
+    color: var(--primary-color);
+  }
+}
+
+.dialog-highlight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-color);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+
+  mat-icon {
+    color: var(--success-color);
+  }
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 2px;
+
+  button {
+    flex: 1;
+    min-height: 44px;
+    font-weight: 700;
+    border-radius: 12px;
+  }
+
+  button[mat-flat-button] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+}

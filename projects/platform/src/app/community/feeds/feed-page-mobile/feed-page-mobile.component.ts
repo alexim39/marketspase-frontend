@@ -32,6 +32,7 @@ import { CommentDialogComponent } from './../comment-dialog/comment-dialog.compo
 import { UserInterface } from '@shared/services';
 import { ProfileService } from '../../../profile/services/profile.service';
 import { FeedLiveActivityToastComponent } from '../shared/feed-live-activity-toast/feed-live-activity-toast.component';
+import { BoostConfirmDialogComponent } from '../shared/boost-confirm-dialog/boost-confirm-dialog.component';
 
 type MobileFeedTab = 'for-you' | 'following' | 'saved';
 type FeedMedia = NonNullable<FeedPost['media']>[number];
@@ -377,6 +378,17 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
 
   closeShareSheet(): void {
     this.shareSheetPost.set(null);
+  }
+
+  repostShare(): void {
+    const post = this.shareSheetPost();
+    if (!post?._id) return;
+    this.feedService.sharePost(post._id, this.user()?._id ?? '', 'marketspase').subscribe();
+    this.feedService.repostPost(post._id).subscribe({
+      next: () => this.snackBar.open('Re-shared on MarketSpase!', 'OK', { duration: 2500 }),
+      error: (e) => this.snackBar.open(e?.error?.message || 'Repost failed', 'OK', { duration: 3000 })
+    });
+    this.closeShareSheet();
   }
 
   shareTo(platform: SharePlatform): void {
@@ -997,6 +1009,32 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
     }
 
     this.snackBar.open('Promotion details are not available for this post yet.', 'OK', { duration: 2400 });
+  }
+
+  onBoost(post: FeedPost): void {
+    if (!post._id) return;
+    const dialogRef = this.dialog.open(BoostConfirmDialogComponent, { width: '340px', panelClass: 'boost-dialog-panel' });
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.feedService.boostPost(post._id).subscribe({
+          next: () => this.snackBar.open('Post boosted for 24h!', 'OK', { duration: 3000 }),
+          error: (e) => this.snackBar.open(e?.error?.message || 'Boost failed', 'OK', { duration: 3000 })
+        });
+      }
+    });
+  }
+
+  onPromote(post: FeedPost): void {
+    this.router.navigate(['/dashboard/campaigns/create'], {
+      state: {
+        promotedPost: {
+          caption: post.content || '',
+          mediaUrl: post.media?.[0]?.url || post.campaign?.mediaUrl || post.product?.mainImage || '',
+          mediaType: post.media?.[0]?.type || 'image',
+          thumbnailUrl: post.media?.[0]?.thumbnail || ''
+        }
+      }
+    });
   }
 
   copyProductLink(post: FeedPost, event?: Event): void {

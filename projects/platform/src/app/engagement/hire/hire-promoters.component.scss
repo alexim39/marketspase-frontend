@@ -1,14 +1,15 @@
 @use '../../../styles/mixins' as mixins;
 @use '../../../styles/variables' as vars;
+
 :host {
-    background: vars.$background-color;
+  background: vars.$background-color !important; display: block;
 }
 .hire-page {
   padding: vars.$spacing-6;
   max-width: 960px;
   margin: 0 auto;
   min-height: 100vh;
-  background: vars.$background-color;
+   background-color: color-mix(in srgb, vars.$background-color, black 5%);
 }
 
 .page-header {

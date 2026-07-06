@@ -1,0 +1,162 @@
+<div class="detail-page">
+  <header class="page-header">
+    <button mat-icon-button class="back-btn" routerLink="/dashboard/contracts" aria-label="Back to contracts">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    <div class="page-heading">
+      <p class="eyebrow">Engagement</p>
+      <h1>Contract Details</h1>
+      <span class="cc-status" [class]="contract()?.status">{{ contract()?.status | titlecase }}</span>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="loading">
+      <mat-spinner diameter="32"></mat-spinner>
+      <p>Loading contract details...</p>
+    </div>
+  } @else if (contract()) {
+    <div class="content-stack">
+      <mat-card class="detail-card hero-card">
+        <div class="party-row">
+          <div class="party-card">
+            <span class="label">Marketer</span>
+            <strong>{{ contract()?.marketerId?.displayName }}</strong>
+          </div>
+
+          <div class="party-separator">
+            <mat-icon>sync_alt</mat-icon>
+          </div>
+
+          <div class="party-card align-right">
+            <span class="label">Promoter</span>
+            <strong>{{ contract()?.promoterId?.displayName }}</strong>
+          </div>
+        </div>
+
+        <div class="hero-summary">
+          <div>
+            <span class="section-label">Overview</span>
+            <p>Track milestone delivery, payment release, and collaboration health in one place.</p>
+          </div>
+          <div class="hero-badge">
+            <mat-icon>verified</mat-icon>
+            <span>{{ contract()?.progress || 0 }}% complete</span>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="detail-card">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Milestones</span>
+            <h3>Progress</h3>
+          </div>
+          <span class="mini-pill">{{ contract()?.progress || 0 }}%</span>
+        </div>
+
+        <mat-progress-bar mode="determinate" [value]="contract()?.progress || 0"></mat-progress-bar>
+
+        <div class="tasks-list">
+          @for (task of contract()?.tasks || []; track task.type; let i = $index) {
+            <div class="task-item">
+              <div class="task-info">
+                <div>
+                  <strong>{{ task.type | titlecase }}</strong>
+                  <p>{{ task.completed }} of {{ task.target }} completed</p>
+                </div>
+                <span class="task-count">{{ task.completed }}/{{ task.target }}</span>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="task.target ? (task.completed / task.target * 100) : 0"></mat-progress-bar>
+              @if (isPromoter() && contract()?.status === 'active') {
+                <button mat-stroked-button class="task-btn" (click)="incrementTask(i)">+1 {{ task.type }}</button>
+              }
+            </div>
+          }
+        </div>
+      </mat-card>
+
+      <mat-card class="detail-card">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Finance</span>
+            <h3>Payment</h3>
+          </div>
+        </div>
+
+        <div class="payment-summary">
+          <div class="payment-block">
+            <span class="label">Total</span>
+            <strong>₦{{ contract()?.payment?.total | number }}</strong>
+          </div>
+          <div class="payment-block">
+            <span class="label">Released</span>
+            <strong>₦{{ contract()?.payment?.released | number }}</strong>
+          </div>
+          <div class="payment-block">
+            <span class="label">Schedule</span>
+            <strong>{{ contract()?.payment?.schedule }}</strong>
+          </div>
+        </div>
+
+        @if (contract()?.escrow) {
+          <div class="escrow-note">
+            <mat-icon>shield</mat-icon>
+            <p>Funds are held in escrow and will be released on {{ isPromoter() ? 'marketer approval' : 'your approval' }}.</p>
+          </div>
+        }
+      </mat-card>
+
+      @if (contract()?.contractTerms) {
+        <mat-card class="detail-card">
+          <div class="section-head">
+            <div>
+              <span class="section-label">Agreement</span>
+              <h3>Terms</h3>
+            </div>
+          </div>
+          <p class="terms-text">{{ contract()?.contractTerms }}</p>
+        </mat-card>
+      }
+
+      <div class="actions">
+        @if (contract()?.status === 'pending' && isPromoter()) {
+          <button mat-flat-button color="primary" (click)="respond('accept')">Accept Contract</button>
+          <button mat-stroked-button color="warn" (click)="respond('decline')">Decline</button>
+        }
+        @if (!isPromoter() && contract()?.status === 'active' && contract()?.progress >= 100) {
+          <button mat-flat-button color="primary" (click)="approveMilestone()">Approve & Release Payment</button>
+        }
+        @if (contract()?.status === 'milestone-review' && !isPromoter()) {
+          <button mat-flat-button color="primary" (click)="approveMilestone()">Approve Milestone</button>
+        }
+        @if (contract()?.status === 'completed' && !contract()?.marketerRating) {
+          <div class="rating-area">
+            <h3>Rate Experience</h3>
+            <div class="stars">
+              @for (star of [1,2,3,4,5]; track star) {
+                <button mat-icon-button (click)="rating = star" [color]="star <= rating ? 'primary' : ''" class="star-btn">
+                  <mat-icon>{{ star <= rating ? 'star' : 'star_border' }}</mat-icon>
+                </button>
+              }
+            </div>
+            @if (rating) {
+              <button mat-stroked-button color="primary" (click)="submitRating()">Submit Rating</button>
+            }
+          </div>
+        }
+        @if (contract()?.status === 'active' || contract()?.status === 'milestone-review') {
+          <button mat-stroked-button color="warn" (click)="dispute()">
+            <mat-icon>flag</mat-icon> Dispute
+          </button>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="empty">
+      <mat-icon>inventory_2</mat-icon>
+      <p>Contract not found.</p>
+    </div>
+  }
+</div>

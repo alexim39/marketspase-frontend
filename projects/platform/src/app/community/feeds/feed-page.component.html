@@ -286,6 +286,7 @@
               (hashtagClick)="onHashtagClick($event)"
               (boost)="onBoost(post)"
               (promote)="onPromote(post)"
+              (repost)="onRepost(post)"
             />
           </div>
           }
@@ -341,7 +342,8 @@
                 (sharePlatform)="onShare(post, $event)"
                 (hashtagClick)="onHashtagClick($event)"
                 (boost)="onBoost(post)"
-                (promote)="onPromote(post)">
+                (promote)="onPromote(post)"
+                (repost)="onRepost(post)">
               </app-feed-post-card>
             </div>
           }

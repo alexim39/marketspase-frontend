@@ -197,10 +197,29 @@
       <span>{{ post().commentCount || 0 }}</span>
     </button>
 
-    <button class="action-btn share-btn" (click)="onShare()" [matTooltip]="'Share'">
+    <button class="action-btn share-btn" [matMenuTriggerFor]="shareMenu" [matTooltip]="'Share'">
       <mat-icon>share</mat-icon>
       <span>{{ post().shareCount || 0 }}</span>
     </button>
+
+    <mat-menu #shareMenu="matMenu" xPosition="before">
+      <button mat-menu-item (click)="onShareTo('whatsapp')">
+        <mat-icon style="color:#25D366">chat</mat-icon> <span>WhatsApp</span>
+      </button>
+      <button mat-menu-item (click)="onShareTo('facebook')">
+        <mat-icon style="color:#1877F2">facebook</mat-icon> <span>Facebook</span>
+      </button>
+      <button mat-menu-item (click)="onShareTo('twitter')">
+        <mat-icon style="color:#1DA1F2">share</mat-icon> <span>Twitter / X</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="onShare()">
+        <mat-icon>content_copy</mat-icon> <span>Copy link</span>
+      </button>
+      <button mat-menu-item (click)="onShareTo('repost')">
+        <mat-icon style="color:var(--primary-color)">repeat</mat-icon> <span>MarketSpase</span>
+      </button>
+    </mat-menu>
 
     @if (post().phone) {
       <button class="action-btn chat-btn" (click)="onChat()" [matTooltip]="'Chat on WhatsApp'">
@@ -216,11 +235,11 @@
     @if (isAuthor()) {
       <button class="action-btn boost-btn" (click)="onBoost()" [matTooltip]="'Boost this post (₦500 for 24h)'">
         <mat-icon>trending_up</mat-icon>
-        <span>Boost</span>
+        <!-- <span>Boost</span> -->
       </button>
       <button class="action-btn promote-btn" (click)="onPromote()" [matTooltip]="'Turn this post into a campaign'">
         <mat-icon>campaign</mat-icon>
-        <span>Promote</span>
+        <!-- <span>Promote</span> -->
       </button>
     }
   </mat-card-actions>

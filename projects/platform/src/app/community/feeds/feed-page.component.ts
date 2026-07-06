@@ -28,7 +28,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
 import { FeedPostCardComponent } from './feed-post-card/feed-post-card.component';
+import { BoostConfirmDialogComponent } from './shared/boost-confirm-dialog/boost-confirm-dialog.component';
 import { CreatorSpotlightEntry, FeedComment, FeedPost, FeedService, ForumHighlight, ForumSpotlightEntry, LiveActivity } from './feed.service';
 import { ProfileService, SuggestedUser } from '../../profile/services/profile.service';
 import { UserInterface } from '@shared/services';
@@ -67,6 +69,7 @@ export class DesktopFeedPageComponent implements AfterViewInit {
   private readonly profileService = inject(ProfileService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
 
   @Input({ required: true }) user!: Signal<UserInterface | null>;
   @ViewChild('scrollAnchor') scrollAnchor!: ElementRef;
@@ -496,15 +499,35 @@ export class DesktopFeedPageComponent implements AfterViewInit {
 
   onBoost(post: FeedPost): void {
     if (!post._id) return;
-    this.feedService.boostPost(post._id).subscribe({
-      next: () => this.snackBar.open('Post boosted for 24h! (₦500 charged)', 'OK', { duration: 3000 }),
-      error: (e) => this.snackBar.open(e?.error?.message || 'Boost failed', 'OK', { duration: 3000 })
+    const dialogRef = this.dialog.open(BoostConfirmDialogComponent, { width: '380px', panelClass: 'boost-dialog-panel' });
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.feedService.boostPost(post._id).subscribe({
+          next: () => this.snackBar.open('Post boosted for 24h! (₦500 charged)', 'OK', { duration: 3000 }),
+          error: (e) => this.snackBar.open(e?.error?.message || 'Boost failed', 'OK', { duration: 3000 })
+        });
+      }
     });
   }
 
   onPromote(post: FeedPost): void {
-    this.router.navigate(['/dashboard/campaigns/builder'], {
-      queryParams: { sourcePostContent: post.content }
+    this.router.navigate(['/dashboard/campaigns/create'], {
+      state: {
+        promotedPost: {
+          caption: post.content || '',
+          mediaUrl: post.media?.[0]?.url || post.campaign?.mediaUrl || post.product?.mainImage || '',
+          mediaType: post.media?.[0]?.type || 'image',
+          thumbnailUrl: post.media?.[0]?.thumbnail || ''
+        }
+      }
+    });
+  }
+
+  onRepost(post: FeedPost): void {
+    if (!post._id) return;
+    this.feedService.repostPost(post._id).subscribe({
+      next: () => this.snackBar.open('Re-shared on MarketSpase!', 'OK', { duration: 2500 }),
+      error: (e) => this.snackBar.open(e?.error?.message || 'Repost failed', 'OK', { duration: 3000 })
     });
   }
 
