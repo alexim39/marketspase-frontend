@@ -17,5 +17,11 @@ export const ADMIN_NAVIGATION: NavigationItem[] = [
     children: [
       { icon: 'rule', label: 'Release Reviews', route: '/dashboard/stores/orders' }
     ]
+  },
+  {
+    icon: 'gavel',
+    label: 'Dispute Resolution',
+    route: '/dashboard/admin/disputes',
+    expanded: false
   }
 ];

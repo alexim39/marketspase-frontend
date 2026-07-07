@@ -8,8 +8,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../../common/services/user.service';
 import { EngagementService } from '../../engagement.service';
+import { DisputeDialogComponent } from './dispute-dialog.component';
 
 @Component({
   selector: 'app-contract-detail',
@@ -23,6 +25,7 @@ export class EngagementContractDetailComponent implements OnInit {
   private service = inject(EngagementService);
   private route = inject(ActivatedRoute);
   private snack = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
   private userService = inject(UserService);
 
   contract = signal<any>(null);
@@ -80,13 +83,15 @@ export class EngagementContractDetailComponent implements OnInit {
   }
 
   dispute(): void {
-    const reason = prompt('Why are you disputing this contract?');
-    if (!reason?.trim()) return;
     const c = this.contract();
     if (!c?._id) return;
-    this.service.disputeContract(c._id, reason.trim()).subscribe({
-      next: (r: any) => { this.contract.set(r?.data); this.snack.open('Dispute filed. Support will review.', 'OK', { duration: 3000 }); },
-      error: (e) => this.snack.open(e?.error?.message || 'Error', 'OK', { duration: 3000 })
+    const ref = this.dialog.open(DisputeDialogComponent, { width: '420px', maxWidth: '95vw', panelClass: 'dispute-dialog-panel' });
+    ref.afterClosed().subscribe(reason => {
+      if (!reason?.trim()) return;
+      this.service.disputeContract(c._id, reason.trim()).subscribe({
+        next: (r: any) => { this.contract.set(r?.data); this.snack.open('Dispute filed. Support will review.', 'OK', { duration: 3000 }); },
+        error: (e) => this.snack.open(e?.error?.message || 'Error', 'OK', { duration: 3000 })
+      });
     });
   }
 }

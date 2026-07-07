@@ -1,0 +1,9 @@
+@use '../../../../styles/mixins' as mixins;
+@use '../../../../styles/variables' as vars;
+:host {
+  display: block;
+    background: var(--background-color);
+}
+    .dispute-dialog { min-width: 380px; max-width: 480px; }
+    .dispute-hint { font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 16px; line-height: 1.5; }
+    .full-width { width: 100%; }

@@ -80,7 +80,14 @@
   justify-content: space-between;
   gap: vars.$spacing-3;
   margin-bottom: vars.$spacing-4;
-  flex-wrap: wrap;
+}
+
+.controls-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: vars.$spacing-4; flex-wrap: wrap;
+  .search-box { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 180px; max-width: 320px; padding: 8px 14px; background: vars.$surface-color; border-radius: 12px; border: 1px solid vars.$border-color;
+    mat-icon { color: vars.$text-tertiary; font-size: 18px; width: 18px; height: 18px; }
+    input { border: 0; background: none; flex: 1; font-size: 0.85rem; color: vars.$text-primary; outline: none; &::placeholder { color: vars.$text-tertiary; } }
+  }
 }
 
 .filter-chips {
@@ -164,6 +171,8 @@
     border-color: rgba(var(--primary-rgb), 0.2);
   }
 }
+
+.loading-more { text-align: center; padding: 20px 0 40px; }
 
 @include mixins.mobile {
   .feed-page {

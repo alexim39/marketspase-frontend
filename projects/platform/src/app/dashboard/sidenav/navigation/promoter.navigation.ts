@@ -46,16 +46,6 @@ export function getPromoterNavigation(
     },
 
     {
-      icon: 'work_history',
-      label: 'Engagement Jobs',
-      expanded: false,
-      children: [
-        { icon: 'dynamic_feed', label: 'Engagement Feed', route: '/dashboard/promoter/feed' },
-        { icon: 'assignment', label: 'My Contracts', route: '/dashboard/contracts' },
-      ]
-    },
-
-    {
       icon: 'storefront',
       label: 'Storefronts',
       expanded: false,
@@ -68,6 +58,16 @@ export function getPromoterNavigation(
         //{ icon: 'analytics', label: 'Product Performance', route: '/dashboard/storefronts/performance' },
         //{ icon: 'star', label: 'Favorites', route: '/dashboard/storefronts/favorites' },
         //{ icon: 'rate_review', label: 'Store Reviews', route: '/dashboard/storefronts/reviews' }
+      ]
+    },
+
+    {
+      icon: 'work_history',
+      label: 'Engagement Jobs',
+      expanded: false,
+      children: [
+        { icon: 'dynamic_feed', label: 'Engagement Feed', route: '/dashboard/promoter/feed' },
+        { icon: 'assignment', label: 'My Contracts', route: '/dashboard/contracts' },
       ]
     },
 
