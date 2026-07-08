@@ -116,7 +116,7 @@ export class UnifiedDailyProgressComponent implements OnInit {
   async loadData() {
     try {
       const [userRes, streakRes] = await Promise.all([
-        this.api.get<any>('api/v1/user/me', undefined, undefined, true).toPromise(),
+        this.api.get<any>('api/v1/auth/me', undefined, undefined, true).toPromise(),
         this.api.get<any>('api/v1/streaks/status', undefined, undefined, true).toPromise()
       ]);
       this.mission.set(userRes?.data?.dailyMission || null);

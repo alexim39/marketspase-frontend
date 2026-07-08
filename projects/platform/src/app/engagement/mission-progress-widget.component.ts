@@ -73,7 +73,7 @@ export class MissionProgressWidgetComponent implements OnInit {
   streak = signal(0);
 
   ngOnInit(): void {
-    this.api.get<any>('api/v1/user/me', undefined, undefined, true).subscribe({
+    this.api.get<any>('api/v1/auth/me', undefined, undefined, true).subscribe({
       next: (r: any) => {
         const user = r?.data || r;
         if (user?.dailyMission) this.mission.set(user.dailyMission);

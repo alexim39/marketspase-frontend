@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input, signal, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,7 +16,7 @@ import { DailyCheckInService } from './daily-check-in.service';
   styleUrls: ['./daily-check-in.component.scss'],
   providers: []
 })
-export class DailyCheckInComponent implements OnInit {
+export class DailyCheckInComponent {
   readonly user = input<UserInterface | null>(null);
 
   readonly streakService = inject(DailyCheckInService);
@@ -44,33 +44,50 @@ export class DailyCheckInComponent implements OnInit {
   readonly sessionProgressPercent = computed(() => this.streakService.getProgressPercent(this.status()));
   readonly payoutProgressPercent = computed(() => this.streakService.getCycleProgressPercent(this.status()));
 
-  ngOnInit(): void {
-    this.fetchMission();
-  }
-
-  private fetchMission(): void {
-    this.api.get<any>('api/v1/user/me', undefined, undefined, true).subscribe({
-      next: (r: any) => {
-        const dm = r?.data?.dailyMission || r?.dailyMission || null;
-        if (!dm) {
-          this.generateMission();
-        } else {
-          this.mission.set(dm);
-        }
+  constructor() {
+    // Fetch mission whenever the dialog opens (click OR auto-open)
+    effect(() => {
+      if (this.promptOpen()) {
+        this.fetchMission();
       }
     });
   }
 
+  private fetchMission(): void {
+    console.log('[mission] fetchMission called');
+    this.api.get<any>('api/v1/auth/me', undefined, undefined, true).subscribe({
+      next: (r: any) => {
+        const dm = r?.data?.dailyMission || r?.dailyMission || null;
+        console.log('[mission] user/me response — dailyMission:', dm);
+        if (!dm) {
+          console.log('[mission] no mission found — setting default + calling generate');
+          const today = new Date(); today.setHours(0, 0, 0, 0);
+          this.mission.set({
+            date: today, label: 'Starter Standard', tier: 'starter',
+            requirements: [{ type: 'like', target: 10, completed: 0 }, { type: 'comment', target: 3, completed: 0 }],
+            reward: 120, completed: false
+          });
+          this.generateMission();
+        } else {
+          console.log('[mission] existing mission found — setting:', dm.label, dm.reward);
+          this.mission.set(dm);
+        }
+      },
+      error: (err) => console.error('[mission] user/me failed:', err)
+    });
+  }
+
   private generateMission(): void {
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const template = { label: 'Standard Day', requirements: [{ type: 'like', target: 15 }, { type: 'comment', target: 5 }, { type: 'share', target: 3 }], reward: 200 };
-    this.api.post('api/v1/social/missions/generate', {
-      date: today,
-      label: template.label,
-      requirements: template.requirements,
-      reward: template.reward
-    }, undefined, true).subscribe({
-      next: (r: any) => this.mission.set(r?.data || null)
+    console.log('[mission] POST /social/missions/generate');
+    this.api.post('api/v1/social/missions/generate', {}, undefined, true).subscribe({
+      next: (r: any) => {
+        console.log('[mission] generate response:', r?.data);
+        if (r?.data) this.mission.set(r.data);
+      },
+      error: (err) => {
+        console.error('[mission] generate failed:', err);
+        // keep the default mission
+      }
     });
   }
 
