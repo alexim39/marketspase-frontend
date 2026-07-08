@@ -7,7 +7,6 @@ import { UserInterface } from '@shared/services';
 import { MarketerStoreDashboardComponent } from './marketer/dashboard/store-dashboard/store-dashboard.component';
 import { MarketerStoreDashboardMobileComponent } from './marketer/dashboard/store-dashboard/mobile/store-dashboard-mobile.component';
 import { StorefrontAnalyticsWidgetComponent } from './marketer/dashboard/storefront-analytics-widget.component';
-import { PromoterDashboardWidgetComponent } from './promoter/promoter-dashboard-widget.component';
 import { PromoterStoresListComponent } from './promoter/stores-list/promoter-stores-list.component';
 import { PromoterStoresListMobileComponent } from './promoter/stores-list/mobile/promoter-stores-list-mobile.component';
 
@@ -17,7 +16,6 @@ import { PromoterStoresListMobileComponent } from './promoter/stores-list/mobile
   imports: [
     CommonModule,
     StorefrontAnalyticsWidgetComponent,
-    PromoterDashboardWidgetComponent,
     PromoterStoresListComponent,
     PromoterStoresListMobileComponent,
     MarketerStoreDashboardComponent,
@@ -35,7 +33,6 @@ import { PromoterStoresListMobileComponent } from './promoter/stores-list/mobile
     }
 
     @if (user()?.role === 'promoter') {
-      <app-promoter-dashboard-widget />
       @if (isMobileExperience()) {
         <app-promoter-stores-list-mobile/>
       } @else {
