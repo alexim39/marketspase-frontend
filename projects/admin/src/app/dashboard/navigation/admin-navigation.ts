@@ -86,7 +86,7 @@ export const ADMIN_MENU_ITEMS: MenuItem[] = [
       { id: 'all-posts', title: 'Posts', icon: 'post_add', route: '/dashboard/posts' },
       { id: 'all-testimonials', title: 'Testimonials', icon: 'reviews', route: '/dashboard/testimonials' },
       { id: 'newsletters', title: 'Newsletters', icon: 'newspaper', route: '/dashboard/newsletters' },
-      { id: 'disputes', title: 'Dispute Resolution', icon: 'gavel', route: '/dashboard/disputes' },
+      { id: 'engagements', title: 'Engagements', icon: 'handshake', route: '/dashboard/engagements' },
     ],
   },
   {

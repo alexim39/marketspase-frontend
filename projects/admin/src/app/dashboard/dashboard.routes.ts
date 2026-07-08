@@ -81,6 +81,10 @@ export const dashboardRoutes: Routes = [
                 loadComponent: () => import('../disputes/admin-disputes.component').then(c => c.AdminDisputesComponent),
                 title: 'Dispute Resolution — Admin Dashboard',
             },
+            {   path: 'engagements', 
+                loadComponent: () => import('../engagements/admin-engagements.component').then(c => c.AdminEngagementsComponent),
+                title: 'Engagement Contracts — Admin Dashboard',
+            },
             {   path: 'newletters',
                 redirectTo: 'newsletters',
                 pathMatch: 'full'
