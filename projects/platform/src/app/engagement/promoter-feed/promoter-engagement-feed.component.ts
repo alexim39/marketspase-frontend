@@ -47,20 +47,17 @@ export class PromoterEngagementFeedComponent implements OnInit {
   filteredPosts = computed(() => {
     let all = this.posts() || [];
     if (!Array.isArray(all)) return [];
+    if (this.activeContractCount() === 0) return [];
     const f = this.platformFilter();
     const q = this.searchQuery().toLowerCase();
     const contracted = this.contractedMarketerIds();
 
-    // Filter by contracted marketer or social-promo
     all = all.filter((p: any) => {
       const authorId = p.author?._id || p.author;
       return contracted.has(authorId) || p.socialPlatform;
     });
 
-    // Platform filter
     if (f) all = all.filter((p: any) => p.socialPlatform === f);
-
-    // Search filter
     if (q) all = all.filter((p: any) =>
       (p.content || '').toLowerCase().includes(q) ||
       (p.author?.displayName || '').toLowerCase().includes(q) ||
@@ -120,7 +117,7 @@ export class PromoterEngagementFeedComponent implements OnInit {
 
     const params = new URLSearchParams();
     params.set('page', String(this.page));
-    params.set('limit', '10');
+    params.set('limit', '30');
     params.set('feedType', 'for_you');
     if (this.user()?._id) params.set('userId', this.user()!._id);
 
@@ -128,7 +125,8 @@ export class PromoterEngagementFeedComponent implements OnInit {
       next: (r: any) => {
         const newPosts = Array.isArray(r?.posts) ? r.posts : (Array.isArray(r?.data) ? r.data : (Array.isArray(r?.data?.posts) ? r.data.posts : []));
         this.posts.update(prev => reset ? newPosts : [...prev, ...newPosts]);
-        this.totalPages.set(r?.pagination?.pages || r?.totalPages || (newPosts.length < 10 ? this.page : this.page + 1));
+        // Assume more pages if we got a full page of results
+        this.totalPages.set(newPosts.length >= 30 ? this.page + 1 : this.page);
         if (newPosts.length > 0) this.page++;
         this.loading.set(false);
         this.loadingMore.set(false);
@@ -170,6 +168,12 @@ export class PromoterEngagementFeedComponent implements OnInit {
       ref.afterClosed().subscribe(() => {
         this.todayEngagements.update(v => v + 1);
       });
+    }
+  }
+
+  onChatClick(post: any): void {
+    if (post?.phone) {
+      window.open(`https://wa.me/${post.phone}`, '_blank');
     }
   }
 }

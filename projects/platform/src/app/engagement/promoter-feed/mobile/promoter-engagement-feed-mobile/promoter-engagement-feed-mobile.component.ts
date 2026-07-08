@@ -74,6 +74,9 @@ import { PromoterEngagementFeedComponent } from '../../promoter-engagement-feed.
               (save)="onEngage(post, 'save')"
               (comment)="onEngage(post, 'comment')"
               (share)="onEngage(post, 'share')"
+              (chat)="onChatClick(post)"
+              (sharePlatform)="onEngage(post, 'share')"
+              (repost)="onEngage(post, 'share')"
             />
           }
         </div>
