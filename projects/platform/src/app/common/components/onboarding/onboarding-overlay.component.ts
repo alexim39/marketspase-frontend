@@ -13,7 +13,9 @@ const STEPS = [
     id: 'welcome',
     icon: 'waving_hand',
     title: 'Welcome to MarketSpase!',
-    description: 'The social platform where businesses grow and everyday users earn by connecting, promoting, selling, and growing together.'
+    // description: 'The social platform where businesses grow and everyday users earn by connecting, promoting, selling, and growing together.'
+    description: `MarketSpase connects businesses (marketers) with everyday internet users (promoters) who promote businesses on WhatsApp, Facebook, Instagram, TikTok, and more. 
+       Businesses get more sales and visibility, while promoters earn from performance.`
   },
   {
     id: 'get_started',
